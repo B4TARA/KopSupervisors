@@ -1,0 +1,42 @@
+﻿@using System.Security.Claims;
+@model int
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="home-content">
+    <div class="home_content_info">
+        <div class="home_content_info_icon">
+            <i class="fa-solid fa-folder"></i>
+        </div>
+
+        <div class="mid_title">
+            Мой кабинет
+        </div>
+    </div>
+</div>
+
+<div class="main_container_content left_right_flex">
+
+    <section class="left_section user" id="assessmentLayout">
+    </section>
+
+    <section class="right_section user" id="gradeLayout">
+    </section>
+
+    <div id="popUp">
+    </div>
+
+</div>
+
+<script src="/js/employeeScript.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => getAssessmentLayout(@Model));
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getGradeLayout(@Model)
+    });
+    
+</script>

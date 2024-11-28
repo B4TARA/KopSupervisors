@@ -1,0 +1,62 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.ProjectsViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="popup_content">
+
+    <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Результаты выполнения стратегических проектов и задач
+        </div>
+    </div>
+
+@{
+    int counter = 1;
+}
+<form action="" method="post" id="projectsSupervisorForm">
+
+    <div class="project_info_list">
+    
+            @foreach (var project in Model.Projects)
+            {
+                <div class="mid_title">
+                    Проект @counter
+                </div>
+                <div>
+                    @project.SupervisorSspName является заказчиком стратегического проекта "@project.Name"
+                </div>
+                <div>
+                    Проект находится на этапе @project.Stage
+                </div>
+                <div>
+                    Дата открытия проекта - @project.StartDate
+                </div>
+                <div>
+                    Срок реализации проекта - @project.EndDate
+                </div>
+                <div>
+                    На число @project.CurrentDate месяц @project.CurrentMonth год @project.CurrentYear по проекту выполнены @project.FactStages из @project.PlanStages этапов
+                </div>
+                <div>
+                    Коэффициент реализации проекта - @project.SPn %
+                </div>
+
+                counter++;
+            }
+        
+        </div>
+
+        @if (true)
+        {
+            <div class="add_row_btn add_project" onclick="addRow(this,'project')">Добавить</div>
+            <button class="add_row_btn" type="submit">Сохранить</button>
+        }
+        
+        
+
+
+</form>
+
+</div>

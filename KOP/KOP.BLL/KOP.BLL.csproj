@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BusinessModels\**" />
+    <Compile Remove="Infrastructure\**" />
+    <EmbeddedResource Remove="BusinessModels\**" />
+    <EmbeddedResource Remove="Infrastructure\**" />
+    <None Remove="BusinessModels\**" />
+    <None Remove="Infrastructure\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.102.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KOP.DAL\KOP.DAL.csproj" />
+  </ItemGroup>
+
+</Project>

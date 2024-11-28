@@ -1,0 +1,68 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.KpisViewModel
+
+@{
+    Layout = null;
+
+    var conclusion = Model.KpisConclusion;
+}
+
+<div class="popup_content">
+
+<div class="popup_content_header margin_container_bottom_middle">
+    <div class="title">
+        Результаты выполнения ключевых показателей эффективности деятельности
+    </div>
+
+    <div class="description">
+        @conclusion
+    </div>
+</div>
+
+<form action="" method="post">
+    <table class="table_popup">
+        <thead>
+            <tr>
+                <th>Период с</th>
+                <th>Период по</th>
+                <th>КПЭ</th>
+                <th>% выполнения</th>
+                <th>Методика расчета</th>
+            </tr>
+        </thead>
+        <tbody>
+                
+                
+                    @foreach (var kpi in Model.Kpis)
+                    {
+                        <tr>
+
+                            <td>
+                                @kpi.PeriodStartDate
+                            </td>
+                            <td>
+                                @kpi.PeriodEndDate
+                            </td>
+                            <td>
+                                @kpi.Name
+                            </td>
+                            <td>
+                                @kpi.CompletionPercentage %
+                            </td>
+                            <td>
+                                @kpi.CalculationMethod
+                            </td>
+                        </tr>
+                    }
+
+        </tbody>
+    </table>
+        @if (true)
+        {
+
+            <div class="add_row_btn" onclick="addRow(this,'kpi')">Добавить</div>
+            <button class="add_row_btn" type="submit">Сохранить</button>
+        }
+        
+</form>
+
+</div>

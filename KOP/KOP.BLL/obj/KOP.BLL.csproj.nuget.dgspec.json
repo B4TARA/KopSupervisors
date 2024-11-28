@@ -1,0 +1,207 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "projectName": "KOP.BLL",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "projectName": "KOP.Common",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "projectName": "KOP.DAL",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.20, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[7.0.20, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.20, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.18, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

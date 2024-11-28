@@ -1,0 +1,157 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = KOP.WEB
+build_property.RootNamespace = KOP.WEB
+build_property.ProjectDir = C:\Users\tomchikadm\Documents\GitHub\KOP-Remaster\KOP\KOP.WEB\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\tomchikadm\Documents\GitHub\KOP-Remaster\KOP\KOP.WEB
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Analytics/AnalyticsLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXEFuYWx5dGljc0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Analytics/AssessmentAnalytics.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXEFzc2Vzc21lbnRBbmFseXRpY3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Analytics/GradeAnalytics.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXEdyYWRlQW5hbHl0aWNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Analytics/MarkAnalytics.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXE1hcmtBbmFseXRpY3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/AssessmentLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcQXNzZXNzbWVudExheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/ColleaguesAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcQ29sbGVhZ3Vlc0Fzc2Vzc21lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/EmployeeLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcRW1wbG95ZWVMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/Grade.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcR3JhZGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/GradeLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcR3JhZGVMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/GradeType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcR3JhZGVUeXBlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/SelfAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcU2VsZkFzc2Vzc21lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Employee/SelfAssessmentLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcU2VsZkFzc2Vzc21lbnRMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeAssessmentHistoryLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZUFzc2Vzc21lbnRIaXN0b3J5TGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeAssessmentTypeHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZUFzc2Vzc21lbnRUeXBlSGlzdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeGradeHistoryLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZUdyYWRlSGlzdG9yeUxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeGradeTypeHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZUdyYWRlVHlwZUhpc3RvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeHistoryLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZUhpc3RvcnlMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/EmployeeMarkTypeHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxFbXBsb3llZU1hcmtUeXBlSGlzdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/History/HistoryLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGlzdG9yeVxIaXN0b3J5TGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Report/GradesReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0XEdyYWRlc1JlcG9ydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Shared/_Subordinate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdWJvcmRpbmF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUFzc2Vzc21lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessmentLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUFzc2Vzc21lbnRMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeGrade.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUdyYWRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeGradeLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUdyYWRlTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeGradeType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUdyYWRlVHlwZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/EmployeeLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/Subordinates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxTdWJvcmRpbmF0ZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Supervisor/SupervisorLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxTdXBlcnZpc29yTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/tomchikadm/Documents/GitHub/KOP-Remaster/KOP/KOP.WEB/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-r1huic7zum

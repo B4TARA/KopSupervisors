@@ -1,0 +1,108 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.QualificationViewModel
+
+@{
+    Layout = null;
+
+    var conclusion = Model.QualificationConclusion;
+    var supervisorSspName = Model.Qualification.SupervisorSspName;
+    var link = Model.Qualification.Link;
+    var higherEducation = Model.Qualification.HigherEducation;
+    var speciality = Model.Qualification.Speciality;
+    var qualificationResult = Model.Qualification.QualificationResult;
+    var startDate = Model.Qualification.StartDate;
+    var endDate = Model.Qualification.EndDate;
+    var additionalEducation = Model.Qualification.AdditionalEducation;
+    var currentDate = Model.Qualification.CurrentDate;
+    var experienceYears = Model.Qualification.ExperienceYears;
+    var experienceMonths = Model.Qualification.ExperienceMonths;
+    var previousPosition1 = Model.Qualification.PreviousPosition1;
+    var previousPosition2 = Model.Qualification.PreviousPosition2;
+    var currentPosition = Model.Qualification.CurrentPosition;
+    var terminations = Model.Qualification.EmploymentContarctTerminations;
+}
+
+<form action="" method="post">
+
+    @if (true)
+    {
+        <div class="popup_content">
+            <div>
+                @conclusion
+            </div>
+            <div>
+                Соответствие <input type="text"></input> квалификационным требованиям <input type="text"></input>:
+            </div>
+            <div class="mid_title">
+                1. Образование:
+            </div>
+            <div>
+                - Высшее образование: <input type="text"></input> специальность<input type="text"></input>, квалификация <input type="text"></input> (период обучения с <input type="date"></input> по <input type="date"></input>)
+            </div>
+            <div>
+                - Дополнительное образование (повышение квалификации): <input type="text"></input>
+            </div>
+            <div class="mid_title">
+                2. Стаж работы в банковской системе по состоянию на <input type="date"></input>, в т.ч.:
+            </div>
+            <div class="experience_list">
+                <div class="add_row_btn" onclick="addRow(this,'experience')">Добавить</div>         
+            </div>
+            
+            
+            <div>
+                ЗАО "МТБанк":
+            </div>
+            <div>
+                с <input type="date"></input> по <input type="date"></input> - <input type="text"></input> - <input type="text"></input>
+            </div>
+            <div class="mid_title">
+                3. Дполнительная информация
+            </div>
+            <div>
+                <input type="text"></input> в течении последних двух лет факты расторжения трудового договора (контракта) по инициативе нанимателя в случае совершения лицом виновных действий, являющихся основаниями для утраты доверия к нему со стороны нанимателя.
+            </div>
+        </div>
+
+        <button class="add_row_btn" type="submit">Сохранить</button>
+    }else{
+        <div class="popup_content">
+            <div>
+                @conclusion
+            </div>
+            <div>
+                Соответствие @supervisorSspName квалификационным требованиям @link:
+            </div>
+            <div class="mid_title">
+                1. Образование:
+            </div>
+            <div>
+                - Высшее образование: @higherEducation специальность @speciality, квалификация @qualificationResult (период обучения с @startDate по @endDate)
+            </div>
+            <div>
+                - Дополнительное образование (повышение квалификации): @additionalEducation
+            </div>
+            <div class="mid_title">
+                2. Стаж работы в банковской системе по состоянию на @currentDate - @experienceYears лет @experienceMonths мес., в т.ч.:
+            </div>
+            <div>
+                @previousPosition1;
+            </div>
+            <div>
+                @previousPosition2;
+            </div>
+            <div>
+                ЗАО "МТБанк":
+            </div>
+            <div>
+                @currentPosition
+            </div>
+            <div class="mid_title">
+            3. Дполнительная информация
+        </div>
+        <div>
+                @terminations в течении последних двух лет факты расторжения трудового договора (контракта) по инициативе нанимателя в случае совершения лицом виновных действий, являющихся основаниями для утраты доверия к нему со стороны нанимателя.
+        </div>
+        </div>
+    }
+    
+</form>

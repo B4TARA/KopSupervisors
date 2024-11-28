@@ -1,0 +1,35 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.MarksViewModel
+
+@{
+    Layout = null;
+}
+<div>
+    Управление персоналом
+</div>
+
+@foreach(var markType in Model.MarkTypes)
+{
+    <div>
+        @markType.Name
+    </div>
+    <div>
+        @markType.Description
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Период</th>
+                <th>%</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var mark in markType.Marks)
+            {
+                <tr>
+                    <td>@mark.Period</td>
+                    <td>@mark.PercentageValue %</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

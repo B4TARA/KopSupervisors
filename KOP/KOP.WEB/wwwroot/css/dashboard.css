@@ -1,0 +1,238 @@
+/* * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f3ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+} */
+
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 20px;
+    width: 100%;
+    padding-bottom: 40px;
+}
+
+.dashboard-item {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); */
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
+    min-height: 150px;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Specific item styles for varying heights */
+.activity {
+    grid-column: span 1;
+    
+}
+
+.steps {
+    grid-column: span 1;
+}
+
+.calories {
+    grid-column: span 1;
+}
+
+.recommended-workouts {
+    grid-column: span 2;
+}
+
+.calendar {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.active-challenges {
+    grid-column: span 1;
+}
+
+.post-workout-recovery {
+    grid-column: span 1;
+}
+
+.dashboard-item .header-wrapper{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+/*SELECT*/
+.custom-select-politics {
+    position: relative;
+    /* width: 150px; */
+    cursor: pointer;
+}
+
+.select-box-politics {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #B5B5C2;
+    outline: none;
+    color: #B5B5C2;
+    padding: 2px 6px;
+    width: 100px;
+    opacity: 100;
+    height: 22px;
+    border-radius: 6px;
+    margin-top: 0px;
+    margin-left: 8px;
+    background-color: transparent;
+}
+
+.select-label-politics {
+    font-size: 14px;
+    color: #B5B5C2;
+}
+
+.select-arrow-politics {
+    font-size: 14px;
+    color: #999;
+}
+
+.select-options-politics {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 80px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.option-politics {
+    padding: 5px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.option-politics:hover {
+    background-color: #e6eaf0;
+    border-radius: 6px;
+}
+
+.icon-politics {
+    font-size: 14px;
+    color: #19191E;
+}
+
+/*  */
+
+#activityChart {
+    max-width: 100%;
+    height: auto;
+}
+
+#stepsChart {
+    /* max-width: 100%; */
+    height: auto;
+    /* margin-left: -30px;
+    margin-right: -30px; */
+}
+
+#caloriesChart {
+    max-width: 500px; /* Настройте размер графика по вашему усмотрению */
+    max-height: 300px;
+    height: auto;
+}
+
+.recommended-workouts {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+#workoutsChart {
+    max-width: 100%;
+    height: auto;
+}
+
+#hotelCostChart {
+    max-width: 70%;
+    height: auto;
+    margin: 20px 0; /* Отступы между графиками */
+}
+
+#ticketCountChart{
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.canvas-column-container{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.header-btns-wrapper{
+    display:flex;
+    align-items:center;
+    gap: 15px;
+}
+
+.modal {
+    display: none; /* По умолчанию скрыто */
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Полупрозрачный фон */
+    overflow: auto; /* Для прокрутки, если контент выходит за пределы окна */
+}
+
+    .modal .modal-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80%;
+        width: 80%;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 16px;
+    }
+
+    .modal canvas {
+        width: 80%;
+        height: 80%;
+    }
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+}

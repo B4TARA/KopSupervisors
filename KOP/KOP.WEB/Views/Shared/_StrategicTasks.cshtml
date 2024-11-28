@@ -1,0 +1,86 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.StrategicTasksViewModel
+
+@{
+    Layout = null;
+
+    var conclusion = Model.StrategicTasksConclusion;
+}
+
+<div class="popup_content">
+
+    <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+        </div>
+
+        <div class="description">
+            @conclusion
+        </div>
+    </div>
+
+    <form action="" method="post">
+        <table class="table_popup">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Срок</th>
+                    <th></th>
+                    <th>Результат</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>Название проекта / стратегической задачи</th>
+                    <th>Цель проекта / стратегической задачи</th>
+                    <th>План (дата)</th>
+                    <th>Факт (дата)</th>
+                    <th>План</th>
+                    <th>Факт</th>
+                    <th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var strategicTask in Model.StrategicTasks)
+                {
+                    <tr>
+                        <td>
+                            <input type="text" value="@strategicTask.Name"></input>
+                            
+                        </td>
+                        <td class="fullname">
+                            <input type="text" value="@strategicTask.Purpose"></input>
+                            
+                        </td>
+                        <td>
+                            <input type="date" value="@strategicTask.PlanDate"></input>
+                            
+                        </td>
+                        <td>
+                            <input type="date" value="@strategicTask.FactDate"></input>
+                            
+                        </td>
+                        <td>
+                            <input type="text" value="@strategicTask.PlanResult"></input>
+                            
+                        </td>
+                        <td>
+
+                            @strategicTask.FactResult
+                        </td>
+                        <td>
+                            @strategicTask.Remark
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (true)
+        {
+            <div class="add_row_btn add_project" onclick="addRow(this,'strategy')">Добавить</div>
+            <button class="add_row_btn" type="submit">Сохранить</button>
+        }
+    </form>
+
+    
+</div>

@@ -1,0 +1,51 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.TrainingEventsViewModel
+
+@{
+    Layout = null;
+}
+
+
+<div class="popup_content">
+
+    <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Обучающие мероприятия
+        </div>
+    </div>
+    <form action="" method="post">
+    <table class="table_popup">
+        <thead>
+            <tr>
+                <th>Название мероприятия</th>
+                <th>Дата начала</th>
+                <th>Дата завершения</th>
+                <th>Статус</th>
+                <th>Компетенция</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trainingEvent in Model.TrainingEvents)
+            {
+                <tr>
+                    <td>
+                        @trainingEvent.Name
+                    </td>
+                    <td class="fullname">
+                        @trainingEvent.StartDate
+                    </td>
+                    <td>
+                        @trainingEvent.EndDate
+                    </td>
+                    <td>
+                        @trainingEvent.Status
+                    </td>
+                    <td>
+                        @trainingEvent.Competence
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </form>
+
+</div>

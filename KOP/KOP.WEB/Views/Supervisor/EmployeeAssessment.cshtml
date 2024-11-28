@@ -1,0 +1,241 @@
+﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeAssessmentViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="results_assessment_users_container margin_container_bottom">
+    <div class="container_description">
+        <div class="mid_title">
+            Список результатов оценщиков
+        </div>
+        <div class="mid_description">
+            Здесь вы можете отслеживать результаты качественных оценок
+        </div>
+    </div>
+    <div class="results_assessment_main_wrapper">
+        @if (Model.Assessment.AssessmentResults.Count() == 0)
+        {
+            <!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
+            <div class="empty_image_wrapper admin_panel">
+                <img src="/image/EmptyState.png">
+            </div>
+        }
+        else
+        {
+            <table>
+                <tr>
+                    <th>Интерпретация результатов оценки управленческих компетенций</th>
+                </tr>
+                <tr>
+                    <th>Балл</th>
+                    <th>Уровень</th>
+                    <th>Компетентность</th>
+                </tr>
+                @if (Model.Assessment.AverageValue >= 56)
+                {
+                    <tr>
+                        <td>56-65</td>
+                        <td>A</td>
+                        <td>Высоко результативный и потенциальный ( обеспечивает высокие результаты деятельности)</td>
+                    </tr>
+                }
+                else if (Model.Assessment.AverageValue >= 41)
+                {
+                    <tr>
+                        <td>41-55</td>
+                        <td>B</td>
+                        <td>Стабильно эффективен и результативен в текущей роли</td>
+                    </tr>
+                }
+                else if (Model.Assessment.AverageValue >= 26)
+                {
+                    <tr>
+                        <td>26-40</td>
+                        <td>C</td>
+                        <td>Эффективен в большинстве случаев</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>5-25</td>
+                        <td>D</td>
+                        <td>Нестабильно эффективен в текущий момент</td>
+                    </tr>
+                }
+            </table>
+
+            foreach (var result in Model.Assessment.AssessmentResults)
+            {
+                <div class="result_assessment_user_wrapper">
+                    <div class="user_assessment_wrapper">
+                        <div class="dropdown_assessment_wrapper" onclick="openDropdownList(this)">
+                            <div class="user_info_container assessment">
+                                <div class="user_image" style="background-image:url('@result.Judge.ImagePath');"></div>
+
+                                <div class="user_info">
+                                    <div class="mid_title">
+                                        @result.Judge.FullName
+                                    </div>
+                                </div>
+
+                                @if(result.IsPassed)
+                                {
+                                    <div class="title green-text">
+                                        @result.Sum
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="title red-text">
+                                        @result.Sum
+                                    </div>
+                                }
+                            </div>
+                            <span class="arrow-dwn_assessment">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </span>
+                        </div>
+
+                        <div class="list-items_assessment">
+                            <div class="assessment_container">
+                                <div class="questions_main_wrapper">
+                                    <div class="question_wrapper">
+                                        <table class="table_assessment">
+                                            <thead class="table_header">
+                                                <tr>
+                                                    <th class="table_header_elem">
+                                                        #
+                                                    </th>
+
+                                                    @foreach (var headerElement in result.ElementsByRow[0])
+                                                    {
+                                                        <th class="table_header_elem">
+                                                            @headerElement.Value
+                                                        </th>
+                                                    }
+
+                                                    <th class="table_header_elem">
+                                                        Оценка
+                                                    </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @for (int i = 1; i < result.ElementsByRow.Count(); i++)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            @i
+                                                        </td>
+
+                                                        @foreach (var assessmentMatrixElement in result.ElementsByRow[i])
+                                                        {
+                                                            <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                                        }
+
+                                                        <td>
+                                                            @if (result.Values.FirstOrDefault(x => x.AssessmentMatrixRow == i) != null)
+                                                            {
+                                                                <div class="mid_title">@result.Values.First(x => x.AssessmentMatrixRow == i).Value</div>
+                                                            }                                                        
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@if (Model.SupervisorAssessmentResult != null && Model.SupervisorAssessmentResult.SystemStatus == KOP.Common.Enums.SystemStatuses.PENDING)
+{
+    <div class="assessment_container" id="assessment_container">
+        <div class="questions_main_wrapper">
+            <div class="question_wrapper">
+
+                @if (Model.SupervisorAssessmentResult.ElementsByRow.Count() == 0)
+                {
+                    <div class="container_description">
+                        <div class="mid_title">
+                            Заполните матрицу качественной оценки
+                        </div>
+
+                        <img src="/image/undefinedpage.svg" alt="default_page">
+                    </div>
+                }
+                else
+                {
+                    <div class="container_description">
+                        <div class="mid_title">
+                            Качественная оценка
+                        </div>
+                        <div class="mid_description">
+                            Внесите качественную оценка
+                        </div>
+                    </div>
+
+                    <table class="table_assessment" id="table_assessment" colleagueId="@Model.SupervisorAssessmentResult.Judge.Id">
+                        <thead class="table_header">
+                            <tr>
+                                <th class="table_header_elem">
+                                    #
+                                </th>
+
+                                @foreach (var assessmentMatrixHeaderElement in Model.SupervisorAssessmentResult.ElementsByRow[0])
+                                {
+                                    <th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+                                }
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (int i = 1; i < Model.SupervisorAssessmentResult.ElementsByRow.Count(); i++)
+                            {
+                                <tr>
+                                    <td>@i</td>
+
+                                    @foreach (var assessmentMatrixElement in Model.SupervisorAssessmentResult.ElementsByRow[i])
+                                    {
+                                        <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                    }
+
+                                    <td>
+                                        <div class="grade_wrapper">
+                                            <div class="grade">
+                                                <div class="number_wrapper">
+
+                                                    <button class="number-minus" type="button" onclick="this.nextElementSibling.stepDown();">-</button>
+
+                                                    <input required="required" type="number" min="@Model.SupervisorAssessmentResult.MinValue" max="@Model.SupervisorAssessmentResult.MaxValue" value="1" class="mid_description input_assessment_value">
+
+                                                    <button class="number-plus" type="button" onclick="this.previousElementSibling.stepUp();">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="grade_error">
+                                                <i class="fa-solid fa-circle-exclamation" style="color: #f33030;"></i>
+                                                <div class="grade_error_description"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @Model.Assessment.Id, @Model.SupervisorAssessmentResult.Id, @Model.SupervisorAssessmentResult.Judged.Id)">
+                        Сохранить
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

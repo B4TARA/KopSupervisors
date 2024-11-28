@@ -1,0 +1,18 @@
+﻿@model KOP.WEB.Models.ViewModels.Supervisor.SubordinatesViewModel
+
+@{
+    Layout = null;
+}
+
+<section class="tab_filter_search_container margin_container_bottom_small">
+    <div class="searchbox_main_wrapper boss">
+        <input type="text" class="searchbox" id="searchbox" placeholder="Введите ФИО" onkeyup="searchBoxKeyUp(this,'classicTable')">
+        <i class="fa-solid fa-magnifying-glass searchbox_icon"></i>
+    </div>
+</section>
+
+<section class="list_division_users_main_wrapper">
+    @{
+        await Html.RenderPartialAsync("_Subordinate", Model.Module);
+    }
+</section>

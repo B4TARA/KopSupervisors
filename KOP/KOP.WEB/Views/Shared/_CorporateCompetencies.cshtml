@@ -1,0 +1,106 @@
+﻿@model KOP.WEB.Models.ViewModels.Shared.CorporateCompetenciesViewModel
+
+@using SystemStatuses = KOP.Common.Enums.SystemStatuses
+
+@{
+    Layout = null;
+
+    var conclusion = Model.CorporateCompetenciesConclusion;
+    var assessmentResults = Model.LastAssessment.AssessmentResults;
+    var completedAssessmentResults = assessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
+}
+
+<div>
+    Оценка корпоративных компетенций
+</div>
+
+<div>
+    @conclusion
+</div>
+
+@if (completedAssessmentResults.Any())
+{
+    var rows = completedAssessmentResults.First().ElementsByRow;
+
+    <div>Оценка (от 0 до 13, где 13 - высший балл)</div>
+    <table>
+        <thead>
+            <tr>
+                @foreach (var headerElement in rows[0]) // Выводим строку, являющуся заголовком матрицы (самая верхняя)
+                {
+                    <th class="table_header_elem">
+                        @headerElement.Value
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var row in rows) // Выводим остальные строки
+            {
+                <tr>
+                    @foreach (var element in row)
+                    {
+                        <td class="mid_description">@element.Value</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @foreach (var completedAssessmentResult in completedAssessmentResults) // Проходим по всем завершенным результатам кач. оценки
+    {
+        var judgeId = completedAssessmentResult.Judge.Id;
+        var judgedId = completedAssessmentResult.Judged.Id;
+
+        <table>
+            <thead>
+                <tr>
+                    @if (judgeId == judgedId) // Если оценщник = оцениваемый => самооценка
+                    {
+                        <th class="table_header_elem">
+                            Самооценка (ФИО сотрудника)
+                        </th>
+                    }
+                    else
+                    {
+                        <th class="table_header_elem">
+                            Оценка непосредственного руководителя (ФИО руководителя сотрудника)
+                        </th>
+                    }
+                </tr>
+                <tr>
+                    <th class="table_header_elem">
+                        балл
+                    </th>
+                    <th class="table_header_elem">
+                        интерпретация
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i < rows.Count(); i++)
+                {
+                    var rowValue = @completedAssessmentResult.Values.First(x => x.AssessmentMatrixRow == i).Value;
+
+                    <tr>
+                        @foreach (var element in rows[i])
+                        {
+                            <td class="mid_description">@element.Value</td>
+                        }
+                        <td>
+                            <div class="mid_description">@rowValue</div>
+                        </td>
+                        <td>
+                            •Выявляет причины возникновения проблемных ситуаций, в дальнейшем действует таким образом, чтобы предупредить возникновение подобных ситуаций в будущем;
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    <div>
+        Тут пока ничего нет
+    </div>
+}

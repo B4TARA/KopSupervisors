@@ -1,0 +1,169 @@
+﻿@model KOP.WEB.Models.ViewModels.Employee.GradeLayoutViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="user_info_container margin_container_bottom">
+    <div class="user_info">
+        <div class="title">
+            @Model.FullName
+        </div>
+        <div class="description">
+            @Model.Position
+        </div>
+        <div class="description">
+            @Model.Subdivision
+        </div>
+        <div class="description">
+            @Model.GradeGroup
+        </div>
+        <div class="description">
+            Срок работы в Банке : @Model.WorkPeriod
+        </div>
+        <div class="description">
+            Дата окончания контракта : @Model.ContractEndDate
+        </div>
+        @if (Model.LastGrade != null)
+        {
+            <div class="description">
+                Период оценки : @Model.LastGrade.StartDate -  @Model.LastGrade.EndDate
+            </div>
+        }
+        else
+        {
+            <div class="description">
+                -
+            </div>
+        }
+    </div>
+
+    <div class="user_image_wrapper">
+        <div class="user_image" style="background-image:url('@Model.ImagePath');"></div>
+    </div>
+</div>
+
+<div class="results_container margin_container_bottom">
+    <div class="container_description">
+        <div class="mid_title">
+            Результаты
+        </div>
+    </div>
+    @if (Model.LastGrade == null)
+    {
+        <div class="undefined_page_wrapper">
+            <div class="title">
+                Оценка не найдена
+            </div>
+            <img src="/image/undefinedpage.svg" alt="default_page">
+        </div>
+    }
+    else
+    {
+        <div>
+            <div onclick="getStrategicTasksPopUp(@Model.LastGrade.Id)">
+                Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+            </div>
+            @if (Model.LastGrade.StrategicTasksConclusion != null)
+            {
+                <div>
+                    @Model.LastGrade.StrategicTasksConclusion
+                </div>
+            }
+            else
+            {
+                <div>
+                    Пусто
+                </div>
+            }
+        </div>
+
+        <div onclick="getProjectsPopUp(@Model.LastGrade.Id)">
+            Результаты выполнения стратегических проектов и задач
+        </div>
+
+        <div>
+            <div onclick="getKpisPopUp(@Model.LastGrade.Id)">
+                Результаты выполнения ключевых показателей эффективности деятельности
+            </div>
+            @if (Model.LastGrade.KPIsConclusion != null)
+            {
+                <div>
+                    @Model.LastGrade.KPIsConclusion
+                </div>
+            }
+            else
+            {
+                <div>
+                    Пусто
+                </div>
+            }
+        </div>
+
+        <div>
+            <div>
+                Оценка управленческих компетенций
+            </div>
+            @if (Model.LastGrade.ManagmentCompetenciesConclusion != null)
+            {
+                <div>
+                    @Model.LastGrade.ManagmentCompetenciesConclusion
+                </div>
+            }
+            else
+            {
+                <div>
+                    Пусто
+                </div>
+            }
+        </div>
+
+        <div>
+            <div>
+                Оценка корпоративных компетенций
+            </div>
+            @if (Model.LastGrade.CorporateCompetenciesConclusion != null)
+            {
+                <div>
+                    @Model.LastGrade.CorporateCompetenciesConclusion
+                </div>
+            }
+            else
+            {
+                <div>
+                    Пусто
+                </div>
+            }
+        </div>
+
+        <div onclick="getMarksPopUp(@Model.LastGrade.Id)">
+            Управление персоналом
+        </div>
+
+        <div onclick="getTrainingEventsPopUp(@Model.LastGrade.Id)">
+            Обучающие мероприятия
+        </div>
+
+        <div>
+            <div onclick="getQualificationPopUp(@Model.LastGrade.Id)">
+                Квалификация Руководителя
+            </div>
+            @if (Model.LastGrade.QualificationConclusion != null)
+            {
+                <div>
+                    @Model.LastGrade.QualificationConclusion
+                </div>
+            }
+            else
+            {
+                <div>
+                    Пусто
+                </div>
+            }
+        </div>
+
+        <div onclick="getValueJudgmentPopUp(@Model.LastGrade.Id)">
+            ОС от руководителя
+        </div>
+    }
+</div>

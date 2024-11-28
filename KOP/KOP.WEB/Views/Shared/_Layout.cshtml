@@ -1,0 +1,96 @@
+﻿@using System.Security.Claims;
+
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <title>КОП</title>
+
+    <link rel="stylesheet" href="~/css/main_style.css">
+    <link rel="stylesheet" href="~/css/style_matrix_table.css">
+    <link rel="stylesheet" href="~/css/style_popup.css">
+    <link rel="stylesheet" href="~/css/dashboard.css">
+
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" sizes="128x128" href="/logo.svg">
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <aside class="sidebar close_sidebar">
+        <div class="sidebar_close_btn_wrapper">
+            <i class="fa-solid fa-angle-left sidebar_btn"></i>
+        </div>
+        <div class="logo-details">
+            <img src="/logo.svg" alt="logo">
+            <span class="logo_name">КОП</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                @if (User.IsInRole("Employee"))
+                {
+                    <a asp-area="" asp-controller="Employee" asp-action="GetEmployeeLayout">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class="link_name">Главная</span>
+                    </a>
+                }
+            </li>
+            <li>
+                <div class="iocn-link">
+                    <a href="#">
+                        <i class='bx bx-collection'></i>
+                        <span class="link_name">Кабинеты</span>
+                    </a>
+                    <i class='bx bxs-chevron-down arrow'></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Кабинеты</a></li>
+                    @if (User.IsInRole("Employee"))
+                    {
+                        <li>
+                            <a asp-controller="Employee" asp-action="GetEmployeeLayout">Личный кабинет</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>
+                        </li>
+                    }               
+                </ul>
+            </li>
+            <li>
+                <div class="profile-details">
+                    <div class="profile-content">
+                        <img src="@User.FindFirstValue("ImagePath")" alt="profileImg">
+                    </div>
+                    <div class="name-job">
+                        <div class="profile_name">@User.FindFirstValue("FullName")</div>
+                    </div>
+                    <a asp-area="" asp-controller="Account" asp-action="Logout">
+                        <i class='bx bx-log-out'></i>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </aside>
+
+    <section class="home-section" role="main">
+        @RenderBody()
+    </section>
+
+    <script src="~/js/interface/interface.js"></script>
+    <script src="~/js/interface/searchbar.js"></script>
+    <script src="~/js/interface/filter.js"></script>
+    <script src="~/js/interface/drawCountStatuses.js"></script>
+    <script src="~/js/assessment/assessment.js"></script>
+
+</body>
+
+</html>

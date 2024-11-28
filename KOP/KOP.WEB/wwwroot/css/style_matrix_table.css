@@ -1,0 +1,43 @@
+.matrix_table {
+    padding:15px;
+    border: none;
+    border-collapse: separate;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgb(0 0 0 / 10%);
+    border-spacing: 0px;
+}
+
+    .matrix_table thead th {
+        font-weight: bold;
+        text-align: center;
+        border: none;
+        padding: 10px 15px;
+        font-size: 14px;
+        height: 60px;
+        /* border-bottom:2px #1B74FD solid; */
+    }
+
+    .matrix_table tbody td {
+        text-align: center;
+        border: none;
+        padding: 10px 15px;
+        font-size: 14px;
+        text-align: left;
+    }
+
+        .matrix_table tbody td.status {
+            width: 28%;
+        }
+
+    .matrix_table tbody tr {
+        height: 70px;
+    }
+
+    .matrix_table textarea {
+        resize: none;
+        width: 200px;
+        border:2px solid #191919;
+        border-radius: 10px;
+        padding:5px;
+    }

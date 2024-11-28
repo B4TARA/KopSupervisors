@@ -1,0 +1,81 @@
+﻿@model KOP.Common.DTOs.ModuleDTO
+
+@{
+    Layout = null;
+}
+
+<div class="list_division_users_wrapper users">
+
+    <div class="list-items">
+
+        @if (Model.IsRoot)
+        {
+            <div class="select-btn">
+                <span class="btn-text">@Model.Name</span>
+                <div class="indicators_wrapper" id="indicators_wrapper">
+                </div>
+                <span class="arrow-dwn">
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+            </div>
+        }
+        else
+        {
+            <div class="description">@Model.Name</div>
+        }
+
+        @if (Model.Employees.Count() > 0)
+        {
+            <table class="table_users">
+                <thead class="table_header">
+                    <tr>
+                        <th class="table_header_elem number">#</th>
+                        <th class="table_header_elem">ФИО</th>
+                        <th class="table_header_elem">Должность</th>
+                        <th class="table_header_elem">Подразделение</th>
+                        <th class="table_header_elem date">Дата следующей оценки</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id)" flagHide="">
+                            <td>
+                                @(i++)
+                            </td>
+                            <td class="fullname">
+                                @employee.FullName
+                            </td>
+                            <td>
+                                @employee.Position
+                            </td>
+                            <td>
+                                @employee.Subdivision
+                            </td>
+                            @if (employee.LastGrade != null)
+                            {
+                                <td>
+                                    @employee.LastGrade.NextGradeDate
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    -
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        @foreach (var child in Model.Children)
+        {
+            await Html.RenderPartialAsync("_Subordinate", child);
+        }
+    </div>
+</div>

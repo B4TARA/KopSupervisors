@@ -1,0 +1,46 @@
+﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeAssessmentLayoutViewModel
+
+@{
+    Layout = null;
+}
+
+@if (Model.LastAssessments.Count() != 0)
+{
+    <div class="list_menu_container">
+        <ul class="list_menu_wrapper nav">
+
+            @foreach (var assessment in Model.LastAssessments)
+            {
+                @if (assessment.IsActiveAssessment)
+                {
+                    <li class="item_menu active">
+                        <button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessment(@assessment.Id)">
+                            @assessment.AssessmentTypeName
+                        </button>
+                        <span class="indicator_assessment">
+                        </span>
+                    </li>
+                }
+                else
+                {
+                    <li class="item_menu">
+                        <button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessment(@assessment.Id)">
+                            @assessment.AssessmentTypeName
+                        </button>
+                        <span class="indicator_assessment">
+                        </span>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="undefined_page_wrapper">
+        <img src="/image/undefinedpage.svg" alt="default_page">
+    </div>
+}
+
+<div id="lastAssessment">
+</div>
