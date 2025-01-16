@@ -3,66 +3,74 @@
 @{
     Layout = null;
 
-    var conclusion = Model.KpisConclusion;
+    // Перенести логику в BLL
+    // На данный момент для удобства тестирования
+    var isInRole = User.IsInRole("Umst");
+    var conclusionEditAccess = false;
+    if (User.IsInRole("Urp"))
+    {
+        conclusionEditAccess = true;
+    }
+    var controllerMethod = "EditKpis";
 }
 
-<div class="popup_content">
-
-<div class="popup_content_header margin_container_bottom_middle">
-    <div class="title">
-        Результаты выполнения ключевых показателей эффективности деятельности
+<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
+    <input type="hidden" asp-for="GradeId">
+    <div asp-validation-summary="All">
+        <!-- Ошибки валидации будут отображаться тут-->
     </div>
-
-    <div class="description">
-        @conclusion
-    </div>
-</div>
-
-<form action="" method="post">
-    <table class="table_popup">
-        <thead>
-            <tr>
-                <th>Период с</th>
-                <th>Период по</th>
-                <th>КПЭ</th>
-                <th>% выполнения</th>
-                <th>Методика расчета</th>
-            </tr>
-        </thead>
-        <tbody>
-                
-                
-                    @foreach (var kpi in Model.Kpis)
-                    {
-                        <tr>
-
-                            <td>
-                                @kpi.PeriodStartDate
-                            </td>
-                            <td>
-                                @kpi.PeriodEndDate
-                            </td>
-                            <td>
-                                @kpi.Name
-                            </td>
-                            <td>
-                                @kpi.CompletionPercentage %
-                            </td>
-                            <td>
-                                @kpi.CalculationMethod
-                            </td>
-                        </tr>
-                    }
-
-        </tbody>
-    </table>
-        @if (true)
+    <div class="popup_content">
+        <div class="popup_content_header margin_container_bottom_middle">
+            <div class="title">
+                Результаты выполнения ключевых показателей эффективности деятельности
+            </div>
+            <div class="description">
+                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(isInRole ? null : "disabled")">
+            </div>
+        </div>
+        <table class="table_popup">
+            <thead>
+                <tr>
+                    <th>Период с</th>
+                    <th>Период по</th>
+                    <th>КПЭ</th>
+                    <th>% выполнения</th>
+                    <th>Методика расчета</th>
+                </tr>
+            </thead>
+            <tbody id="rowContainer">
+                @for (int i = 0; i < Model.Kpis.Count; i++)
+                {
+                    var kpi = Model.Kpis[i];
+                    var periodStartDateTime = kpi.PeriodStartDateTime.ToString("yyyy-MM-dd");
+                    var periodEndDateTime = kpi.PeriodEndDateTime.ToString("yyyy-MM-dd");
+                    <tr>
+                        <td>
+                            <input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                        <td>
+                            <input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                        <td>
+                            <input type="text" asp-for="Kpis[i].Name" value="@kpi.Name" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                        <td>
+                            <input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                        <td>
+                            <input type="text" asp-for="Kpis[i].CalculationMethod" value="@kpi.CalculationMethod" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (isInRole)
         {
-
-            <div class="add_row_btn" onclick="addRow(this,'kpi')">Добавить</div>
-            <button class="add_row_btn" type="submit">Сохранить</button>
+            <div class="add_row_btn add_project" onclick="addRow(this,'kpi')">Добавить</div>
         }
-        
+    </div>
+    @if (isInRole)
+    {
+        <button type="submit" class="add_row_btn">Сохранить</button>
+    }
 </form>
-
-</div>

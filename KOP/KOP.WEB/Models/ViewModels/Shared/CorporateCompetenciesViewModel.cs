@@ -4,9 +4,7 @@ namespace KOP.WEB.Models.ViewModels.Shared
 {
     public class CorporateCompetenciesViewModel
     {
-        public int EmployeeId { get; set; }
-        public int GradeId { get; set; }
-        public string? CorporateCompetenciesConclusion { get; set; }
-        public AssessmentDTO LastAssessment { get; set; } = new();
+        public string? Conclusion { get; set; }
+        public List<AssessmentResultDTO> LastCompletedAssessmentResults { get; set; } = new();
     }
 }

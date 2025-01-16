@@ -2,7 +2,7 @@
   "Files": [
     {
       "Id": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\KOP.WEB.bundle.scp.css",
-      "PackagePath": "staticwebassets\\KOP.WEB.bundle.scp.css"
+      "PackagePath": "staticwebassets\\KOP.WEB.4wnwjmz5di.bundle.scp.css"
     },
     {
       "Id": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\wwwroot\\css\\dashboard.css",
@@ -105,6 +105,10 @@
       "PackagePath": "staticwebassets\\js\\interface\\searchbar.js"
     },
     {
+      "Id": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\wwwroot\\js\\loginScript.js",
+      "PackagePath": "staticwebassets\\js\\loginScript.js"
+    },
+    {
       "Id": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\wwwroot\\js\\supervisorScript.js",
       "PackagePath": "staticwebassets\\js\\supervisorScript.js"
     },
@@ -159,6 +163,10 @@
     {
       "Id": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\wwwroot\\logo.svg",
       "PackagePath": "staticwebassets\\logo.svg"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.KOP.WEB.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },
     {
       "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.KOP.WEB.Microsoft.AspNetCore.StaticWebAssets.props",

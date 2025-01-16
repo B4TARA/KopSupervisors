@@ -4,6 +4,7 @@
     {
         Kpis,
         Marks,
+        MarkTypes,
         Projects,
         StrategicTasks,
         TrainingEvents,

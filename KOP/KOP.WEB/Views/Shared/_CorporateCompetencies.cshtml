@@ -4,10 +4,6 @@
 
 @{
     Layout = null;
-
-    var conclusion = Model.CorporateCompetenciesConclusion;
-    var assessmentResults = Model.LastAssessment.AssessmentResults;
-    var completedAssessmentResults = assessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
 }
 
 <div>
@@ -15,12 +11,12 @@
 </div>
 
 <div>
-    @conclusion
+    @Model.Conclusion
 </div>
 
-@if (completedAssessmentResults.Any())
+@if (Model.LastCompletedAssessmentResults.Any())
 {
-    var rows = completedAssessmentResults.First().ElementsByRow;
+    var rows = Model.LastCompletedAssessmentResults.First().ElementsByRow;
 
     <div>Оценка (от 0 до 13, где 13 - высший балл)</div>
     <table>
@@ -46,10 +42,10 @@
             }
         </tbody>
     </table>
-    @foreach (var completedAssessmentResult in completedAssessmentResults) // Проходим по всем завершенным результатам кач. оценки
+    @foreach (var result in Model.LastCompletedAssessmentResults) // Проходим по всем завершенным результатам кач. оценки
     {
-        var judgeId = completedAssessmentResult.Judge.Id;
-        var judgedId = completedAssessmentResult.Judged.Id;
+        var judgeId = result.Judge.Id;
+        var judgedId = result.Judged.Id;
 
         <table>
             <thead>
@@ -79,7 +75,7 @@
             <tbody>
                 @for (int i = 1; i < rows.Count(); i++)
                 {
-                    var rowValue = @completedAssessmentResult.Values.First(x => x.AssessmentMatrixRow == i).Value;
+                    var rowValue = @result.Values.First(x => x.AssessmentMatrixRow == i).Value;
 
                     <tr>
                         @foreach (var element in rows[i])

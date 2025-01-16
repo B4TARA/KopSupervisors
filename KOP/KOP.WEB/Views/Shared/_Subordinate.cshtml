@@ -55,18 +55,6 @@
                             <td>
                                 @employee.Subdivision
                             </td>
-                            @if (employee.LastGrade != null)
-                            {
-                                <td>
-                                    @employee.LastGrade.NextGradeDate
-                                </td>
-                            }
-                            else
-                            {
-                                <td>
-                                    -
-                                </td>
-                            }
                         </tr>
                     }
                 </tbody>

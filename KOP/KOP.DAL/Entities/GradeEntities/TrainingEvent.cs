@@ -24,11 +24,6 @@ namespace KOP.DAL.Entities.GradeEntities
 
 
 
-        public Employee Employee { get; set; } // Сотрудник, к которому относится данное мероприятие
-        public int EmployeeId { get; set; }
-
-
-
         public Grade Grade { get; set; } // Оценка, к которой относится данное мероприятие
         public int GradeId { get; set; }
 

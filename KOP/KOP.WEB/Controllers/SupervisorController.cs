@@ -23,7 +23,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public IActionResult GetSupervisorLayout()
         {
             try
@@ -43,7 +43,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
             try
@@ -61,7 +61,7 @@ namespace KOP.WEB.Controllers
 
                 var viewModel = new SubordinatesViewModel
                 {
-                    Module = response.Data,
+                    Modules = response.Data,
                 };
 
                 return View("Subordinates", viewModel);
@@ -77,7 +77,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeLayout(int employeeId)
         {
             try
@@ -114,7 +114,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeGradeLayout(int employeeId)
         {
             try
@@ -156,7 +156,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
             try
@@ -192,7 +192,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor")]
+        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessment(int employeeId)
         {
             try
@@ -203,7 +203,7 @@ namespace KOP.WEB.Controllers
 
                 var response1 = await _assessmentService.GetAssessment(employeeId, SystemStatuses.COMPLETED);
 
-                if (response1.StatusCode != StatusCodes.OK || response1.Data == null)
+                if (!response1.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
@@ -216,7 +216,7 @@ namespace KOP.WEB.Controllers
 
                 var response2 = await _assessmentService.GetAssessmentResult(id, employeeId);
 
-                if (response2.StatusCode == StatusCodes.OK && response2.Data != null)
+                if (response2.HasData)
                 {
                     viewModel.SupervisorAssessmentResult = response2.Data;
                 }

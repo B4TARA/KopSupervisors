@@ -7,8 +7,7 @@ namespace KOP.Common.DTOs.GradeDTOs
         public int Id { get; set; }
         public int Number { get; set; }
         public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
-        public DateOnly? NextGradeDate { get; set; }
+        public DateOnly? EndDate { get; set; }
 
         public string? StrategicTasksConclusion { get; set; }
         public string? KPIsConclusion { get; set; }

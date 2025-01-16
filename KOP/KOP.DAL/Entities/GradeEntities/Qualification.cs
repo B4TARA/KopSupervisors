@@ -5,64 +5,26 @@ namespace KOP.DAL.Entities.GradeEntities
     public class Qualification
     {
         [Key]
-        public int Id { get; set; } // Id квалификации
+        public int Id { get; set; }
+        public string SupervisorSspName { get; set; } = "ФИО рук-ля ССП";
+        public string Link { get; set; } = "ссылка на ЛПА";
+        public string HigherEducation { get; set; } = "УО";
+        public string Speciality { get; set; } = "_";
+        public string QualificationResult { get; set; } = "_";
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public string AdditionalEducation { get; set; } = "_";
+        public DateOnly CurrentStatusDate { get; set; }
+        public int CurrentExperienceYears { get; set; }
+        public int CurrentExperienceMonths { get; set; }
+        public DateOnly CurrentJobStartDate { get; set; }
+        public string CurrentJobPositionName { get; set; } = "наименование текущей должности";
+        public string EmploymentContarctTerminations { get; set; } = "Отсутствуют";
 
-        [Required]
-        public string SupervisorSspName { get; set; } // ФИО руководителя ССП
-
-        [Required]
-        public string Link { get; set; } // Ссылка на ЛПА
-
-        [Required]
-        public string HigherEducation { get; set; } // Высшее Образование
-
-        [Required]
-        public string Speciality { get; set; } // Специальность
-
-        [Required]
-        public string QualificationResult { get; set; } // Квалификация
-
-        [Required]
-        public DateOnly StartDate { get; set; } // Период обучения "с"
-
-        [Required]
-        public DateOnly EndDate { get; set; } // Период обучения "по"
-
-        [Required]
-        public string AdditionalEducation { get; set; } // Дополнительное образование
-
-        [Required]
-        public string CurrentDate { get; set; } // Число для указания текущего стажа в банковской системе
-
-        [Required]
-        public string ExperienceMonths { get; set; } // Стаж в банковской системе месяцы
-
-        [Required]
-        public string ExperienceYears { get; set; } // Стаж в банковской системе лет
-
-        [Required]
-        public string PreviousPosition1 { get; set; } // Предыдущая должность 1
-
-        [Required]
-        public string PreviousPosition2 { get; set; } // Предыдущая должность 2
-
-        [Required]
-        public string CurrentPosition { get; set; } // Текущая должность
-
-        [Required]
-        public string EmploymentContarctTerminations { get; set; } // факты расторжения трудового договора
-
-
-
-        public Employee Employee { get; set; } // Сотрудник, к которому относится данный стратегический проекта
-        public int EmployeeId { get; set; }
-
-
-
-        public Grade Grade { get; set; } // Оценка, к которой относится данный стратегический проекта
+        public Grade Grade { get; set; }
         public int GradeId { get; set; }
 
-
+        public List<PreviousJob> PreviousJobs { get; set; } = new ();
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }

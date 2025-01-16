@@ -3,106 +3,120 @@
 @{
     Layout = null;
 
-    var conclusion = Model.QualificationConclusion;
-    var supervisorSspName = Model.Qualification.SupervisorSspName;
-    var link = Model.Qualification.Link;
-    var higherEducation = Model.Qualification.HigherEducation;
-    var speciality = Model.Qualification.Speciality;
-    var qualificationResult = Model.Qualification.QualificationResult;
-    var startDate = Model.Qualification.StartDate;
-    var endDate = Model.Qualification.EndDate;
-    var additionalEducation = Model.Qualification.AdditionalEducation;
-    var currentDate = Model.Qualification.CurrentDate;
-    var experienceYears = Model.Qualification.ExperienceYears;
-    var experienceMonths = Model.Qualification.ExperienceMonths;
-    var previousPosition1 = Model.Qualification.PreviousPosition1;
-    var previousPosition2 = Model.Qualification.PreviousPosition2;
-    var currentPosition = Model.Qualification.CurrentPosition;
-    var terminations = Model.Qualification.EmploymentContarctTerminations;
+    // Перенести логику в BLL
+    // На данный момент для удобства тестирования
+    var startDateTime = Model.Qualification.StartDateTime.ToString("yyyy-MM-dd");
+    var endDateTime = Model.Qualification.EndDateTime.ToString("yyyy-MM-dd");
+    var currentStatusDateTime = Model.Qualification.CurrentStatusDateTime.ToString("yyyy-MM-dd");
+    var currentJobStartDateTime = Model.Qualification.CurrentJobStartDateTime.ToString("yyyy-MM-dd");
+
+    var isInRole = User.IsInRole("Urp");
+    var conclusionEditAccess = false;
+    if (User.IsInRole("Urp"))
+    {
+        conclusionEditAccess = true;
+    }
+    var controllerMethod = "EditQualification";
 }
 
-<form action="" method="post">
-
-    @if (true)
-    {
-        <div class="popup_content">
-            <div>
-                @conclusion
+<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
+    <input type="hidden" asp-for="GradeId">
+    <input type="hidden" asp-for="Qualification.Id">
+    <div asp-validation-summary="All" class="text-danger">
+        <!-- Ошибки валидации будут отображаться тут-->
+    </div>
+    <div class="popup_content">
+        <div class="popup_content_header margin_container_bottom_middle">
+            <div class="title">
+                Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
             </div>
-            <div>
-                Соответствие <input type="text"></input> квалификационным требованиям <input type="text"></input>:
+            <div class="description">
+                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
             </div>
-            <div class="mid_title">
-                1. Образование:
-            </div>
-            <div>
-                - Высшее образование: <input type="text"></input> специальность<input type="text"></input>, квалификация <input type="text"></input> (период обучения с <input type="date"></input> по <input type="date"></input>)
-            </div>
-            <div>
-                - Дополнительное образование (повышение квалификации): <input type="text"></input>
-            </div>
-            <div class="mid_title">
-                2. Стаж работы в банковской системе по состоянию на <input type="date"></input>, в т.ч.:
-            </div>
-            <div class="experience_list">
-                <div class="add_row_btn" onclick="addRow(this,'experience')">Добавить</div>         
-            </div>
-            
-            
-            <div>
-                ЗАО "МТБанк":
-            </div>
-            <div>
-                с <input type="date"></input> по <input type="date"></input> - <input type="text"></input> - <input type="text"></input>
-            </div>
-            <div class="mid_title">
-                3. Дполнительная информация
-            </div>
-            <div>
-                <input type="text"></input> в течении последних двух лет факты расторжения трудового договора (контракта) по инициативе нанимателя в случае совершения лицом виновных действий, являющихся основаниями для утраты доверия к нему со стороны нанимателя.
-            </div>
-        </div>
-
-        <button class="add_row_btn" type="submit">Сохранить</button>
-    }else{
-        <div class="popup_content">
-            <div>
-                @conclusion
-            </div>
-            <div>
-                Соответствие @supervisorSspName квалификационным требованиям @link:
-            </div>
-            <div class="mid_title">
-                1. Образование:
-            </div>
-            <div>
-                - Высшее образование: @higherEducation специальность @speciality, квалификация @qualificationResult (период обучения с @startDate по @endDate)
-            </div>
-            <div>
-                - Дополнительное образование (повышение квалификации): @additionalEducation
-            </div>
-            <div class="mid_title">
-                2. Стаж работы в банковской системе по состоянию на @currentDate - @experienceYears лет @experienceMonths мес., в т.ч.:
-            </div>
-            <div>
-                @previousPosition1;
-            </div>
-            <div>
-                @previousPosition2;
-            </div>
-            <div>
-                ЗАО "МТБанк":
-            </div>
-            <div>
-                @currentPosition
-            </div>
-            <div class="mid_title">
-            3. Дполнительная информация
         </div>
         <div>
-                @terminations в течении последних двух лет факты расторжения трудового договора (контракта) по инициативе нанимателя в случае совершения лицом виновных действий, являющихся основаниями для утраты доверия к нему со стороны нанимателя.
+            Соответствие
+            <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" disabled="@(isInRole ? null : "disabled")" />
+            квалификационным требованиям
+            <input type="text" asp-for="Qualification.Link" value="@Model.Qualification.Link" disabled="@(isInRole ? null : "disabled")" />:
         </div>
+        <div class="mid_title">
+            1. Образование:
         </div>
+        <div>
+            - Высшее образование:
+            <input type="text" asp-for="Qualification.HigherEducation" value="@Model.Qualification.HigherEducation" disabled="@(isInRole ? null : "disabled")" />
+            , специальность
+            <input type="text" asp-for="Qualification.Speciality" value="@Model.Qualification.Speciality" disabled="@(isInRole ? null : "disabled")" />
+            , квалификация
+            <input type="text" asp-for="Qualification.QualificationResult" value="@Model.Qualification.QualificationResult" disabled="@(isInRole ? null : "disabled")" />
+            , период обучения с
+            <input type="date" asp-for="Qualification.StartDateTime" value="@startDateTime" disabled="@(isInRole ? null : "disabled")" />
+            по
+            <input type="date" asp-for="Qualification.EndDateTime" value="@endDateTime" disabled="@(isInRole ? null : "disabled")" />
+        </div>
+        <div>
+            - Дополнительное образование (повышение квалификации):
+            <input type="text" asp-for="Qualification.AdditionalEducation" value="@Model.Qualification.AdditionalEducation" disabled="@(isInRole ? null : "disabled")" />
+        </div>
+        <div class="mid_title">
+            2. Стаж работы в банковской системе по состоянию на
+            <input type="date" asp-for="Qualification.CurrentStatusDateTime" value="@currentStatusDateTime" disabled="@(isInRole ? null : "disabled")" />
+            -
+            <input type="number" asp-for="Qualification.CurrentExperienceYears" value="@Model.Qualification.CurrentExperienceYears" disabled="@(isInRole ? null : "disabled")" />
+            лет
+            <input type="number" asp-for="Qualification.CurrentExperienceMonths" value="@Model.Qualification.CurrentExperienceMonths" disabled="@(isInRole ? null : "disabled")" />
+            мес., в т.ч.:
+        </div>
+        <div class="experience_list" id="rowContainer">
+            @for (int i = 0; i < Model.Qualification.PreviousJobs.Count; i++)
+            {
+                var previousJob = Model.Qualification.PreviousJobs[i];
+                var jobStartDateTime = previousJob.StartDateTime.ToString("yyyy-MM-dd");
+                var jobEndDateTime = previousJob.EndDateTime.ToString("yyyy-MM-dd");
+
+                <div class="experience_item">
+                    c
+                    <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" value="@jobStartDateTime" disabled="@(isInRole ? null : "disabled")" />
+                    по
+                    <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" value="@jobEndDateTime" disabled="@(isInRole ? null : "disabled")" />
+                    -
+                    <input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" value="@Model.Qualification.PreviousJobs[i].OrganizationName" disabled="@(isInRole ? null : "disabled")" />
+                    -
+                    <input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" value="@Model.Qualification.PreviousJobs[i].PositionName" disabled="@(isInRole ? null : "disabled")" />
+                    ;
+                </div>
+            }
+        </div>
+        @if (isInRole)
+        {
+            <div class="add_row_btn add_project" onclick="addRow(this,'experience')">Добавить</div>
+        }
+        <div>
+            ЗАО "МТБанк":
+        </div>
+        <div>
+            с
+            <input type="date" asp-for="Qualification.CurrentJobStartDateTime" value="@currentJobStartDateTime" disabled="@(isInRole ? null : "disabled")" />
+            по настоящее время -
+            <input type="text" asp-for="Qualification.CurrentJobPositionName" value="@Model.Qualification.CurrentJobPositionName" disabled="@(isInRole ? null : "disabled")" />
+        </div>
+        <div class="mid_title">
+            3. Дополнительная информация
+        </div>
+        <div>
+            <input type="text" asp-for="Qualification.EmploymentContarctTerminations" value="@Model.Qualification.EmploymentContarctTerminations" disabled="@(isInRole ? null : "disabled")" />
+            в течении последних двух лет факты расторжения трудового договора (контракта) по
+            инициативе нанимателя в случае совершения лицом виновных действий,
+            являющихся основаниями для утраты доверия к нему со стороны нанимателя.
+        </div>
+        <div>
+            <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" disabled="@(isInRole ? null : "disabled")" />
+            соответсвует квалификационным требованиям и требованиям к деловой репутации
+        </div>
+    </div>
+    @if (isInRole)
+    {
+        <button type="submit" class="add_row_btn">Сохранить</button>
     }
-    
 </form>

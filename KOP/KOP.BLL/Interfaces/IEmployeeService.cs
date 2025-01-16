@@ -1,14 +1,13 @@
 ﻿using KOP.Common.DTOs;
 using KOP.Common.DTOs.AssessmentDTOs;
-using KOP.Common.DTOs.GradeDTOs;
 using KOP.Common.Interfaces;
+using KOP.DAL.Entities;
 
 namespace KOP.BLL.Interfaces
 {
     public interface IEmployeeService
     {
         Task<IBaseResponse<EmployeeDTO>> GetEmployee(int id);
-        Task<IBaseResponse<string>> GetEmployeeName(int employeeId);
         Task<IBaseResponse<List<AssessmentDTO>>> GetEmployeeLastAssessments(int employeeId, int supervisorId);
         Task<IBaseResponse<List<AssessmentResultDTO>>> GetColleagueAssessmentResults(int employeeId);
         Task<IBaseResponse<AssessmentResultDTO>> GetSelfAssessment(int employeeId, int assessmentId);

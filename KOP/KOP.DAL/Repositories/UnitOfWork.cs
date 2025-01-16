@@ -16,9 +16,8 @@ namespace KOP.DAL.Repositories
         private IAssessmentResultRepository? assessmentResultRepository;
         private IAssessmentResultValueRepository? assessmentResultValueRepository;
         private IAssessmentTypeRepository? assessmentTypeRepository;
-
         private IGradeRepository? gradeRepository;
-
+        private IPreviousJobRepository? previousJobRepository;
         private IKpiRepository? kpiRepository;
         private IProjectRepository? projectRepository;
         private IEmployeeRepository? employeeRepository;
@@ -30,6 +29,7 @@ namespace KOP.DAL.Repositories
         private IStrategicTaskRepository? strategicTaskRepository;
         private ITrainingEventRepository? trainingEventRepository;
         private IValueJudgmentRepository? valueJudgmentRepository;
+        private IMailRepository? mailRepository;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -113,6 +113,16 @@ namespace KOP.DAL.Repositories
                 if (kpiRepository == null)
                     kpiRepository = new KpiRepository(_dbContext);
                 return kpiRepository;
+            }
+        }
+
+        public IPreviousJobRepository PreviousJobs
+        {
+            get
+            {
+                if (previousJobRepository == null)
+                    previousJobRepository = new PreviousJobRepository(_dbContext);
+                return previousJobRepository;
             }
         }
 
@@ -216,6 +226,16 @@ namespace KOP.DAL.Repositories
             }
         }
 
+        public IMailRepository Mails
+        {
+            get
+            {
+                if (mailRepository == null)
+                    mailRepository = new MailRepository(_dbContext);
+                return mailRepository;
+            }
+        }
+
 
 
         public void Commit()
@@ -241,7 +261,6 @@ namespace KOP.DAL.Repositories
                 {
                     _dbContext.Dispose();
                 }
-
 
                 disposed = true;
             }

@@ -44,13 +44,6 @@ if (selectBtn.length != 0) {
     }
 }
 
-
-/*COMPARE BUTTON*/
-
-
-
-
-
 /******POPUP ALERT*******/
 function closeBtnPopup(item, isReload) {
     let popupSection = document.getElementById("section_popup");
@@ -64,22 +57,10 @@ function closeBtnPopup(item, isReload) {
     //}
     bodyTag.style.overflow = 'auto'
 
-
     if (isReload == true) {
         location.reload();
     }
-
-    
-
 }
-
-//document.addEventListener('click', (event) => {
-//    let popupSection = document.getElementById("section_popup");
-//    if (!event.target.classList.contains('modal-box') && popupSection && !event.target.classList.contains('add_table_row')) {
-//        popupSection.remove()
-//    }
-//})
-
 
 function popupAlert(text, isReload) {
     let alertSection = document.createElement('section');
@@ -99,10 +80,9 @@ function popupAlert(text, isReload) {
     //setTimeout(closeBtnPopup, 1500);
 }
 
-
 function popupResult(text, isReload) {
 
-    
+
     bodyTag.style.overflow = 'hidden'
 
     const sectionPopup = document.querySelector('.section_popup');
@@ -115,22 +95,28 @@ function popupResult(text, isReload) {
     alertSection.className = "section_popup result_popup active_popup";
     alertSection.setAttribute('id', 'section_popup')
 
-    
-
     alertSection.innerHTML = `<div class="modal-box">
         <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
         </div>
-            ${text}
+            <div id="popupText">
+                ${text}
+            </div>
         </div>
         
         `;
     homeSection.appendChild(alertSection)
-
-    
 }
 
-function addRow(elem, type) {
+function addRow(elem, type, id) {
+
+    const rowContainer = document.getElementById("rowContainer");
+    let newIndex;
+
+    if (rowContainer) {
+        newIndex = rowContainer.children.length;
+    }
+
     const tablePopup = document.querySelector(' table tbody');
     const projectsInfoList = document.querySelector('.project_info_list');
 
@@ -139,101 +125,129 @@ function addRow(elem, type) {
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>
-                                <input type="date"></input>
+                                <input type="date" name="Kpis[${newIndex}].PeriodStartDateTime" />
                             </td>
                             <td>
-                                <input type="date"></input>
+                                <input type="date" name="Kpis[${newIndex}].PeriodEndDateTime" />
                             </td>
                             <td>
-                                <input type="text"></input>
+                                <input type="text" name="Kpis[${newIndex}].Name" placeholder="КПЭ" />
                             </td>
                             <td>
-                                <input type="number"></input>
+                                <input type="number" name="Kpis[${newIndex}].CompletionPercentage" placeholder="% выполнения" />
                             </td>
                             <td>
-                                <input type="text"></input>
+                                <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" />
                             </td>
                 <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
                 `
-
         tablePopup.appendChild(row)
-
-
     }
     else if (type === 'strategy') {
 
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td>
-                    <textarea></textarea>
-                </td>
-                <td class="fullname">
-                    <textarea></textarea>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
-                <td>
-                    <textarea></textarea>
-                </td>
+              <td>
+                            <input type="text" name="StrategicTasks[${newIndex}].Name" placeholder="Название" />
+                        </td>
+                        <td>
+                            <input type="text" name="StrategicTasks[${newIndex}].Purpose" placeholder="Цель" />
+                        </td>
+                        <td>
+                            <input type="date" name="StrategicTasks[${newIndex}].PlanDateTime"/>
+                        </td>
+                        <td>
+                            <input type="date" name="StrategicTasks[${newIndex}].FactDateTime" />
+                        </td>
+                        <td>
+                            <input type="text" name="StrategicTasks[${newIndex}].PlanResult" placeholder="План" />
+                        </td>
+                        <td>
+                            <input type="text" name="StrategicTasks[${newIndex}].FactResult" placeholder="Факт" />
+                        </td>
+                        <td>
+                            <input type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание" />
+                        </td>
                 <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
                 `
-
         tablePopup.appendChild(row)
-
-
     }
     else if (type === 'project') {
         const row = document.createElement('div');
         row.innerHTML = `
             
-            <div class="project_info">
-                <div class="mid_title">
-                Проект
+        <div class="project_info">
+            <div class="mid_title">
+                Проект ${newIndex + 1}
             </div>
             <div>
-                <input type="text" placeholder="Введите имя заказчика"></input> является заказчиком стратегического проекта <input type="text" placeholder="Введите название проекта"></input>
+                <input type="text" name="Projects[${newIndex}].SupervisorSspName" placeholder="ФИО руководителя ССП" /> является заказчиком стратегического проекта 
+                <input type="text" name="Projects[${newIndex}].Name" placeholder="Наименование проекта" />
             </div>
             <div>
-                Проект находится на этапе <input type="text" placeholder="Введите этап"></input>
+                Проект находится на этапе
+                <input type="text" name="Projects[${newIndex}].Stage" placeholder="Этап проекта" />
             </div>
             <div>
-                Дата открытия проекта: <input type="date"></input>
+                Дата открытия проекта:
+                <input type="date" name="Projects[${newIndex}].StartDateTime"/>
             </div>
             <div>
-                Срок реализации проекта: <input type="date"></input>
+                Срок реализации проекта: 
+                <input type="date" name="Projects[${newIndex}].EndDateTime" />
             </div>
             <div>
-                На число <input type="date"></input> по проекту выполнены <textarea></textarea> из <textarea></textarea> этапов
+                На число 
+                <input type="date" name="Projects[${newIndex}].CurrentStatusDateTime" /> по проекту выполнены 
+                <input type="number" name="Projects[${newIndex}].FactStages" /> из 
+                <input type="number" name="Projects[${newIndex}].PlanStages" /> этапов
             </div>
             <div>
-                Коэффициент реализации проекта: <input type="number"></input>
+                Коэффициент реализации проекта: 
+                <input type="number"  name="Projects[${newIndex}].SPn" /> %
             </div>
-                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
-                
-            </div>
+            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>         
+        </div>
                 `
-
         projectsInfoList.appendChild(row)
-    } else if (type === 'experience') {
+    }
+    else if (type === 'experience') {
         const experienceList = document.querySelector('.experience_list');
         const row = document.createElement('div');
         row.classList.add('experience_item')
         row.innerHTML = `
-            с <input type="date"></input> по <input type="date"></input> - <input type="text"></input> - <input type="text"></input>
-            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
+           <div>
+                    c
+                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].StartDateTime" />
+                    по
+                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" />
+                    -
+                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" />
+                    -
+                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" />
+                    ;
+                    <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>         
+                </div>
                 `
 
-        experienceList.insertBefore(row,elem)
+        rowContainer.appendChild(row)
+    }
+    else if (type === 'mark') {
+        const row = document.createElement('tr');
+
+
+        const tableBody = elem.parentElement.querySelector('.table_popup tbody');
+
+        tableBodyRowsLength = tableBody.querySelectorAll('tr').length;
+        row.innerHTML = `
+            
+        <tr>
+                        <td><input type="text" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].Period" /></td>
+                        <td><input type="number" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" /></td>
+                    </tr>
+                    <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
+                `
+        tableBody.appendChild(row)
     }
 
 }
@@ -242,86 +256,24 @@ function deleteRow(elem) {
     elem.parentElement.remove()
 }
 
-function popupCalculator(isReload, planVal, markId, employeeId, isPercentage) {
-    let alertSection = document.createElement('section');
-    let homeSection = document.querySelector('.home-content')
-    alertSection.className = "section_popup alert_popup active_popup";
-    alertSection.setAttribute('id', 'section_popup')
-    
-    alertSection.innerHTML = `<div class="modal-box result">
-        <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </div>
+function popupFormOnsubmit(e, controllerMethod) {
+    e.preventDefault();
 
-                                <div class="modal-box-content">
-                                    <div class="container_description margin_container_bottom">
-                                         <div class="mid_title">
-                                            Рассчет показателя
-                                         </div>
-                                         <div class="mid_description">
-                                            Введите данные для рассчета
-                                         </div>
-                                    </div>
-                                    <div class="form_group_item margin_container_bottom">
-                                        <label for="position_name" class="mid_description">Фактическое значение</label>
-                                        <input type="number" value="" class="calculate-fact-popup-value" id="calculateFactValue" name="position_name">
-                                    </div>
+    const form = e.target;
+    const formData = new FormData(form);
 
-                                    <div class="container_description margin_container_bottom">
-                                         <div class="mid_title">
-                                            Результат
-                                         </div>
-                                         <div class="title" id="resultParametr">
-                                            0
-                                         </div>
-                                    </div>
-
-                                     <div onclick="saveResultParameter(${markId}, ${employeeId})" class="action_btn primary_btn">
-                                        Сохранить
-                                     </div>
-                                </div>
-        
-        </div>
-        `;
-    homeSection.appendChild(alertSection)
-    //setTimeout(closeBtnPopup, 1500);
-
-    const factInput = document.getElementById('calculateFactValue')
-    if (factInput) {
-
-        const calculateResult = document.getElementById('resultParametr')
-        //Сюда формулу рассчета
-        if (isPercentage) {
-            factInput.addEventListener('input', function (event) {
-                const calculateVal = (factInput.value / Number(planVal) * 100).toFixed(0);
-                if (calculateVal >= 100) {
-                    calculateResult.classList.remove('red-text')
-                    calculateResult.classList.add('green-text')
-                    
-                } else {
-                    calculateResult.classList.remove('green-text')
-                    calculateResult.classList.add('red-text')
-                }
-                calculateResult.textContent = calculateVal + '%';
-
-            })
-        } else {
-            factInput.addEventListener('input', function (event) {
-                
-
-                if (factInput.value >= planVal) {
-                    calculateResult.classList.remove('red-text')
-                    calculateResult.classList.add('green-text')
-
-                } else {
-                    calculateResult.classList.remove('green-text')
-                    calculateResult.classList.add('red-text')
-                }
-
-                calculateResult.textContent = factInput.value;
-
-            })
-        }
-        
-    }
+    fetch(`/Grade/${controllerMethod}`, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.text())
+        .then(html => {
+            let popupSection = document.getElementById("section_popup");
+            popupSection.remove();
+            popupResult(html, false);
+        })
+        .catch(error => {
+            console.error('Произошла ошибка:', error);
+            alert('Не удалось выполнить действие. Попробуйте снова.');
+        });
 }

@@ -4,5 +4,6 @@ namespace KOP.DAL.Interfaces
 {
     public interface IEmployeeRepository : IRepositoryBase<Employee>
     {
+        Task<bool> IsServiceNumberUniqueAsync(int serviceNumber);
     }
 }

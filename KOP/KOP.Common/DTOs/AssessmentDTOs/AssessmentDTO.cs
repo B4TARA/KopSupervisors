@@ -11,7 +11,6 @@ namespace KOP.Common.DTOs.AssessmentDTOs
         public SystemStatuses SystemStatus { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
-        public DateOnly? NextAssessmentDate { get; set; }
         public bool IsActiveAssessment { get; set; }
         public int AverageValue { get; set; }
         public List<AssessmentResultDTO> AssessmentResults { get; set; } = new();

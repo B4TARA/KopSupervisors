@@ -1,0 +1,12 @@
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.deps.json
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.csproj.AssemblyReference.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.AssemblyInfoInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.AssemblyInfo.cs
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.csproj.CoreCompileInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\refint\KOP.EmailService.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.EmailService\obj\Debug\net8.0\ref\KOP.EmailService.dll

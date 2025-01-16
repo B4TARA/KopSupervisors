@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KOP.BLL", "KOP.BLL\KOP.BLL.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KOP.Common", "KOP.Common\KOP.Common.csproj", "{17F293F6-C8DB-4E65-B1BF-0E924C19C058}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KOP.Import", "KOP.Import\KOP.Import.csproj", "{1A5F7282-A91B-415E-95FE-1022F5AC5ACA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KOP.EmailService", "KOP.EmailService\KOP.EmailService.csproj", "{C6F0EB20-80BD-43E4-888C-C4B976BBAB74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{17F293F6-C8DB-4E65-B1BF-0E924C19C058}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17F293F6-C8DB-4E65-B1BF-0E924C19C058}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17F293F6-C8DB-4E65-B1BF-0E924C19C058}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A5F7282-A91B-415E-95FE-1022F5AC5ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A5F7282-A91B-415E-95FE-1022F5AC5ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A5F7282-A91B-415E-95FE-1022F5AC5ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A5F7282-A91B-415E-95FE-1022F5AC5ACA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F0EB20-80BD-43E4-888C-C4B976BBAB74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F0EB20-80BD-43E4-888C-C4B976BBAB74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F0EB20-80BD-43E4-888C-C4B976BBAB74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F0EB20-80BD-43E4-888C-C4B976BBAB74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

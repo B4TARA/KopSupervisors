@@ -3,44 +3,37 @@
 @{
     Layout = null;
 
-    var id = Model.ValueJudgment.Id;
     var strengths = Model.ValueJudgment.Strengths;
     var behaviorToCorrect = Model.ValueJudgment.BehaviorToCorrect;
     var recommendations = Model.ValueJudgment.RecommendationsForDevelopment;
+    var isInRole = User.IsInRole("Supervisor");
+    var controllerMethod = "EditValueJudgment";
 }
 
-<div class="popup_content">
-    <div class="title">
-        ОС от руководителя
+<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
+    <input type="hidden" asp-for="GradeId">
+    <input type="hidden" asp-for="ValueJudgment.Id">
+    <div asp-validation-summary="All">
+        <!-- Ошибки валидации будут отображаться тут-->
     </div>
-    <form method="post" asp-controller="Grade" asp-action="EditValueJudgment">
-        @if (true)
-        {
-            <input type="hidden" asp-for="ValueJudgment.Id">
-            <input type="hidden" asp-for="GradeId">
-            <div>
-                Сильные стороны работника: <textarea asp-for="ValueJudgment.Strengths">@strengths</textarea>
+    <div class="popup_content">
+        <div class="popup_content_header margin_container_bottom_middle">
+            <div class="title">
+                ОС от руководителя
             </div>
-            <div>
-                Зоны деятельности / поведение работника, требующие корректировки: <textarea asp-for="ValueJudgment.BehaviorToCorrect">@behaviorToCorrect</textarea>
-            </div>
-            <div>
-                Рекомендации по развитию работника:<textarea asp-for="ValueJudgment.RecommendationsForDevelopment">@recommendations</textarea>
-            </div>
-
-            <input type="submit" value="Submit" />
-        }
-        else
-        {
-            <div>
-                Сильные стороны работника: @strengths
-            </div>
-            <div>
-                Зоны деятельности / поведение работника, требующие корректировки: @behaviorToCorrect
-            </div>
-            <div>
-                Рекомендации по развитию работника: @recommendations
-            </div>
-        }
-    </form>
-</div>
+        </div>
+        <div>
+            Сильные стороны работника: <textarea asp-for="ValueJudgment.Strengths">@strengths</textarea>
+        </div>
+        <div>
+            Зоны деятельности / поведение работника, требующие корректировки: <textarea asp-for="ValueJudgment.BehaviorToCorrect">@behaviorToCorrect</textarea>
+        </div>
+        <div>
+            Рекомендации по развитию работника:<textarea asp-for="ValueJudgment.RecommendationsForDevelopment">@recommendations</textarea>
+        </div>
+    </div>
+    @if(isInRole)
+    {
+        <button type="submit" class="add_row_btn">Сохранить</button>
+    }
+</form>

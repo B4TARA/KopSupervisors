@@ -96,5 +96,5 @@ C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Debug\net6.
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Debug\net6.0\KOP.DAL.dll
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Debug\net6.0\KOP.DAL.pdb
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Debug\net6.0\KOP.Common.pdb
-C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Debug\net6.0\KOP.BLL.csproj.CopyComplete
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Debug\net6.0\ref\KOP.BLL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Debug\net6.0\KOP.BLL.csproj.Up2Date

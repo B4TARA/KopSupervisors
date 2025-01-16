@@ -20,11 +20,6 @@ namespace KOP.DAL.Entities.GradeEntities
 
 
 
-        public Employee Employee { get; set; } // Сотрудник, к которому относится данный показатель
-        public int EmployeeId { get; set; }
-
-
-
         public Grade Grade { get; set; } // Оценка, к которой относится данный показатель
         public int GradeId { get; set; }
 

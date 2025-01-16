@@ -1,5 +1,5 @@
-﻿using KOP.Common.DTOs;
-using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.DTOs.GradeDTOs;
+using KOP.Common.Enums;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {

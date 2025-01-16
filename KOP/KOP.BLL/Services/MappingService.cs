@@ -24,8 +24,8 @@ namespace KOP.BLL.Services
                     Position = employee.Position,
                     Subdivision = employee.Subdivision,
                     GradeGroup = employee.GradeGroup,
-                    WorkPeriod = employee.WorkPeriod,
-                    ContractEndDate = employee.ContractEndDate,
+                    WorkPeriod = employee.GetWorkPeriod,
+                    ContractEndDate = employee.ContractEndDate.Value,
                     ImagePath = employee.ImagePath,
                 };
 
@@ -82,7 +82,6 @@ namespace KOP.BLL.Services
                     Number = grade.Number,
                     StartDate = grade.StartDate,
                     EndDate = grade.EndDate,
-                    NextGradeDate = grade.NextGradeDate,
                     StrategicTasksConclusion = grade.StrategicTasksConclusion,
                     KPIsConclusion = grade.KPIsConclusion,
                     QualificationConclusion = grade.QualificationConclusion,
@@ -243,17 +242,32 @@ namespace KOP.BLL.Services
                     HigherEducation = qualification.HigherEducation,
                     Speciality = qualification.Speciality,
                     QualificationResult = qualification.QualificationResult,
-                    StartDate = qualification.StartDate,
-                    EndDate = qualification.EndDate,
+                    StartDateTime = qualification.StartDate.ToDateTime(TimeOnly.MinValue),
+                    EndDateTime = qualification.EndDate.ToDateTime(TimeOnly.MinValue),
                     AdditionalEducation = qualification.AdditionalEducation,
-                    CurrentDate = qualification.CurrentDate,
-                    ExperienceMonths = qualification.ExperienceMonths,
-                    ExperienceYears = qualification.ExperienceYears,
-                    PreviousPosition1 = qualification.PreviousPosition1,
-                    PreviousPosition2 = qualification.PreviousPosition2,
-                    CurrentPosition = qualification.CurrentPosition,
+                    CurrentStatusDateTime = qualification.CurrentStatusDate.ToDateTime(TimeOnly.MinValue),
+                    CurrentExperienceYears = qualification.CurrentExperienceYears,
+                    CurrentExperienceMonths = qualification.CurrentExperienceMonths,
+                    CurrentJobStartDateTime = qualification.CurrentJobStartDate.ToDateTime(TimeOnly.MinValue),
+                    CurrentJobPositionName = qualification.CurrentJobPositionName,
                     EmploymentContarctTerminations = qualification.EmploymentContarctTerminations,
                 };
+
+                foreach (var previousJob in qualification.PreviousJobs)
+                {
+                    var previousJobDto = CreatePreviousJobDTO(previousJob);
+
+                    if (previousJobDto.StatusCode != StatusCodes.OK || previousJobDto.Data == null)
+                    {
+                        return new BaseResponse<QualificationDTO>()
+                        {
+                            Description = previousJobDto.Description,
+                            StatusCode = previousJobDto.StatusCode,
+                        };
+                    }
+
+                    dto.PreviousJobs.Add(previousJobDto.Data);
+                }
 
                 return new BaseResponse<QualificationDTO>()
                 {
@@ -290,7 +304,6 @@ namespace KOP.BLL.Services
                     Id = mark.Id,
                     PercentageValue = mark.PercentageValue,
                     Period = mark.Period,
-                    EmployeeId = mark.EmployeeId,
                 };
 
                 return new BaseResponse<MarkDTO>()
@@ -318,8 +331,8 @@ namespace KOP.BLL.Services
                 {
                     Id = kpi.Id,
                     Name = kpi.Name,
-                    PeriodStartDate = kpi.PeriodStartDate,
-                    PeriodEndDate = kpi.PeriodEndDate,
+                    PeriodStartDateTime = kpi.PeriodStartDate.ToDateTime(TimeOnly.MinValue),
+                    PeriodEndDateTime = kpi.PeriodEndDate.ToDateTime(TimeOnly.MinValue),
                     CompletionPercentage = kpi.CompletionPercentage,
                     CalculationMethod = kpi.CalculationMethod,
                 };
@@ -351,11 +364,9 @@ namespace KOP.BLL.Services
                     Name = project.Name,
                     SupervisorSspName = project.SupervisorSspName,
                     Stage = project.Stage,
-                    StartDate = project.StartDate,
-                    EndDate = project.EndDate,
-                    CurrentDate = project.CurrentDate,
-                    CurrentMonth = project.CurrentMonth,
-                    CurrentYear = project.CurrentYear,
+                    StartDateTime = project.StartDate.ToDateTime(TimeOnly.MinValue),
+                    EndDateTime = project.EndDate.ToDateTime(TimeOnly.MinValue),
+                    CurrentStatusDateTime = project.CurrentStatusDate.ToDateTime(TimeOnly.MinValue),
                     PlanStages = project.PlanStages,
                     FactStages = project.FactStages,
                     SPn = project.SPn,
@@ -387,8 +398,8 @@ namespace KOP.BLL.Services
                     Id = strategicTask.Id,
                     Name = strategicTask.Name,
                     Purpose = strategicTask.Purpose,
-                    PlanDate = strategicTask.PlanDate,
-                    FactDate = strategicTask.FactDate,
+                    PlanDateTime = strategicTask.PlanDate.ToDateTime(TimeOnly.MinValue),
+                    FactDateTime = strategicTask.FactDate.ToDateTime(TimeOnly.MinValue),
                     PlanResult = strategicTask.PlanResult,
                     FactResult = strategicTask.FactResult,
                     Remark = strategicTask.Remark,
@@ -434,6 +445,36 @@ namespace KOP.BLL.Services
                 return new BaseResponse<ValueJudgmentDTO>()
                 {
                     Description = $"[MappingService.CreateValueJudgmentDTO] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        // Преобразование PreviousJob в PreviousJobDTO
+        public IBaseResponse<PreviousJobDTO> CreatePreviousJobDTO(PreviousJob previousJob)
+        {
+            try
+            {
+                var dto = new PreviousJobDTO()
+                {
+                    Id = previousJob.Id,
+                    StartDateTime = previousJob.StartDate.ToDateTime(TimeOnly.MinValue),
+                    EndDateTime = previousJob.EndDate.ToDateTime(TimeOnly.MinValue),
+                    OrganizationName = previousJob.OrganizationName,
+                    PositionName = previousJob.PositionName
+                };
+
+                return new BaseResponse<PreviousJobDTO>()
+                {
+                    Data = dto,
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<PreviousJobDTO>()
+                {
+                    Description = $"[MappingService.CreatePreviousJobDTO] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
@@ -498,7 +539,6 @@ namespace KOP.BLL.Services
                     Number = assessment.Number,
                     EmployeeId = assessment.EmployeeId,
                     SystemStatus = assessment.SystemStatus,
-                    NextAssessmentDate = assessment.NextAssessmentDate,
                 };
 
                 foreach (var result in assessment.AssessmentResults)

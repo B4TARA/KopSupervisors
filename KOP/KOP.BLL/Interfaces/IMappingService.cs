@@ -18,6 +18,7 @@ namespace KOP.BLL.Interfaces
         IBaseResponse<ProjectDTO> CreateProjectDTO(Project project);
         IBaseResponse<StrategicTaskDTO> CreateStrategicTaskDTO(StrategicTask strategicTask);
         IBaseResponse<ValueJudgmentDTO> CreateValueJudgmentDTO(ValueJudgment valueJudgment);
+        IBaseResponse<PreviousJobDTO> CreatePreviousJobDTO(PreviousJob previousJob);
         IBaseResponse<TrainingEventDTO> CreateTrainingEventDTO(TrainingEvent trainingEvent);
         IBaseResponse<AssessmentDTO> CreateAssessmentDTO(Assessment assessment);
         IBaseResponse<AssessmentResultDTO> CreateAssessmentResultDTO(AssessmentResult result, AssessmentMatrix matrix);

@@ -2,61 +2,71 @@
 
 @{
     Layout = null;
+
+    var isInRole = User.IsInRole("Cup");
+    var controllerMethod = "EditProjects";
 }
 
-<div class="popup_content">
-
-    <div class="popup_content_header margin_container_bottom_middle">
-        <div class="title">
-            Результаты выполнения стратегических проектов и задач
-        </div>
+<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
+    <input type="hidden" asp-for="GradeId">
+    <div asp-validation-summary="All">
+        <!-- Ошибки валидации будут отображаться тут-->
     </div>
-
-@{
-    int counter = 1;
-}
-<form action="" method="post" id="projectsSupervisorForm">
-
-    <div class="project_info_list">
-    
-            @foreach (var project in Model.Projects)
-            {
-                <div class="mid_title">
-                    Проект @counter
-                </div>
-                <div>
-                    @project.SupervisorSspName является заказчиком стратегического проекта "@project.Name"
-                </div>
-                <div>
-                    Проект находится на этапе @project.Stage
-                </div>
-                <div>
-                    Дата открытия проекта - @project.StartDate
-                </div>
-                <div>
-                    Срок реализации проекта - @project.EndDate
-                </div>
-                <div>
-                    На число @project.CurrentDate месяц @project.CurrentMonth год @project.CurrentYear по проекту выполнены @project.FactStages из @project.PlanStages этапов
-                </div>
-                <div>
-                    Коэффициент реализации проекта - @project.SPn %
-                </div>
-
-                counter++;
-            }
-        
+    <div class="popup_content">
+        <div class="popup_content_header margin_container_bottom_middle">
+            <div class="title">
+                Результаты выполнения стратегических проектов и задач
+            </div>
         </div>
+        <div class="project_info_list" id="rowContainer">
 
-        @if (true)
+            @for (int i = 0; i < Model.Projects.Count; i++)
+            {
+                var project = Model.Projects[i];
+                var startDateTime = project.StartDateTime.ToString("yyyy-MM-dd");
+                var endDateTime = project.EndDateTime.ToString("yyyy-MM-dd");
+                var currentStatusDateTime = project.CurrentStatusDateTime.ToString("yyyy-MM-dd");
+                <div>
+                    <div class="mid_title">
+                        Проект @(i + 1)
+                    </div>
+                    <div>
+                        <input type="text" asp-for="Projects[i].SupervisorSspName" value="@project.SupervisorSspName" disabled="@(isInRole ? null : "disabled")" />
+                        является заказчиком стратегического проекта
+                        <input type="text" asp-for="Projects[i].Name" value="@project.Name" disabled="@(isInRole ? null : "disabled")" />
+                    </div>
+                    <div>
+                        Проект находится на этапе
+                        <input type="text" asp-for="Projects[i].Stage" value="@project.Stage" disabled="@(isInRole ? null : "disabled")" />
+                    </div>
+                    <div>
+                        Дата открытия проекта -
+                        <input type="date" asp-for="Projects[i].StartDateTime" value="@startDateTime" disabled="@(isInRole ? null : "disabled")" />
+                    </div>
+                    <div>
+                        Срок реализации проекта -
+                        <input type="date" asp-for="Projects[i].EndDateTime" value="@endDateTime" disabled="@(isInRole ? null : "disabled")" />
+                    </div>
+                    <div>
+                        На число
+                        <input type="date" asp-for="Projects[i].CurrentStatusDateTime" value="@currentStatusDateTime" disabled="@(isInRole ? null : "disabled")" /> по проекту выполнены
+                        <input type="number" asp-for="Projects[i].FactStages" value="@project.FactStages" disabled="@(isInRole ? null : "disabled")" /> из
+                        <input type="number" asp-for="Projects[i].PlanStages" value="@project.PlanStages" disabled="@(isInRole ? null : "disabled")" /> этапов
+                    </div>
+                    <div>
+                        Коэффициент реализации проекта -
+                        <input type="number" asp-for="Projects[i].SPn" value="@project.SPn" disabled="@(isInRole ? null : "disabled")" /> %
+                    </div>
+                </div>
+            }
+        </div>
+        @if (isInRole)
         {
             <div class="add_row_btn add_project" onclick="addRow(this,'project')">Добавить</div>
-            <button class="add_row_btn" type="submit">Сохранить</button>
         }
-        
-        
-
-
+    </div>
+    @if (isInRole)
+    {
+        <button type="submit" class="add_row_btn">Сохранить</button>
+    }
 </form>
-
-</div>

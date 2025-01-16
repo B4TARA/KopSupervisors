@@ -14,6 +14,7 @@
         </div>
     </div>
     <div class="results_assessment_main_wrapper">
+        <div class="mid_title">Интерпретация результатов оценки управленческих компетенций</div>
         @if (Model.Assessment.AssessmentResults.Count() == 0)
         {
             <!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
@@ -23,15 +24,15 @@
         }
         else
         {
-            <table>
-                <tr>
-                    <th>Интерпретация результатов оценки управленческих компетенций</th>
-                </tr>
-                <tr>
-                    <th>Балл</th>
-                    <th>Уровень</th>
-                    <th>Компетентность</th>
-                </tr>
+            <table class="table_popup">
+                <thead>
+                    <tr>
+                        <th>Балл</th>
+                        <th>Уровень</th>
+                        <th>Компетентность</th>
+                    </tr>
+                </thead>
+                
                 @if (Model.Assessment.AverageValue >= 56)
                 {
                     <tr>

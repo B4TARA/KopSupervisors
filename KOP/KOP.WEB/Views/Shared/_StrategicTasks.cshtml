@@ -3,22 +3,31 @@
 @{
     Layout = null;
 
-    var conclusion = Model.StrategicTasksConclusion;
+    // Перенести логику в BLL
+    // На данный момент для удобства тестирования
+    var isInRole = User.IsInRole("Employee");
+    var conclusionEditAccess = false;
+    if (User.IsInRole("Urp"))
+    {
+        conclusionEditAccess = true;
+    }
+    var controllerMethod = "EditStrategicTasks";
 }
 
-<div class="popup_content">
-
-    <div class="popup_content_header margin_container_bottom_middle">
-        <div class="title">
-            Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
-        </div>
-
-        <div class="description">
-            @conclusion
-        </div>
+<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
+    <input type="hidden" asp-for="GradeId">
+    <div asp-validation-summary="All">
+        <!-- Ошибки валидации будут отображаться тут-->
     </div>
-
-    <form action="" method="post">
+    <div class="popup_content">
+        <div class="popup_content_header margin_container_bottom_middle">
+            <div class="title">
+                Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+            </div>
+            <div class="description">
+                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
+            </div>
+        </div>
         <table class="table_popup">
             <thead>
                 <tr>
@@ -40,47 +49,46 @@
                     <th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var strategicTask in Model.StrategicTasks)
+            <tbody id="rowContainer">
+                @for (int i = 0; i < Model.StrategicTasks.Count; i++)
                 {
+                    var strategicTask = Model.StrategicTasks[i];
+                    var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
+                    var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
+
                     <tr>
                         <td>
-                            <input type="text" value="@strategicTask.Name"></input>
-                            
-                        </td>
-                        <td class="fullname">
-                            <input type="text" value="@strategicTask.Purpose"></input>
-                            
+                            <input type="text" asp-for="StrategicTasks[i].Name" value="@strategicTask.Name" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                         <td>
-                            <input type="date" value="@strategicTask.PlanDate"></input>
-                            
+                            <input type="text" asp-for="StrategicTasks[i].Purpose" value="@strategicTask.Purpose" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                         <td>
-                            <input type="date" value="@strategicTask.FactDate"></input>
-                            
+                            <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                         <td>
-                            <input type="text" value="@strategicTask.PlanResult"></input>
-                            
+                            <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                         <td>
-
-                            @strategicTask.FactResult
+                            <input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                         <td>
-                            @strategicTask.Remark
+                            <input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" disabled="@(isInRole ? null : "disabled")" />
+                        </td>
+                        <td>
+                            <input type="text" asp-for="StrategicTasks[i].Remark" value="@strategicTask.Remark" disabled="@(isInRole ? null : "disabled")" />
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        @if (true)
+        @if (isInRole)
         {
             <div class="add_row_btn add_project" onclick="addRow(this,'strategy')">Добавить</div>
-            <button class="add_row_btn" type="submit">Сохранить</button>
         }
-    </form>
-
-    
-</div>
+    </div>
+    @if (isInRole)
+    {
+        <button type="submit" class="add_row_btn">Сохранить</button>
+    }
+</form>

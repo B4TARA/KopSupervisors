@@ -1,4 +1,5 @@
-﻿using KOP.BLL.Interfaces;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using KOP.BLL.Interfaces;
 using KOP.Common.DTOs;
 using KOP.Common.DTOs.GradeDTOs;
 using KOP.Common.Enums;
@@ -33,6 +34,17 @@ namespace KOP.BLL.Services
                     if (strGradeEntity is null)
                     {
                         continue;
+                    }
+
+                    // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
+                    if (gradeEntity == GradeEntities.Marks)
+                    {
+                        strGradeEntity += ".MarkType";
+                    }
+                    // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
+                    else if (gradeEntity == GradeEntities.Qualification)
+                    {
+                        strGradeEntity += ".PreviousJobs";
                     }
 
                     includeProperties.Add(strGradeEntity);
@@ -76,336 +88,190 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Создать стратегическую задачу
-        public async Task<IBaseResponse<object>> CreateStrategicTask(StrategicTaskDTO dto)
+        // Изменить количественную оценку
+        public async Task<IBaseResponse<object>> EditGrade(GradeDTO dto)
         {
             try
             {
-                var strategicTask = new StrategicTask
-                {
-                    Name = dto.Name,
-                    Purpose = dto.Purpose,
-                    PlanDate = dto.PlanDate,
-                    FactDate = dto.FactDate,
-                    PlanResult = dto.PlanResult,
-                    FactResult = dto.FactResult,
-                    Remark = dto.Remark,
-                    GradeId = dto.GradeId,
-                };
+                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == dto.Id);
 
-                await _unitOfWork.StrategicTasks.AddAsync(strategicTask);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.CreateStrategicTask] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Создать обучающее мероприятие
-        public async Task<IBaseResponse<object>> CreateTrainingEvent(TrainingEventDTO dto)
-        {
-            try
-            {
-                var trainingEvent = new TrainingEvent
-                {
-                    Name = dto.Name,
-                    Status = dto.Status,
-                    StartDate = dto.StartDate,
-                    EndDate = dto.EndDate,
-                    Competence = dto.Competence,
-                    EmployeeId = dto.EmployeeId,
-                    GradeId = dto.GradeId,
-                };
-
-                await _unitOfWork.TrainingEvents.AddAsync(trainingEvent);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.CreateTrainingEvent] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Создать проект
-        public async Task<IBaseResponse<object>> CreateProject(ProjectDTO dto)
-        {
-            try
-            {
-                var project = new Project
-                {
-                    Name = dto.Name,
-                    SupervisorSspName = dto.SupervisorSspName,
-                    Stage = dto.Stage,
-                    StartDate = dto.StartDate,
-                    EndDate = dto.EndDate,
-                    CurrentDate = dto.CurrentDate,
-                    CurrentMonth = dto.CurrentMonth,
-                    CurrentYear = dto.CurrentYear,
-                    PlanStages = dto.PlanStages,
-                    FactStages = dto.FactStages,
-                    SPn = dto.SPn,
-                    GradeId = dto.GradeId,
-                };
-
-                await _unitOfWork.Projects.AddAsync(project);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.CreateProject] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Создать КПЭ
-        public async Task<IBaseResponse<object>> CreateKpi(KpiDTO dto)
-        {
-            try
-            {
-                var kpi = new Kpi
-                {
-                    Name = dto.Name,
-                    PeriodStartDate = dto.PeriodStartDate,
-                    PeriodEndDate = dto.PeriodEndDate,
-                    CompletionPercentage = dto.CompletionPercentage,
-                    CalculationMethod = dto.CalculationMethod,
-                    EmployeeId = dto.EmployeeId,
-                    GradeId = dto.GradeId,
-                };
-
-                await _unitOfWork.Kpis.AddAsync(kpi);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.CreateKpi] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Создать показатель
-        public async Task<IBaseResponse<object>> CreateMark(MarkDTO dto)
-        {
-            try
-            {
-                var mark = new Mark
-                {
-                    PercentageValue = dto.PercentageValue,
-                    Period = dto.Period,
-                    MarkTypeId = dto.MarkTypeDTO.Id,
-                    EmployeeId = dto.EmployeeId,
-                    GradeId = dto.GradeId,
-                };
-
-                await _unitOfWork.Marks.AddAsync(mark);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.CreateMark] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-
-
-
-        // Изменить стратегическую задачу
-        public async Task<IBaseResponse<object>> EditStrategicTask(StrategicTaskDTO dto)
-        {
-            try
-            {
-                var strategicTask = await _unitOfWork.StrategicTasks.GetAsync(x => x.Id == dto.Id);
-
-                if (strategicTask is null)
+                if (grade is null)
                 {
                     return new BaseResponse<object>()
                     {
-                        Description = $"[GradeService.EditStrategicTask] : Стратегическая задача с id = {dto.Id} не найдена",
+                        Description = $"[GradeService.EditGrade] :Оценка с id = {dto.Id} не найдена",
                         StatusCode = StatusCodes.EntityNotFound
                     };
                 }
 
-                strategicTask.Name = dto.Name;
-                strategicTask.Purpose = dto.Purpose;
-                strategicTask.PlanDate = dto.PlanDate;
-                strategicTask.FactDate = dto.FactDate;
-                strategicTask.PlanResult = dto.PlanResult;
-                strategicTask.FactResult = dto.FactResult;
-                strategicTask.Remark = dto.Remark;
+                var strategicTasks = new List<StrategicTask>();
+                var kpis = new List<Kpi>();
+                var projects = new List<Project>();
+                var marks = new List<Mark>();
 
-                _unitOfWork.StrategicTasks.Update(strategicTask);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
+                foreach (var strategicTaskDto in dto.StrategicTasks)
                 {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.EditStrategicTask] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Изменить обучающее мероприятие
-        public async Task<IBaseResponse<object>> EditTrainingEvent(TrainingEventDTO dto)
-        {
-            try
-            {
-                var trainingEvent = await _unitOfWork.TrainingEvents.GetAsync(x => x.Id == dto.Id);
-
-                if (trainingEvent is null)
-                {
-                    return new BaseResponse<object>()
+                    var strategicTask = new StrategicTask
                     {
-                        Description = $"[GradeService.EditTrainingEvent] : Обучающее мероприятие с id = {dto.Id} не найдено",
-                        StatusCode = StatusCodes.EntityNotFound
+                        Name = strategicTaskDto.Name,
+                        Purpose = strategicTaskDto.Purpose,
+                        PlanDate = strategicTaskDto.PlanDate,
+                        FactDate = strategicTaskDto.FactDate,
+                        PlanResult = strategicTaskDto.PlanResult,
+                        FactResult = strategicTaskDto.FactResult,
+                        Remark = strategicTaskDto.Remark,
                     };
+
+                    strategicTasks.Add(strategicTask);
                 }
 
-                trainingEvent.Name = dto.Name;
-                trainingEvent.Status = dto.Status;
-                trainingEvent.StartDate = dto.StartDate;
-                trainingEvent.EndDate = dto.EndDate;
-                trainingEvent.Competence = dto.Competence;
-
-                _unitOfWork.TrainingEvents.Update(trainingEvent);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
+                foreach (var kpiDto in dto.Kpis)
                 {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.EditTrainingEvent] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Изменить квалификацию
-        public async Task<IBaseResponse<object>> EditQualification(QualificationDTO dto)
-        {
-            try
-            {
-                var qualification = await _unitOfWork.Qualifications.GetAsync(x => x.Id == dto.Id);
-
-                if (qualification is null)
-                {
-                    return new BaseResponse<object>()
+                    var kpi = new Kpi
                     {
-                        Description = $"[GradeService.EditQualification] : Квалификация с id = {dto.Id} не найдена",
-                        StatusCode = StatusCodes.EntityNotFound
+                        Name = kpiDto.Name,
+                        PeriodStartDate = kpiDto.PeriodStartDate,
+                        PeriodEndDate = kpiDto.PeriodEndDate,
+                        CompletionPercentage = kpiDto.CompletionPercentage,
+                        CalculationMethod = kpiDto.CalculationMethod,
                     };
+
+                    kpis.Add(kpi);
                 }
 
-                qualification.SupervisorSspName = dto.SupervisorSspName;
-                qualification.Link = dto.Link;
-                qualification.HigherEducation = dto.HigherEducation;
-                qualification.Speciality = dto.Speciality;
-                qualification.QualificationResult = dto.QualificationResult;
-                qualification.StartDate = dto.StartDate;
-                qualification.EndDate = dto.EndDate;
-                qualification.AdditionalEducation = dto.AdditionalEducation;
-                qualification.CurrentDate = dto.CurrentDate;
-                qualification.ExperienceMonths = dto.ExperienceMonths;
-                qualification.ExperienceYears = dto.ExperienceYears;
-                qualification.PreviousPosition1 = dto.PreviousPosition1;
-                qualification.PreviousPosition2 = dto.PreviousPosition2;
-                qualification.CurrentPosition = dto.CurrentPosition;
-                qualification.EmploymentContarctTerminations = dto.EmploymentContarctTerminations;
-
-                _unitOfWork.Qualifications.Update(qualification);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
+                foreach (var projectDto in dto.Projects)
                 {
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<object>()
-                {
-                    Description = $"[GradeService.EditQualification] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Изменить оценочное суждение
-        public async Task<IBaseResponse<object>> EditValueJudgment(ValueJudgmentDTO dto)
-        {
-            try
-            {
-                var valueJudgment = await _unitOfWork.ValueJudgments.GetAsync(x => x.Id == dto.Id);
-
-                if (valueJudgment is null)
-                {
-                    return new BaseResponse<object>()
+                    var project = new Project
                     {
-                        Description = $"[GradeService.EditValueJudgment] : Оценочное суждение с id = {dto.Id} не найдено",
-                        StatusCode = StatusCodes.EntityNotFound
+                        Name = projectDto.Name,
+                        SupervisorSspName = projectDto.SupervisorSspName,
+                        Stage = projectDto.Stage,
+                        StartDate = projectDto.StartDate,
+                        EndDate = projectDto.EndDate,
+                        CurrentStatusDate = projectDto.CurrentStatusDate,
+                        PlanStages = projectDto.PlanStages,
+                        FactStages = projectDto.FactStages,
+                        SPn = projectDto.SPn,
                     };
+
+                    projects.Add(project);
                 }
 
-                valueJudgment.Strengths = dto.Strengths;
-                valueJudgment.BehaviorToCorrect = dto.BehaviorToCorrect;
-                valueJudgment.RecommendationsForDevelopment = dto.RecommendationsForDevelopment;
+                foreach (var markTypeDto in dto.MarkTypes)
+                {
+                    foreach (var markDto in markTypeDto.Marks)
+                    {
+                        var mark = new Mark
+                        {
+                            PercentageValue = markDto.PercentageValue,
+                            Period = markDto.Period,
+                            MarkTypeId = markTypeDto.Id,
+                        };
 
-                _unitOfWork.ValueJudgments.Update(valueJudgment);
+                        marks.Add(mark);
+                    }
+                }
+
+                if (dto.ValueJudgment is not null)
+                {
+                    var valueJudgment = await _unitOfWork.ValueJudgments.GetAsync(x => x.Id == dto.ValueJudgment.Id);
+
+                    if (valueJudgment is null)
+                    {
+                        grade.ValueJudgment = new ValueJudgment
+                        {
+                            Strengths = dto.ValueJudgment.Strengths,
+                            BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect,
+                            RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment,
+                        };
+                    }
+                    else
+                    {
+                        valueJudgment.Strengths = dto.ValueJudgment.Strengths;
+                        valueJudgment.BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect;
+                        valueJudgment.RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment;
+                    }
+                }
+
+                if (dto.Qualification is not null)
+                {
+                    var qualification = await _unitOfWork.Qualifications.GetAsync(x => x.Id == dto.Qualification.Id);
+
+                    if (qualification is null)
+                    {
+                        // CreateQualification
+                        grade.Qualification = new Qualification
+                        {
+                            SupervisorSspName = dto.Qualification.SupervisorSspName,
+                            Link = dto.Qualification.Link,
+                            HigherEducation = dto.Qualification.HigherEducation,
+                            Speciality = dto.Qualification.Speciality,
+                            QualificationResult = dto.Qualification.QualificationResult,
+                            StartDate = dto.Qualification.StartDate,
+                            EndDate = dto.Qualification.EndDate,
+                            AdditionalEducation = dto.Qualification.AdditionalEducation,
+                            CurrentStatusDate = dto.Qualification.CurrentStatusDate,
+                            CurrentExperienceYears = dto.Qualification.CurrentExperienceYears,
+                            CurrentExperienceMonths = dto.Qualification.CurrentExperienceMonths,
+                            CurrentJobStartDate = dto.Qualification.CurrentJobStartDate,
+                            CurrentJobPositionName = dto.Qualification.CurrentJobPositionName,
+                            EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations,
+                        };
+
+                        foreach (var previousJob in dto.Qualification.PreviousJobs)
+                        {
+                            grade.Qualification.PreviousJobs.Add(new PreviousJob
+                            {
+                                StartDate = previousJob.StartDate,
+                                EndDate = previousJob.EndDate,
+                                OrganizationName = previousJob.OrganizationName,
+                                PositionName = previousJob.PositionName,
+                            });
+                        }
+                    }
+                    else
+                    {
+                        qualification.SupervisorSspName = dto.Qualification.SupervisorSspName;
+                        qualification.Link = dto.Qualification.Link;
+                        qualification.HigherEducation = dto.Qualification.HigherEducation;
+                        qualification.Speciality = dto.Qualification.Speciality;
+                        qualification.QualificationResult = dto.Qualification.QualificationResult;
+                        qualification.StartDate = dto.Qualification.StartDate;
+                        qualification.EndDate = dto.Qualification.EndDate;
+                        qualification.AdditionalEducation = dto.Qualification.AdditionalEducation;
+                        qualification.CurrentStatusDate = dto.Qualification.CurrentStatusDate;
+                        qualification.CurrentExperienceYears = dto.Qualification.CurrentExperienceYears;
+                        qualification.CurrentExperienceMonths = dto.Qualification.CurrentExperienceMonths;
+                        qualification.CurrentJobStartDate = dto.Qualification.CurrentJobStartDate;
+                        qualification.CurrentJobPositionName = dto.Qualification.CurrentJobPositionName;
+                        qualification.EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations;
+
+                        foreach (var previousJob in dto.Qualification.PreviousJobs)
+                        {
+                            qualification.PreviousJobs.Add(new PreviousJob
+                            {
+                                StartDate = previousJob.StartDate,
+                                EndDate = previousJob.EndDate,
+                                OrganizationName = previousJob.OrganizationName,
+                                PositionName = previousJob.PositionName,
+                            });
+                        }
+                    }
+
+                    grade.QualificationConclusion = dto.QualificationConclusion;
+                }
+
+                grade.StrategicTasks = strategicTasks;
+                grade.StrategicTasksConclusion = dto.StrategicTasksConclusion;
+
+                grade.Kpis = kpis;
+                grade.KPIsConclusion = dto.KPIsConclusion;
+
+                grade.Projects = projects;
+
+                grade.Marks = marks;
+
+                _unitOfWork.Grades.Update(grade);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponse<object>()
@@ -417,7 +283,7 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<object>()
                 {
-                    Description = $"[GradeService.EditValueJudgment] : {ex.Message}",
+                    Description = $"[GradeService.EditGrade] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }

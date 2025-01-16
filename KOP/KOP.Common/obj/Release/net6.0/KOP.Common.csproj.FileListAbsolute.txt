@@ -1,0 +1,11 @@
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\bin\Release\net6.0\KOP.Common.deps.json
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\bin\Release\net6.0\KOP.Common.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\bin\Release\net6.0\KOP.Common.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.AssemblyInfoInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.AssemblyInfo.cs
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.csproj.CoreCompileInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\refint\KOP.Common.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\KOP.Common.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.Common\obj\Release\net6.0\ref\KOP.Common.dll

@@ -23,13 +23,7 @@ namespace KOP.DAL.Entities.GradeEntities
         public DateOnly EndDate { get; set; } // Срок реализации проекта
 
         [Required]
-        public int CurrentDate { get; set; } // Текущее число
-
-        [Required]
-        public int CurrentMonth { get; set; } // Текущий месяц
-
-        [Required]
-        public int CurrentYear { get; set; } // Текущий год
+        public DateOnly CurrentStatusDate { get; set; } // Дата текущего состояния
 
         [Required]
         public int PlanStages { get; set; } // План этапов
@@ -39,10 +33,6 @@ namespace KOP.DAL.Entities.GradeEntities
 
         [Required]
         public int SPn { get; set; } // Оценка реализации проекта
-
-
-
-        public Employee Employee { get; set; } // Сотрудник, к которому относится данный стратегический проекта
 
 
 

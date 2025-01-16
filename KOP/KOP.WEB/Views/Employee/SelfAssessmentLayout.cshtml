@@ -6,12 +6,37 @@
 
 @if (Model.LastAssessments.Count() != 0)
 {
-    @foreach (var assessment in Model.LastAssessments)
-    {
-        <button onclick="getAssessment(@assessment.EmployeeId, @assessment.Id)">
-            @assessment.AssessmentTypeName
-        </button>
-    }
+    <div class="list_menu_container header">
+        <ul class="list_menu_wrapper nav">
+            @foreach (var assessment in Model.LastAssessments)
+            {
+                @if (assessment.IsActiveAssessment)
+                {
+                    <li class="item_menu active">
+                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.EmployeeId, @assessment.Id)">
+                            @assessment.AssessmentTypeName
+                        </button>
+                        <span class="indicator_assessment">
+
+                        </span>
+                    </li>
+                }else{
+                    <li class="item_menu">
+                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.EmployeeId, @assessment.Id)">
+                            @assessment.AssessmentTypeName
+                        </button>
+                        <span class="indicator_assessment">
+
+                        </span>
+                    </li>
+                }
+                
+            }
+            
+        </ul>
+    </div>
+
+   
 }
 else
 {

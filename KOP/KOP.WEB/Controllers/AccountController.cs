@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
@@ -25,19 +24,6 @@ namespace KOP.WEB.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var remindPasswordLogin = TempData["remindPasswordLogin"]?.ToString();
-            var remindPasswordMessage = TempData["remindPasswordMessage"]?.ToString();
-
-            if (!string.IsNullOrEmpty(remindPasswordLogin))
-            {
-                ViewBag.remindPasswordLogin = remindPasswordLogin;
-            }
-
-            if (!string.IsNullOrEmpty(remindPasswordMessage))
-            {
-                ModelState.AddModelError("", remindPasswordMessage);
-            }
-
             return View();
         }
 
@@ -50,62 +36,28 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(AccountDTO accountDTO)
+        public async Task<JsonResult> Login([FromBody] LoginDTO dto)
         {
-            if (ModelState.IsValid)
+            var response = await _accountService.Login(dto);
+
+            if (!response.HasData)
             {
-                var response = await _accountService.Login(accountDTO);
-
-                if (response.StatusCode == StatusCodes.OK && response.Data != null)
-                {
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(response.Data),
-                        new AuthenticationProperties { IsPersistent = true });
-
-                    return RedirectToRoute(new
-                    {
-                        httpMethod = "POST",
-                        controller = "Home",
-                        action = "Index",
-                    });
-                }
-                else
-                {
-                    ModelState.AddModelError("", response.Description);
-                }
+                return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
             }
 
-            return View(accountDTO);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                   new ClaimsPrincipal(response.Data),
+                   new AuthenticationProperties { IsPersistent = true });
+
+            return Json(new { statusCode = (int)response.StatusCode });
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemindPassword(AccountDTO accountDTO)
+        public async Task<JsonResult> RemindPassword([FromBody] LoginDTO dto)
         {
-            TempData["remindPasswordLogin"] = accountDTO.Login;
+            var response = await _accountService.RemindPassword(dto);
 
-            if (ModelState.IsValid)
-            {
-                var remindPasswordResponse = await _accountService.RemindPassword(accountDTO);
-
-                if (remindPasswordResponse.StatusCode == StatusCodes.EntityNotFound)
-                {
-                    TempData["changePasswordMessage"] = "Пользователя с таким login-ом не существует";
-                    return RedirectToAction("Login", "Account");
-                }
-                else if (remindPasswordResponse.StatusCode == StatusCodes.InternalServerError)
-                {
-                    TempData["changePasswordMessage"] = $"Произошла непредвиденная ошибка : {remindPasswordResponse.Description}";
-                    return RedirectToAction("Login", "Account");
-                }
-                else if (remindPasswordResponse.StatusCode == StatusCodes.OK)
-                {
-                    TempData["changePasswordMessage"] = "Ваши учетные данные успешно высланы на привязанную к аккаунту почту";
-                    return RedirectToAction("Login", "Account");
-                }
-            }
-
-            TempData["changePasswordMessage"] = "Invalid ModelState";
-            return RedirectToAction("Login", "Account");
+            return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
         }
     }
 }

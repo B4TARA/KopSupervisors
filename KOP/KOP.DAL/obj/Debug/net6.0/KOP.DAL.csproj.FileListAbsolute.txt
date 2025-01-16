@@ -92,6 +92,6 @@ C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\bin\Debug\net6.
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\bin\Debug\net6.0\KOP.DAL.pdb
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\bin\Debug\net6.0\KOP.Common.dll
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\bin\Debug\net6.0\KOP.Common.pdb
-C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\obj\Debug\net6.0\KOP.DAL.csproj.CopyComplete
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\obj\Debug\net6.0\KOP.DAL.genruntimeconfig.cache
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\obj\Debug\net6.0\ref\KOP.DAL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.DAL\obj\Debug\net6.0\KOP.DAL.csproj.Up2Date

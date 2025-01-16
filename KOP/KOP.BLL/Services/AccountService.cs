@@ -18,41 +18,42 @@ namespace KOP.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IBaseResponse<ClaimsIdentity>> Login(AccountDTO accountDTO)
+        public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDTO dto)
         {
             try
             {
-                var employee = await _unitOfWork.Employees.GetAsync(x => x.Login == accountDTO.Login);
+                var user = await _unitOfWork.Employees.GetAsync(x => x.Login == dto.Login);
 
-                if (employee == null)
+                if (user is null)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
-                        Description = "Пользователь не найден"
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = "Пользователь не найден",
                     };
                 }
-
-                if (accountDTO.Password != employee.Password)
+                else if (dto.Password != user.Password)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
+                        StatusCode = StatusCodes.IncorrectPassword,
                         Description = "Неверный пароль"
                     };
                 }
-
-                if (employee.IsSuspended)
+                else if (user.IsSuspended)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
+                        StatusCode = StatusCodes.UserIsSuspended,
                         Description = "Учетная запись заблокирована"
                     };
                 }
 
-                var result = Authenticate(employee);
+                var authenticationResult = Authenticate(user);
 
                 return new BaseResponse<ClaimsIdentity>()
                 {
-                    Data = result,
+                    Data = authenticationResult,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -66,55 +67,54 @@ namespace KOP.BLL.Services
             }
         }
 
-        private ClaimsIdentity Authenticate(Employee employee)
+        private ClaimsIdentity Authenticate(Employee user)
         {
             var claims = new List<Claim>
             {
-                new Claim("Id", employee.Id.ToString()),
-                new Claim("ImagePath", employee.ImagePath),
-                new Claim("FullName", employee.FullName),
+                new Claim("Id", user.Id.ToString()),
+                new Claim("ImagePath", user.ImagePath),
+                new Claim("FullName", user.FullName),
             };
 
-            // Вызов метода для добавления соответствующих ролей
-            claims.AddRange(GetRoleClaims(employee));
+            claims.AddRange(GetRoleClaims(user));
 
             return new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
         }
 
         private IEnumerable<Claim> GetRoleClaims(Employee employee)
         {
-            var roleClaims = new List<Claim>
-            {
-                // Добавляем роль Employee для всех сотрудников
-                // new Claim(ClaimTypes.Role, SystemRoles.Employee.ToString())
-            };
+            var rolesClaims = new List<Claim>();
 
             foreach(var systemRole in employee.SystemRoles)
             {
-                roleClaims.Add(new Claim(ClaimTypes.Role, systemRole.ToString()));
+                rolesClaims.Add(new Claim(ClaimTypes.Role, systemRole.ToString()));
             }
 
-            return roleClaims;
+            return rolesClaims;
         }
 
-        public async Task<IBaseResponse<object>> RemindPassword(AccountDTO accountDTO)
+        public async Task<IBaseResponse<object>> RemindPassword(LoginDTO dto)
         {
             try
             {
-                var userToRemindPassword = await _unitOfWork.Employees.GetAsync(x => x.Login == accountDTO.Login);
+                var user = await _unitOfWork.Employees.GetAsync(x => x.Login == dto.Login);
 
-                if (userToRemindPassword == null)
+                if (user is null)
                 {
                     return new BaseResponse<object>()
                     {
                         StatusCode = StatusCodes.EntityNotFound,
+                        Description = "Пользователь не найден",
                     };
                 }
 
-                // Реализовать логику отправки уведомления на почту
+                //
+                // Тут нужно Реализовать логику отправки уведомления на почту
+                //
 
                 return new BaseResponse<object>()
                 {
+                    StatusCode = StatusCodes.OK,
                     Description = "Данные высланы Вам на почту"
                 };
             }

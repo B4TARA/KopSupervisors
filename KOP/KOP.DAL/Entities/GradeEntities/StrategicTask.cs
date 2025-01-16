@@ -29,8 +29,6 @@ namespace KOP.DAL.Entities.GradeEntities
 
 
 
-        public Employee Employee { get; set; } // Сотрудник, к которому относится данная стратегическая задача
-
         public Grade Grade { get; set; } // Оценка, к которой относится данная стратегическая задача
         public int GradeId { get; set; }
 

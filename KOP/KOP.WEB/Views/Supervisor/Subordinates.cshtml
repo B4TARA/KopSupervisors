@@ -13,6 +13,9 @@
 
 <section class="list_division_users_main_wrapper">
     @{
-        await Html.RenderPartialAsync("_Subordinate", Model.Module);
+        foreach(var module in Model.Modules)
+        {
+            await Html.RenderPartialAsync("_Subordinate", module);
+        }
     }
 </section>

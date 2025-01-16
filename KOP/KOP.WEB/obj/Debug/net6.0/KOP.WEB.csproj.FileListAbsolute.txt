@@ -374,6 +374,11 @@ C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\scopedcss\bundle\KOP.WEB.styles.css
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\scopedcss\projectbundle\KOP.WEB.bundle.scp.css
-C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\KOP.WEB.csproj.CopyComplete
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\KOP.WEB.genruntimeconfig.cache
 C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\ref\KOP.WEB.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\bin\Debug\net6.0\KOP.WEB.staticwebassets.endpoints.json
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\staticwebassets.build.endpoints.json
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\staticwebassets\msbuild.KOP.WEB.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\obj\Debug\net6.0\KOP.WEB.csproj.Up2Date
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.WEB\bin\Debug\net6.0\FluentValidation.dll

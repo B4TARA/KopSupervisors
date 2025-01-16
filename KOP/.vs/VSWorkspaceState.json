@@ -4,9 +4,7 @@
     "\\KOP.WEB",
     "\\KOP.WEB\\Views",
     "\\KOP.WEB\\Views\\Supervisor",
-    "\\KOP.WEB\\wwwroot",
-    "\\KOP.WEB\\wwwroot\\css"
+    "\\KOP.WEB\\wwwroot"
   ],
-  "SelectedNode": "\\KOP.WEB\\Views\\Supervisor\\EmployeeGradeLayout.cshtml",
   "PreviewInSolutionExplorer": false
 }

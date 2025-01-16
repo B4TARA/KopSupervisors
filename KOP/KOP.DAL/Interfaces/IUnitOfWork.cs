@@ -11,10 +11,9 @@ namespace KOP.DAL.Interfaces
         IAssessmentResultRepository AssessmentResults { get; }
         IAssessmentResultValueRepository AssessmentResultValues { get; }
         IAssessmentTypeRepository AssessmentTypes { get; }
-
         IGradeRepository Grades { get; }
-
         IKpiRepository Kpis { get; }
+        IPreviousJobRepository PreviousJobs { get; }
         IProjectRepository Projects { get; }
         IEmployeeRepository Employees { get; }
         IQualificationRepository Qualifications { get; }
@@ -25,6 +24,7 @@ namespace KOP.DAL.Interfaces
         IStrategicTaskRepository StrategicTasks { get; }
         ITrainingEventRepository TrainingEvents { get; }
         IValueJudgmentRepository ValueJudgments { get; }
+        IMailRepository Mails { get; }
 
         void Commit();
         void Rollback();

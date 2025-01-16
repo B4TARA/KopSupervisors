@@ -47,7 +47,6 @@ namespace KOP.BLL.Services
                     Number = assessment.Number,
                     EmployeeId = assessment.EmployeeId,
                     SystemStatus = assessment.SystemStatus,
-                    NextAssessmentDate = assessment.NextAssessmentDate,
                 };
 
                 var results = new List<AssessmentResult>();
@@ -79,7 +78,10 @@ namespace KOP.BLL.Services
                     dto.AverageValue += resultDTO.Data.Sum;
                 }
 
-                dto.AverageValue = dto.AverageValue / dto.AssessmentResults.Count();
+                if(dto.AssessmentResults.Any())
+                {
+                    dto.AverageValue = dto.AverageValue / dto.AssessmentResults.Count();
+                }              
 
                 return new BaseResponse<AssessmentDTO>()
                 {
@@ -91,7 +93,7 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<AssessmentDTO>()
                 {
-                    Description = $"[AssessmentService.GetEmployeeAssessment] : {ex.Message}",
+                    Description = $"[AssessmentService.GetAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
@@ -196,9 +198,6 @@ namespace KOP.BLL.Services
                         Number = assessment.Number,
                         EmployeeId = assessment.EmployeeId,
                         SystemStatus = assessment.SystemStatus,
-                        StartDate = assessment.StartDate,
-                        EndDate = assessment.EndDate,
-                        NextAssessmentDate = assessment.NextAssessmentDate,
                     };
 
                     // Для каждого завершенного результата качественной оценки

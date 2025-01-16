@@ -73,39 +73,6 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Получить имя сотрудника по id
-        public async Task<IBaseResponse<string>> GetEmployeeName(int employeeId)
-        {
-            try
-            {
-                // Получаем сотрудника по идентификатору
-                var employee = await _unitOfWork.Employees.GetAsync(x => x.Id == employeeId);
-
-                if (employee == null)
-                {
-                    return new BaseResponse<string>()
-                    {
-                        Description = $"[EmployeeService.GetEmployeeName] : Пользователь с id = {employeeId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                return new BaseResponse<string>()
-                {
-                    Data = employee.FullName,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<string>()
-                {
-                    Description = $"[EmployeeService.GetEmployeeName] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
         // Получить последнюю качественную оценку каждого типа по id сотрудника
         public async Task<IBaseResponse<List<AssessmentDTO>>> GetEmployeeLastAssessments(int employeeId, int supervisorId)
         {
@@ -434,7 +401,6 @@ namespace KOP.BLL.Services
                         "AssessmentType",
                     });
 
-                    assessment.EndDate = DateOnly.FromDateTime(DateTime.Today);
                     assessment.SystemStatus = SystemStatuses.COMPLETED;
 
                     _unitOfWork.Assessments.Update(assessment);

@@ -6,7 +6,7 @@ namespace KOP.BLL.Interfaces
 {
     public interface IAccountService
     {
-        Task<IBaseResponse<ClaimsIdentity>> Login(AccountDTO accountDTO);
-        Task<IBaseResponse<object>> RemindPassword(AccountDTO accountDTO);
+        Task<IBaseResponse<ClaimsIdentity>> Login(LoginDTO dto);
+        Task<IBaseResponse<object>> RemindPassword(LoginDTO dto);
     }
 }

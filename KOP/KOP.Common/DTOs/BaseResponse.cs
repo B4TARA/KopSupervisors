@@ -8,5 +8,7 @@ namespace KOP.Common.DTOs
         public string? Description { get; set; }
         public StatusCodes StatusCode { get; set; }
         public T? Data { get; set; }
+        public bool IsSuccess => StatusCode == StatusCodes.OK;
+        public bool HasData => StatusCode == StatusCodes.OK && Data != null;
     }
 }

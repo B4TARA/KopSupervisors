@@ -1,0 +1,17 @@
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.BLL.deps.json
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.BLL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.BLL.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.Common.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.DAL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.DAL.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\bin\Release\net6.0\KOP.Common.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.csproj.AssemblyReference.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.AssemblyInfoInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.AssemblyInfo.cs
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.csproj.CoreCompileInputs.cache
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.csproj.Up2Date
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\refint\KOP.BLL.dll
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\KOP.BLL.pdb
+C:\Users\tomchikadm\Documents\GitHub\KOP-Supervisors\KOP\KOP.BLL\obj\Release\net6.0\ref\KOP.BLL.dll

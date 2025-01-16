@@ -4,6 +4,6 @@ namespace KOP.WEB.Models.ViewModels.Supervisor
 {
     public class SubordinatesViewModel
     {
-        public ModuleDTO Module { get; set; } = new();
+        public List<ModuleDTO> Modules { get; set; } = new();
     }
 }
