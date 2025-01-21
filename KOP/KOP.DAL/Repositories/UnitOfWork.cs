@@ -20,12 +20,11 @@ namespace KOP.DAL.Repositories
         private IPreviousJobRepository? previousJobRepository;
         private IKpiRepository? kpiRepository;
         private IProjectRepository? projectRepository;
-        private IEmployeeRepository? employeeRepository;
+        private IUserRepository? userRepository;
         private IQualificationRepository? qualificationRepository;
         private IMarkRepository? markRepository;
         private IMarkTypeRepository? markTypeRepository;
-        private IModuleRepository? moduleRepository;
-        private IModuleTypeRepository? moduleTypeRepository;
+        private ISubdivisionRepository? subdivisionRepository;
         private IStrategicTaskRepository? strategicTaskRepository;
         private ITrainingEventRepository? trainingEventRepository;
         private IValueJudgmentRepository? valueJudgmentRepository;
@@ -136,13 +135,13 @@ namespace KOP.DAL.Repositories
             }
         }
 
-        public IEmployeeRepository Employees
+        public IUserRepository Users
         {
             get
             {
-                if (employeeRepository == null)
-                    employeeRepository = new EmployeeRepository(_dbContext);
-                return employeeRepository;
+                if (userRepository == null)
+                    userRepository = new UserRepository(_dbContext);
+                return userRepository;
             }
         }
 
@@ -176,23 +175,13 @@ namespace KOP.DAL.Repositories
             }
         }
 
-        public IModuleTypeRepository ModuleTypes
+        public ISubdivisionRepository Subdivisions
         {
             get
             {
-                if (moduleTypeRepository == null)
-                    moduleTypeRepository = new ModuleTypeRepository(_dbContext);
-                return moduleTypeRepository;
-            }
-        }
-
-        public IModuleRepository Modules
-        {
-            get
-            {
-                if (moduleRepository == null)
-                    moduleRepository = new ModuleRepository(_dbContext);
-                return moduleRepository;
+                if (subdivisionRepository == null)
+                    subdivisionRepository = new SubdivisionRepository(_dbContext);
+                return subdivisionRepository;
             }
         }
 

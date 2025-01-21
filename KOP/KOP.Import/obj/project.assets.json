@@ -6456,11 +6456,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
+      "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
       "projectName": "KOP.Import",
-      "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
+      "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
       "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Import\\obj\\",
+      "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6481,14 +6481,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
-              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
+            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
             },
-            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
-              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
+            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
             },
-            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
-              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj"
+            "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
+              "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj"
             }
           }
         }
@@ -6501,7 +6501,7 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "all"
+        "auditMode": "direct"
       },
       "SdkAnalysisLevel": "9.0.100"
     },
@@ -6562,30 +6562,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
   "logs": [
     {
-      "code": "NU1903",
+      "code": "NU1900",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'System.IO.Packaging' 6.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-f32c-w444-8ppv",
-      "libraryId": "System.IO.Packaging",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
-    {
-      "code": "NU1903",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'System.IO.Packaging' 6.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-qj66-m88j-hmgj",
-      "libraryId": "System.IO.Packaging",
-      "targetGraphs": [
-        "net8.0"
-      ]
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
     }
   ]
 }

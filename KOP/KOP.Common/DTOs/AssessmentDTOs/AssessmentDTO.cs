@@ -6,7 +6,7 @@ namespace KOP.Common.DTOs.AssessmentDTOs
     {
         public int Id { get; set; }
         public int Number { get; set; }
-        public int EmployeeId { get; set; }
+        public int UserId { get; set; }
         public string AssessmentTypeName { get; set; } = string.Empty;
         public SystemStatuses SystemStatus { get; set; }
         public DateOnly StartDate { get; set; }

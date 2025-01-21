@@ -20,12 +20,12 @@ namespace KOP.DAL.Entities.AssessmentEntities
 
 
 
-        public Employee Judge { get; set; } // оценщик
+        public User Judge { get; set; } // оценщик
         public int JudgeId { get; set; }
 
 
 
-        public Employee Judged { get; set; } // оцениваемый
+        public User Judged { get; set; } // оцениваемый
         public int JudgedId { get; set; }
 
 

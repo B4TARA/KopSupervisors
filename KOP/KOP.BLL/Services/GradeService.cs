@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.DTOs;
 using KOP.Common.DTOs.GradeDTOs;
 using KOP.Common.Enums;
@@ -20,7 +19,6 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        // Получить количественную оценку по id вместе с нужными данными
         public async Task<IBaseResponse<GradeDTO>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
         {
             try
@@ -56,12 +54,12 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<GradeDTO>()
                     {
-                        Description = $"[GradeService.GetStrategicTasks] : Оценка с id = {gradeId} не найдена",
+                        Description = $"[GradeService.GetGrade] : Оценка с id = {gradeId} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = _mappingService.CreateGradeDTO(grade);
+                var dto = _mappingService.CreateGradeDto(grade);
 
                 if (dto.StatusCode != StatusCodes.OK || dto.Data == null)
                 {
@@ -82,13 +80,12 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<GradeDTO>()
                 {
-                    Description = $"[GradeService.GetStrategicTasks] : {ex.Message}",
+                    Description = $"[GradeService.GetGrade] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
         }
 
-        // Изменить количественную оценку
         public async Task<IBaseResponse<object>> EditGrade(GradeDTO dto)
         {
             try
@@ -199,7 +196,6 @@ namespace KOP.BLL.Services
 
                     if (qualification is null)
                     {
-                        // CreateQualification
                         grade.Qualification = new Qualification
                         {
                             SupervisorSspName = dto.Qualification.SupervisorSspName,
@@ -263,12 +259,9 @@ namespace KOP.BLL.Services
 
                 grade.StrategicTasks = strategicTasks;
                 grade.StrategicTasksConclusion = dto.StrategicTasksConclusion;
-
                 grade.Kpis = kpis;
                 grade.KPIsConclusion = dto.KPIsConclusion;
-
                 grade.Projects = projects;
-
                 grade.Marks = marks;
 
                 _unitOfWork.Grades.Update(grade);

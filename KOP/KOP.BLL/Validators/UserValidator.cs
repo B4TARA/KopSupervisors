@@ -4,11 +4,11 @@ using KOP.DAL.Interfaces;
 
 namespace KOP.BLL.Validators
 {
-    public class EmployeeValidator : AbstractValidator<Employee>
+    public class UserValidator : AbstractValidator<User>
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public EmployeeValidator(IUnitOfWork unitOfWork)
+        public UserValidator(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
 
@@ -22,7 +22,7 @@ namespace KOP.BLL.Validators
             RuleFor(e => e.Position)
                 .NotEmpty().WithMessage("Position поле является обязательным");
 
-            RuleFor(e => e.Subdivision)
+            RuleFor(e => e.SubdivisionFromFile)
                 .NotEmpty().WithMessage("Subdivision поле является обязательным");
 
             RuleFor(e => e.GradeGroup)
@@ -49,7 +49,7 @@ namespace KOP.BLL.Validators
 
         private async Task<bool> IsServiceNumberUniqueAsync(int serviceNumber, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.Employees.IsServiceNumberUniqueAsync(serviceNumber);
+            return await _unitOfWork.Users.IsServiceNumberUniqueAsync(serviceNumber);
         }
     }
 }

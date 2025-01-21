@@ -5,6 +5,6 @@ namespace KOP.BLL.Interfaces
 {
     public interface ISupervisorService
     {
-        Task<IBaseResponse<List<ModuleDTO>>> GetAllSubordinateModules(int supervisorId);
+        Task<IBaseResponse<List<ModuleDTO>>> GetUserSubordinateSubdivisions(int supervisorId);
     }
 }

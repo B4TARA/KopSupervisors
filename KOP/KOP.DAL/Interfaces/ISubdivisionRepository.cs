@@ -2,7 +2,7 @@
 
 namespace KOP.DAL.Interfaces
 {
-    public interface IModuleRepository : IRepositoryBase<Module>
+    public interface ISubdivisionRepository : IRepositoryBase<Subdivision>
     {
         Task<bool> IsNameUniqueAsync(string name);
     }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj": {}
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
         "projectName": "KOP.BLL",
-        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
         "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\obj\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,8 +32,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
-                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
               }
             }
           }
@@ -46,7 +46,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
+          "auditMode": "direct"
         },
         "SdkAnalysisLevel": "9.0.100"
       },
@@ -79,18 +79,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
         "projectName": "KOP.Common",
-        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
         "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\obj\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -121,7 +121,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
+          "auditMode": "direct"
         },
         "SdkAnalysisLevel": "9.0.100"
       },
@@ -144,18 +144,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
         "projectName": "KOP.DAL",
-        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
         "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\obj\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -176,8 +176,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
-                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.Common\\KOP.Common.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj"
               }
             }
           }
@@ -190,7 +190,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
+          "auditMode": "direct"
         },
         "SdkAnalysisLevel": "9.0.100"
       },
@@ -233,18 +233,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj",
         "projectName": "KOP.WEB",
-        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\KOP.WEB.csproj",
         "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.WEB\\obj\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -265,8 +265,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
-                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
               }
             }
           }
@@ -279,7 +279,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
+          "auditMode": "direct"
         },
         "SdkAnalysisLevel": "9.0.100"
       },
@@ -321,7 +321,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

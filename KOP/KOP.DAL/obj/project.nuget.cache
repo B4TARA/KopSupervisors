@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "F/Il0o+s7Ak=",
+  "dgSpecHash": "Mkx/CSarSvw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KOP-Supervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+  "projectFilePath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tomchikadm\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\tomchikadm\\.nuget\\packages\\microsoft.entityframeworkcore\\7.0.20\\microsoft.entityframeworkcore.7.0.20.nupkg.sha512",
@@ -31,14 +31,10 @@
   ],
   "logs": [
     {
-      "code": "NU1903",
+      "code": "NU1900",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'System.Text.Json' 7.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w",
-      "libraryId": "System.Text.Json",
-      "targetGraphs": [
-        "net6.0"
-      ]
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
     }
   ]
 }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KOP.Import")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cbc9928cc2e47924df13e1cae59c6485ff7492e5")]
 [assembly: System.Reflection.AssemblyProductAttribute("KOP.Import")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KOP.Import")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

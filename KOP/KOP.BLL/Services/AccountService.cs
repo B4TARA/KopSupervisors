@@ -22,7 +22,7 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var user = await _unitOfWork.Employees.GetAsync(x => x.Login == dto.Login);
+                var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
 
                 if (user is null)
                 {
@@ -67,7 +67,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        private ClaimsIdentity Authenticate(Employee user)
+        private ClaimsIdentity Authenticate(User user)
         {
             var claims = new List<Claim>
             {
@@ -81,7 +81,7 @@ namespace KOP.BLL.Services
             return new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
         }
 
-        private IEnumerable<Claim> GetRoleClaims(Employee employee)
+        private IEnumerable<Claim> GetRoleClaims(User employee)
         {
             var rolesClaims = new List<Claim>();
 
@@ -97,7 +97,7 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var user = await _unitOfWork.Employees.GetAsync(x => x.Login == dto.Login);
+                var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
 
                 if (user is null)
                 {

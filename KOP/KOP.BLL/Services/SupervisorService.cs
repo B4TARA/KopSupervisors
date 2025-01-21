@@ -2,8 +2,8 @@
 using KOP.Common.DTOs;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
+using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
-using Module = KOP.DAL.Entities.Module;
 
 namespace KOP.BLL.Services
 {
@@ -18,46 +18,43 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        // Вспомогательный метод получения подчиненных сотрудников для рекурсии
-        private async Task<IBaseResponse<List<EmployeeDTO>>> GetSubordinateEmployees(Module module)
+        private async Task<IBaseResponse<List<EmployeeDTO>>> GetSubordinateUsers(Subdivision subdivision)
         {
             try
             {
-                var subordinateEmployees = new List<EmployeeDTO>();
+                var subordinateUsers = new List<EmployeeDTO>();
 
-                // Получаем подчиненных сотрудников текущего модуля
-                foreach (var employee in module.Employees.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
+                foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
                 {
-                    var employeeDTO = _mappingService.CreateEmployeeDTO(employee);
+                    var userDto = _mappingService.CreateUserDto(user);
 
-                    if (employeeDTO.StatusCode != StatusCodes.OK || employeeDTO.Data == null)
+                    if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
                     {
                         continue;
                     }
 
-                    subordinateEmployees.Add(employeeDTO.Data);
+                    subordinateUsers.Add(userDto.Data);
                 }
 
-                // Получаем дочерние модули
-                foreach (var childModule in module.Children)
+                foreach (var childSubdivision in subdivision.Children)
                 {
-                    var childSubordinateEmployees = await GetSubordinateEmployees(childModule);
+                    var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsers(childSubdivision);
 
-                    if (childSubordinateEmployees.StatusCode != StatusCodes.OK || childSubordinateEmployees.Data == null)
+                    if (subordinateUsersFromChildSubdivisionRes.StatusCode != StatusCodes.OK || subordinateUsersFromChildSubdivisionRes.Data == null)
                     {
                         return new BaseResponse<List<EmployeeDTO>>()
                         {
-                            Description = childSubordinateEmployees.Description,
-                            StatusCode = childSubordinateEmployees.StatusCode,
+                            Description = subordinateUsersFromChildSubdivisionRes.Description,
+                            StatusCode = subordinateUsersFromChildSubdivisionRes.StatusCode,
                         };
                     }
 
-                    subordinateEmployees.AddRange(childSubordinateEmployees.Data);
+                    subordinateUsers.AddRange(subordinateUsersFromChildSubdivisionRes.Data);
                 }
 
                 return new BaseResponse<List<EmployeeDTO>>()
                 {
-                    Data = subordinateEmployees,
+                    Data = subordinateUsers,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -65,19 +62,17 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<List<EmployeeDTO>>()
                 {
-                    Description = $"[SupervisorService.GetSubordinateEmployees] : {ex.Message}",
+                    Description = $"[SupervisorService.GetSubordinateUsers] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
         }
 
-        // Получить все подчиненные модули
-        public async Task<IBaseResponse<List<ModuleDTO>>> GetAllSubordinateModules(int supervisorId)
+        public async Task<IBaseResponse<List<ModuleDTO>>> GetUserSubordinateSubdivisions(int supervisorId)
         {
             try
             {
-                // Получаем руководителя по идентификатору
-                var supervisor = await _unitOfWork.Employees.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
+                var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
                 {
                     "Modules.Employees",
                     "Modules.Children.Employees",
@@ -87,80 +82,79 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<List<ModuleDTO>>()
                     {
-                        Description = $"[SupervisorService.GetAllSubordinateModules] : Пользователь с id = {supervisorId} не найден",
+                        Description = $"[SupervisorService.GetUserSubordinateSubdivisions] : Пользователь с id = {supervisorId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var modulesDTOs = new List<ModuleDTO>();
+                var subdivisionsDtos = new List<ModuleDTO>();
 
-                foreach(var module in supervisor.Modules)
+                foreach(var subdivision in supervisor.SubordinateSubdivisions)
                 {
-                    var moduleDTO = new ModuleDTO
+                    var subdivisionDto = new ModuleDTO
                     {
-                        Id = module.Id,
-                        Name = module.Name,
+                        Id = subdivision.Id,
+                        Name = subdivision.Name,
                         IsRoot = true,
                     };
 
-                    // Получаем подчиненных сотрудников такого же модуля
-                    foreach (var employee in module.Employees.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
+                    foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
                     {
-                        var employeeDTO = _mappingService.CreateEmployeeDTO(employee);
+                        var userDto = _mappingService.CreateUserDto(user);
 
-                        if (employeeDTO.StatusCode != StatusCodes.OK || employeeDTO.Data == null)
+                        if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
                         {
                             continue;
                         }
 
-                        moduleDTO.Employees.Add(employeeDTO.Data);
+                        subdivisionDto.Employees.Add(userDto.Data);
                     }
 
-                    foreach (var child in module.Children)
+                    foreach (var child in subdivision.Children)
                     {
-                        var response = await GetSubordinateModules(child.Id);
+                        var childSubdivisionsRes = await GetSubordinateSubdivisions(child.Id);
 
-                        if (response.StatusCode != StatusCodes.OK || response.Data == null)
+                        if (childSubdivisionsRes.StatusCode != StatusCodes.OK || childSubdivisionsRes.Data == null)
                         {
                             return new BaseResponse<List<ModuleDTO>>()
                             {
-                                Description = response.Description,
-                                StatusCode = response.StatusCode,
+                                Description = childSubdivisionsRes.Description,
+                                StatusCode = childSubdivisionsRes.StatusCode,
                             };
                         }
 
-                        var childModuleDTO = new ModuleDTO
+                        var childSubdivisionDto = new ModuleDTO
                         {
                             Id = child.Id,
                             Name = child.Name,
                         };
 
-                        foreach (var employee in child.Employees.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
+                        foreach (var user in child.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
                         {
-                            var employeeDTO = _mappingService.CreateEmployeeDTO(employee);
+                            var userDto = _mappingService.CreateUserDto(user);
 
-                            if (employeeDTO.StatusCode != StatusCodes.OK || employeeDTO.Data == null)
+                            if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
                             {
                                 continue;
                             }
 
-                            childModuleDTO.Employees.Add(employeeDTO.Data);
+                            childSubdivisionDto.Employees.Add(userDto.Data);
                         }
 
-                        foreach (var childModule in response.Data)
+                        foreach (var childSubdivision in childSubdivisionsRes.Data)
                         {
-                            childModuleDTO.Children.Add(childModule);
+                            childSubdivisionDto.Children.Add(childSubdivision);
                         }
 
-                        moduleDTO.Children.Add(childModuleDTO);
+                        subdivisionDto.Children.Add(childSubdivisionDto);
                     }
 
-                    modulesDTOs.Add(moduleDTO);
+                    subdivisionsDtos.Add(subdivisionDto);
                 }
                
                 return new BaseResponse<List<ModuleDTO>>()
                 {
-                    Data = modulesDTOs,
+                    Data = subdivisionsDtos,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -168,74 +162,71 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<List<ModuleDTO>>()
                 {
-                    Description = $"[SupervisorService.GetAllSubordinateModules] : {ex.Message}",
+                    Description = $"[SupervisorService.GetUserSubordinateSubdivisions] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
         }
 
-        // Вспомогательный метод получения дочерних модулей для рекурсии
-        private async Task<IBaseResponse<List<ModuleDTO>>> GetSubordinateModules(int moduleId)
+        private async Task<IBaseResponse<List<ModuleDTO>>> GetSubordinateSubdivisions(int subdivisionId)
         {
             try
             {
-                // Получаем модуль по идентификатору
-                var module = await _unitOfWork.Modules.GetAsync(x => x.Id == moduleId, includeProperties: new string[]
+                var subdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == subdivisionId, includeProperties: new string[]
                 {
                     "Children.Employees",
                 });
 
-                if (module == null)
+                if (subdivision == null)
                 {
                     return new BaseResponse<List<ModuleDTO>>()
                     {
-                        Description = $"[SupervisorService.GetSubordinateModules] : Модуль с id = {moduleId} не найден",
+                        Description = $"[SupervisorService.GetSubordinateSubdivisions] : Модуль с id = {subdivisionId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var moduleDTOs = new List<ModuleDTO>();
+                var subdivisionsDtos = new List<ModuleDTO>();
 
-                // Получаем дочерние модули
-                foreach (var childModule in module.Children)
+                foreach (var childModule in subdivision.Children)
                 {
-                    var moduleDTO = new ModuleDTO()
+                    var subdivisionDto = new ModuleDTO()
                     {
                         Id = childModule.Id,
                         Name = childModule.Name,
                     };
 
-                    foreach (var employee in childModule.Employees)
+                    foreach (var user in childModule.Users)
                     {
-                        var employeeDTO = _mappingService.CreateEmployeeDTO(employee);
+                        var userDto = _mappingService.CreateUserDto(user);
 
-                        if (employeeDTO.StatusCode != StatusCodes.OK || employeeDTO.Data == null)
+                        if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
                         {
                             continue;
                         }
 
-                        moduleDTO.Employees.Add(employeeDTO.Data);
+                        subdivisionDto.Employees.Add(userDto.Data);
                     }
 
-                    var response = await GetSubordinateModules(childModule.Id);
+                    var childSubdivisionsRes = await GetSubordinateSubdivisions(childModule.Id);
 
-                    if (response.StatusCode != StatusCodes.OK || response.Data == null)
+                    if (childSubdivisionsRes.StatusCode != StatusCodes.OK || childSubdivisionsRes.Data == null)
                     {
                         return new BaseResponse<List<ModuleDTO>>()
                         {
-                            Description = response.Description,
-                            StatusCode = response.StatusCode,
+                            Description = childSubdivisionsRes.Description,
+                            StatusCode = childSubdivisionsRes.StatusCode,
                         };
                     }
 
-                    moduleDTO.Children.AddRange(response.Data);
+                    subdivisionDto.Children.AddRange(childSubdivisionsRes.Data);
 
-                    moduleDTOs.Add(moduleDTO);
+                    subdivisionsDtos.Add(subdivisionDto);
                 }
 
                 return new BaseResponse<List<ModuleDTO>>()
                 {
-                    Data = moduleDTOs,
+                    Data = subdivisionsDtos,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -243,7 +234,7 @@ namespace KOP.BLL.Services
             {
                 return new BaseResponse<List<ModuleDTO>>()
                 {
-                    Description = $"[SupervisorService.GetSubordinateModules] : {ex.Message}",
+                    Description = $"[SupervisorService.GetSubordinateSubdivisions] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }

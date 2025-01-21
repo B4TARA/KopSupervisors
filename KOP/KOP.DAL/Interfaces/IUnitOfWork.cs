@@ -15,12 +15,11 @@ namespace KOP.DAL.Interfaces
         IKpiRepository Kpis { get; }
         IPreviousJobRepository PreviousJobs { get; }
         IProjectRepository Projects { get; }
-        IEmployeeRepository Employees { get; }
+        IUserRepository Users { get; }
         IQualificationRepository Qualifications { get; }
         IMarkRepository Marks { get; }
         IMarkTypeRepository MarkTypes { get; }
-        IModuleTypeRepository ModuleTypes { get; }
-        IModuleRepository Modules { get; }
+        ISubdivisionRepository Subdivisions { get; }
         IStrategicTaskRepository StrategicTasks { get; }
         ITrainingEventRepository TrainingEvents { get; }
         IValueJudgmentRepository ValueJudgments { get; }

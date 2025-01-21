@@ -19,7 +19,6 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        // Получить объект качественной оценки
         public async Task<IBaseResponse<AssessmentDTO>> GetAssessment(int id, SystemStatuses? systemStatus = null)
         {
             try
@@ -45,37 +44,36 @@ namespace KOP.BLL.Services
                 {
                     Id = id,
                     Number = assessment.Number,
-                    EmployeeId = assessment.EmployeeId,
+                    UserId = assessment.UserId,
                     SystemStatus = assessment.SystemStatus,
                 };
 
-                var results = new List<AssessmentResult>();
+                var assessmentResults = new List<AssessmentResult>();
 
                 if (systemStatus == null)
                 {
-                    results = assessment.AssessmentResults;
+                    assessmentResults = assessment.AssessmentResults;
                 }
                 else
                 {
-                    results = assessment.AssessmentResults.Where(x => x.SystemStatus == systemStatus).ToList();
+                    assessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == systemStatus).ToList();
                 }
 
-                foreach (var result in results)
+                foreach (var assessmentResult in assessmentResults)
                 {
-                    var resultDTO = _mappingService.CreateAssessmentResultDTO(result, assessment.AssessmentType.AssessmentMatrix) ;
+                    var assessmentResultDto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessment.AssessmentType.AssessmentMatrix) ;
 
-                    if (resultDTO.StatusCode != StatusCodes.OK || resultDTO.Data == null)
+                    if (assessmentResultDto.StatusCode != StatusCodes.OK || assessmentResultDto.Data == null)
                     {
                         return new BaseResponse<AssessmentDTO>()
                         {
-                            Description = resultDTO.Description,
-                            StatusCode = resultDTO.StatusCode,
+                            Description = assessmentResultDto.Description,
+                            StatusCode = assessmentResultDto.StatusCode,
                         };
                     }
 
-                    dto.AssessmentResults.Add(resultDTO.Data);
-
-                    dto.AverageValue += resultDTO.Data.Sum;
+                    dto.AssessmentResults.Add(assessmentResultDto.Data);
+                    dto.AverageValue += assessmentResultDto.Data.Sum;
                 }
 
                 if(dto.AssessmentResults.Any())
@@ -99,13 +97,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Получить объект результата качественной оценки по оценщику
         public async Task<IBaseResponse<AssessmentResultDTO>> GetAssessmentResult(int judgeId, int assessmentId)
         {
             try
             {
-                var result = await _unitOfWork.AssessmentResults
-                    .GetAsync(
+                var result = await _unitOfWork.AssessmentResults.GetAsync(
                         x => x.AssessmentId == assessmentId && x.JudgeId == judgeId,
                         includeProperties: new string[]
                         {
@@ -124,7 +120,7 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var dto = _mappingService.CreateAssessmentResultDTO(result, result.Assessment.AssessmentType.AssessmentMatrix);
+                var dto = _mappingService.CreateAssessmentResultDto(result, result.Assessment.AssessmentType.AssessmentMatrix);
 
                 if (dto.StatusCode != StatusCodes.OK || dto.Data == null)
                 {
@@ -151,13 +147,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Получить объект типа качественной оценки по оценщику
-        public async Task<IBaseResponse<AssessmentTypeDTO>> GetAssessmentType(int employeeId, int assessmentTypeId)
+        public async Task<IBaseResponse<AssessmentTypeDTO>> GetAssessmentType(int userId, int assessmentTypeId)
         {
             try
             {
-                var assessmentType = await _unitOfWork.AssessmentTypes
-                    .GetAsync(
+                var assessmentType = await _unitOfWork.AssessmentTypes.GetAsync(
                         x => x.Id == assessmentTypeId,
                         includeProperties: new string[]
                         {
@@ -173,9 +167,8 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var assessments = await _unitOfWork.Assessments
-                    .GetAllAsync(
-                        x => x.AssessmentTypeId == assessmentTypeId && x.EmployeeId == employeeId,
+                var assessments = await _unitOfWork.Assessments.GetAllAsync(
+                        x => x.AssessmentTypeId == assessmentTypeId && x.UserId == userId,
                         includeProperties: new string[]
                         {
                             "AssessmentResults.Judge",
@@ -187,7 +180,7 @@ namespace KOP.BLL.Services
                 {
                     Id = assessmentType.Id,
                     Name = assessmentType.Name,
-                    EmployeeId = employeeId,
+                    EmployeeId = userId,
                 };
 
                 foreach (var assessment in assessments.OrderBy(x => x.Number))
@@ -196,11 +189,10 @@ namespace KOP.BLL.Services
                     {
                         Id = assessment.Id,
                         Number = assessment.Number,
-                        EmployeeId = assessment.EmployeeId,
+                        UserId = assessment.UserId,
                         SystemStatus = assessment.SystemStatus,
                     };
 
-                    // Для каждого завершенного результата качественной оценки
                     foreach (var assessmentResult in assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED))
                     {
                         var assessmentResultDTO = new AssessmentResultDTO
@@ -219,7 +211,7 @@ namespace KOP.BLL.Services
 
                         assessmentResultDTO.Judged = new EmployeeDTO
                         {
-                            Id = assessment.EmployeeId,
+                            Id = assessment.UserId,
                         };
 
                         foreach (var assessmentResultValue in assessmentResult.AssessmentResultValues)
@@ -271,7 +263,7 @@ namespace KOP.BLL.Services
             try
             {
                 // Получаем все качественные оценки сотрудника
-                var assessments = await _unitOfWork.Assessments.GetAllAsync(x => x.EmployeeId == employeeId, includeProperties: new string[]
+                var assessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == employeeId, includeProperties: new string[]
                 {
                     "AssessmentType",
                 });

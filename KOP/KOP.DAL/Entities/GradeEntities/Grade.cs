@@ -26,8 +26,8 @@ namespace KOP.DAL.Entities.GradeEntities
         public string? ManagmentCompetenciesConclusion { get; set; } // Вывод для управленческих компетенций
         public string? CorporateCompetenciesConclusion { get; set; } // Вывод для корпоративных компетенций
 
-        public Employee Employee { get; set; } // пользователь, к которому относится данная оценка
-        public int EmployeeId { get; set; }
+        public User User { get; set; } // пользователь, к которому относится данная оценка
+        public int UserId { get; set; }
 
         public Qualification? Qualification { get; set; } // квалификация, которая относится к данной оценке
         public int? QualificationId { get; set; }

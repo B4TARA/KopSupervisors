@@ -14,8 +14,8 @@ namespace KOP.DAL.Entities.AssessmentEntities
         [Required]
         public SystemStatuses SystemStatus { get; set; } // системный статус качественной оценки
 
-        public Employee Employee { get; set; } // пользователь, к которому относится данная качественная оценка
-        public int EmployeeId { get; set; }
+        public User User { get; set; } // пользователь, к которому относится данная качественная оценка
+        public int UserId { get; set; }
 
         public AssessmentType AssessmentType { get; set; } // Тип качественной оценки
         public int AssessmentTypeId { get; set; }

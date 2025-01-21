@@ -10,19 +10,19 @@ namespace KOP.BLL.Interfaces
 {
     public interface IMappingService
     {
-        IBaseResponse<EmployeeDTO> CreateEmployeeDTO(Employee employee);
-        IBaseResponse<GradeDTO> CreateGradeDTO(Grade grade);
-        IBaseResponse<QualificationDTO> CreateQualificationDTO(Qualification qualification);
-        IBaseResponse<MarkDTO> CreateMarkDTO(Mark mark);
-        IBaseResponse<KpiDTO> CreateKpiDTO(Kpi kpi);
-        IBaseResponse<ProjectDTO> CreateProjectDTO(Project project);
-        IBaseResponse<StrategicTaskDTO> CreateStrategicTaskDTO(StrategicTask strategicTask);
-        IBaseResponse<ValueJudgmentDTO> CreateValueJudgmentDTO(ValueJudgment valueJudgment);
-        IBaseResponse<PreviousJobDTO> CreatePreviousJobDTO(PreviousJob previousJob);
-        IBaseResponse<TrainingEventDTO> CreateTrainingEventDTO(TrainingEvent trainingEvent);
-        IBaseResponse<AssessmentDTO> CreateAssessmentDTO(Assessment assessment);
-        IBaseResponse<AssessmentResultDTO> CreateAssessmentResultDTO(AssessmentResult result, AssessmentMatrix matrix);
-        IBaseResponse<AssessmentResultValueDTO> CreateAssessmentResultValueDTO(AssessmentResultValue value);
-        IBaseResponse<AssessmentMatrixElementDTO> CreateAssessmentMatrixElementDTO(AssessmentMatrixElement element);
+        IBaseResponse<EmployeeDTO> CreateUserDto(User user);
+        IBaseResponse<GradeDTO> CreateGradeDto(Grade grade);
+        IBaseResponse<QualificationDTO> CreateQualificationDto(Qualification qualification);
+        IBaseResponse<MarkDTO> CreateMarkDto(Mark mark);
+        IBaseResponse<KpiDTO> CreateKpiDto(Kpi kpi);
+        IBaseResponse<ProjectDTO> CreateProjectDto(Project project);
+        IBaseResponse<StrategicTaskDTO> CreateStrategicTaskDto(StrategicTask strategicTask);
+        IBaseResponse<ValueJudgmentDTO> CreateValueJudgmentDto(ValueJudgment valueJudgment);
+        IBaseResponse<PreviousJobDTO> CreatePreviousJobDto(PreviousJob previousJob);
+        IBaseResponse<TrainingEventDTO> CreateTrainingEventDto(TrainingEvent trainingEvent);
+        IBaseResponse<AssessmentDTO> CreateAssessmentDto(Assessment assessment);
+        IBaseResponse<AssessmentResultDTO> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix);
+        IBaseResponse<AssessmentResultValueDTO> CreateAssessmentResultValueDto(AssessmentResultValue value);
+        IBaseResponse<AssessmentMatrixElementDTO> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
     }
 }

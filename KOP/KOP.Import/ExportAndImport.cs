@@ -59,11 +59,10 @@ namespace KOP.Import
         {
             try
             {
-                await ProcessModules();
-                var employeesFromExcel = ProcessEmployees();
-                await UpdateOrCreateUsersInDatabase(employeesFromExcel);
-                await BlockNonActiveUsers(employeesFromExcel);
-                await CheckEmployeesForGradeProcess();
+                var usersFromExcel = ProcessUsers();
+                await PutUsersInDatabase(usersFromExcel);
+                await BlockNonActiveUsers(usersFromExcel);
+                await CheckUsersForGradeProcess();
                 //await CheckForNotifications();
             }
             catch (Exception ex)
@@ -73,9 +72,9 @@ namespace KOP.Import
             }
         }
 
-        private List<Employee> ProcessEmployees()
+        private List<User> ProcessUsers()
         {
-            var employeesFromExcel = new List<Employee>();
+            var usersFromExcel = new List<User>();
 
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
@@ -94,13 +93,13 @@ namespace KOP.Import
                             continue;
                         }
 
-                        var employeeFromExcel = new Employee
+                        var userFromExcel = new User
                         {
                             ServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]),
                             GradeGroup = Convert.ToString(table.Rows[rowCounter][44]),
                         };
 
-                        employeesFromExcel.Add(employeeFromExcel);
+                        usersFromExcel.Add(userFromExcel);
                     }
                     catch (Exception ex)
                     {
@@ -128,26 +127,26 @@ namespace KOP.Import
                     try
                     {
                         var serviceNumber = Convert.ToInt32(table.Rows[rowCounter][2]);
-                        var employeeFromExcel = employeesFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
+                        var userFromExcel = usersFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
 
-                        if (employeeFromExcel is null)
+                        if (userFromExcel is null)
                         {
                             _logger.Warn($"Не удалось найти сопоставление из СЧ в ШР для пользователя с табельным номером {serviceNumber}");
                             continue;
                         }
                         else if (!IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter]))
                         {
-                            employeesFromExcel.Remove(employeeFromExcel);
+                            usersFromExcel.Remove(userFromExcel);
                         }
 
-                        employeeFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]);
-                        employeeFromExcel.Position = Convert.ToString(table.Rows[rowCounter][6]);
-                        employeeFromExcel.HireDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][12]));
-                        employeeFromExcel.Subdivision = Convert.ToString(table.Rows[rowCounter][22]);
-                        employeeFromExcel.ContractStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][57]));
-                        employeeFromExcel.ContractEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][58]));
+                        userFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]);
+                        userFromExcel.Position = Convert.ToString(table.Rows[rowCounter][6]);
+                        userFromExcel.HireDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][12]));
+                        userFromExcel.SubdivisionFromFile = Convert.ToString(table.Rows[rowCounter][22]);
+                        userFromExcel.ContractStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][57]));
+                        userFromExcel.ContractEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][58]));
 
-                        PopulateEmployeeWithXmlData(employeeFromExcel, colsArrayDocument, usersPassContainerDocument);
+                        PopulateUserWithXmlData(userFromExcel, colsArrayDocument, usersPassContainerDocument);
                     }
                     catch (Exception ex)
                     {
@@ -159,182 +158,29 @@ namespace KOP.Import
                 excelDataReader.Close();
             }
 
-            return employeesFromExcel;
+            return usersFromExcel;
         }
 
-        private async Task ProcessModules()
+        private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
         {
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-            using (var fStream = File.Open(_referenceBookPath, FileMode.Open, FileAccess.Read))
-            {
-                var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
-                var resultDataSet = excelDataReader.AsDataSet();
-                var table = resultDataSet.Tables[0];
-
-                var modules = new List<Module>();
-                var excelRows = new List<ExcelRow>();
-
-                for (int rowCounter = 2; rowCounter < table.Rows.Count; rowCounter++)
-                {
-                    try
-                    {
-                        var moduleName = Convert.ToString(table.Rows[rowCounter][0]);
-                        var parentName = Convert.ToString(table.Rows[rowCounter][3]);
-                        var curatorServiceNumber = Convert.ToInt32(table.Rows[rowCounter][4].ToString());
-                        var supervisorServiceNumber = Convert.ToInt32(table.Rows[rowCounter][6].ToString());
-
-                        if (string.IsNullOrEmpty(moduleName) || string.IsNullOrEmpty(parentName))
-                        {
-                            continue;
-                        }
-
-                        excelRows.Add(new ExcelRow
-                        {
-                            ModuleName = moduleName,
-                            ParentModuleName = parentName,
-                            CuratorServiceNumber = curatorServiceNumber,
-                            SupervisorServiceNumber = supervisorServiceNumber,
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex.Message);
-                        continue;
-                    }
-                }
-
-                excelDataReader.Close();
-
-                var rootModulesFromExcel = excelRows.GroupBy(x => x.ParentModuleName);
-                var curatorsFromExcel = excelRows.GroupBy(x => x.CuratorServiceNumber);
-                var supervisorsFromExcel = excelRows.GroupBy(x => x.SupervisorServiceNumber);
-
-                using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
-                {
-                    foreach (var rootModuleFromExcel in rootModulesFromExcel)
-                    {
-                        try
-                        {
-                            var newRootModule = new Module
-                            {
-                                Name = rootModuleFromExcel.Key,
-                            };
-
-                            foreach (var childModuleFromExcel in rootModuleFromExcel)
-                            {
-                                newRootModule.Children.Add(new Module
-                                {
-                                    Name = childModuleFromExcel.ModuleName,
-                                    Parent = newRootModule,
-                                });
-                            }
-
-                            await uow.Modules.AddAsync(newRootModule);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error(ex.Message);
-                            continue;
-                        }
-                    }
-
-                    await uow.CommitAsync();
-                }
-
-                using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
-                {
-                    foreach (var curatorFromExcel in curatorsFromExcel)
-                    {
-                        try
-                        {
-                            var newCuratorEmployee = new Employee
-                            {
-                                Name = rootModuleFromExcel.Key,
-                            };
-
-                            foreach (var childModuleFromExcel in rootModuleFromExcel)
-                            {
-                                newRootModule.Children.Add(new Module
-                                {
-                                    Name = childModuleFromExcel.ModuleName,
-                                    Parent = newRootModule,
-                                });
-                            }
-
-                            await uow.Modules.AddAsync(newRootModule);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error(ex.Message);
-                            continue;
-                        }
-                    }
-
-                    await uow.CommitAsync();
-                }
-
-                using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
-                {
-                    foreach (var rootModuleFromExcel in rootModulesFromExcel)
-                    {
-                        try
-                        {
-                            var newRootModule = new Module
-                            {
-                                Name = rootModuleFromExcel.Key,
-                            };
-
-                            foreach (var childModuleFromExcel in rootModuleFromExcel)
-                            {
-                                newRootModule.Children.Add(new Module
-                                {
-                                    Name = childModuleFromExcel.ModuleName,
-                                    Parent = newRootModule,
-                                });
-                            }
-
-                            await uow.Modules.AddAsync(newRootModule);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error(ex.Message);
-                            continue;
-                        }
-                    }
-
-                    await uow.CommitAsync();
-                }
-            }
-        }
-
-        private async Task PopulateEmployeeWithModule(Employee employeeFromExcel, UnitOfWork uow)
-        {
-            var subdivision = employeeFromExcel.Subdivision;
+            var subdivision = await uow.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == parentSubdivisionName.Replace(" ", "").ToLower());
 
             if (subdivision is null)
             {
                 return;
             }
 
-            var module = await uow.Modules.GetAsync(x => x.Name.Replace(" ", "").ToLower() == subdivision.Replace(" ", "").ToLower());
-
-            if (module is null)
-            {
-                return;
-            }
-
-            employeeFromExcel.Modules.Add(module);
+            userFromExcel.ParentSubdivision = subdivision;
         }
 
-        private void PopulateEmployeeWithXmlData(Employee employeeFromExcel, XmlDocument colsArrayDocument, XmlDocument usersPassContainerDocument)
+        private void PopulateUserWithXmlData(User userFromExcel, XmlDocument colsArrayDocument, XmlDocument usersPassContainerDocument)
         {
-            if (employeeFromExcel.FullName is null)
+            if (userFromExcel.FullName is null)
             {
                 return;
             }
 
-            var parts = employeeFromExcel.FullName.Split(' ');
+            var parts = userFromExcel.FullName.Split(' ');
             var firstName = parts[0];
             var lastName = parts.Length > 1 ? parts[1] : "";
             var middleName = parts.Length > 2 ? parts[2] : "";
@@ -349,11 +195,11 @@ namespace KOP.Import
 
                 var email = (string)obj["email"];
                 var base64Image = (string)obj["pict_url"];
-                var fileName = employeeFromExcel.FullName.Replace(" ", "");
+                var fileName = userFromExcel.FullName.Replace(" ", "");
                 var imagePath = ImageUtilities.SaveBase64Image(base64Image, fileName, _usersImgDownloadPath);
 
-                employeeFromExcel.ImagePath = imagePath;
-                employeeFromExcel.Email = email;
+                userFromExcel.ImagePath = imagePath;
+                userFromExcel.Email = email;
             }
 
             var userNode2 = usersPassContainerDocument.SelectSingleNode(xpath);
@@ -365,102 +211,102 @@ namespace KOP.Import
                 var login = (string)obj["login"];
                 var password = (string)obj["password"];
 
-                employeeFromExcel.Login = login;
-                employeeFromExcel.Password = password;
+                userFromExcel.Login = login;
+                userFromExcel.Password = password;
             }
         }
 
-        private async Task PopulateEmployeeWithRole(Employee employeeFromExcel, UnitOfWork uow)
+        private async Task PopulateUserWithRole(User userFromExcel, UnitOfWork uow)
         {
-            if (employeeFromExcel.Subdivision is null)
+            if (userFromExcel.SubdivisionFromFile is null)
             {
                 return;
             }
-            else if (employeeFromExcel.Subdivision.Contains("УМСТ"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УМСТ"))
             {
-                employeeFromExcel.SystemRoles.Add(SystemRoles.Umst);
+                userFromExcel.SystemRoles.Add(SystemRoles.Umst);
 
-                var verticales = await uow.Modules.GetAllAsync(x => x.ModuleTypeId == 1);
+                var rootSubdivisions = await uow.Subdivisions.GetAllAsync(x => x.NestingLevel == 1);
 
-                employeeFromExcel.Modules = verticales.ToList();
+                userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (employeeFromExcel.Subdivision.Contains("ЦУП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("ЦУП"))
             {
-                employeeFromExcel.SystemRoles.Add(SystemRoles.Cup);
+                userFromExcel.SystemRoles.Add(SystemRoles.Cup);
 
-                var verticales = await uow.Modules.GetAllAsync(x => x.ModuleTypeId == 1);
+                var rootSubdivisions = await uow.Subdivisions.GetAllAsync(x => x.NestingLevel == 1);
 
-                employeeFromExcel.Modules = verticales.ToList();
+                userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (employeeFromExcel.Subdivision.Contains("УРП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УРП"))
             {
-                employeeFromExcel.SystemRoles.Add(SystemRoles.Urp);
+                userFromExcel.SystemRoles.Add(SystemRoles.Urp);
 
-                var verticales = await uow.Modules.GetAllAsync(x => x.ModuleTypeId == 1);
+                var rootSubdivisions = await uow.Subdivisions.GetAllAsync(x => x.NestingLevel == 1);
 
-                employeeFromExcel.Modules = verticales.ToList();
+                userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (employeeFromExcel.Subdivision.Contains("УОП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УОП"))
             {
-                employeeFromExcel.SystemRoles.Add(SystemRoles.Uop);
+                userFromExcel.SystemRoles.Add(SystemRoles.Uop);
 
-                var verticales = await uow.Modules.GetAllAsync(x => x.ModuleTypeId == 1);
+                var rootSubdivisions = await uow.Subdivisions.GetAllAsync(x => x.NestingLevel == 1);
 
-                employeeFromExcel.Modules = verticales.ToList();
+                userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
             else
             {
-                employeeFromExcel.SystemRoles.Add(SystemRoles.Employee);
+                userFromExcel.SystemRoles.Add(SystemRoles.Employee);
             }
         }
 
-        private async Task UpdateOrCreateUsersInDatabase(List<Employee> employeesFromExcel)
+        private async Task PutUsersInDatabase(List<User> usersFromExcel)
         {
-            var invalidEmployees = new List<Employee>();
+            var invalidUsers = new List<User>();
 
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var _employeeValidator = new EmployeeValidator(uow);
+                var _userValidator = new UserValidator(uow);
 
-                foreach (var employeeFromExcel in employeesFromExcel)
+                foreach (var userFromExcel in usersFromExcel)
                 {
                     try
                     {
-                        var result = _employeeValidator.Validate(employeeFromExcel);
+                        var result = _userValidator.Validate(userFromExcel);
 
                         if (!result.IsValid)
                         {
-                            invalidEmployees.Add(employeeFromExcel);
+                            invalidUsers.Add(userFromExcel);
 
                             continue;
                         }
 
-                        var existingEmployee = await uow.Employees.GetAsync(x => x.ServiceNumber == employeeFromExcel.ServiceNumber, includeProperties: "Modules");
+                        await PopulateUserWithRole(userFromExcel, uow);
+                        await PopulateUserWithModule(userFromExcel, uow, userFromExcel.SubdivisionFromFile);
 
-                        if (existingEmployee != null)
+                        var existingUser = await uow.Users.GetAsync(x => x.ServiceNumber == userFromExcel.ServiceNumber, includeProperties: "ParentSubdivision");
+
+                        if (existingUser == null)
                         {
-                            existingEmployee.FullName = employeeFromExcel.FullName;
-                            existingEmployee.Position = employeeFromExcel.Position;
-                            existingEmployee.Subdivision = employeeFromExcel.Subdivision;
-                            existingEmployee.GradeGroup = employeeFromExcel.GradeGroup;
-                            existingEmployee.HireDate = employeeFromExcel.HireDate;
-                            existingEmployee.ContractStartDate = employeeFromExcel.ContractStartDate;
-                            existingEmployee.ContractEndDate = employeeFromExcel.ContractEndDate;
-                            existingEmployee.Login = employeeFromExcel.Login;
-                            existingEmployee.Password = employeeFromExcel.Password;
-                            existingEmployee.Email = employeeFromExcel.Email;
-                            existingEmployee.ImagePath = employeeFromExcel.ImagePath;
-
-                            uow.Employees.Update(existingEmployee);
-                        }
-                        else
-                        {
-                            await PopulateEmployeeWithRole(employeeFromExcel, uow);
-                            await PopulateEmployeeWithModule(employeeFromExcel, uow);
-
-                            await uow.Employees.AddAsync(employeeFromExcel);
+                            await uow.Users.AddAsync(userFromExcel);
+                            await uow.CommitAsync();
+                            continue;
                         }
 
+                        existingUser.FullName = userFromExcel.FullName;
+                        existingUser.Position = userFromExcel.Position;
+                        existingUser.GradeGroup = userFromExcel.GradeGroup;
+                        existingUser.HireDate = userFromExcel.HireDate;
+                        existingUser.ContractStartDate = userFromExcel.ContractStartDate;
+                        existingUser.ContractEndDate = userFromExcel.ContractEndDate;
+                        existingUser.Login = userFromExcel.Login;
+                        existingUser.Password = userFromExcel.Password;
+                        existingUser.Email = userFromExcel.Email;
+                        existingUser.ImagePath = userFromExcel.ImagePath;
+                        existingUser.ParentSubdivision = userFromExcel.ParentSubdivision;
+                        existingUser.SystemRoles = userFromExcel.SystemRoles;
+
+                        uow.Users.Update(existingUser);
                         await uow.CommitAsync();
                     }
                     catch (Exception ex)
@@ -478,11 +324,11 @@ namespace KOP.Import
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
                 var today = TermManager.GetDate();
-                var employees = await uow.Employees.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
+                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
                 var mails = await uow.Mails.GetAllAsync();
                 var pendingAssessmentResults = await uow.AssessmentResults.GetAllAsync(x => x.SystemStatus == SystemStatuses.PENDING);
 
-                foreach (var employee in employees)
+                foreach (var user in users)
                 {
                     try
                     {
@@ -491,7 +337,7 @@ namespace KOP.Import
                             continue;
                         }
 
-                        if (employee.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 1)
+                        if (user.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 1)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
 
@@ -500,9 +346,9 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки непосредственному руковолителю 1 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
-                        else if(employee.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 15)
+                        else if (user.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 15)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
 
@@ -511,10 +357,10 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки непосредственному руковолителю 15 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
 
-                        if (employee.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 1)
+                        if (user.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 1)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreatePerformanceResultsAndSelfAssessmentNotification);
 
@@ -523,9 +369,9 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки оцениваемому сотруднику 1 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
-                        else if (employee.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 15)
+                        else if (user.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 15)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreatePerformanceResultsAndSelfAssessmentReminder);
 
@@ -534,10 +380,10 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки оцениваемому сотруднику 15 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
 
-                        if (employee.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 1)
+                        if (user.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 1)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCriteriaNotification);
 
@@ -546,9 +392,9 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки ответственным за заполнение показателей 1 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
-                        else if (employee.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 15)
+                        else if (user.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 15)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCriteriaReminder);
 
@@ -557,10 +403,10 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки ответственным за заполнение показателей 15 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
 
-                        if (pendingAssessmentResults.Any(x => x.JudgeId == employee.Id) && today.Day == 10)
+                        if (pendingAssessmentResults.Any(x => x.JudgeId == user.Id) && today.Day == 10)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentNotification);
 
@@ -569,9 +415,9 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки группе оценки КК 1 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
-                        else if (pendingAssessmentResults.Any(x => x.JudgeId == employee.Id) && today.Day == 20)
+                        else if (pendingAssessmentResults.Any(x => x.JudgeId == user.Id) && today.Day == 20)
                         {
                             var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentReminder);
 
@@ -580,33 +426,33 @@ namespace KOP.Import
                                 throw new Exception("Не найдено сообщение для отправки группе оценки КК 15 числа");
                             }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { employee.Email }, mail.Title, mail.Body, employee.FullName), _emailIconPath);
+                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Произошла ошибка во время работы с уведомлением пользователя {employee.FullName} : {ex.Message}");
+                        _logger.Error($"Произошла ошибка во время работы с уведомлением пользователя {user.FullName} : {ex.Message}");
                     }
                 }
             }
         }
 
-        private async Task CheckEmployeesForGradeProcess()
+        private async Task CheckUsersForGradeProcess()
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
                 var today = TermManager.GetDate();
-                var employees = await uow.Employees.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
+                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
 
-                foreach (var employee in employees)
+                foreach (var user in users)
                 {
                     try
                     {
                         var currentDay = today.Day;
                         var currentMonth = today.Month;
                         var currentYear = today.Year;
-                        var gradeStartMonth = employee.ContractEndDate.Value.AddMonths(-4).Month;
-                        var gradeStartYear = employee.ContractEndDate.Value.AddMonths(-4).Year;
+                        var gradeStartMonth = user.ContractEndDate.AddMonths(-4).Month;
+                        var gradeStartYear = user.ContractEndDate.AddMonths(-4).Year;
 
                         if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
                         {
@@ -615,12 +461,12 @@ namespace KOP.Import
 
                         var gradeStartDate = new DateOnly(currentYear, currentMonth, 1);
 
-                        var employeeGrades = await uow.Grades.GetAllAsync(x => x.EmployeeId == employee.Id);
+                        var userGrades = await uow.Grades.GetAllAsync(x => x.UserId == user.Id);
                         var gradeNumber = 1;
 
-                        if (employeeGrades.Any())
+                        if (userGrades.Any())
                         {
-                            gradeNumber = employeeGrades.Count();
+                            gradeNumber = userGrades.Count();
                         }
 
                         var newGrade = new Grade
@@ -629,7 +475,7 @@ namespace KOP.Import
                             StartDate = today.AddYears(-2),
                             EndDate = today.AddMonths(-1),
                             SystemStatus = SystemStatuses.PENDING,
-                            EmployeeId = employee.Id,
+                            UserId = user.Id,
                             Qualification = new Qualification(),
                         };
 
@@ -643,14 +489,14 @@ namespace KOP.Import
 
                             if (assessmentType.Assessments.Any())
                             {
-                                gradeNumber = employeeGrades.Count();
+                                gradeNumber = userGrades.Count();
                             }
 
                             var newAssessment = new Assessment
                             {
                                 Number = assessmentNumber,
                                 SystemStatus = SystemStatuses.PENDING,
-                                EmployeeId = employee.Id,
+                                UserId = user.Id,
                                 AssessmentTypeId = assessmentType.Id,
                             };
 
@@ -669,20 +515,20 @@ namespace KOP.Import
             }
         }
 
-        private async Task BlockNonActiveUsers(List<Employee> employeesFromExcel)
+        private async Task BlockNonActiveUsers(List<User> usersFromExcel)
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var allDbUsers = await uow.Employees.GetAllAsync();
+                var allDbUsers = await uow.Users.GetAllAsync();
 
                 foreach (var dbUser in allDbUsers)
                 {
-                    if (!employeesFromExcel.Any(x => x.ServiceNumber == dbUser.ServiceNumber))
+                    if (!usersFromExcel.Any(x => x.ServiceNumber == dbUser.ServiceNumber))
                     {
-                        var nonActiveUser = await uow.Employees.GetAsync(x => x.Id == dbUser.Id);
+                        var nonActiveUser = await uow.Users.GetAsync(x => x.Id == dbUser.Id);
                         nonActiveUser.IsSuspended = true;
 
-                        uow.Employees.Update(nonActiveUser);
+                        uow.Users.Update(nonActiveUser);
                         await uow.CommitAsync();
                     }
                 }
@@ -717,13 +563,5 @@ namespace KOP.Import
 
             return true;
         }
-    }
-
-    public class ExcelRow
-    {
-        public string ModuleName { get; set; }
-        public string ParentModuleName { get; set; }
-        public int CuratorServiceNumber { get; set; }
-        public int SupervisorServiceNumber { get; set; }
     }
 }
