@@ -3,8 +3,6 @@
 @{
     Layout = null;
 
-    // Перенести логику в BLL
-    // На данный момент для удобства тестирования
     var isInRole = User.IsInRole("Umst");
     var conclusionEditAccess = false;
     if (User.IsInRole("Urp"))
