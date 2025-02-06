@@ -9,121 +9,121 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = KOP.WEB
 build_property.RootNamespace = KOP.WEB
-build_property.ProjectDir = C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.WEB\
+build_property.ProjectDir = C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.WEB\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 6.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.WEB
+build_property.MSBuildProjectDirectory = C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.WEB
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 6.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Account/Login.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/AssessmentLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/AssessmentLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcQXNzZXNzbWVudExheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/EmployeeLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/EmployeeLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcRW1wbG95ZWVMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/GradeLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/GradeLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcR3JhZGVMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/SelfAssessment.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/SelfAssessment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcU2VsZkFzc2Vzc21lbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/SelfAssessmentLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Employee/SelfAssessmentLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcU2VsZkFzc2Vzc21lbnRMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/Error.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_CorporateCompetencies.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_CorporateCompetencies.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Db3Jwb3JhdGVDb21wZXRlbmNpZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Kpis.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Kpis.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9LcGlzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ManagmentCompetencies.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ManagmentCompetencies.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9NYW5hZ21lbnRDb21wZXRlbmNpZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Marks.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Marks.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9NYXJrcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Projects.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Projects.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Qcm9qZWN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Qualification.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Qualification.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9RdWFsaWZpY2F0aW9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_StrategicTasks.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_StrategicTasks.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHJhdGVnaWNUYXNrcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Subordinate.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Subordinate.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdWJvcmRpbmF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_TrainingEvents.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_TrainingEvents.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9UcmFpbmluZ0V2ZW50cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ValueJudgment.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_ValueJudgment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWx1ZUp1ZGdtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessment.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUFzc2Vzc21lbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessmentLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeAssessmentLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUFzc2Vzc21lbnRMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeGradeLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeGradeLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUdyYWRlTGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/EmployeeLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxFbXBsb3llZUxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/Subordinates.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/Subordinates.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxTdWJvcmRpbmF0ZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/SupervisorLayout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Supervisor/SupervisorLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJ2aXNvclxTdXBlcnZpc29yTGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/_ViewImports.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/_ViewStart.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/batureladm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Layout.cshtml]
+[C:/Users/tomchikadm/Documents/GitHub/KopSupervisors/KOP/KOP.WEB/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-r1huic7zum

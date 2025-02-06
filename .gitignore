@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/KOP/KOP.EmailService/obj
+KOP/.vs/KOP/v17/.suo
+KOP/.vs/KOP/v17/.suo
+KOP/KOP.EmailService/obj/Debug/net8.0/KOP.EmailService.csproj.AssemblyReference.cache

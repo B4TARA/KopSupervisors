@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj": {}
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj": {}
   },
   "projects": {
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
         "projectName": "KOP.BLL",
-        "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
-        "packagesPath": "C:\\Users\\batureladm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\obj\\",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\batureladm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
-                "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
               }
             }
           }
@@ -83,20 +83,20 @@
         }
       }
     },
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
         "projectName": "KOP.Common",
-        "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
-        "packagesPath": "C:\\Users\\batureladm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\obj\\",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\batureladm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -148,20 +148,20 @@
         }
       }
     },
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
         "projectName": "KOP.DAL",
-        "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
-        "packagesPath": "C:\\Users\\batureladm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\obj\\",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\batureladm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -176,8 +176,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
-                "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Common\\KOP.Common.csproj"
               }
             }
           }
@@ -237,20 +237,20 @@
         }
       }
     },
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj",
         "projectName": "KOP.EmailService",
-        "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj",
-        "packagesPath": "C:\\Users\\batureladm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\obj\\",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\batureladm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -316,20 +316,20 @@
         }
       }
     },
-    "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj": {
+    "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
+        "projectUniqueName": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
         "projectName": "KOP.Import",
-        "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
-        "packagesPath": "C:\\Users\\batureladm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\obj\\",
+        "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\KOP.Import.csproj",
+        "packagesPath": "C:\\Users\\tomchikadm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.Import\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\batureladm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tomchikadm\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -344,14 +344,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
-                "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\KOP.BLL.csproj"
               },
-              "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
-                "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.DAL\\KOP.DAL.csproj"
               },
-              "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
-                "projectPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj"
+              "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj": {
+                "projectPath": "C:\\Users\\tomchikadm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.EmailService\\KOP.EmailService.csproj"
               }
             }
           }
