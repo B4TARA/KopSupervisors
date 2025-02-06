@@ -25,7 +25,7 @@
                 Результаты выполнения ключевых показателей эффективности деятельности
             </div>
             <div class="description">
-                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(isInRole ? null : "disabled")">
+                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
             </div>
         </div>
         <table class="table_popup">
