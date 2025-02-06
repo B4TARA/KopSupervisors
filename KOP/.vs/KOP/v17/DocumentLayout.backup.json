@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{CB4FD253-D1AC-4E74-95EE-D74425A54F4D}|KOP.WEB\\KOP.WEB.csproj|c:\\users\\batureladm\\documents\\github\\kopsupervisors\\kop\\kop.web\\views\\supervisor\\employeeassessment.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CB4FD253-D1AC-4E74-95EE-D74425A54F4D}|KOP.WEB\\KOP.WEB.csproj|solutionrelative:kop.web\\views\\supervisor\\employeeassessment.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{03A3DCFB-718F-49C7-ABE5-63E9F513811F}|KOP.BLL\\KOP.BLL.csproj|c:\\users\\batureladm\\documents\\github\\kopsupervisors\\kop\\kop.bll\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03A3DCFB-718F-49C7-ABE5-63E9F513811F}|KOP.BLL\\KOP.BLL.csproj|solutionrelative:kop.bll\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB4FD253-D1AC-4E74-95EE-D74425A54F4D}|KOP.WEB\\KOP.WEB.csproj|c:\\users\\batureladm\\documents\\github\\kopsupervisors\\kop\\kop.web\\controllers\\supervisorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB4FD253-D1AC-4E74-95EE-D74425A54F4D}|KOP.WEB\\KOP.WEB.csproj|solutionrelative:kop.web\\controllers\\supervisorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03A3DCFB-718F-49C7-ABE5-63E9F513811F}|KOP.BLL\\KOP.BLL.csproj|c:\\users\\batureladm\\documents\\github\\kopsupervisors\\kop\\kop.bll\\services\\assessmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -22,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 51,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,7 +42,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "EmployeeAssessment.cshtml",
+              "DocumentMoniker": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\Views\\Supervisor\\EmployeeAssessment.cshtml",
+              "RelativeDocumentMoniker": "KOP.WEB\\Views\\Supervisor\\EmployeeAssessment.cshtml",
+              "ToolTip": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\Views\\Supervisor\\EmployeeAssessment.cshtml",
+              "RelativeToolTip": "KOP.WEB\\Views\\Supervisor\\EmployeeAssessment.cshtml",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAAJsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-01-24T08:21:28.022Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SupervisorController.cs",
+              "DocumentMoniker": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\Controllers\\SupervisorController.cs",
+              "RelativeDocumentMoniker": "KOP.WEB\\Controllers\\SupervisorController.cs",
+              "ToolTip": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.WEB\\Controllers\\SupervisorController.cs",
+              "RelativeToolTip": "KOP.WEB\\Controllers\\SupervisorController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAjwDIAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-24T08:18:43.143Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "AssessmentService.cs",
               "DocumentMoniker": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\Services\\AssessmentService.cs",
               "RelativeDocumentMoniker": "KOP.BLL\\Services\\AssessmentService.cs",
@@ -47,20 +81,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "UserService.cs",
               "DocumentMoniker": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\Services\\UserService.cs",
               "RelativeDocumentMoniker": "KOP.BLL\\Services\\UserService.cs",
               "ToolTip": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\Services\\UserService.cs",
               "RelativeToolTip": "KOP.BLL\\Services\\UserService.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwEoAAACGAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAA1wE4AAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-24T08:17:59.18Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "SupervisorService.cs",
               "DocumentMoniker": "C:\\Users\\batureladm\\Documents\\GitHub\\KopSupervisors\\KOP\\KOP.BLL\\Services\\SupervisorService.cs",
               "RelativeDocumentMoniker": "KOP.BLL\\Services\\SupervisorService.cs",
