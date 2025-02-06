@@ -30,12 +30,12 @@
         <div class="description_wrapper">
             <div class="mid_title">Подразделение:</div>
             <div class="description">
-                @Model.Subdivision
+                @Model.SubdivisionFromFile
             </div>
         </div>
 
         <div class="description_wrapper">
-            <div class="mid_title">Номер грейда:</div>
+            <div class="mid_title">Группа грейда:</div>
             <div class="description">
                 @Model.GradeGroup
             </div>
@@ -94,7 +94,7 @@
     else
     {    
         <div class="result_user_list ">
-            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Uop"))
             {
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
@@ -107,7 +107,7 @@
                     </div>
                 </div>
             }
-            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor") || User.IsInRole("Cup"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Cup") || User.IsInRole("Uop"))
             {
                 <div class="result_item margin_container_bottom_small">
                     <span>02</span>
@@ -119,7 +119,7 @@
                 </div>
 
             }
-            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor") || User.IsInRole("Umst"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Umst") || User.IsInRole("Uop"))
             {
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
@@ -132,7 +132,7 @@
                     </div>
                 </div>
             }
-            @if (User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Uop"))
             {
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
@@ -155,7 +155,7 @@
                     </div>
                 </div>
             }
-            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Uop"))
             {
                 <div class="result_item margin_container_bottom_small">
                     <span>06</span>
@@ -167,7 +167,7 @@
                 </div>
                
             }
-            @if (User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Uop"))
             {
                 <div class="result_item margin_container_bottom_small">
                     <span>07</span>
@@ -178,7 +178,7 @@
                     </div>
                 </div>
             }
-            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Uop"))
             {
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
@@ -191,7 +191,7 @@
                     </div>
                 </div>
             }
-            @if (User.IsInRole("Supervisor"))
+            @if (User.IsInRole("Urp") || User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Uop"))
             {
                 <div class="result_item margin_container_bottom_small">
                     <span>09</span>

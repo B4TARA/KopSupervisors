@@ -13,9 +13,9 @@
 
 <section class="list_division_users_main_wrapper">
     @{
-        foreach(var module in Model.Modules)
+        foreach (var subdivision in Model.Subdivisions)
         {
-            await Html.RenderPartialAsync("_Subordinate", module);
+            await Html.RenderPartialAsync("_Subordinate", subdivision);
         }
     }
 </section>

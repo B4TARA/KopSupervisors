@@ -1,4 +1,6 @@
-﻿using ExcelDataReader;
+﻿using System.Data;
+using System.Xml;
+using ExcelDataReader;
 using KOP.BLL.Validators;
 using KOP.Common.Enums;
 using KOP.DAL;
@@ -12,8 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using NLog;
-using System.Data;
-using System.Xml;
 using SystemRoles = KOP.Common.Enums.SystemRoles;
 
 namespace KOP.Import
@@ -25,13 +25,16 @@ namespace KOP.Import
         private readonly IEmailSender _emailSender;
         private readonly IConfigurationRoot _config;
 
-        private readonly string _referenceBookPath;
+        private readonly string _additionalUsersServiceNumbersPath;
         private readonly string _usersInfosPath;
         private readonly string _usersStructuresPath;
         private readonly string _colsArrayPath;
         private readonly string _usersPassContainerPath;
         private readonly string _usersImgDownloadPath;
         private readonly string _emailIconPath;
+        private readonly string _trainingEventsPath;
+
+        private List<int> additionalUsersServiceNumbers = new();
 
         public ExportAndImport(DbContextOptions<ApplicationDbContext> options, IConfigurationRoot config)
         {
@@ -46,24 +49,28 @@ namespace KOP.Import
             _config = config;
             _emailSender = new EmailSender(emailConfiguration);
 
-            _referenceBookPath = _config["FilePaths:ReferenceBookPath"] ?? "";
+            _additionalUsersServiceNumbersPath = _config["FilePaths:AdditionalUsersServiceNumbersPath"] ?? "";
             _usersInfosPath = _config["FilePaths:UsersInfosPath"] ?? "";
             _usersStructuresPath = _config["FilePaths:UsersStructuresPath"] ?? "";
             _colsArrayPath = _config["FilePaths:ColsArrayPath"] ?? "";
             _usersPassContainerPath = _config["FilePaths:UsersPassContainerPath"] ?? "";
             _usersImgDownloadPath = _config["FilePaths:UsersImgDownloadPath"] ?? "";
             _emailIconPath = _config["FilePaths:EmailIconPath"] ?? "";
+            _trainingEventsPath = _config["FilePaths:TrainingEventsPath"] ?? "";
         }
 
         public async Task TransferDataFromExcelToDatabase()
         {
             try
             {
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
                 var usersFromExcel = ProcessUsers();
                 await PutUsersInDatabase(usersFromExcel);
                 await BlockNonActiveUsers(usersFromExcel);
                 await CheckUsersForGradeProcess();
                 //await CheckForNotifications();
+                await ProcessTrainingEvents(_trainingEventsPath);
             }
             catch (Exception ex)
             {
@@ -74,91 +81,9 @@ namespace KOP.Import
 
         private List<User> ProcessUsers()
         {
-            var usersFromExcel = new List<User>();
-
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-            using (var fStream = File.Open(_usersStructuresPath, FileMode.Open, FileAccess.Read))
-            {
-                var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
-                var resultDataSet = excelDataReader.AsDataSet();
-                var table = resultDataSet.Tables[0];
-
-                for (int rowCounter = 2; rowCounter < table.Rows.Count; rowCounter++)
-                {
-                    try
-                    {
-                        if (!IsMeetUserStructureBusinessRequirements(table.Rows[rowCounter]))
-                        {
-                            continue;
-                        }
-
-                        var userFromExcel = new User
-                        {
-                            ServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]),
-                            GradeGroup = Convert.ToString(table.Rows[rowCounter][44]),
-                        };
-
-                        usersFromExcel.Add(userFromExcel);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex.Message);
-                        continue;
-                    }
-                }
-
-                excelDataReader.Close();
-            }
-
-            using (var fStream = File.Open(_usersInfosPath, FileMode.Open, FileAccess.Read))
-            {
-                var colsArrayDocument = new XmlDocument();
-                var usersPassContainerDocument = new XmlDocument();
-                var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
-                var resultDataSet = excelDataReader.AsDataSet();
-                var table = resultDataSet.Tables[0];
-
-                colsArrayDocument.Load(_colsArrayPath);
-                usersPassContainerDocument.Load(_usersPassContainerPath);
-
-                for (int rowCounter = 2; rowCounter < table.Rows.Count; rowCounter++)
-                {
-                    try
-                    {
-                        var serviceNumber = Convert.ToInt32(table.Rows[rowCounter][2]);
-                        var userFromExcel = usersFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
-
-                        if (userFromExcel is null)
-                        {
-                            _logger.Warn($"Не удалось найти сопоставление из СЧ в ШР для пользователя с табельным номером {serviceNumber}");
-                            continue;
-                        }
-                        else if (!IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter]))
-                        {
-                            usersFromExcel.Remove(userFromExcel);
-                        }
-
-                        userFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]);
-                        userFromExcel.Position = Convert.ToString(table.Rows[rowCounter][6]);
-                        userFromExcel.HireDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][12]));
-                        userFromExcel.SubdivisionFromFile = Convert.ToString(table.Rows[rowCounter][22]);
-                        userFromExcel.ContractStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][57]));
-                        userFromExcel.ContractEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][58]));
-
-                        PopulateUserWithXmlData(userFromExcel, colsArrayDocument, usersPassContainerDocument);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex.Message);
-                        continue;
-                    }
-                }
-
-                excelDataReader.Close();
-            }
-
-            return usersFromExcel;
+            additionalUsersServiceNumbers = ReadAdditionalUsersServiceNumbersFromFile(_additionalUsersServiceNumbersPath);
+            var usersFromExcel = ReadUsersStructuresFromFile(_usersStructuresPath);
+            return ReadUsersInfosFromFile(_usersInfosPath, usersFromExcel);
         }
 
         private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
@@ -218,6 +143,8 @@ namespace KOP.Import
 
         private async Task PopulateUserWithRole(User userFromExcel, UnitOfWork uow)
         {
+            userFromExcel.SystemRoles.Add(SystemRoles.Employee);
+
             if (userFromExcel.SubdivisionFromFile is null)
             {
                 return;
@@ -253,10 +180,6 @@ namespace KOP.Import
                 var rootSubdivisions = await uow.Subdivisions.GetAllAsync(x => x.NestingLevel == 1);
 
                 userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
-            }
-            else
-            {
-                userFromExcel.SystemRoles.Add(SystemRoles.Employee);
             }
         }
 
@@ -304,7 +227,6 @@ namespace KOP.Import
                         existingUser.Email = userFromExcel.Email;
                         existingUser.ImagePath = userFromExcel.ImagePath;
                         existingUser.ParentSubdivision = userFromExcel.ParentSubdivision;
-                        existingUser.SystemRoles = userFromExcel.SystemRoles;
 
                         uow.Users.Update(existingUser);
                         await uow.CommitAsync();
@@ -441,16 +363,23 @@ namespace KOP.Import
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var today = TermManager.GetDate();
-                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
+                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee), includeProperties: new string[]
+                {
+                    "Grades",
+                });
 
                 foreach (var user in users)
                 {
                     try
                     {
-                        var currentDay = today.Day;
-                        var currentMonth = today.Month;
-                        var currentYear = today.Year;
+                        if (user.Grades.Where(x => x.SystemStatus == SystemStatuses.PENDING).Any())
+                        {
+                            continue;
+                        }
+
+                        var currentDay = TermManager.GetDate().Day;
+                        var currentMonth = TermManager.GetDate().Month;
+                        var currentYear = TermManager.GetDate().Year;
                         var gradeStartMonth = user.ContractEndDate.AddMonths(-4).Month;
                         var gradeStartYear = user.ContractEndDate.AddMonths(-4).Year;
 
@@ -460,7 +389,6 @@ namespace KOP.Import
                         }
 
                         var gradeStartDate = new DateOnly(currentYear, currentMonth, 1);
-
                         var userGrades = await uow.Grades.GetAllAsync(x => x.UserId == user.Id);
                         var gradeNumber = 1;
 
@@ -472,11 +400,13 @@ namespace KOP.Import
                         var newGrade = new Grade
                         {
                             Number = gradeNumber,
-                            StartDate = today.AddYears(-2),
-                            EndDate = today.AddMonths(-1),
+                            StartDate = new DateOnly(TermManager.GetDate().Year - 1, 1, 1),
+                            EndDate = new DateOnly(TermManager.GetDate().Year, 12, 31),
                             SystemStatus = SystemStatuses.PENDING,
                             UserId = user.Id,
                             Qualification = new Qualification(),
+                            ValueJudgment = new ValueJudgment(),
+                            QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         };
 
                         await uow.Grades.AddAsync(newGrade);
@@ -562,6 +492,203 @@ namespace KOP.Import
             }
 
             return true;
+        }
+
+        private bool IsAdditionalUser(int userServiceNumber)
+        {
+            return additionalUsersServiceNumbers.Contains(userServiceNumber);
+        }
+
+        private List<int> ReadAdditionalUsersServiceNumbersFromFile(string filePath)
+        {
+            var numbers = new List<int>();
+
+            try
+            {
+                var lines = File.ReadAllLines(filePath);
+
+                foreach (string line in lines)
+                {
+                    if (int.TryParse(line, out int number))
+                    {
+                        numbers.Add(number);
+                    }
+                    else
+                    {
+                        _logger.Error($"Невозможно преобразовать строку в число: {line}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка при чтении файла: {ex.Message}");
+            }
+
+            return numbers;
+        }
+
+        public List<User> ReadUsersStructuresFromFile(string filePath)
+        {
+            var usersFromExcel = new List<User>();
+
+            using (var fStream = File.Open(_usersStructuresPath, FileMode.Open, FileAccess.Read))
+            {
+                var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
+                var resultDataSet = excelDataReader.AsDataSet();
+                var table = resultDataSet.Tables[0];
+
+                for (int rowCounter = 2; rowCounter < table.Rows.Count; rowCounter++)
+                {
+                    try
+                    {
+                        var userServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]);
+
+                        if (!IsMeetUserStructureBusinessRequirements(table.Rows[rowCounter]) && !IsAdditionalUser(userServiceNumber))
+                        {
+                            continue;
+                        }
+
+                        var userFromExcel = new User
+                        {
+                            ServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]),
+                            GradeGroup = Convert.ToString(table.Rows[rowCounter][44]),
+                        };
+
+                        usersFromExcel.Add(userFromExcel);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex.Message);
+                        continue;
+                    }
+                }
+
+                excelDataReader.Close();
+            }
+
+            return usersFromExcel;
+        }
+
+        public List<User> ReadUsersInfosFromFile(string filePath, List<User> usersFromExcel)
+        {
+            using (var fStream = File.Open(_usersInfosPath, FileMode.Open, FileAccess.Read))
+            {
+                var colsArrayDocument = new XmlDocument();
+                var usersPassContainerDocument = new XmlDocument();
+                var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
+                var resultDataSet = excelDataReader.AsDataSet();
+                var table = resultDataSet.Tables[0];
+
+                colsArrayDocument.Load(_colsArrayPath);
+                usersPassContainerDocument.Load(_usersPassContainerPath);
+
+                for (int rowCounter = 2; rowCounter < table.Rows.Count; rowCounter++)
+                {
+                    try
+                    {
+                        var serviceNumber = Convert.ToInt32(table.Rows[rowCounter][2]);
+                        var userFromExcel = usersFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
+
+                        if (userFromExcel is null)
+                        {
+                            _logger.Warn($"Не удалось найти сопоставление из СЧ в ШР для пользователя с табельным номером {serviceNumber}");
+                            continue;
+                        }
+                        else if (!IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter]) && !IsAdditionalUser(serviceNumber))
+                        {
+                            usersFromExcel.Remove(userFromExcel);
+                        }
+
+                        userFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]);
+                        userFromExcel.Position = Convert.ToString(table.Rows[rowCounter][6]);
+                        userFromExcel.HireDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][12]));
+                        userFromExcel.SubdivisionFromFile = Convert.ToString(table.Rows[rowCounter][22]);
+                        userFromExcel.ContractStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][57]));
+                        userFromExcel.ContractEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][58]));
+
+                        PopulateUserWithXmlData(userFromExcel, colsArrayDocument, usersPassContainerDocument);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex.Message);
+                        continue;
+                    }
+                }
+
+                excelDataReader.Close();
+            }
+
+            return usersFromExcel;
+        }
+
+        public async Task ProcessTrainingEvents(string filePath)
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var allDbUsers = await uow.Users.GetAllAsync(includeProperties: "Grades.TrainingEvents");
+                var trainingEventsFromFile = new List<TrainingEvent>();
+
+                using (var fStream = File.Open(_trainingEventsPath, FileMode.Open, FileAccess.Read))
+                {
+                    var excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fStream);
+                    var resultDataSet = excelDataReader.AsDataSet();
+                    var table = resultDataSet.Tables[0];
+
+                    for (int rowCounter = 1; rowCounter < table.Rows.Count; rowCounter++)
+                    {
+                        try
+                        {
+                            var userFullName = Convert.ToString(table.Rows[rowCounter][0]);
+                            var trainingEventFromFileName = Convert.ToString(table.Rows[rowCounter][3]);
+                            var trainingEventFromFileStatus = Convert.ToString(table.Rows[rowCounter][6]);
+                            var trainingEventFromFileStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][4]));
+                            var trainingEventFromFileEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][5]));
+                            var trainingEventFromFileCompetence = Convert.ToString(table.Rows[rowCounter][7]);
+
+                            var dbUser = await uow.Users.GetAsync(x => x.FullName.Replace(" ", "").ToLower() == userFullName.Replace(" ", "").ToLower());
+
+                            if (dbUser == null)
+                            {
+                                continue;
+                            }
+
+                            var userLastGrade = dbUser.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
+
+                            if (userLastGrade == null)
+                            {
+                                continue;
+                            }
+
+                            var dbTrainingEvent = userLastGrade.TrainingEvents.FirstOrDefault(x => x.Name.Replace(" ", "").ToLower() == trainingEventFromFileName.Replace(" ", "").ToLower());
+
+                            if (dbTrainingEvent != null)
+                            {
+                                continue;
+                            }
+
+                            userLastGrade.TrainingEvents.Add(new TrainingEvent
+                            {
+                                Name = trainingEventFromFileName,
+                                Status = trainingEventFromFileStatus,
+                                StartDate = trainingEventFromFileStartDate,
+                                EndDate = trainingEventFromFileEndDate,
+                                Competence = trainingEventFromFileCompetence,
+                            });
+
+                            uow.Grades.Update(userLastGrade);
+                            await uow.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await uow.RollbackAsync();
+                            _logger.Error(ex.Message);
+                            continue;
+                        }
+                    }
+
+                    excelDataReader.Close();
+                }
+            }
         }
     }
 }

@@ -13,7 +13,7 @@
                 @if (assessment.IsActiveAssessment)
                 {
                     <li class="item_menu active">
-                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.EmployeeId, @assessment.Id)">
+                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.UserId, @assessment.Id)">
                             @assessment.AssessmentTypeName
                         </button>
                         <span class="indicator_assessment">
@@ -22,7 +22,7 @@
                     </li>
                 }else{
                     <li class="item_menu">
-                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.EmployeeId, @assessment.Id)">
+                        <button class="link_menu description" id="grade_link_item" onclick="getAssessment(@assessment.UserId, @assessment.Id)">
                             @assessment.AssessmentTypeName
                         </button>
                         <span class="indicator_assessment">

@@ -1,11 +1,11 @@
-﻿using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos.GradeDtos;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {
     public class EmployeeGradeViewModel
     {
         public int SupervisorId { get; set; }
-        public GradeDTO Grade { get; set; } = new();
+        public GradeDto Grade { get; set; } = new();
         public bool IsNeedSupervisorGrade { get; set; }
     }
 }

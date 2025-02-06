@@ -9,14 +9,14 @@
     var endDateTime = Model.Qualification.EndDateTime.ToString("yyyy-MM-dd");
     var currentStatusDateTime = Model.Qualification.CurrentStatusDateTime.ToString("yyyy-MM-dd");
     var currentJobStartDateTime = Model.Qualification.CurrentJobStartDateTime.ToString("yyyy-MM-dd");
-
     var isInRole = User.IsInRole("Urp");
     var conclusionEditAccess = false;
+    var controllerMethod = "EditQualification";
+
     if (User.IsInRole("Urp"))
     {
         conclusionEditAccess = true;
     }
-    var controllerMethod = "EditQualification";
 }
 
 <form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
@@ -28,7 +28,7 @@
     <div class="popup_content">
         <div class="popup_content_header margin_container_bottom_middle">
             <div class="title">
-                Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+                Квалификация Руководителя
             </div>
             <div class="description">
                 <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
@@ -106,7 +106,7 @@
         </div>
         <div>
             <input type="text" asp-for="Qualification.EmploymentContarctTerminations" value="@Model.Qualification.EmploymentContarctTerminations" disabled="@(isInRole ? null : "disabled")" />
-            в течении последних двух лет факты расторжения трудового договора (контракта) по
+            в течение последних двух лет факты расторжения трудового договора (контракта) по
             инициативе нанимателя в случае совершения лицом виновных действий,
             являющихся основаниями для утраты доверия к нему со стороны нанимателя.
         </div>

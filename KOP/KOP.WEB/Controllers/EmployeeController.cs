@@ -1,23 +1,23 @@
-﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs.AssessmentDTOs;
+﻿using System.Security.Claims;
+using KOP.BLL.Interfaces;
+using KOP.Common.Dtos.AssessmentDtos;
 using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly IEmployeeService _employeeService;
+        private readonly IUserService _userService;
         private readonly IAssessmentService _assessmentService;
 
-        public EmployeeController(IEmployeeService employeeService, IAssessmentService assessmentService)
+        public EmployeeController(IUserService userService, IAssessmentService assessmentService)
         {
-            _employeeService = employeeService;
+            _userService = userService;
             _assessmentService = assessmentService;
         }
 
@@ -32,13 +32,12 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetAssessmentLayout(int employeeId)
+        public async Task<IActionResult> GetAssessmentLayout(int userId)
         {
-            var response = await _assessmentService.IsActiveAssessment(employeeId, employeeId);
+            var response = await _assessmentService.IsActiveAssessment(userId, userId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем страницу ошибки с кодом статуса и описанием
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = response.StatusCode,
@@ -48,7 +47,7 @@ namespace KOP.WEB.Controllers
 
             var viewModel = new AssessmentLayoutViewModel
             {
-                EmployeeId = employeeId,
+                EmployeeId = userId,
                 IsActiveSelfAssessment = response.Data
             };
 
@@ -59,11 +58,10 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetGradeLayout(int employeeId)
         {
-            var response = await _employeeService.GetEmployee(employeeId);
+            var response = await _userService.GetUser(employeeId);
 
             if (response.StatusCode != StatusCodes.OK || response.Data == null)
             {
-                // Возвращаем страницу ошибки с кодом статуса и описанием
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = response.StatusCode,
@@ -76,7 +74,7 @@ namespace KOP.WEB.Controllers
                 Id = response.Data.Id,
                 FullName = response.Data.FullName,
                 Position = response.Data.Position,
-                Subdivision = response.Data.Subdivision,
+                SubdivisionFromFile = response.Data.SubdivisionFromFile,
                 GradeGroup = response.Data.GradeGroup,
                 WorkPeriod = response.Data.WorkPeriod,
                 ContractEndDate = response.Data.ContractEndDate,
@@ -91,11 +89,10 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetColleaguesAssessment(int employeeId)
         {
-            var response = await _employeeService.GetColleagueAssessmentResults(employeeId);
+            var response = await _userService.GetColleaguesAssessmentResultsForAssessment(employeeId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем страницу ошибки с кодом статуса и описанием
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = response.StatusCode,
@@ -115,11 +112,10 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessment(int employeeId, int assessmentId)
         {
-            var response = await _employeeService.GetSelfAssessment(employeeId, assessmentId);
+            var response = await _userService.GetUserSelfAssessmentResultByAssessment(employeeId, assessmentId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем страницу ошибки с кодом статуса и описанием
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = response.StatusCode,
@@ -139,11 +135,10 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessmentLayout(int employeeId)
         {
-            var response = await _employeeService.GetEmployeeLastAssessments(employeeId, employeeId);
+            var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, employeeId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем страницу ошибки с кодом статуса и описанием
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = response.StatusCode,
@@ -157,23 +152,22 @@ namespace KOP.WEB.Controllers
             };
 
             return View("SelfAssessmentLayout", viewModel);
-        }      
+        }
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AssessEmployee([FromBody] AssessEmployeeRequestModel requestModel)
         {
-            var assessEmployeeDTO = new AssessEmployeeDTO
+            var assessEmployeeDTO = new AssessUserDto
             {
                 ResultValues = requestModel.resultValues,
                 AssessmentResultId = requestModel.assessmentResultId,
             };
 
-            var response = await _employeeService.AssessEmployee(assessEmployeeDTO);
+            var response = await _userService.AssessUser(assessEmployeeDTO);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем ответ со статусом
                 return StatusCode(Convert.ToInt32(response.StatusCode), new
                 {
                     message = response.Description

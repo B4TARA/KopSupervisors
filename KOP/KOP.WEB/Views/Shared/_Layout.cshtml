@@ -57,7 +57,7 @@
                             <a asp-controller="Employee" asp-action="GetEmployeeLayout">Личный кабинет</a>
                         </li>
                     }
-                    else
+                    @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
                     {
                         <li>
                             <a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>

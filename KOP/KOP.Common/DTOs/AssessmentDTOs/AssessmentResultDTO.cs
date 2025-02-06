@@ -1,8 +1,9 @@
-﻿using KOP.Common.Enums;
+﻿using KOP.Common.Dtos;
+using KOP.Common.Enums;
 
-namespace KOP.Common.DTOs.AssessmentDTOs
+namespace KOP.Common.Dtos.AssessmentDtos
 {
-    public class AssessmentResultDTO
+    public class AssessmentResultDto
     {
         public int Id { get; set; }
         public int AssessmentId { get; set; }
@@ -14,13 +15,13 @@ namespace KOP.Common.DTOs.AssessmentDTOs
         public int MaxValue { get; set; }
         public SystemStatuses SystemStatus { get; set; }
 
-        public EmployeeDTO Judge { get; set; } = new();
-        public EmployeeDTO Judged { get; set; } = new();
+        public UserDto Judge { get; set; } = new();
+        public UserDto Judged { get; set; } = new();
 
-        public List<AssessmentResultValueDTO> AverageValues { get; set; } = new();
-        public List<AssessmentResultValueDTO> Values { get; set; } = new();
-        public List<AssessmentMatrixElementDTO> Elements { get; set; } = new();
-        public List<IGrouping<int, AssessmentMatrixElementDTO>> ElementsByRow { get; set; } = new();   
+        public List<AssessmentResultValueDto> AverageValues { get; set; } = new();
+        public List<AssessmentResultValueDto> Values { get; set; } = new();
+        public List<AssessmentMatrixElementDto> Elements { get; set; } = new();
+        public List<IGrouping<int, AssessmentMatrixElementDto>> ElementsByRow { get; set; } = new();   
 
         public double AverageResult { get; set; }
         public int PlanValue { get; set; }

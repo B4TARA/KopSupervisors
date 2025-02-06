@@ -23,3 +23,16 @@ C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Deb
 C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\refint\KOP.EmailService.dll
 C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.pdb
 C:\Users\tomchikadm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\ref\KOP.EmailService.dll
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.deps.json
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.dll
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\bin\Debug\net8.0\KOP.EmailService.pdb
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.csproj.AssemblyReference.cache
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.AssemblyInfoInputs.cache
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.AssemblyInfo.cs
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.csproj.CoreCompileInputs.cache
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.sourcelink.json
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.dll
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\refint\KOP.EmailService.dll
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\KOP.EmailService.pdb
+C:\Users\batureladm\Documents\GitHub\KopSupervisors\KOP\KOP.EmailService\obj\Debug\net8.0\ref\KOP.EmailService.dll

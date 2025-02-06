@@ -1,9 +1,9 @@
-﻿using KOP.Common.DTOs;
+﻿using KOP.Common.Dtos;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {
     public class SubordinatesViewModel
     {
-        public List<ModuleDTO> Modules { get; set; } = new();
+        public List<SubdivisionDto> Subdivisions { get; set; } = new();
     }
 }

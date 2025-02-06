@@ -1,7 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs;
-using KOP.Common.DTOs.AssessmentDTOs;
-using KOP.Common.DTOs.GradeDTOs;
+using KOP.Common.Dtos;
+using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
@@ -12,11 +12,11 @@ namespace KOP.BLL.Services
 {
     public class MappingService : IMappingService
     {
-        public IBaseResponse<EmployeeDTO> CreateUserDto(User user)
+        public IBaseResponse<UserDto> CreateUserDto(User user)
         {
             try
             {
-                var dto = new EmployeeDTO
+                var dto = new UserDto
                 {
                     Id = user.Id,
                     FullName = user.FullName,
@@ -24,6 +24,7 @@ namespace KOP.BLL.Services
                     SubdivisionFromFile = user.SubdivisionFromFile,
                     GradeGroup = user.GradeGroup,
                     WorkPeriod = user.GetWorkPeriod,
+                    NextGradeStartDate = user.GetNextGradeStartDate,
                     ContractEndDate = user.ContractEndDate,
                     ImagePath = user.ImagePath,
                 };
@@ -34,7 +35,7 @@ namespace KOP.BLL.Services
                 {
                     dto.LastGrade = null;
 
-                    return new BaseResponse<EmployeeDTO>()
+                    return new BaseResponse<UserDto>()
                     {
                         Data = dto,
                         StatusCode = StatusCodes.OK,
@@ -45,7 +46,7 @@ namespace KOP.BLL.Services
 
                 if (gradeDto.StatusCode != StatusCodes.OK || gradeDto.Data == null)
                 {
-                    return new BaseResponse<EmployeeDTO>()
+                    return new BaseResponse<UserDto>()
                     {
                         Description = gradeDto.Description,
                         StatusCode = gradeDto.StatusCode,
@@ -54,7 +55,7 @@ namespace KOP.BLL.Services
 
                 dto.LastGrade = gradeDto.Data;
 
-                return new BaseResponse<EmployeeDTO>()
+                return new BaseResponse<UserDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -62,7 +63,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<EmployeeDTO>()
+                return new BaseResponse<UserDto>()
                 {
                     Description = $"[MappingService.CreateUserDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -70,16 +71,17 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<GradeDTO> CreateGradeDto(Grade grade)
+        public IBaseResponse<GradeDto> CreateGradeDto(Grade grade)
         {
             try
             {
-                var dto = new GradeDTO()
+                var dto = new GradeDto()
                 {
                     Id = grade.Id,
                     Number = grade.Number,
                     StartDate = grade.StartDate,
                     EndDate = grade.EndDate,
+                    SystemStatus = grade.SystemStatus,
                     StrategicTasksConclusion = grade.StrategicTasksConclusion,
                     KPIsConclusion = grade.KPIsConclusion,
                     QualificationConclusion = grade.QualificationConclusion,
@@ -93,7 +95,7 @@ namespace KOP.BLL.Services
 
                     if (qualificationDto.StatusCode != StatusCodes.OK || qualificationDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = qualificationDto.Description,
                             StatusCode = qualificationDto.StatusCode,
@@ -109,7 +111,7 @@ namespace KOP.BLL.Services
 
                     if (valueJudgmentDto.StatusCode != StatusCodes.OK || valueJudgmentDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = valueJudgmentDto.Description,
                             StatusCode = valueJudgmentDto.StatusCode,
@@ -121,7 +123,7 @@ namespace KOP.BLL.Services
 
                 foreach (var markType in grade.Marks.GroupBy(x => x.MarkType).Where(x => x.Key != null))
                 {
-                    var markTypeDto = new MarkTypeDTO
+                    var markTypeDto = new MarkTypeDto
                     {
                         Id = markType.Key.Id,
                         Name = markType.Key.Name,
@@ -134,7 +136,7 @@ namespace KOP.BLL.Services
 
                         if (markDto.StatusCode != StatusCodes.OK || markDto.Data == null)
                         {
-                            return new BaseResponse<GradeDTO>()
+                            return new BaseResponse<GradeDto>()
                             {
                                 Description = markDto.Description,
                                 StatusCode = markDto.StatusCode,
@@ -153,7 +155,7 @@ namespace KOP.BLL.Services
 
                     if (kpiDto.StatusCode != StatusCodes.OK || kpiDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = kpiDto.Description,
                             StatusCode = kpiDto.StatusCode,
@@ -169,7 +171,7 @@ namespace KOP.BLL.Services
 
                     if (projectDto.StatusCode != StatusCodes.OK || projectDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = projectDto.Description,
                             StatusCode = projectDto.StatusCode,
@@ -185,7 +187,7 @@ namespace KOP.BLL.Services
 
                     if (strategicTaskDto.StatusCode != StatusCodes.OK || strategicTaskDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = strategicTaskDto.Description,
                             StatusCode = strategicTaskDto.StatusCode,
@@ -201,7 +203,7 @@ namespace KOP.BLL.Services
 
                     if (trainingEventDto.StatusCode != StatusCodes.OK || trainingEventDto.Data == null)
                     {
-                        return new BaseResponse<GradeDTO>()
+                        return new BaseResponse<GradeDto>()
                         {
                             Description = trainingEventDto.Description,
                             StatusCode = trainingEventDto.StatusCode,
@@ -211,7 +213,7 @@ namespace KOP.BLL.Services
                     dto.TrainingEvents.Add(trainingEventDto.Data);
                 }
 
-                return new BaseResponse<GradeDTO>()
+                return new BaseResponse<GradeDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -219,7 +221,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<GradeDTO>()
+                return new BaseResponse<GradeDto>()
                 {
                     Description = $"[MappingService.CreateGradeDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -227,11 +229,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<QualificationDTO> CreateQualificationDto(Qualification qualification)
+        public IBaseResponse<QualificationDto> CreateQualificationDto(Qualification qualification)
         {
             try
             {
-                var dto = new QualificationDTO()
+                var dto = new QualificationDto()
                 {
                     Id = qualification.Id,
                     SupervisorSspName = qualification.SupervisorSspName,
@@ -256,7 +258,7 @@ namespace KOP.BLL.Services
 
                     if (previousJobDto.StatusCode != StatusCodes.OK || previousJobDto.Data == null)
                     {
-                        return new BaseResponse<QualificationDTO>()
+                        return new BaseResponse<QualificationDto>()
                         {
                             Description = previousJobDto.Description,
                             StatusCode = previousJobDto.StatusCode,
@@ -266,7 +268,7 @@ namespace KOP.BLL.Services
                     dto.PreviousJobs.Add(previousJobDto.Data);
                 }
 
-                return new BaseResponse<QualificationDTO>()
+                return new BaseResponse<QualificationDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -274,7 +276,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<QualificationDTO>()
+                return new BaseResponse<QualificationDto>()
                 {
                     Description = $"[MappingService.CreateQualificationDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -282,27 +284,27 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<MarkDTO> CreateMarkDto(Mark mark)
+        public IBaseResponse<MarkDto> CreateMarkDto(Mark mark)
         {
             try
             {
                 if (mark.MarkType == null)
                 {
-                    return new BaseResponse<MarkDTO>()
+                    return new BaseResponse<MarkDto>()
                     {
                         Description = $"[MappingService.CreateMarkDto] : Mark.MarkType is null",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = new MarkDTO()
+                var dto = new MarkDto()
                 {
                     Id = mark.Id,
                     PercentageValue = mark.PercentageValue,
                     Period = mark.Period,
                 };
 
-                return new BaseResponse<MarkDTO>()
+                return new BaseResponse<MarkDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -310,7 +312,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<MarkDTO>()
+                return new BaseResponse<MarkDto>()
                 {
                     Description = $"[MappingService.CreateMarkDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -318,11 +320,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<KpiDTO> CreateKpiDto(Kpi kpi)
+        public IBaseResponse<KpiDto> CreateKpiDto(Kpi kpi)
         {
             try
             {
-                var dto = new KpiDTO()
+                var dto = new KpiDto()
                 {
                     Id = kpi.Id,
                     Name = kpi.Name,
@@ -332,7 +334,7 @@ namespace KOP.BLL.Services
                     CalculationMethod = kpi.CalculationMethod,
                 };
 
-                return new BaseResponse<KpiDTO>()
+                return new BaseResponse<KpiDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -340,7 +342,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<KpiDTO>()
+                return new BaseResponse<KpiDto>()
                 {
                     Description = $"[MappingService.CreateKpiDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -348,11 +350,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<ProjectDTO> CreateProjectDto(Project project)
+        public IBaseResponse<ProjectDto> CreateProjectDto(Project project)
         {
             try
             {
-                var dto = new ProjectDTO()
+                var dto = new ProjectDto()
                 {
                     Id = project.Id,
                     Name = project.Name,
@@ -366,7 +368,7 @@ namespace KOP.BLL.Services
                     SPn = project.SPn,
                 };
 
-                return new BaseResponse<ProjectDTO>()
+                return new BaseResponse<ProjectDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -374,7 +376,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<ProjectDTO>()
+                return new BaseResponse<ProjectDto>()
                 {
                     Description = $"[MappingService.CreateProjectDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -382,11 +384,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<StrategicTaskDTO> CreateStrategicTaskDto(StrategicTask strategicTask)
+        public IBaseResponse<StrategicTaskDto> CreateStrategicTaskDto(StrategicTask strategicTask)
         {
             try
             {
-                var dto = new StrategicTaskDTO()
+                var dto = new StrategicTaskDto()
                 {
                     Id = strategicTask.Id,
                     Name = strategicTask.Name,
@@ -398,7 +400,7 @@ namespace KOP.BLL.Services
                     Remark = strategicTask.Remark,
                 };
 
-                return new BaseResponse<StrategicTaskDTO>()
+                return new BaseResponse<StrategicTaskDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -406,7 +408,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<StrategicTaskDTO>()
+                return new BaseResponse<StrategicTaskDto>()
                 {
                     Description = $"[MappingService.CreateStrategicTaskDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -414,11 +416,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<ValueJudgmentDTO> CreateValueJudgmentDto(ValueJudgment valueJudgment)
+        public IBaseResponse<ValueJudgmentDto> CreateValueJudgmentDto(ValueJudgment valueJudgment)
         {
             try
             {
-                var dto = new ValueJudgmentDTO()
+                var dto = new ValueJudgmentDto()
                 {
                     Id = valueJudgment.Id,
                     Strengths = valueJudgment.Strengths,
@@ -426,7 +428,7 @@ namespace KOP.BLL.Services
                     RecommendationsForDevelopment = valueJudgment.RecommendationsForDevelopment,
                 };
 
-                return new BaseResponse<ValueJudgmentDTO>()
+                return new BaseResponse<ValueJudgmentDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -434,7 +436,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<ValueJudgmentDTO>()
+                return new BaseResponse<ValueJudgmentDto>()
                 {
                     Description = $"[MappingService.CreateValueJudgmentDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -442,11 +444,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<PreviousJobDTO> CreatePreviousJobDto(PreviousJob previousJob)
+        public IBaseResponse<PreviousJobDto> CreatePreviousJobDto(PreviousJob previousJob)
         {
             try
             {
-                var dto = new PreviousJobDTO()
+                var dto = new PreviousJobDto()
                 {
                     Id = previousJob.Id,
                     StartDateTime = previousJob.StartDate.ToDateTime(TimeOnly.MinValue),
@@ -455,7 +457,7 @@ namespace KOP.BLL.Services
                     PositionName = previousJob.PositionName
                 };
 
-                return new BaseResponse<PreviousJobDTO>()
+                return new BaseResponse<PreviousJobDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -463,7 +465,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<PreviousJobDTO>()
+                return new BaseResponse<PreviousJobDto>()
                 {
                     Description = $"[MappingService.CreatePreviousJobDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -471,11 +473,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<TrainingEventDTO> CreateTrainingEventDto(TrainingEvent trainingEvent)
+        public IBaseResponse<TrainingEventDto> CreateTrainingEventDto(TrainingEvent trainingEvent)
         {
             try
             {
-                var dto = new TrainingEventDTO()
+                var dto = new TrainingEventDto()
                 {
                     Id = trainingEvent.Id,
                     Name = trainingEvent.Name,
@@ -485,7 +487,7 @@ namespace KOP.BLL.Services
                     Competence = trainingEvent.Competence,
                 };
 
-                return new BaseResponse<TrainingEventDTO>()
+                return new BaseResponse<TrainingEventDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -493,7 +495,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<TrainingEventDTO>()
+                return new BaseResponse<TrainingEventDto>()
                 {
                     Description = $"[MappingService.CreateTrainingEventDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -501,13 +503,13 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<AssessmentDTO> CreateAssessmentDto(Assessment assessment)
+        public IBaseResponse<AssessmentDto> CreateAssessmentDto(Assessment assessment)
         {
             try
             {
                 if (assessment.AssessmentType == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = $"[MappingService.CreateAssessmentDto] : Assessment.AssessmentType is null",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -515,14 +517,14 @@ namespace KOP.BLL.Services
                 }
                 else if (assessment.AssessmentType.AssessmentMatrix == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = $"[MappingService.CreateAssessmentDto] : Assessment.AssessmentType.AssessmentMatrix is null",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = new AssessmentDTO()
+                var dto = new AssessmentDto()
                 {
                     Id = assessment.Id,
                     Number = assessment.Number,
@@ -536,7 +538,7 @@ namespace KOP.BLL.Services
 
                     if (resultDto.StatusCode != StatusCodes.OK || resultDto.Data == null)
                     {
-                        return new BaseResponse<AssessmentDTO>()
+                        return new BaseResponse<AssessmentDto>()
                         {
                             Description = resultDto.Description,
                             StatusCode = resultDto.StatusCode,
@@ -546,7 +548,7 @@ namespace KOP.BLL.Services
                     dto.AssessmentResults.Add(resultDto.Data);
                 }
 
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -554,7 +556,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
                     Description = $"[MappingService.CreateAssessmentDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -562,13 +564,13 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<AssessmentResultDTO> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix)
+        public IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix)
         {
             try
             {
                 if (result.Judge == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = $"[MappingService.CreateAssessmentResultDto] : AssessmentResult.Judge is null",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -576,14 +578,14 @@ namespace KOP.BLL.Services
                 }
                 else if (result.Judged == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = $"[MappingService.CreateAssessmentResultDto] : AssessmentResult.Judged is null",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = new AssessmentResultDTO()
+                var dto = new AssessmentResultDto()
                 {
                     Id = result.Id,
                     SystemStatus = result.SystemStatus,
@@ -594,7 +596,7 @@ namespace KOP.BLL.Services
 
                 if (judgeDto.StatusCode != StatusCodes.OK || judgeDto.Data == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = judgeDto.Description,
                         StatusCode = judgeDto.StatusCode,
@@ -607,7 +609,7 @@ namespace KOP.BLL.Services
 
                 if (judgedDto.StatusCode != StatusCodes.OK || judgedDto.Data == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = judgedDto.Description,
                         StatusCode = judgedDto.StatusCode,
@@ -622,7 +624,7 @@ namespace KOP.BLL.Services
 
                     if (valueDto.StatusCode != StatusCodes.OK || valueDto.Data == null)
                     {
-                        return new BaseResponse<AssessmentResultDTO>()
+                        return new BaseResponse<AssessmentResultDto>()
                         {
                             Description = valueDto.Description,
                             StatusCode = valueDto.StatusCode,
@@ -638,7 +640,7 @@ namespace KOP.BLL.Services
 
                     if (elementDto.StatusCode != StatusCodes.OK || elementDto.Data == null)
                     {
-                        return new BaseResponse<AssessmentResultDTO>()
+                        return new BaseResponse<AssessmentResultDto>()
                         {
                             Description = elementDto.Description,
                             StatusCode = elementDto.StatusCode,
@@ -652,7 +654,7 @@ namespace KOP.BLL.Services
                 dto.MaxValue = matrix.MaxAssessmentMatrixResultValue;
                 dto.MinValue = matrix.MinAssessmentMatrixResultValue;
 
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -660,7 +662,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Description = $"[MappingService.CreateAssessmentResultDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -668,17 +670,17 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<AssessmentResultValueDTO> CreateAssessmentResultValueDto(AssessmentResultValue value)
+        public IBaseResponse<AssessmentResultValueDto> CreateAssessmentResultValueDto(AssessmentResultValue value)
         {
             try
             {
-                var dto = new AssessmentResultValueDTO()
+                var dto = new AssessmentResultValueDto()
                 {
                     Value = value.Value,
                     AssessmentMatrixRow = value.AssessmentMatrixRow,
                 };
 
-                return new BaseResponse<AssessmentResultValueDTO>()
+                return new BaseResponse<AssessmentResultValueDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -686,7 +688,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentResultValueDTO>()
+                return new BaseResponse<AssessmentResultValueDto>()
                 {
                     Description = $"[MappingService.CreateAssessmentResultValueDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -694,17 +696,17 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<AssessmentMatrixElementDTO> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element)
+        public IBaseResponse<AssessmentMatrixElementDto> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element)
         {
             try
             {
-                var dto = new AssessmentMatrixElementDTO()
+                var dto = new AssessmentMatrixElementDto()
                 {
                     Row = element.Row,
                     Value = element.Value,
                 };
 
-                return new BaseResponse<AssessmentMatrixElementDTO>()
+                return new BaseResponse<AssessmentMatrixElementDto>()
                 {
                     Data = dto,
                     StatusCode = StatusCodes.OK,
@@ -712,7 +714,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentMatrixElementDTO>()
+                return new BaseResponse<AssessmentMatrixElementDto>()
                 {
                     Description = $"[MappingService.CreateAssessmentMatrixElementDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,

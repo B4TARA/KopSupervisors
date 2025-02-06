@@ -1,9 +1,9 @@
-﻿using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos.GradeDtos;
 
 namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class GradeTypeViewModel
     {
-        public List<GradeDTO> Grades { get; set; } = new();
+        public List<GradeDto> Grades { get; set; } = new();
     }
 }

@@ -1,6 +1,6 @@
-﻿using KOP.Common.DTOs;
-using KOP.Common.DTOs.AssessmentDTOs;
-using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos;
+using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
 using KOP.DAL.Entities.AssessmentEntities;
@@ -10,19 +10,19 @@ namespace KOP.BLL.Interfaces
 {
     public interface IMappingService
     {
-        IBaseResponse<EmployeeDTO> CreateUserDto(User user);
-        IBaseResponse<GradeDTO> CreateGradeDto(Grade grade);
-        IBaseResponse<QualificationDTO> CreateQualificationDto(Qualification qualification);
-        IBaseResponse<MarkDTO> CreateMarkDto(Mark mark);
-        IBaseResponse<KpiDTO> CreateKpiDto(Kpi kpi);
-        IBaseResponse<ProjectDTO> CreateProjectDto(Project project);
-        IBaseResponse<StrategicTaskDTO> CreateStrategicTaskDto(StrategicTask strategicTask);
-        IBaseResponse<ValueJudgmentDTO> CreateValueJudgmentDto(ValueJudgment valueJudgment);
-        IBaseResponse<PreviousJobDTO> CreatePreviousJobDto(PreviousJob previousJob);
-        IBaseResponse<TrainingEventDTO> CreateTrainingEventDto(TrainingEvent trainingEvent);
-        IBaseResponse<AssessmentDTO> CreateAssessmentDto(Assessment assessment);
-        IBaseResponse<AssessmentResultDTO> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix);
-        IBaseResponse<AssessmentResultValueDTO> CreateAssessmentResultValueDto(AssessmentResultValue value);
-        IBaseResponse<AssessmentMatrixElementDTO> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
+        IBaseResponse<UserDto> CreateUserDto(User user);
+        IBaseResponse<GradeDto> CreateGradeDto(Grade grade);
+        IBaseResponse<QualificationDto> CreateQualificationDto(Qualification qualification);
+        IBaseResponse<MarkDto> CreateMarkDto(Mark mark);
+        IBaseResponse<KpiDto> CreateKpiDto(Kpi kpi);
+        IBaseResponse<ProjectDto> CreateProjectDto(Project project);
+        IBaseResponse<StrategicTaskDto> CreateStrategicTaskDto(StrategicTask strategicTask);
+        IBaseResponse<ValueJudgmentDto> CreateValueJudgmentDto(ValueJudgment valueJudgment);
+        IBaseResponse<PreviousJobDto> CreatePreviousJobDto(PreviousJob previousJob);
+        IBaseResponse<TrainingEventDto> CreateTrainingEventDto(TrainingEvent trainingEvent);
+        IBaseResponse<AssessmentDto> CreateAssessmentDto(Assessment assessment);
+        IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix);
+        IBaseResponse<AssessmentResultValueDto> CreateAssessmentResultValueDto(AssessmentResultValue value);
+        IBaseResponse<AssessmentMatrixElementDto> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
     }
 }

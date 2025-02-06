@@ -1,10 +1,10 @@
-﻿using KOP.Common.DTOs.AssessmentDTOs;
+﻿using KOP.Common.Dtos.AssessmentDtos;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {
     public class EmployeeAssessmentViewModel
     {
-        public AssessmentDTO Assessment { get; set; } = new();
-        public AssessmentResultDTO? SupervisorAssessmentResult { get; set; }
+        public AssessmentDto Assessment { get; set; } = new();
+        public AssessmentResultDto? SupervisorAssessmentResult { get; set; }
     }
 }

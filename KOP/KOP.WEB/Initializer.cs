@@ -28,7 +28,6 @@ namespace KOP.WEB
             services.AddScoped<IMarkRepository, MarkRepository>();
             services.AddScoped<IMarkTypeRepository, MarkTypeRepository>();
             services.AddScoped<ISubdivisionRepository, SubdivisionRepository>();
-            services.AddScoped<IModuleTypeRepository, ModuleTypeRepository>();
             services.AddScoped<IStrategicTaskRepository, StrategicTaskRepository>();
             services.AddScoped<ITrainingEventRepository, TrainingEventRepository>();
             services.AddScoped<IValueJudgmentRepository, ValueJudgmentRepository>();
@@ -41,7 +40,7 @@ namespace KOP.WEB
             services.AddScoped<IGradeService, GradeService>();
             services.AddScoped<IMappingService, MappingService>();
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IEmployeeService, UserService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISupervisorService, SupervisorService>();
             services.AddScoped<IAssessmentService, AssessmentService>();
         }

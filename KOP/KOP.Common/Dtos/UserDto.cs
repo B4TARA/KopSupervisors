@@ -1,8 +1,8 @@
-﻿using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos.GradeDtos;
 
-namespace KOP.Common.DTOs
+namespace KOP.Common.Dtos
 {
-    public class EmployeeDTO
+    public class UserDto
     {
         public int Id { get; set; }
         public string FullName { get; set; }
@@ -10,8 +10,9 @@ namespace KOP.Common.DTOs
         public string SubdivisionFromFile { get; set; }
         public string GradeGroup { get; set; }
         public string WorkPeriod { get; set; }
+        public string NextGradeStartDate { get; set; }
         public DateOnly ContractEndDate { get; set; }
         public string ImagePath { get; set; }
-        public GradeDTO? LastGrade { get; set; }
+        public GradeDto? LastGrade { get; set; }
     }
 }

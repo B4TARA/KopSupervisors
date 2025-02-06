@@ -1,42 +1,29 @@
 ﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeViewModel
 
 @{
-    Layout = null;
+	Layout = null;
+	var isHiddenLayout = User.IsInRole("Umst") || User.IsInRole("Cup");
+	var isActiveAssessment = Model.IsActiveAssessment;
 }
 
-<div class="list_menu_container header">
-    <ul class="list_menu_wrapper nav">
-        <li class="item_menu">
-            <button class="link_menu description" id="grade_link_item" onclick="getEmployeeGradeLayout(@Model.EmployeeId)">
-                Результаты оценки
-            </button>
-            <span class="indicator_assessment">
-            </span>
-        </li>
-        @if (Model.IsActiveAssessment)
-        {
-            <li class="item_menu active">
-                <button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessmentLayout(@Model.EmployeeId)">
-                    Оценки компетенций
-                </button>
-                <span class="indicator_assessment">
-                    <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
-                </span>
-            </li>
-        }
-        else
-        {
-            <li class="item_menu">
-                <button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessmentLayout(@Model.EmployeeId)">
-                    Оценки компетенций
-                </button>
-                <span class="indicator_assessment">
-                    <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
-                </span>
-            </li>
-        }
-    </ul>
+<div class="list_menu_container header" @Html.Raw(isHiddenLayout ? "style=\"display: none;\"" : "")>
+	<ul class="list_menu_wrapper nav">
+		<li class="item_menu">
+			<button class="link_menu description" id="grade_link_item" onclick="getEmployeeGradeLayout(@Model.EmployeeId)">
+				Результаты оценки
+			</button>
+			<span class="indicator_assessment"></span>
+		</li>
+		<li class="@(isActiveAssessment ? " item_menu active" : "item_menu")">
+			<button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessmentLayout(@Model.EmployeeId)">
+				Оценки компетенций
+			</button>
+			<span class="indicator_assessment">
+				<i class="fa-regular fa-eye" style="color: #ffffff;"></i>
+			</span>
+		</li>
+
+	</ul>
 </div>
 
-<div class="infoblock_main_container" id="infoblock_main_container">
-</div>
+<div class="infoblock_main_container" id="infoblock_main_container"></div>

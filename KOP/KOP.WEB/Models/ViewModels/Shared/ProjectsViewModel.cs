@@ -1,4 +1,4 @@
-﻿using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos.GradeDtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace KOP.WEB.Models.ViewModels.Shared
@@ -7,6 +7,6 @@ namespace KOP.WEB.Models.ViewModels.Shared
     {
         [Required(ErrorMessage = "Поле обязательно для заполнения")]
         public int GradeId { get; set; }
-        public List<ProjectDTO> Projects { get; set; } = new();
+        public List<ProjectDto> Projects { get; set; } = new();
     }
 }

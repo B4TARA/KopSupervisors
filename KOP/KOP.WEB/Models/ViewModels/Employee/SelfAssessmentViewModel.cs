@@ -1,9 +1,9 @@
-﻿using KOP.Common.DTOs.AssessmentDTOs;
+﻿using KOP.Common.Dtos.AssessmentDtos;
 
 namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class SelfAssessmentViewModel
     {
-        public AssessmentResultDTO SelfAssessmentResult { get; set; } = new();
+        public AssessmentResultDto SelfAssessmentResult { get; set; } = new();
     }
 }

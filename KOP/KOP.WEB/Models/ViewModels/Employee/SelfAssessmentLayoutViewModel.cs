@@ -1,9 +1,9 @@
-﻿using KOP.Common.DTOs.AssessmentDTOs;
+﻿using KOP.Common.Dtos.AssessmentDtos;
 
 namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class SelfAssessmentLayoutViewModel
     {
-        public List<AssessmentDTO> LastAssessments = new();
+        public List<AssessmentDto> LastAssessments = new();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs;
-using KOP.Common.DTOs.GradeDTOs;
+using KOP.Common.Dtos;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities.GradeEntities;
@@ -19,7 +19,7 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<IBaseResponse<GradeDTO>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
+        public async Task<IBaseResponse<GradeDto>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
         {
             try
             {
@@ -52,33 +52,33 @@ namespace KOP.BLL.Services
 
                 if (grade == null)
                 {
-                    return new BaseResponse<GradeDTO>()
+                    return new BaseResponse<GradeDto>()
                     {
                         Description = $"[GradeService.GetGrade] : Оценка с id = {gradeId} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = _mappingService.CreateGradeDto(grade);
+                var gradeDto = _mappingService.CreateGradeDto(grade);
 
-                if (dto.StatusCode != StatusCodes.OK || dto.Data == null)
+                if (gradeDto.StatusCode != StatusCodes.OK || gradeDto.Data == null)
                 {
-                    return new BaseResponse<GradeDTO>()
+                    return new BaseResponse<GradeDto>()
                     {
-                        StatusCode = dto.StatusCode,
-                        Description = dto.Description
+                        StatusCode = gradeDto.StatusCode,
+                        Description = gradeDto.Description
                     };
                 }
 
-                return new BaseResponse<GradeDTO>()
+                return new BaseResponse<GradeDto>()
                 {
                     StatusCode = StatusCodes.OK,
-                    Data = dto.Data
+                    Data = gradeDto.Data
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponse<GradeDTO>()
+                return new BaseResponse<GradeDto>()
                 {
                     Description = $"[GradeService.GetGrade] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -86,7 +86,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<object>> EditGrade(GradeDTO dto)
+        public async Task<IBaseResponse<object>> EditGrade(GradeDto dto)
         {
             try
             {

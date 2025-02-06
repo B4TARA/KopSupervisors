@@ -1,7 +1,7 @@
 ﻿using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 
-namespace KOP.Common.DTOs
+namespace KOP.Common.Dtos
 {
     public class BaseResponse<T> : IBaseResponse<T>
     {

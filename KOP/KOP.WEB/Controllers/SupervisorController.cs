@@ -13,13 +13,13 @@ namespace KOP.WEB.Controllers
     {
         private readonly ISupervisorService _supervisorService;
         private readonly IAssessmentService _assessmentService;
-        private readonly IEmployeeService _employeeService;
+        private readonly IUserService _userService;
 
-        public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService, IEmployeeService employeeService)
+        public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService, IUserService userService)
         {
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
-            _employeeService = employeeService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -44,11 +44,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
-        public async Task<IActionResult> GetSubordinates(int supervisorId)
+        public async Task<IActionResult> GetSubordinates(int supervisorId, bool onlyPending = false)
         {
             try
             {
-                var response = await _supervisorService.GetAllSubordinateModules(supervisorId);
+                var response = await _supervisorService.GetUserSubordinateSubdivisions(supervisorId, onlyPending);
 
                 if (response.StatusCode != StatusCodes.OK || response.Data == null)
                 {
@@ -61,7 +61,7 @@ namespace KOP.WEB.Controllers
 
                 var viewModel = new SubordinatesViewModel
                 {
-                    Modules = response.Data,
+                    Subdivisions = response.Data.ToList(),
                 };
 
                 return View("Subordinates", viewModel);
@@ -119,7 +119,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var response = await _employeeService.GetEmployee(employeeId);
+                var response = await _userService.GetUser(employeeId);
 
                 if (response.StatusCode != StatusCodes.OK || response.Data == null)
                 {
@@ -135,7 +135,7 @@ namespace KOP.WEB.Controllers
                     Id = response.Data.Id,
                     FullName = response.Data.FullName,
                     Position = response.Data.Position,
-                    Subdivision = response.Data.Subdivision,
+                    SubdivisionFromFile = response.Data.SubdivisionFromFile,
                     GradeGroup = response.Data.GradeGroup,
                     WorkPeriod = response.Data.WorkPeriod,
                     ContractEndDate = response.Data.ContractEndDate,
@@ -156,14 +156,14 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
             try
             {
                 var id = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                var response = await _employeeService.GetEmployeeLastAssessments(employeeId, id);
+                var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, id);
 
                 if (response.StatusCode != StatusCodes.OK || response.Data == null)
                 {
@@ -192,7 +192,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessment(int employeeId)
         {
             try

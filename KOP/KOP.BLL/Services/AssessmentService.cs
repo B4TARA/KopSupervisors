@@ -1,6 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs;
-using KOP.Common.DTOs.AssessmentDTOs;
+using KOP.Common.Dtos;
+using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
@@ -19,7 +19,7 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<IBaseResponse<AssessmentDTO>> GetAssessment(int id, SystemStatuses? systemStatus = null)
+        public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id, SystemStatuses? systemStatus = null)
         {
             try
             {
@@ -33,14 +33,14 @@ namespace KOP.BLL.Services
 
                 if (assessment == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = $"[AssessmentService.GetAssessment] : Качественная оценка с id = {id} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = new AssessmentDTO
+                var assessmentdto = new AssessmentDto
                 {
                     Id = id,
                     Number = assessment.Number,
@@ -61,35 +61,35 @@ namespace KOP.BLL.Services
 
                 foreach (var assessmentResult in assessmentResults)
                 {
-                    var assessmentResultDto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessment.AssessmentType.AssessmentMatrix) ;
+                    var assessmentResultDto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessment.AssessmentType.AssessmentMatrix);
 
                     if (assessmentResultDto.StatusCode != StatusCodes.OK || assessmentResultDto.Data == null)
                     {
-                        return new BaseResponse<AssessmentDTO>()
+                        return new BaseResponse<AssessmentDto>()
                         {
                             Description = assessmentResultDto.Description,
                             StatusCode = assessmentResultDto.StatusCode,
                         };
                     }
 
-                    dto.AssessmentResults.Add(assessmentResultDto.Data);
-                    dto.AverageValue += assessmentResultDto.Data.Sum;
+                    assessmentdto.AssessmentResults.Add(assessmentResultDto.Data);
+                    assessmentdto.AverageValue += assessmentResultDto.Data.Sum;
                 }
 
-                if(dto.AssessmentResults.Any())
+                if (assessmentdto.AssessmentResults.Any())
                 {
-                    dto.AverageValue = dto.AverageValue / dto.AssessmentResults.Count();
-                }              
+                    assessmentdto.AverageValue = assessmentdto.AverageValue / assessmentdto.AssessmentResults.Count();
+                }
 
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
-                    Data = dto,
+                    Data = assessmentdto,
                     StatusCode = StatusCodes.OK
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
                     Description = $"[AssessmentService.GetAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -97,11 +97,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<AssessmentResultDTO>> GetAssessmentResult(int judgeId, int assessmentId)
+        public async Task<IBaseResponse<AssessmentResultDto>> GetAssessmentResult(int judgeId, int assessmentId)
         {
             try
             {
-                var result = await _unitOfWork.AssessmentResults.GetAsync(
+                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(
                         x => x.AssessmentId == assessmentId && x.JudgeId == judgeId,
                         includeProperties: new string[]
                         {
@@ -111,27 +111,27 @@ namespace KOP.BLL.Services
                             "Assessment.AssessmentType.AssessmentMatrix.Elements"
                         });
 
-                if (result == null)
+                if (assessmentResult == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = $"[AssessmentService.GetAssessmentResult] : Результат качественной оценки не найден",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var dto = _mappingService.CreateAssessmentResultDto(result, result.Assessment.AssessmentType.AssessmentMatrix);
+                var dto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessmentResult.Assessment.AssessmentType.AssessmentMatrix);
 
                 if (dto.StatusCode != StatusCodes.OK || dto.Data == null)
                 {
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Description = dto.Description,
                         StatusCode = dto.StatusCode,
                     };
                 }
 
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Data = dto.Data,
                     StatusCode = StatusCodes.OK
@@ -139,7 +139,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Description = $"[AssessmentService.GetAssessmentResult] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -147,7 +147,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<AssessmentTypeDTO>> GetAssessmentType(int userId, int assessmentTypeId)
+        public async Task<IBaseResponse<AssessmentTypeDto>> GetAssessmentType(int userId, int assessmentTypeId)
         {
             try
             {
@@ -160,7 +160,7 @@ namespace KOP.BLL.Services
 
                 if (assessmentType == null)
                 {
-                    return new BaseResponse<AssessmentTypeDTO>()
+                    return new BaseResponse<AssessmentTypeDto>()
                     {
                         Description = $"[EmployeeService.GetAssessmentType] : Тип количественной оценки с id = {assessmentTypeId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -176,16 +176,16 @@ namespace KOP.BLL.Services
                             "AssessmentResults.AssessmentResultValues"
                         });
 
-                var assessmentTypeDTO = new AssessmentTypeDTO
+                var assessmentTypeDto = new AssessmentTypeDto
                 {
                     Id = assessmentType.Id,
                     Name = assessmentType.Name,
-                    EmployeeId = userId,
+                    UserId = userId,
                 };
 
                 foreach (var assessment in assessments.OrderBy(x => x.Number))
                 {
-                    var assessmentDTO = new AssessmentDTO
+                    var assessmentDto = new AssessmentDto
                     {
                         Id = assessment.Id,
                         Number = assessment.Number,
@@ -195,28 +195,28 @@ namespace KOP.BLL.Services
 
                     foreach (var assessmentResult in assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED))
                     {
-                        var assessmentResultDTO = new AssessmentResultDTO
+                        var assessmentResultDto = new AssessmentResultDto
                         {
                             Id = assessmentResult.Id,
                             SystemStatus = assessmentResult.SystemStatus,
                             Sum = assessmentResult.AssessmentResultValues.Sum(x => x.Value),
                         };
 
-                        assessmentResultDTO.Judge = new EmployeeDTO
+                        assessmentResultDto.Judge = new UserDto
                         {
                             Id = assessmentResult.Judge.Id,
                             ImagePath = assessmentResult.Judge.ImagePath,
                             FullName = assessmentResult.Judge.FullName,
                         };
 
-                        assessmentResultDTO.Judged = new EmployeeDTO
+                        assessmentResultDto.Judged = new UserDto
                         {
                             Id = assessment.UserId,
                         };
 
                         foreach (var assessmentResultValue in assessmentResult.AssessmentResultValues)
                         {
-                            assessmentResultDTO.Values.Add(new AssessmentResultValueDTO
+                            assessmentResultDto.Values.Add(new AssessmentResultValueDto
                             {
                                 Value = assessmentResultValue.Value,
                                 AssessmentMatrixRow = assessmentResultValue.AssessmentMatrixRow,
@@ -225,31 +225,30 @@ namespace KOP.BLL.Services
 
                         foreach (var assessmentMatrixElement in assessmentType.AssessmentMatrix.Elements)
                         {
-                            assessmentResultDTO.Elements.Add(new AssessmentMatrixElementDTO
+                            assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
                             {
                                 Row = assessmentMatrixElement.Row,
                                 Value = assessmentMatrixElement.Value,
                             });
                         }
 
-                        assessmentResultDTO.ElementsByRow = assessmentResultDTO.Elements.GroupBy(x => x.Row).ToList();
+                        assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).ToList();
 
-                        assessmentDTO.AssessmentResults.Add(assessmentResultDTO);
+                        assessmentDto.AssessmentResults.Add(assessmentResultDto);
                     }
 
-
-                    assessmentTypeDTO.Assessments.Add(assessmentDTO);
+                    assessmentTypeDto.Assessments.Add(assessmentDto);
                 }
 
-                return new BaseResponse<AssessmentTypeDTO>()
+                return new BaseResponse<AssessmentTypeDto>()
                 {
-                    Data = assessmentTypeDTO,
+                    Data = assessmentTypeDto,
                     StatusCode = StatusCodes.OK
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentTypeDTO>()
+                return new BaseResponse<AssessmentTypeDto>()
                 {
                     Description = $"[EmployeeService.GetEmployeeAssessmentType] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -257,43 +256,39 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Получить все типы качественных оценок по сотруднику
-        public async Task<IBaseResponse<List<AssessmentTypeDTO>>> GetAssessmentTypes(int employeeId)
+        public async Task<IBaseResponse<List<AssessmentTypeDto>>> GetUserAssessmentTypes(int userId)
         {
             try
             {
-                // Получаем все качественные оценки сотрудника
-                var assessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == employeeId, includeProperties: new string[]
+                var userAssessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == userId, includeProperties: new string[]
                 {
                     "AssessmentType",
                 });
 
-                // Группируем массив оценок по "Типу оценок"
-                var assessmentTypes = assessments.GroupBy(x => x.AssessmentType);
-
-                var assessmentTypeDTOs = new List<AssessmentTypeDTO>();
+                var assessmentTypes = userAssessments.GroupBy(x => x.AssessmentType);
+                var assessmentTypesDtos = new List<AssessmentTypeDto>();
 
                 foreach (var assessmentType in assessmentTypes)
                 {
-                    var assessmentTypeDTO = new AssessmentTypeDTO
+                    var assessmentTypeDto = new AssessmentTypeDto
                     {
                         Id = assessmentType.Key.Id,
                         Name = assessmentType.Key.Name,
-                        EmployeeId = employeeId,
+                        UserId = userId,
                     };
 
-                    assessmentTypeDTOs.Add(assessmentTypeDTO);
+                    assessmentTypesDtos.Add(assessmentTypeDto);
                 }
 
-                return new BaseResponse<List<AssessmentTypeDTO>>()
+                return new BaseResponse<List<AssessmentTypeDto>>()
                 {
-                    Data = assessmentTypeDTOs,
+                    Data = assessmentTypesDtos,
                     StatusCode = StatusCodes.OK
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponse<List<AssessmentTypeDTO>>()
+                return new BaseResponse<List<AssessmentTypeDto>>()
                 {
                     Description = $"[AssessmentService.GetAssessmentTypes] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -301,57 +296,20 @@ namespace KOP.BLL.Services
             }
         }
 
-        // Проверка необходимости проведения качественной оценки в пределах всех оценок (разных типов)
-        public async Task<IBaseResponse<bool>> IsActiveAssessment(int judgeId, int judgedId)
+        public async Task<IBaseResponse<bool>> IsActiveAssessment(int judgeId, int judgedId, int? assessmentId)
         {
             try
             {
-                var result = await _unitOfWork.AssessmentResults.GetAsync(x => x.JudgeId == judgeId && x.JudgedId == judgedId && x.SystemStatus == SystemStatuses.PENDING);
+                var pendingAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == judgeId && x.JudgedId == judgedId && x.SystemStatus == SystemStatuses.PENDING);
 
-                if (result == null)
+                if (assessmentId.HasValue)
                 {
-                    return new BaseResponse<bool>()
-                    {
-                        Data = false,
-                        StatusCode = StatusCodes.OK
-                    };
+                    pendingAssessmentResults = pendingAssessmentResults.Where(x => x.AssessmentId == assessmentId);
                 }
 
                 return new BaseResponse<bool>()
                 {
-                    Data = true,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<bool>()
-                {
-                    Description = $"[AssessmentService.IsActiveAssessment] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        // Проверка необходимости проведения качественной оценки в пределах определенной оценки (определенного типа)
-        public async Task<IBaseResponse<bool>> IsActiveAssessment(int judgeId, int judgedId, int assessmentId)
-        {
-            try
-            {
-                var result = await _unitOfWork.AssessmentResults.GetAsync(x => x.JudgeId == judgeId && x.JudgedId == judgedId && x.AssessmentId == assessmentId && x.SystemStatus == SystemStatuses.PENDING);
-
-                if (result == null)
-                {
-                    return new BaseResponse<bool>()
-                    {
-                        Data = false,
-                        StatusCode = StatusCodes.OK
-                    };
-                }
-
-                return new BaseResponse<bool>()
-                {
-                    Data = true,
+                    Data = pendingAssessmentResults.Any(),
                     StatusCode = StatusCodes.OK
                 };
             }

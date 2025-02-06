@@ -1,6 +1,6 @@
-﻿namespace KOP.Common.DTOs.AssessmentDTOs
+﻿namespace KOP.Common.Dtos.AssessmentDtos
 {
-    public class AssessmentMatrixElementDTO
+    public class AssessmentMatrixElementDto
     {
         public int Row { get; set; }
         public string Value { get; set; }

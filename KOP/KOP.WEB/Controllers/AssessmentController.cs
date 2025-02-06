@@ -8,23 +8,22 @@ namespace KOP.WEB.Controllers
     public class AssessmentController : Controller
     {
         private readonly IAssessmentService _assessmentService;
-        private readonly IEmployeeService _employeeService;
+        private readonly IUserService _userService;
 
-        public AssessmentController(IAssessmentService assessmentService, IEmployeeService employeeService)
+        public AssessmentController(IAssessmentService assessmentService, IUserService userService)
         {
             _assessmentService = assessmentService;
-            _employeeService = employeeService;
+            _userService = userService;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAssessmentTypes(int employeeId)
         {
-            var response = await _assessmentService.GetAssessmentTypes(employeeId);
+            var response = await _assessmentService.GetUserAssessmentTypes(employeeId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем сообщение об ошибке в формате JSON
                 return Json(new { success = false, message = response.Description });
             }
 
@@ -35,11 +34,10 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> GetLastAssessments(int employeeId)
         {
-            var response = await _employeeService.GetEmployeeLastAssessments(employeeId, employeeId);
+            var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, employeeId);
 
             if (response.StatusCode != StatusCodes.OK)
             {
-                // Возвращаем сообщение об ошибке в формате JSON
                 return Json(new { success = false, message = response.Description });
             }
 

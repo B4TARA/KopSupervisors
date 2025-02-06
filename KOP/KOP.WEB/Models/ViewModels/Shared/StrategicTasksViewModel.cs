@@ -1,4 +1,4 @@
-﻿using KOP.Common.DTOs.GradeDTOs;
+﻿using KOP.Common.Dtos.GradeDtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace KOP.WEB.Models.ViewModels.Shared
@@ -11,6 +11,6 @@ namespace KOP.WEB.Models.ViewModels.Shared
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина должна быть от 3 до 50 символов")]
         public string? Conclusion { get; set; }
 
-        public List<StrategicTaskDTO> StrategicTasks { get; set; } = new();
+        public List<StrategicTaskDto> StrategicTasks { get; set; } = new();
     }
 }

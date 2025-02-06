@@ -1,8 +1,8 @@
 ﻿using KOP.Common.Enums;
 
-namespace KOP.Common.DTOs.AssessmentDTOs
+namespace KOP.Common.Dtos.AssessmentDtos
 {
-    public class AssessmentDTO
+    public class AssessmentDto
     {
         public int Id { get; set; }
         public int Number { get; set; }
@@ -13,6 +13,6 @@ namespace KOP.Common.DTOs.AssessmentDTOs
         public DateOnly? EndDate { get; set; }
         public bool IsActiveAssessment { get; set; }
         public int AverageValue { get; set; }
-        public List<AssessmentResultDTO> AssessmentResults { get; set; } = new();
+        public List<AssessmentResultDto> AssessmentResults { get; set; } = new();
     }
 }

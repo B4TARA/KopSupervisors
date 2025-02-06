@@ -1,9 +1,9 @@
-﻿using KOP.Common.DTOs.AssessmentDTOs;
+﻿using KOP.Common.Dtos.AssessmentDtos;
 
 namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class ColleagueAssessmentViewModel
     {
-        public List<AssessmentResultDTO> ColleagueAssessmentResults = new();
+        public List<AssessmentResultDto> ColleagueAssessmentResults = new();
     }
 }

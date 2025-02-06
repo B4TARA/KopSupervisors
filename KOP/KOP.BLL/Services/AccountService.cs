@@ -1,11 +1,11 @@
-﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs;
-using KOP.Common.DTOs.AccountDTOs;
+﻿using System.Security.Claims;
+using KOP.BLL.Interfaces;
+using KOP.Common.Dtos;
+using KOP.Common.Dtos.AccountDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
-using System.Security.Claims;
 
 namespace KOP.BLL.Services
 {
@@ -18,7 +18,7 @@ namespace KOP.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDTO dto)
+        public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDto dto)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace KOP.BLL.Services
         {
             var rolesClaims = new List<Claim>();
 
-            foreach(var systemRole in employee.SystemRoles)
+            foreach (var systemRole in employee.SystemRoles)
             {
                 rolesClaims.Add(new Claim(ClaimTypes.Role, systemRole.ToString()));
             }
@@ -93,7 +93,7 @@ namespace KOP.BLL.Services
             return rolesClaims;
         }
 
-        public async Task<IBaseResponse<object>> RemindPassword(LoginDTO dto)
+        public async Task<IBaseResponse<object>> RemindPassword(LoginDto dto)
         {
             try
             {

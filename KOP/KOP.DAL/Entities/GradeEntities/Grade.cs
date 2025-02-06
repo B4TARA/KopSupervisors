@@ -1,45 +1,35 @@
 ﻿using KOP.Common.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace KOP.DAL.Entities.GradeEntities
 {
     public class Grade
     {
-        [Key]
-        public int Id { get; set; } // Id оценки
+        public int Id { get; set; }
+        public int Number { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public SystemStatuses SystemStatus { get; set; }
 
-        [Required]
-        public int Number { get; set; } // Номер оценки (очередность)
+        public string? StrategicTasksConclusion { get; set; }
+        public string? KPIsConclusion { get; set; }
+        public string? QualificationConclusion { get; set; }
+        public string? ManagmentCompetenciesConclusion { get; set; }
+        public string? CorporateCompetenciesConclusion { get; set; }
 
-        [Required]
-        public DateOnly StartDate { get; set; } // Дата начала оценки
-
-        [Required]
-        public DateOnly EndDate { get; set; } // Дата завершения оценки
-
-        [Required]
-        public SystemStatuses SystemStatus { get; set; } // системный статус количественной оценки
-
-        public string? StrategicTasksConclusion { get; set; } // Вывод для подзадачника
-        public string? KPIsConclusion { get; set; } // Вывод для КПЭ
-        public string? QualificationConclusion { get; set; } // Вывод для Квалификации
-        public string? ManagmentCompetenciesConclusion { get; set; } // Вывод для управленческих компетенций
-        public string? CorporateCompetenciesConclusion { get; set; } // Вывод для корпоративных компетенций
-
-        public User User { get; set; } // пользователь, к которому относится данная оценка
+        public User User { get; set; }
         public int UserId { get; set; }
 
-        public Qualification? Qualification { get; set; } // квалификация, которая относится к данной оценке
-        public int? QualificationId { get; set; }
+        public Qualification Qualification { get; set; }
+        public int QualificationId { get; set; }
 
-        public ValueJudgment? ValueJudgment { get; set; } // Квалификация, которая относится к данной оценке
-        public int? ValueJudgmentId { get; set; }
+        public ValueJudgment ValueJudgment { get; set; }
+        public int ValueJudgmentId { get; set; }
 
-        public List<Mark> Marks { get; set; } = new(); // Показатели
-        public List<Kpi> Kpis { get; set; } = new(); // Показатели КПЭ
-        public List<Project> Projects { get; set; } = new(); // Проекты
-        public List<StrategicTask> StrategicTasks { get; set; } = new(); // Задачи
-        public List<TrainingEvent> TrainingEvents { get; set; } = new(); // Обучающие мероприятия
+        public List<Mark> Marks { get; set; } = new();
+        public List<Kpi> Kpis { get; set; } = new();
+        public List<Project> Projects { get; set; } = new();
+        public List<StrategicTask> StrategicTasks { get; set; } = new();
+        public List<TrainingEvent> TrainingEvents { get; set; } = new();
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }

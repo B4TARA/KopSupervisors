@@ -1,6 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.DTOs;
-using KOP.Common.DTOs.AssessmentDTOs;
+using KOP.Common.Dtos;
+using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
@@ -21,7 +21,7 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<IBaseResponse<EmployeeDTO>> GetUser(int id)
+        public async Task<IBaseResponse<UserDto>> GetUser(int id)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace KOP.BLL.Services
 
                 if (user == null)
                 {
-                    return new BaseResponse<EmployeeDTO>()
+                    return new BaseResponse<UserDto>()
                     {
                         Description = $"[UserService.GetUser] : Пользователь с id = {id} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -49,14 +49,14 @@ namespace KOP.BLL.Services
 
                 if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
                 {
-                    return new BaseResponse<EmployeeDTO>()
+                    return new BaseResponse<UserDto>()
                     {
                         Description = userDto.Description,
                         StatusCode = userDto.StatusCode,
                     };
                 }
 
-                return new BaseResponse<EmployeeDTO>()
+                return new BaseResponse<UserDto>()
                 {
                     Data = userDto.Data,
                     StatusCode = StatusCodes.OK
@@ -64,7 +64,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<EmployeeDTO>()
+                return new BaseResponse<UserDto>()
                 {
                     Description = $"[UserService.GetUser] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -72,18 +72,18 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<List<AssessmentDTO>>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
+        public async Task<IBaseResponse<List<AssessmentDto>>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
         {
             try
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: new string[] 
-                { 
+                var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: new string[]
+                {
                     "Assessments.AssessmentType"
                 });
 
                 if (user == null)
                 {
-                    return new BaseResponse<List<AssessmentDTO>>()
+                    return new BaseResponse<List<AssessmentDto>>()
                     {
                         Description = $"[UserService.GetUserLastAssessmentsOfEachType] : Пользователь с id = {userId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -91,13 +91,13 @@ namespace KOP.BLL.Services
                 }
 
                 var userAssessmentTypes = user.Assessments.GroupBy(x => x.AssessmentType);
-                var userLastAssessmentsOfEachType = new List<AssessmentDTO>();
+                var userLastAssessmentsOfEachType = new List<AssessmentDto>();
 
                 foreach (var assessmentType in userAssessmentTypes)
                 {
                     var lastAssessment = assessmentType.OrderByDescending(x => x.DateOfCreation).First();
 
-                    var lastAssessmentDto = new AssessmentDTO
+                    var lastAssessmentDto = new AssessmentDto
                     {
                         Id = lastAssessment.Id,
                         UserId = userId,
@@ -109,7 +109,7 @@ namespace KOP.BLL.Services
 
                     if (isActiveAssessmentRes.StatusCode != StatusCodes.OK)
                     {
-                        return new BaseResponse<List<AssessmentDTO>>()
+                        return new BaseResponse<List<AssessmentDto>>()
                         {
                             Description = isActiveAssessmentRes.Description,
                             StatusCode = isActiveAssessmentRes.StatusCode,
@@ -121,7 +121,7 @@ namespace KOP.BLL.Services
                     userLastAssessmentsOfEachType.Add(lastAssessmentDto);
                 }
 
-                return new BaseResponse<List<AssessmentDTO>>()
+                return new BaseResponse<List<AssessmentDto>>()
                 {
                     Data = userLastAssessmentsOfEachType,
                     StatusCode = StatusCodes.OK
@@ -129,7 +129,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<List<AssessmentDTO>>()
+                return new BaseResponse<List<AssessmentDto>>()
                 {
                     Description = $"[UserService.GetUserLastAssessmentsOfEachType] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -137,11 +137,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<AssessmentResultDTO>> GetUserSelfAssessmentResultByAssessment(int userId, int assessmentId)
+        public async Task<IBaseResponse<AssessmentResultDto>> GetUserSelfAssessmentResultByAssessment(int userId, int assessmentId)
         {
             try
             {
-                var selfAssessmentResultDto = new AssessmentResultDTO();
+                var selfAssessmentResultDto = new AssessmentResultDto();
                 var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId);
                 var assessmentType = await _unitOfWork.AssessmentTypes.GetAsync(x => x.Id == assessment.AssessmentTypeId);
 
@@ -154,7 +154,7 @@ namespace KOP.BLL.Services
                 {
                     selfAssessmentResultDto.SystemStatus = SystemStatuses.NOT_EXIST;
 
-                    return new BaseResponse<AssessmentResultDTO>()
+                    return new BaseResponse<AssessmentResultDto>()
                     {
                         Data = selfAssessmentResultDto,
                         StatusCode = StatusCodes.OK
@@ -166,13 +166,13 @@ namespace KOP.BLL.Services
 
                     foreach (var value in userSelfAssessmentResultValues)
                     {
-                        selfAssessmentResultDto.Values.Add(new AssessmentResultValueDTO
+                        selfAssessmentResultDto.Values.Add(new AssessmentResultValueDto
                         {
                             Value = value.Value,
                             AssessmentMatrixRow = value.AssessmentMatrixRow,
                         });
 
-                        selfAssessmentResultDto.AverageValues.Add(new AssessmentResultValueDTO
+                        selfAssessmentResultDto.AverageValues.Add(new AssessmentResultValueDto
                         {
                             Value = 0,
                             AssessmentMatrixRow = value.AssessmentMatrixRow,
@@ -204,12 +204,12 @@ namespace KOP.BLL.Services
                     }
                 }
 
-                selfAssessmentResultDto.Judge = new EmployeeDTO
+                selfAssessmentResultDto.Judge = new UserDto
                 {
                     Id = userId,
                 };
 
-                selfAssessmentResultDto.Judged = new EmployeeDTO
+                selfAssessmentResultDto.Judged = new UserDto
                 {
                     Id = userId,
                 };
@@ -226,11 +226,11 @@ namespace KOP.BLL.Services
                 selfAssessmentResultDto.MinValue = assessmentMatrix.MinAssessmentMatrixResultValue;
                 selfAssessmentResultDto.MaxValue = assessmentMatrix.MaxAssessmentMatrixResultValue;
 
-                var assessmentMatrixElementsDtos = new List<AssessmentMatrixElementDTO>();
+                var assessmentMatrixElementsDtos = new List<AssessmentMatrixElementDto>();
 
                 foreach (var element in assessmentMatrix.Elements)
                 {
-                    assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDTO
+                    assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDto
                     {
                         Row = element.Row,
                         Value = element.Value,
@@ -240,7 +240,7 @@ namespace KOP.BLL.Services
                 selfAssessmentResultDto.Elements = assessmentMatrixElementsDtos;
                 selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.GroupBy(x => x.Row).ToList();
 
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Data = selfAssessmentResultDto,
                     StatusCode = StatusCodes.OK
@@ -248,7 +248,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentResultDTO>()
+                return new BaseResponse<AssessmentResultDto>()
                 {
                     Description = $"[UserService.GetUserSelfAssessmentResultByAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -256,12 +256,12 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<List<AssessmentResultDTO>>> GetColleaguesAssessmentResultsForAssessment(int userId)
+        public async Task<IBaseResponse<List<AssessmentResultDto>>> GetColleaguesAssessmentResultsForAssessment(int userId)
         {
             try
             {
                 var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == userId && x.JudgedId != userId && x.SystemStatus == SystemStatuses.PENDING);
-                var dtos = new List<AssessmentResultDTO>();
+                var dtos = new List<AssessmentResultDto>();
 
                 foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
                 {
@@ -272,7 +272,7 @@ namespace KOP.BLL.Services
                         "AssessmentType.AssessmentMatrix.Elements"
                     });
 
-                    var assessmentResultDto = new AssessmentResultDTO
+                    var assessmentResultDto = new AssessmentResultDto
                     {
                         Id = assessmentResult.Id,
                         AssessmentId = assessmentResult.AssessmentId,
@@ -283,12 +283,12 @@ namespace KOP.BLL.Services
                         MaxValue = assessment.AssessmentType.AssessmentMatrix.MaxAssessmentMatrixResultValue,
                     };
 
-                    assessmentResultDto.Judge = new EmployeeDTO
+                    assessmentResultDto.Judge = new UserDto
                     {
                         Id = userId,
                     };
 
-                    assessmentResultDto.Judged = new EmployeeDTO
+                    assessmentResultDto.Judged = new UserDto
                     {
                         Id = assessment.UserId,
                         ImagePath = assessmentResult.Judged.ImagePath,
@@ -297,7 +297,7 @@ namespace KOP.BLL.Services
 
                     foreach (var value in assessmentResult.AssessmentResultValues)
                     {
-                        assessmentResultDto.Values.Add(new AssessmentResultValueDTO
+                        assessmentResultDto.Values.Add(new AssessmentResultValueDto
                         {
                             Value = value.Value,
                             AssessmentMatrixRow = value.AssessmentMatrixRow,
@@ -306,7 +306,7 @@ namespace KOP.BLL.Services
 
                     foreach (var element in assessment.AssessmentType.AssessmentMatrix.Elements)
                     {
-                        assessmentResultDto.Elements.Add(new AssessmentMatrixElementDTO
+                        assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
                         {
                             Row = element.Row,
                             Value = element.Value,
@@ -318,7 +318,7 @@ namespace KOP.BLL.Services
                     dtos.Add(assessmentResultDto);
                 }
 
-                return new BaseResponse<List<AssessmentResultDTO>>()
+                return new BaseResponse<List<AssessmentResultDto>>()
                 {
                     Data = dtos,
                     StatusCode = StatusCodes.OK
@@ -326,7 +326,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<List<AssessmentResultDTO>>()
+                return new BaseResponse<List<AssessmentResultDto>>()
                 {
                     Description = $"[UserService.GetColleaguesAssessmentResultsForAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
@@ -334,7 +334,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<object>> AssessUser(AssessEmployeeDTO assessUserDto)
+        public async Task<IBaseResponse<object>> AssessUser(AssessUserDto assessUserDto)
         {
             try
             {
@@ -406,7 +406,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<AssessmentDTO>> GetLastAssessmentByAssessmentType(int userId, int assessmentTypeId)
+        public async Task<IBaseResponse<AssessmentDto>> GetLastAssessmentByAssessmentType(int userId, int assessmentTypeId)
         {
             try
             {
@@ -420,7 +420,7 @@ namespace KOP.BLL.Services
 
                 if (user == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = $"[UserService.GetLastAssessmentByAssessmentType] : Пользователь с id = {userId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -431,7 +431,7 @@ namespace KOP.BLL.Services
 
                 if (lastAssessmentByAssessmentType == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = $"[UserService.GetLastAssessmentByAssessmentType] : Тип с id = {assessmentTypeId} не содержит оценок",
                         StatusCode = StatusCodes.EntityNotFound,
@@ -442,14 +442,14 @@ namespace KOP.BLL.Services
 
                 if (createAssessmentDtoRes.StatusCode != StatusCodes.OK || createAssessmentDtoRes.Data == null)
                 {
-                    return new BaseResponse<AssessmentDTO>()
+                    return new BaseResponse<AssessmentDto>()
                     {
                         Description = createAssessmentDtoRes.Description,
                         StatusCode = createAssessmentDtoRes.StatusCode,
                     };
                 }
 
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
                     Data = createAssessmentDtoRes.Data,
                     StatusCode = StatusCodes.OK
@@ -457,7 +457,7 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentDTO>()
+                return new BaseResponse<AssessmentDto>()
                 {
                     Description = $"[UserService.GetLastAssessmentByAssessmentType] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,

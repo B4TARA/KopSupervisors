@@ -1,4 +1,4 @@
-﻿@model KOP.Common.DTOs.ModuleDTO
+﻿@model KOP.Common.Dtos.SubdivisionDto
 
 @{
     Layout = null;
@@ -24,7 +24,7 @@
             <div class="description">@Model.Name</div>
         }
 
-        @if (Model.Employees.Count() > 0)
+        @if (Model.Users.Any())
         {
             <table class="table_users">
                 <thead class="table_header">
@@ -40,7 +40,7 @@
                     @{
                         int i = 1;
                     }
-                    @foreach (var employee in Model.Employees)
+                    @foreach (var employee in Model.Users)
                     {
                         <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id)" flagHide="">
                             <td>
@@ -53,7 +53,10 @@
                                 @employee.Position
                             </td>
                             <td>
-                                @employee.Subdivision
+                                @employee.SubdivisionFromFile
+                            </td>
+                            <td>
+                                @employee.NextGradeStartDate
                             </td>
                         </tr>
                     }

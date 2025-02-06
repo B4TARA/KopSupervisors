@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace KOP.Common.DTOs.GradeDTOs
+namespace KOP.Common.Dtos.GradeDtos
 {
-    public class StrategicTaskDTO
+    public class StrategicTaskDto
     {
         public int? Id { get; set; }
 

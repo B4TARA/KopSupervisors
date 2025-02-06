@@ -11,15 +11,13 @@ namespace KOP.WEB.Controllers
     public class GradeController : Controller
     {
         private readonly IGradeService _gradeService;
-        private readonly IEmployeeService _employeeService;
+        private readonly IUserService _userService;
 
-        public GradeController(IGradeService gradeService, IEmployeeService employeeService)
+        public GradeController(IGradeService gradeService, IUserService userService)
         {
             _gradeService = gradeService;
-            _employeeService = employeeService;
+            _userService = userService;
         }
-
-        // GET methods
 
         [HttpGet]
         [Authorize]
@@ -277,7 +275,7 @@ namespace KOP.WEB.Controllers
             {
                 // 2 - это id assessmentType ( являющегося корпоративными компетенциями)
                 // поменять на Enum + новая строка в assessmentType
-                var lastAssessmentRes = await _employeeService.GetLastAssessment(employeeId, 2);
+                var lastAssessmentRes = await _userService.GetLastAssessmentByAssessmentType(employeeId, 2);
 
                 if (!lastAssessmentRes.HasData)
                 {
@@ -325,7 +323,7 @@ namespace KOP.WEB.Controllers
             {
                 // 1 - это id assessmentType ( являющегося управленческими компетенциями)
                 // поменять на Enum + новая строка в assessmentType
-                var lastAssessmentRes = await _employeeService.GetLastAssessment(employeeId, 1);
+                var lastAssessmentRes = await _userService.GetLastAssessmentByAssessmentType(employeeId, 1);
 
                 if (!lastAssessmentRes.HasData)
                 {

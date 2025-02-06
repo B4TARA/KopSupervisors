@@ -15,7 +15,7 @@
     </div>
     <div class="results_assessment_main_wrapper">
         <div class="mid_title">Интерпретация результатов оценки управленческих компетенций</div>
-        @if (Model.Assessment.AssessmentResults.Count() == 0)
+        @if (Model.Assessment.AssessmentResults.Any())
         {
             <!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
             <div class="empty_image_wrapper admin_panel">

@@ -1,4 +1,4 @@
-﻿using KOP.Common.DTOs;
+﻿using KOP.Common.Dtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace KOP.WEB.Models.ViewModels.Shared
@@ -7,6 +7,6 @@ namespace KOP.WEB.Models.ViewModels.Shared
     {
         [Required(ErrorMessage = "Поле обязательно для заполнения")]
         public int GradeId { get; set; }
-        public List<MarkTypeDTO> MarkTypes { get; set; } = new();
+        public List<MarkTypeDto> MarkTypes { get; set; } = new();
     }
 }

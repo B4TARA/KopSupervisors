@@ -89,5 +89,26 @@ namespace KOP.DAL.Entities
                 return durationString;
             }
         }
+
+        public string GetNextGradeStartDate
+        {
+            get
+            {
+                if(ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
+                {
+                    return "Вероятно, сотрудник уже уволен";
+                }
+
+                var tempDate = ContractEndDate.AddMonths(-4);
+                var nextGradeStartDate = new DateOnly(tempDate.Year, tempDate.Month, 1);
+
+                if (nextGradeStartDate < DateOnly.FromDateTime(DateTime.Today))
+                {
+                    return "-";
+                }
+
+                return nextGradeStartDate.ToString();
+            }
+        }
     }
 }
