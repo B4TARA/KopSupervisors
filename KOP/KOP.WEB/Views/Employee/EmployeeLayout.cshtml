@@ -33,7 +33,10 @@
 <script src="/js/employeeScript.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => getAssessmentLayout(@Model));
+    document.addEventListener('DOMContentLoaded', () => {
+        getAssessmentLayout(@Model)
+        
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         getGradeLayout(@Model)

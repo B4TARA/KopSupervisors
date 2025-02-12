@@ -6,12 +6,13 @@
 
 @if (Model.LastAssessments.Any())
 {
-    <div class="list_menu_container header">
+    <div class="list_menu_container self_assesment header">
         <ul class="list_menu_wrapper nav">
-            @foreach (var assessment in Model.LastAssessments)
+            @for (int i = 0; i < Model.LastAssessments.Count(); i++)
             {
+                var assessment = Model.LastAssessments[i];
                 <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
-                    <button class="link_menu description" id="assessment_link_item" onclick="getAssessment(@assessment.UserId, @assessment.Id">
+                    <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getAssessment(@assessment.UserId, @assessment.Id)">
                         @assessment.AssessmentTypeName
                     </button>
                     <span class="indicator_assessment">

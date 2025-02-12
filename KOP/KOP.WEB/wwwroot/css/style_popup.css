@@ -166,22 +166,30 @@
         }
 
 .table_popup {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width:100%;
+    border-collapse: collapse; /* Убедитесь, что границы ячеек не накладываются друг на друга */
+    width: 100%;
 }
 
-    .table_popup tr textarea{
-        width:100px;
-        resize:none;
+    .table_popup tr {
+        border: 1px solid #808080; /* Добавляем нижнюю границу для каждой строки */
     }
 
-    .table_popup tr input {
-        width: 100%;
-        resize: none;
-        outline:none;
-        border:2px solid #f5f5f5;
-    }
+        .table_popup tr td,
+        .table_popup tr th {
+            border: 1px solid #808080; /* Добавляем границу для каждой ячейки */
+            padding: 8px; /* Добавляем отступы для ячеек */
+        }
+
+        .table_popup tr textarea {
+            width: 100%;
+            resize: none;
+        }
+
+        .table_popup tr input {
+            width: 100%;
+            outline: none;
+            border: 2px solid #808080; /* Убедитесь, что граница для input не конфликтует с границами ячеек */
+        }
 
 .popup_content div input {
     width: 150px;
