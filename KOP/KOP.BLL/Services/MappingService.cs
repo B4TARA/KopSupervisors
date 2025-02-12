@@ -537,12 +537,19 @@ namespace KOP.BLL.Services
                     UserId = assessment.UserId,
                     SystemStatus = assessment.SystemStatus,
                 };
-            
-                foreach (var result in assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED))
+
+                var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
+
+                if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                {
+                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId);
+                }
+
+                foreach (var result in completedAssessmentResults)
                 {
                     var resultDto = CreateAssessmentResultDto(result, assessment.AssessmentType);
 
-                    if (resultDto.StatusCode != StatusCodes.OK || resultDto.Data == null)
+                    if (!resultDto.HasData)
                     {
                         return new BaseResponse<AssessmentDto>()
                         {
@@ -564,7 +571,7 @@ namespace KOP.BLL.Services
                 {
                     var createAssessmentInterpretationDtoRes = CreateAssessmentInterpretationDto(interpretation);
 
-                    if (createAssessmentInterpretationDtoRes.StatusCode != StatusCodes.OK || createAssessmentInterpretationDtoRes.Data == null)
+                    if (!createAssessmentInterpretationDtoRes.HasData)
                     {
                         return new BaseResponse<AssessmentDto>()
                         {

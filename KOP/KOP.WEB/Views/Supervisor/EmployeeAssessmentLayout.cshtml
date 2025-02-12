@@ -4,11 +4,10 @@
     Layout = null;
 }
 
-@if (Model.LastAssessments.Count() != 0)
+@if (Model.LastAssessments.Any())
 {
     <div class="list_menu_container">
         <ul class="list_menu_wrapper nav">
-
             @foreach (var assessment in Model.LastAssessments)
             {
                 <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">

@@ -196,7 +196,7 @@ namespace KOP.BLL.Services
                     foreach (var averageValue in selfAssessmentResultDto.AverageValues)
                     {
                         var sum = selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value;
-                        var average = Math.Round((double)sum / completedAssessmentResults.Count(), 1);
+                        var average = sum / completedAssessmentResults.Count();
 
                         selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value = average;
                         selfAssessmentResultDto.AverageResult += average;
