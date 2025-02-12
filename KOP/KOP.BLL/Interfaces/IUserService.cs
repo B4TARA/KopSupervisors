@@ -1,5 +1,6 @@
 ﻿using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 
 namespace KOP.BLL.Interfaces
@@ -11,6 +12,7 @@ namespace KOP.BLL.Interfaces
         Task<IBaseResponse<List<AssessmentResultDto>>> GetColleaguesAssessmentResultsForAssessment(int userId);
         Task<IBaseResponse<AssessmentResultDto>> GetUserSelfAssessmentResultByAssessment(int userId, int assessmentId);
         Task<IBaseResponse<object>> AssessUser(AssessUserDto assessUserDto);
-        Task<IBaseResponse<AssessmentDto>> GetLastAssessmentByAssessmentType(int userId, int assessmentTypeId);
+        Task<IBaseResponse<AssessmentDto>> GetLastAssessmentForUserAndType(int userId, SystemAssessmentTypes assessmentType);
+        Task<IBaseResponse<List<AssessmentTypeDto>>> GetAssessmentTypesForUser(int userId);
     }
 }

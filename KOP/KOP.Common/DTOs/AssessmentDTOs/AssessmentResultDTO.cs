@@ -1,5 +1,4 @@
-﻿using KOP.Common.Dtos;
-using KOP.Common.Enums;
+﻿using KOP.Common.Enums;
 
 namespace KOP.Common.Dtos.AssessmentDtos
 {
@@ -10,10 +9,10 @@ namespace KOP.Common.Dtos.AssessmentDtos
 
         public string TypeName { get; set; }
         public int Sum { get; set; }
-        public bool IsPassed { get; set; }
         public int MinValue { get; set; }
         public int MaxValue { get; set; }
         public SystemStatuses SystemStatus { get; set; }
+        public string HtmlClassName { get; set; } = string.Empty;
 
         public UserDto Judge { get; set; } = new();
         public UserDto Judged { get; set; } = new();
@@ -21,7 +20,7 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public List<AssessmentResultValueDto> AverageValues { get; set; } = new();
         public List<AssessmentResultValueDto> Values { get; set; } = new();
         public List<AssessmentMatrixElementDto> Elements { get; set; } = new();
-        public List<IGrouping<int, AssessmentMatrixElementDto>> ElementsByRow { get; set; } = new();   
+        public List<IGrouping<int, AssessmentMatrixElementDto>> ElementsByRow { get; set; } = new();
 
         public double AverageResult { get; set; }
         public int PlanValue { get; set; }

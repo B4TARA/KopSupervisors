@@ -13,6 +13,7 @@ namespace KOP.DAL
             //Database.EnsureCreated();
         }
 
+        public DbSet<AssessmentInterpretation> AssessmentInterpretations { get; set; }
         public DbSet<AssessmentMatrixElement> AssessmentMatrixElements { get; set; }
         public DbSet<AssessmentMatrix> AssessmentMatrices { get; set; }
         public DbSet<Assessment> Assessments { get; set; }

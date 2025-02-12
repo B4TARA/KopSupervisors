@@ -5,6 +5,7 @@ namespace KOP.DAL.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
+        IAssessmentInterpretationRepository AssessmentInterpretations { get; }
         IAssessmentMatrixElementRepository AssessmentMatrixElements { get; }
         IAssessmentMatrixRepository AssessmentMatrices { get; }
         IAssessmentRepository Assessments { get; }

@@ -10,6 +10,7 @@ namespace KOP.DAL.Repositories
     {
         private readonly ApplicationDbContext _dbContext;
 
+        private IAssessmentInterpretationRepository? assessmentInterpretationRepository;
         private IAssessmentMatrixElementRepository? assessmentMatrixElementRepository;
         private IAssessmentMatrixRepository? assessmentMatrixRepository;
         private IAssessmentRepository? assessmentRepository;
@@ -33,6 +34,16 @@ namespace KOP.DAL.Repositories
         public UnitOfWork(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public IAssessmentInterpretationRepository AssessmentInterpretations
+        {
+            get
+            {
+                if (assessmentInterpretationRepository == null)
+                    assessmentInterpretationRepository = new AssessmentInterpretationRepository(_dbContext);
+                return assessmentInterpretationRepository;
+            }
         }
 
         public IAssessmentMatrixElementRepository AssessmentMatrixElements

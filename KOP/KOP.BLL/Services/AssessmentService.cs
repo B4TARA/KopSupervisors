@@ -3,7 +3,6 @@ using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
-using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 
 namespace KOP.BLL.Services
@@ -19,16 +18,17 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id, SystemStatuses? systemStatus = null)
+        public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id)
         {
             try
             {
                 var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == id, includeProperties: new string[]
                 {
+                    "AssessmentType.AssessmentInterpretations",
                     "AssessmentType.AssessmentMatrix.Elements",
                     "AssessmentResults.AssessmentResultValues",
                     "AssessmentResults.Judge",
-                    "AssessmentResults.Judged"
+                    "User",
                 });
 
                 if (assessment == null)
@@ -40,50 +40,20 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var assessmentdto = new AssessmentDto
-                {
-                    Id = id,
-                    Number = assessment.Number,
-                    UserId = assessment.UserId,
-                    SystemStatus = assessment.SystemStatus,
-                };
+                var createAssessmentDtoRes = _mappingService.CreateAssessmentDto(assessment);
 
-                var assessmentResults = new List<AssessmentResult>();
-
-                if (systemStatus == null)
+                if (!createAssessmentDtoRes.HasData)
                 {
-                    assessmentResults = assessment.AssessmentResults;
-                }
-                else
-                {
-                    assessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == systemStatus).ToList();
-                }
-
-                foreach (var assessmentResult in assessmentResults)
-                {
-                    var assessmentResultDto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessment.AssessmentType.AssessmentMatrix);
-
-                    if (assessmentResultDto.StatusCode != StatusCodes.OK || assessmentResultDto.Data == null)
+                    return new BaseResponse<AssessmentDto>()
                     {
-                        return new BaseResponse<AssessmentDto>()
-                        {
-                            Description = assessmentResultDto.Description,
-                            StatusCode = assessmentResultDto.StatusCode,
-                        };
-                    }
-
-                    assessmentdto.AssessmentResults.Add(assessmentResultDto.Data);
-                    assessmentdto.AverageValue += assessmentResultDto.Data.Sum;
-                }
-
-                if (assessmentdto.AssessmentResults.Any())
-                {
-                    assessmentdto.AverageValue = assessmentdto.AverageValue / assessmentdto.AssessmentResults.Count();
+                        Description = createAssessmentDtoRes.Description,
+                        StatusCode = createAssessmentDtoRes.StatusCode,
+                    };
                 }
 
                 return new BaseResponse<AssessmentDto>()
                 {
-                    Data = assessmentdto,
+                    Data = createAssessmentDtoRes.Data,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -101,14 +71,14 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(
-                        x => x.AssessmentId == assessmentId && x.JudgeId == judgeId,
-                        includeProperties: new string[]
+                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x =>
+                    x.AssessmentId == assessmentId && x.JudgeId == judgeId,
+                    includeProperties: new string[]
                         {
                             "Judge",
-                            "Judged",
                             "AssessmentResultValues",
-                            "Assessment.AssessmentType.AssessmentMatrix.Elements"
+                            "Assessment.AssessmentType.AssessmentMatrix.Elements",
+                            "Assessment.User",
                         });
 
                 if (assessmentResult == null)
@@ -120,20 +90,20 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var dto = _mappingService.CreateAssessmentResultDto(assessmentResult, assessmentResult.Assessment.AssessmentType.AssessmentMatrix);
+                var createAssessmentResultDtoRes = _mappingService.CreateAssessmentResultDto(assessmentResult, assessmentResult.Assessment.AssessmentType);
 
-                if (dto.StatusCode != StatusCodes.OK || dto.Data == null)
+                if (!createAssessmentResultDtoRes.HasData)
                 {
                     return new BaseResponse<AssessmentResultDto>()
                     {
-                        Description = dto.Description,
-                        StatusCode = dto.StatusCode,
+                        Description = createAssessmentResultDtoRes.Description,
+                        StatusCode = createAssessmentResultDtoRes.StatusCode,
                     };
                 }
 
                 return new BaseResponse<AssessmentResultDto>()
                 {
-                    Data = dto.Data,
+                    Data = createAssessmentResultDtoRes.Data,
                     StatusCode = StatusCodes.OK
                 };
             }
@@ -151,12 +121,12 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var assessmentType = await _unitOfWork.AssessmentTypes.GetAsync(
-                        x => x.Id == assessmentTypeId,
-                        includeProperties: new string[]
-                        {
-                            "AssessmentMatrix.Elements"
-                        });
+                var assessmentType = await _unitOfWork.AssessmentTypes.GetAsync(x =>
+                    x.Id == assessmentTypeId,
+                    includeProperties: new string[]
+                    {
+                        "AssessmentMatrix.Elements"
+                    });
 
                 if (assessmentType == null)
                 {
@@ -167,14 +137,14 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var assessments = await _unitOfWork.Assessments.GetAllAsync(
-                        x => x.AssessmentTypeId == assessmentTypeId && x.UserId == userId,
-                        includeProperties: new string[]
-                        {
-                            "AssessmentResults.Judge",
-                            "AssessmentResults.Judged",
-                            "AssessmentResults.AssessmentResultValues"
-                        });
+                var assessments = await _unitOfWork.Assessments.GetAllAsync(x =>
+                    x.AssessmentTypeId == assessmentTypeId && x.UserId == userId,
+                    includeProperties: new string[]
+                    {
+                        "AssessmentResults.Judge",
+                        "AssessmentResults.Judged",
+                        "AssessmentResults.AssessmentResultValues"
+                    });
 
                 var assessmentTypeDto = new AssessmentTypeDto
                 {
@@ -229,10 +199,11 @@ namespace KOP.BLL.Services
                             {
                                 Row = assessmentMatrixElement.Row,
                                 Value = assessmentMatrixElement.Value,
+                                HtmlClassName = assessmentMatrixElement.HtmlClassName,
                             });
                         }
 
-                        assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).ToList();
+                        assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                         assessmentDto.AssessmentResults.Add(assessmentResultDto);
                     }
@@ -256,41 +227,112 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<List<AssessmentTypeDto>>> GetUserAssessmentTypes(int userId)
+        public async Task<IBaseResponse<AssessmentSummaryDto>> GetAssessmentSummary(int assessmentId)
         {
             try
             {
-                var userAssessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == userId, includeProperties: new string[]
+                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId, includeProperties: new string[]
                 {
-                    "AssessmentType",
+                    "AssessmentResults.AssessmentResultValues",
+                    "AssessmentType.AssessmentMatrix.Elements",
+                    "AssessmentResults.Judge",
                 });
 
-                var assessmentTypes = userAssessments.GroupBy(x => x.AssessmentType);
-                var assessmentTypesDtos = new List<AssessmentTypeDto>();
-
-                foreach (var assessmentType in assessmentTypes)
+                if (assessment is null)
                 {
-                    var assessmentTypeDto = new AssessmentTypeDto
+                    return new BaseResponse<AssessmentSummaryDto>()
                     {
-                        Id = assessmentType.Key.Id,
-                        Name = assessmentType.Key.Name,
-                        UserId = userId,
+                        Description = $"[AssessmentService.GetAssessmentSummary] : Оценка с id = {assessmentId} не найдена",
+                        StatusCode = StatusCodes.EntityNotFound,
                     };
-
-                    assessmentTypesDtos.Add(assessmentTypeDto);
                 }
 
-                return new BaseResponse<List<AssessmentTypeDto>>()
+                var assessmentSummaryDto = new AssessmentSummaryDto();
+                var assessmentMatrixElementsDtos = new List<AssessmentMatrixElementDto>();
+
+                foreach (var element in assessment.AssessmentType.AssessmentMatrix.Elements)
                 {
-                    Data = assessmentTypesDtos,
+                    assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDto
+                    {
+                        Row = element.Row,
+                        Value = element.Value,
+                        HtmlClassName = element.HtmlClassName,
+                    });
+                }
+
+                assessmentSummaryDto.Elements = assessmentMatrixElementsDtos;
+                assessmentSummaryDto.ElementsByRow = assessmentSummaryDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+
+                var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == assessment.UserId);
+
+                if (selfAssessmentResult != null)
+                {
+                    var selfAssessmentResultValues = selfAssessmentResult.AssessmentResultValues;
+
+                    foreach (var value in selfAssessmentResultValues)
+                    {
+                        assessmentSummaryDto.SelfAssessmentResultValues.Add(new AssessmentResultValueDto
+                        {
+                            Value = value.Value,
+                            AssessmentMatrixRow = value.AssessmentMatrixRow,
+                        });
+
+                        assessmentSummaryDto.AverageAssessmentResultValues.Add(new AssessmentResultValueDto
+                        {
+                            Value = 0,
+                            AssessmentMatrixRow = value.AssessmentMatrixRow,
+                        });
+                    }
+                }
+
+                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Judge.SystemRoles.Contains(SystemRoles.Supervisor));
+
+                if (supervisorAssessmentResult != null)
+                {
+                    var supervisorAssessmentResultValues = supervisorAssessmentResult.AssessmentResultValues;
+
+                    foreach (var value in supervisorAssessmentResultValues)
+                    {
+                        assessmentSummaryDto.SupervisorAssessmentResultValues.Add(new AssessmentResultValueDto
+                        {
+                            Value = value.Value,
+                            AssessmentMatrixRow = value.AssessmentMatrixRow,
+                        });
+                    }
+                }
+
+                var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
+
+                foreach (var result in completedAssessmentResults)
+                {
+                    var assessmentResultValues = result.AssessmentResultValues;
+
+                    foreach (var value in assessmentResultValues)
+                    {
+                        assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value += value.Value;
+                    }
+                }
+
+                foreach (var value in assessmentSummaryDto.AverageAssessmentResultValues)
+                {
+                    var sum = assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value;
+                    var average = Math.Round((double)sum / completedAssessmentResults.Count(), 1);
+
+                    assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value = average;
+                    assessmentSummaryDto.AverageResult += average;
+                }
+
+                return new BaseResponse<AssessmentSummaryDto>()
+                {
+                    Data = assessmentSummaryDto,
                     StatusCode = StatusCodes.OK
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponse<List<AssessmentTypeDto>>()
+                return new BaseResponse<AssessmentSummaryDto>()
                 {
-                    Description = $"[AssessmentService.GetAssessmentTypes] : {ex.Message}",
+                    Description = $"[AssessmentService.GetAssessmentSummary] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
@@ -300,7 +342,10 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var pendingAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == judgeId && x.JudgedId == judgedId && x.SystemStatus == SystemStatuses.PENDING);
+                var pendingAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
+                x.JudgeId == judgeId &&
+                x.Assessment.UserId == judgedId &&
+                x.SystemStatus == SystemStatuses.PENDING);
 
                 if (assessmentId.HasValue)
                 {

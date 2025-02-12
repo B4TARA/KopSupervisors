@@ -193,15 +193,15 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
-        public async Task<IActionResult> GetEmployeeAssessment(int employeeId)
+        public async Task<IActionResult> GetEmployeeAssessment(int assessmentId)
         {
             try
             {
                 var viewModel = new EmployeeAssessmentViewModel();
 
-                var id = Convert.ToInt32(User.FindFirstValue("Id"));
+                var userId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                var response1 = await _assessmentService.GetAssessment(employeeId, SystemStatuses.COMPLETED);
+                var response1 = await _assessmentService.GetAssessment(assessmentId);
 
                 if (!response1.HasData)
                 {
@@ -214,7 +214,7 @@ namespace KOP.WEB.Controllers
 
                 viewModel.Assessment = response1.Data;
 
-                var response2 = await _assessmentService.GetAssessmentResult(id, employeeId);
+                var response2 = await _assessmentService.GetAssessmentResult(userId, assessmentId);
 
                 if (response2.HasData)
                 {

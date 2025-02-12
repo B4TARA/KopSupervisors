@@ -1,74 +1,85 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.KpisViewModel
 
 @{
-    Layout = null;
-
-    var isInRole = User.IsInRole("Umst");
-    var conclusionEditAccess = false;
-    if (User.IsInRole("Urp"))
-    {
-        conclusionEditAccess = true;
-    }
-    var controllerMethod = "EditKpis";
+	Layout = null;
 }
 
-<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
-    <input type="hidden" asp-for="GradeId">
-    <div asp-validation-summary="All">
-        <!-- Ошибки валидации будут отображаться тут-->
-    </div>
-    <div class="popup_content">
-        <div class="popup_content_header margin_container_bottom_middle">
-            <div class="title">
-                Результаты выполнения ключевых показателей эффективности деятельности
-            </div>
-            <div class="description">
-                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
-            </div>
-        </div>
-        <table class="table_popup">
-            <thead>
-                <tr>
-                    <th>Период с</th>
-                    <th>Период по</th>
-                    <th>КПЭ</th>
-                    <th>% выполнения</th>
-                    <th>Методика расчета</th>
-                </tr>
-            </thead>
-            <tbody id="rowContainer">
-                @for (int i = 0; i < Model.Kpis.Count; i++)
-                {
-                    var kpi = Model.Kpis[i];
-                    var periodStartDateTime = kpi.PeriodStartDateTime.ToString("yyyy-MM-dd");
-                    var periodEndDateTime = kpi.PeriodEndDateTime.ToString("yyyy-MM-dd");
-                    <tr>
-                        <td>
-                            <input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="Kpis[i].Name" value="@kpi.Name" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="Kpis[i].CalculationMethod" value="@kpi.CalculationMethod" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @if (isInRole)
-        {
-            <div class="add_row_btn add_project" onclick="addRow(this,'kpi')">Добавить</div>
-        }
-    </div>
-    @if (isInRole)
-    {
-        <button type="submit" class="add_row_btn">Сохранить</button>
-    }
-</form>
+@if (!Model.ViewAccess)
+{
+	<div class="undefined_page_wrapper">
+		<div class="title">
+			Результаты выполнения ключевых показателей эффективности деятельности не заполнены окончательно
+		</div>
+		<img src="/image/undefinedpage.svg" alt="default_page">
+	</div>
+}
+else
+{
+	<form id="popupForm">
+		<input type="hidden" asp-for="GradeId">
+		<div asp-validation-summary="All">
+			<!-- Ошибки валидации будут отображаться тут-->
+		</div>
+		<div class="popup_content">
+			<div class="popup_content_header margin_container_bottom_middle">
+				<div class="title">
+					Результаты выполнения ключевых показателей эффективности деятельности
+				</div>
+				<div class="description">
+					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+				</div>
+			</div>
+			<table class="table_popup">
+				<thead>
+					<tr>
+						<th>Период с</th>
+						<th>Период по</th>
+						<th>КПЭ</th>
+						<th>% выполнения</th>
+						<th>Методика расчета</th>
+					</tr>
+				</thead>
+				<tbody id="rowContainer">
+					@for (int i = 0; i < Model.Kpis.Count; i++)
+					{
+						var kpi = Model.Kpis[i];
+						var periodStartDateTime = kpi.PeriodStartDateTime.ToString("yyyy-MM-dd");
+						var periodEndDateTime = kpi.PeriodEndDateTime.ToString("yyyy-MM-dd");
+						<tr>
+							<td>
+								<input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							<td>
+								<input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							<td>
+								<input type="text" asp-for="Kpis[i].Name" value="@kpi.Name" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							<td>
+								<input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							<td>
+								<input type="text" asp-for="Kpis[i].CalculationMethod" value="@kpi.CalculationMethod" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							@if (Model.EditAccess)
+							{
+								<td>
+									<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteKpi(@Model.Kpis[i].Id, @Model.GradeId)"></i>
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+			@if (Model.EditAccess)
+			{
+				<div class="add_row_btn add_project" onclick="addRow(this,'kpi')">Добавить</div>
+			}
+		</div>
+		@if (Model.EditAccess)
+		{
+			<button type="button" class="add_row_btn" onclick="saveKpisAsDraft(@Model.GradeId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveKpisAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+		}
+	</form>
+}

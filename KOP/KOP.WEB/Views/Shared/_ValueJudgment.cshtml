@@ -1,39 +1,50 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.ValueJudgmentViewModel
 
 @{
-    Layout = null;
+	Layout = null;
 
-    var strengths = Model.ValueJudgment.Strengths;
-    var behaviorToCorrect = Model.ValueJudgment.BehaviorToCorrect;
-    var recommendations = Model.ValueJudgment.RecommendationsForDevelopment;
-    var isInRole = User.IsInRole("Supervisor");
-    var controllerMethod = "EditValueJudgment";
+	var strengths = Model.ValueJudgment.Strengths;
+	var behaviorToCorrect = Model.ValueJudgment.BehaviorToCorrect;
+	var recommendations = Model.ValueJudgment.RecommendationsForDevelopment;
 }
 
-<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
-    <input type="hidden" asp-for="GradeId">
-    <input type="hidden" asp-for="ValueJudgment.Id">
-    <div asp-validation-summary="All">
-        <!-- Ошибки валидации будут отображаться тут-->
-    </div>
-    <div class="popup_content">
-        <div class="popup_content_header margin_container_bottom_middle">
-            <div class="title">
-                ОС от руководителя
-            </div>
-        </div>
-        <div>
-            Сильные стороны работника: <textarea asp-for="ValueJudgment.Strengths">@strengths</textarea>
-        </div>
-        <div>
-            Зоны деятельности / поведение работника, требующие корректировки: <textarea asp-for="ValueJudgment.BehaviorToCorrect">@behaviorToCorrect</textarea>
-        </div>
-        <div>
-            Рекомендации по развитию работника:<textarea asp-for="ValueJudgment.RecommendationsForDevelopment">@recommendations</textarea>
-        </div>
-    </div>
-    @if(isInRole)
-    {
-        <button type="submit" class="add_row_btn">Сохранить</button>
-    }
-</form>
+@if (!Model.ViewAccess)
+{
+	<div class="undefined_page_wrapper">
+		<div class="title">
+			ОС от руководителя не заполнена окончательно
+		</div>
+		<img src="/image/undefinedpage.svg" alt="default_page">
+	</div>
+}
+else
+{
+	<form id="popupForm">
+		<input type="hidden" asp-for="GradeId">
+		<input type="hidden" asp-for="ValueJudgment.Id">
+		<div asp-validation-summary="All">
+			<!-- Ошибки валидации будут отображаться тут-->
+		</div>
+		<div class="popup_content">
+			<div class="popup_content_header margin_container_bottom_middle">
+				<div class="title">
+					ОС от руководителя
+				</div>
+			</div>
+			<div>
+				Сильные стороны работника: <textarea asp-for="ValueJudgment.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+			</div>
+			<div>
+				Зоны деятельности / поведение работника, требующие корректировки: <textarea asp-for="ValueJudgment.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+			</div>
+			<div>
+				Рекомендации по развитию работника:<textarea asp-for="ValueJudgment.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+			</div>
+		</div>
+		@if (Model.EditAccess)
+		{
+			<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsDraft(@Model.GradeId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+		}
+	</form>
+}

@@ -20,7 +20,7 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> GetAssessmentTypes(int employeeId)
         {
-            var response = await _assessmentService.GetUserAssessmentTypes(employeeId);
+            var response = await _userService.GetAssessmentTypesForUser(employeeId);
 
             if (response.StatusCode != StatusCodes.OK)
             {

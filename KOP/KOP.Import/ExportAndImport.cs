@@ -363,25 +363,17 @@ namespace KOP.Import
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee), includeProperties: new string[]
-                {
-                    "Grades",
-                });
+                var employees = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee) && !x.Grades.Any(x => x.SystemStatus == SystemStatuses.PENDING), includeProperties: "Grades");
 
-                foreach (var user in users)
+                foreach (var employee in employees)
                 {
                     try
                     {
-                        if (user.Grades.Where(x => x.SystemStatus == SystemStatuses.PENDING).Any())
-                        {
-                            continue;
-                        }
-
                         var currentDay = TermManager.GetDate().Day;
                         var currentMonth = TermManager.GetDate().Month;
                         var currentYear = TermManager.GetDate().Year;
-                        var gradeStartMonth = user.ContractEndDate.AddMonths(-4).Month;
-                        var gradeStartYear = user.ContractEndDate.AddMonths(-4).Year;
+                        var gradeStartMonth = employee.ContractEndDate.AddMonths(-4).Month;
+                        var gradeStartYear = employee.ContractEndDate.AddMonths(-4).Year;
 
                         if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
                         {
@@ -389,12 +381,11 @@ namespace KOP.Import
                         }
 
                         var gradeStartDate = new DateOnly(currentYear, currentMonth, 1);
-                        var userGrades = await uow.Grades.GetAllAsync(x => x.UserId == user.Id);
                         var gradeNumber = 1;
 
-                        if (userGrades.Any())
+                        if (employee.Grades.Any())
                         {
-                            gradeNumber = userGrades.Count();
+                            gradeNumber = employee.Grades.Count();
                         }
 
                         var newGrade = new Grade
@@ -403,32 +394,62 @@ namespace KOP.Import
                             StartDate = new DateOnly(TermManager.GetDate().Year - 1, 1, 1),
                             EndDate = new DateOnly(TermManager.GetDate().Year, 12, 31),
                             SystemStatus = SystemStatuses.PENDING,
-                            UserId = user.Id,
-                            Qualification = new Qualification(),
+                            UserId = employee.Id,
+                            Qualification = new Qualification { SupervisorSspName = employee.FullName},
                             ValueJudgment = new ValueJudgment(),
                             QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         };
 
                         await uow.Grades.AddAsync(newGrade);
 
-                        var assessmentTypes = await uow.AssessmentTypes.GetAllAsync(includeProperties: "Assessments");
+                        var assessmentTypes = await uow.AssessmentTypes.GetAllAsync();
 
                         foreach (var assessmentType in assessmentTypes)
                         {
-                            var assessmentNumber = 1;
-
-                            if (assessmentType.Assessments.Any())
-                            {
-                                gradeNumber = userGrades.Count();
-                            }
-
                             var newAssessment = new Assessment
                             {
-                                Number = assessmentNumber,
+                                Number = gradeNumber,
                                 SystemStatus = SystemStatuses.PENDING,
-                                UserId = user.Id,
+                                UserId = employee.Id,
                                 AssessmentTypeId = assessmentType.Id,
                             };
+
+                            var supervisor = await GetUserSupervisor(employee);
+
+                            if(supervisor != null)
+                            {
+                                var newSupervisorAssessmentResult = new AssessmentResult
+                                {
+                                    SystemStatus = SystemStatuses.PENDING,
+                                    JudgeId = supervisor.Id,
+                                };
+
+                                newAssessment.AssessmentResults.Add(newSupervisorAssessmentResult);
+                            }              
+
+                            var newSelfAssessmentResult = new AssessmentResult
+                            {
+                                SystemStatus = SystemStatuses.PENDING,
+                                JudgeId = employee.Id,
+                            };
+
+                            newAssessment.AssessmentResults.Add(newSelfAssessmentResult);
+
+                            if (assessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                            {
+                                var urps = await GetAllUrpUsers();
+
+                                foreach (var urp in urps)
+                                {
+                                    var newUepAssessmentResult = new AssessmentResult
+                                    {
+                                        SystemStatus = SystemStatuses.PENDING,
+                                        JudgeId = urp.Id,
+                                    };
+
+                                    newAssessment.AssessmentResults.Add(newUepAssessmentResult);
+                                }
+                            }
 
                             await uow.Assessments.AddAsync(newAssessment);
                         }
@@ -442,6 +463,50 @@ namespace KOP.Import
                         continue;
                     }
                 }
+            }
+        }
+
+        private async Task<User?> GetUserSupervisor(User user)
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var parentSubdivision = await uow.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
+
+                if(parentSubdivision == null)
+                {
+                    return null;
+                }
+
+                var supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
+
+                if(supervisor != null)
+                {
+                    return supervisor;
+                }
+
+                var rootSubdivision = parentSubdivision.Parent;
+
+                while(rootSubdivision != null)
+                {
+                    supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
+
+                    if (supervisor != null)
+                    {
+                        return supervisor;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        private async Task<IEnumerable<User>> GetAllUrpUsers()
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var allUrpUsers = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Urp));     
+
+                return allUrpUsers;
             }
         }
 
