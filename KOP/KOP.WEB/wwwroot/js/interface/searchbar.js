@@ -1,138 +1,50 @@
-﻿var usersList = document.querySelectorAll('.fullname');
-var searchBoxElem = document.getElementById('searchbox');
-var listItems = document.querySelectorAll('.list-items')
-var homeSectionElem = document.querySelector(".home-section")
-
-//console.log(usersList)
-
-//if (searchBoxElem != null) {
-    
-//    searchBoxElem.addEventListener("keyup", function (e) {
-//        let searchTargetElem = document.querySelector('.searchbox').value
-//        //Если сепараторов больше 1, то открыть их
-//        if (selectBtn.length > 1) {
-//            selectBtn.forEach(item => {
-//                    item.classList.add("open");
-//                })
-//        }
-
-//        if (searchBoxElem.value == "") {
-//            if (selectBtn.length > 1) {
-//                selectBtn.forEach(item => {
-//                    item.classList.remove("open");
-//                })
-//            }
-                    
-//        }
-
-//        filterList(e.target.value);
-        
-//    });
-//}
-
-function searchBoxKeyUp(elem,type) {
-    let searchTargetElem = document.querySelector('.searchbox').value
-    
-    //Если сепараторов больше 1, то открыть их
-    if (selectBtn.length > 1) {
-        selectBtn.forEach(item => {
-            item.classList.add("open");
-        })
-    }
-
-    if (searchBoxElem.value == "") {
-        if (selectBtn.length > 1) {
-            selectBtn.forEach(item => {
-                item.classList.remove("open");
-            })
-        }
-
-    }
-
-    filterList(elem.value, type);
+﻿function searchBoxKeyUp(elem, type) {
+    let searchTerm = elem.value.toLowerCase(); // Получаем значение из поля поиска
+    filterList(searchTerm, type); // Вызываем функцию фильтрации
 }
 
 function filterList(searchTerm, type) {
-    //console.log("ENTER FUNC")
-    //console.log(searchTerm +"|||" +"enter value")
-    searchTerm = searchTerm.toLowerCase();
-    
-    usersList.forEach(option => {
-        
-        let label = option.innerText.toLowerCase();
-        //console.log('label' + " " + label);
-        
-        let rowElem = option.parentNode;
-        //console.log('rowElem' + " " + rowElem)
-        let rowElemFlag = rowElem.getAttribute('flagHide')
-            if (label.indexOf(searchTerm) != -1) {
-                rowElem.classList.remove('hide_table_tr');
-                rowElem.classList.add('show_table_tr');
-                rowElem.setAttribute('flagHide', 'false');
-            } else {
+    // Получаем все строки таблиц
+    const userRows = document.querySelectorAll('.list_division_users_wrapper .fullname');
 
+    userRows.forEach(option => {
+        let label = option.innerText.toLowerCase(); // Получаем текст из элемента fullname
+        let rowElem = option.closest('tr'); // Находим родительский элемент tr
 
-                rowElem.classList.remove('show_table_tr');
-                rowElem.classList.add('hide_table_tr');
-                rowElem.setAttribute('flagHide', 'true');
-            }
-        
-        
+        // Проверяем, содержит ли текст искомую строку
+        if (label.includes(searchTerm)) {
+            rowElem.classList.remove('hide_table_tr'); // Убираем класс hide_table_tr
+            rowElem.classList.add('show_table_tr'); // Добавляем класс show_table_tr
+        } else {
+            rowElem.classList.remove('show_table_tr'); // Убираем класс show_table_tr
+            rowElem.classList.add('hide_table_tr'); // Добавляем класс hide_table_tr
+        }
     });
-    checkElemsToHideTrs(type)
+
+    // Проверяем, нужно ли скрыть list-items
+    checkIfHideListItems();
 }
 
-function checkElemsToHideTrs(type) {
-    let listDivisionsMainElem = document.querySelectorAll('.list_division_users_wrapper')
+function checkIfHideListItems() {
+    // Получаем все элементы list-items
+    const listItems = document.querySelectorAll('.list_division_users_wrapper .list-items');
 
-    listDivisionsMainElem.forEach((list) => {
-        let tableUsers = list.querySelectorAll('.table_users')
+    listItems.forEach(item => {
+        // Получаем все строки в текущей таблице
+        const rows = item.querySelectorAll('.table_users tbody tr');
+        let allHidden = true; // Флаг для проверки, все ли строки скрыты
 
-        countToHideTrs(tableUsers, type)
-    })
-}
-
-
-function countToHideTrs(table, type) {
-    let flag = false
-    let countHideTables = 0
-    let tableLength = table.length
-    table.forEach((elem, index) => {
-        
-            let countAllTrs = elem.getElementsByTagName('tr')
-            let countAllHideTrs = elem.querySelectorAll('.hide_table_tr')
-
-
-            if (countAllTrs.length - 1 == countAllHideTrs.length) {
-
-                if (tableLength <= 1) {
-                    elem.parentNode.parentNode.style.display = 'none'
-                } else {
-
-                    elem.parentNode.style.display = 'none'
-
-                    countHideTables++
-                    if (tableLength == countHideTables) {
-                        elem.parentNode.parentNode.style.display = 'none'
-                    } else {
-                        elem.parentNode.parentNode.style.display = ''
-                    }
-
-                }
-
-            } else {
-
-                if (tableLength <= 1) {
-                    elem.parentNode.parentNode.style.display = ''
-                } else {
-                    elem.parentNode.style.display = ''
-                }
-
+        rows.forEach(row => {
+            if (!row.classList.contains('hide_table_tr')) {
+                allHidden = false; // Если хотя бы одна строка не скрыта, устанавливаем флаг в false
             }
-        
-            
-        })
+        });
+
+        // Если все строки скрыты, скрываем list-items
+        if (allHidden) {
+            item.style.display = 'none'; // Скрываем list-items
+        } else {
+            item.style.display = ''; // Показываем list-items
+        }
+    });
 }
-
-
-

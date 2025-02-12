@@ -28,17 +28,27 @@ arrowShowSubMenu.forEach(item => {
     });
 })
 
-selectBtn.forEach(item => {
-    item.addEventListener("click", () => {
-        item.classList.toggle("open");
+function toggleSelectButton(button) {
+    // Находим родительский элемент, который содержит все элементы
+    const listItems = button.closest('.list-items');
+
+    // Находим все элементы с классом 'list_division_users_wrapper users' внутри родительского элемента
+    const userWrappers = listItems.querySelectorAll('.list_division_users_wrapper.users');
+
+    // Проверяем, есть ли класс 'open' у кнопки
+    const isOpen = button.classList.contains("open");
+
+    // Переключаем класс 'open' для кнопки
+    button.classList.toggle("open");
+
+    // Устанавливаем класс 'open' для каждого элемента
+    userWrappers.forEach(wrapper => {
+        if (isOpen) {
+            wrapper.classList.remove("open"); // Скрываем
+        } else {
+            wrapper.classList.add("open"); // Показываем
+        }
     });
-
-})
-
-if (selectBtn.length != 0) {
-    if (selectBtn.length <= 1) {
-        selectBtn[0].classList.toggle("open");
-    }
 }
 
 /******POPUP ALERT*******/

@@ -86,6 +86,9 @@ async function getColleaguesAssessment(employeeId) {
 
         // Вставляем HTML-контент в элемент с id 'infoblock_main_container'
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
+
+        const firstLinkMenu = document.querySelector('.self_assesment .link_menu');
+        console.log(firstLinkMenu)
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');
@@ -93,6 +96,11 @@ async function getColleaguesAssessment(employeeId) {
 }
 
 async function getSelfAssessment(employeeId, assessmentId) {
+    let colleaguesAssessmentLinkItem = document.getElementById('colleagues_assessment_link_item');
+    let selfAssessmentLinkItem = document.getElementById('self_assessment_link_item');
+
+    selfAssessmentLinkItem.classList.add("active");
+    colleaguesAssessmentLinkItem.classList.remove("active");
     try {
         // Выполняем fetch запрос
         let response = await fetch(`/Employee/GetSelfAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`);
@@ -136,6 +144,18 @@ async function getSelfAssessment(employeeId, assessmentId) {
 
 async function getAssessment(employeeId, assessmentId) {
     try {
+
+        const buttons = document.querySelectorAll('.self_assesment .link_menu');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Удаляем класс active у всех кнопок
+                buttons.forEach(b => b.classList.remove('active'));
+                // Добавляем класс active к текущей кнопке
+                btn.classList.add('active');
+            });
+        });
+
         // Формируем URL для запроса
         const url = `/Employee/GetSelfAssessment?employeeId=${encodeURIComponent(employeeId)}&assessmentId=${encodeURIComponent(assessmentId)}`;
 
@@ -147,6 +167,8 @@ async function getAssessment(employeeId, assessmentId) {
 
         // Вставляем HTML-контент в элемент с id 'lastAssessment'
         document.getElementById('lastAssessment').innerHTML = htmlContent;
+
+        
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');
