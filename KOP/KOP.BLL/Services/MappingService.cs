@@ -536,6 +536,7 @@ namespace KOP.BLL.Services
                     Number = assessment.Number,
                     UserId = assessment.UserId,
                     SystemStatus = assessment.SystemStatus,
+                    SystemAssessmentType = assessment.AssessmentType.SystemAssessmentType,
                 };
 
                 var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);

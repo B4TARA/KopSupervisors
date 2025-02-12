@@ -6,7 +6,52 @@
 }
 
 <div class="results_assessment_users_container margin_container_bottom">
-
+	@if (Model.ChooseJudgesAccess)
+	{
+		<div class="assessment_user_tab_container">
+			<div class="choose_assessment_user_container margin_container_bottom" id="choose_assessment_user_container" iduser="@Model.Assessment.UserId">
+				<div class="container_description">
+					<div class="mid_title">
+						Выбор оценщиков
+					</div>
+					<div class="mid_description">
+						Выберите трех коллег, которые будут оценивать корпоративные компетенции данного сотрудника
+					</div>
+				</div>
+				<div class="choose_user_container" id="choose_user_container">
+					<div class="select-box">
+						<div class="options-container" id="options-container">
+							@foreach (var candidate in Model.CandidatesForJudges)
+							{
+								<div class="option" onclick="optionClick(this)">
+									<input type="radio" value="" class="radio" id="film" name="category" disabled />
+									<label for="film" class="select_user_assessment" idcol="@candidate.Id">@candidate.FullName</label>
+								</div>
+							}
+						</div>
+						<div class="selected_main_wrapper" id="selected_main_wrapper" onclick="selectedContainerOpen()">
+							<i class="fa-solid fa-chevron-down"></i>
+							@foreach (var choosedCandidate in Model.ChoosedCandidatesForJudges)
+							{
+								<div class="selected_item_main_wrapper" idcol="@choosedCandidate.Id">
+									<div class="description">
+										@choosedCandidate.FullName
+									</div>
+									@if (!choosedCandidate.HasJudged)
+									{
+										<i class="fa-solid fa-trash delete_item" onclick="deleteUserAssessmentList(this)"></i>
+									}
+								</div>
+							}
+						</div>
+						<div class="search-box">
+							<input type="text" placeholder="" id="input_searchbox_assessment">							
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
 	<div class="container_description">
 		<div class="mid_title">
 			Список результатов оценщиков

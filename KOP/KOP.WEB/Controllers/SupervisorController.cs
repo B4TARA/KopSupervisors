@@ -1,10 +1,9 @@
-﻿using KOP.BLL.Interfaces;
-using KOP.Common.Enums;
+﻿using System.Security.Claims;
+using KOP.BLL.Interfaces;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Supervisor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
@@ -197,29 +196,33 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var viewModel = new EmployeeAssessmentViewModel();
+                var getAssessmentRes = await _assessmentService.GetAssessment(assessmentId);
 
-                var userId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-                var response1 = await _assessmentService.GetAssessment(assessmentId);
-
-                if (!response1.HasData)
+                if (!getAssessmentRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
-                        StatusCode = response1.StatusCode,
-                        Message = response1.Description,
+                        StatusCode = getAssessmentRes.StatusCode,
+                        Message = getAssessmentRes.Description,
                     });
                 }
 
-                viewModel.Assessment = response1.Data;
-
-                var response2 = await _assessmentService.GetAssessmentResult(userId, assessmentId);
-
-                if (response2.HasData)
+                var viewModel = new EmployeeAssessmentViewModel
                 {
-                    viewModel.SupervisorAssessmentResult = response2.Data;
+                    Assessment = getAssessmentRes.Data
+                };
+
+                var getAssessmentResultRes = await _assessmentService.GetAssessmentResult(Convert.ToInt32(User.FindFirstValue("Id")), assessmentId);
+
+                if (getAssessmentResultRes.HasData)
+                {
+                    viewModel.SupervisorAssessmentResult = getAssessmentResultRes.Data;
                 }
+
+                var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+                viewModel.ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, getAssessmentRes.Data);
+                viewModel.CandidatesForJudges = await _userService.GetCandidatesForJudges();
+                viewModel.ChoosedCandidatesForJudges = _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AssessmentResults);
 
                 return View("EmployeeAssessment", viewModel);
             }

@@ -491,5 +491,47 @@ namespace KOP.BLL.Services
                 };
             }
         }
+
+        public async Task<List<CandidateForJudgeDto>> GetCandidatesForJudges()
+        {
+            var candidatesForJudgesDtos = new List<CandidateForJudgeDto>();
+            var candidatesForJudges = await _unitOfWork.Users.GetAllAsync();
+
+            foreach (var candidate in candidatesForJudges)
+            {
+                candidatesForJudgesDtos.Add(new CandidateForJudgeDto
+                {
+                    Id = candidate.Id,
+                    FullName = candidate.FullName,
+                });
+            }
+            return candidatesForJudgesDtos;
+        }
+
+        public List<CandidateForJudgeDto> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults)
+        {
+            var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
+
+            foreach (var result in assessmentResults)
+            {
+                choosedCandidatesForJudges.Add(new CandidateForJudgeDto
+                {
+                    Id = result.Judge.Id,
+                    FullName = result.Judge.FullName,
+                    HasJudged = result.SystemStatus == SystemStatuses.COMPLETED
+                });
+            }
+            return choosedCandidatesForJudges;
+        }
+
+        public bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto)
+        {
+            bool isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
+            bool isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
+            bool isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
+            int completedJudgesCount = assessmentDto.AssessmentResults.Count(x => x.SystemStatus == SystemStatuses.COMPLETED && x.Judge.Id != x.Judged.Id);
+
+            return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
+        }
     }
 }
