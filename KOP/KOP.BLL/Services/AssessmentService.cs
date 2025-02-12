@@ -235,6 +235,7 @@ namespace KOP.BLL.Services
                 {
                     "AssessmentResults.AssessmentResultValues",
                     "AssessmentType.AssessmentMatrix.Elements",
+                    "AssessmentType.AssessmentInterpretations",
                     "AssessmentResults.Judge",
                 });
 
@@ -303,6 +304,11 @@ namespace KOP.BLL.Services
 
                 var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
 
+                if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                {
+                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId);
+                }
+
                 foreach (var result in completedAssessmentResults)
                 {
                     var assessmentResultValues = result.AssessmentResultValues;
@@ -310,16 +316,40 @@ namespace KOP.BLL.Services
                     foreach (var value in assessmentResultValues)
                     {
                         assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value += value.Value;
+                        assessmentSummaryDto.SumResult += value.Value;
                     }
                 }
 
                 foreach (var value in assessmentSummaryDto.AverageAssessmentResultValues)
                 {
                     var sum = assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value;
-                    var average = Math.Round((double)sum / completedAssessmentResults.Count(), 1);
+                    var average = sum / completedAssessmentResults.Count();
 
                     assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value = average;
                     assessmentSummaryDto.AverageResult += average;
+                }
+
+                foreach (var interpretation in assessment.AssessmentType.AssessmentInterpretations)
+                {
+                    var createAssessmentInterpretationDtoRes = _mappingService.CreateAssessmentInterpretationDto(interpretation);
+
+                    if (!createAssessmentInterpretationDtoRes.HasData)
+                    {
+                        return new BaseResponse<AssessmentSummaryDto>()
+                        {
+                            Description = createAssessmentInterpretationDtoRes.Description,
+                            StatusCode = createAssessmentInterpretationDtoRes.StatusCode,
+                        };
+                    }
+
+                    var interpretationDto = createAssessmentInterpretationDtoRes.Data;
+
+                    if (assessmentSummaryDto.AverageResult >= interpretationDto.MinValue && assessmentSummaryDto.AverageResult <= interpretationDto.MaxValue)
+                    {
+                        assessmentSummaryDto.AverageAssessmentInterpretation = interpretationDto;
+                    }
+
+                    assessmentSummaryDto.AssessmentTypeInterpretations.Add(interpretationDto);
                 }
 
                 return new BaseResponse<AssessmentSummaryDto>()

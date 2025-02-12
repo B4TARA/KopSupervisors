@@ -152,7 +152,7 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var viewModel = new CorporateCompetenciesViewModel
+                var viewModel = new ManagmentCompetenciesViewModel
                 {
                     Conclusion = gradeRes.Data.ManagmentCompetenciesConclusion,
                     AssessmentSummaryDto = assessmentSummaryRes.Data,
