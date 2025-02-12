@@ -1,66 +1,86 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.MarksViewModel
 
 @{
-    Layout = null;
-
-    var isInRole = User.IsInRole("Urp");
-    var controllerMethod = "EditMarks";
+	Layout = null;
 }
 
-<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
-    <input type="hidden" asp-for="GradeId">
-    <div asp-validation-summary="All">
-        <!-- Ошибки валидации будут отображаться тут-->
-    </div>
-    <div class="popup_content">
 
-        <div class="title">
-            Управление персоналом
-        </div>
+@if (!Model.ViewAccess)
+{
+	<div class="undefined_page_wrapper">
+		<div class="title">
+			Управление персоналом не заполнено окончательно
+		</div>
+		<img src="/image/undefinedpage.svg" alt="default_page">
+	</div>
+}
+else
+{
+	<form id="popupForm">
+		<input type="hidden" asp-for="GradeId">
+		<div asp-validation-summary="All">
+			<!-- Ошибки валидации будут отображаться тут-->
+		</div>
+		<div class="popup_content">
 
-        @for (int i = 0; i < Model.MarkTypes.Count; i++)
-        {
-            <input type="hidden" asp-for="MarkTypes[i].Id">
-            <input type="hidden" asp-for="MarkTypes[i].Name">
-            <input type="hidden" asp-for="MarkTypes[i].Description">
-            <div class="table_w_info_wrapper">
-                <div class="table_w_info_content">
-                    <div class="mid_title">
-                        @Model.MarkTypes[i].Name
-                    </div>
-                    <div class="mid_description">
-                        @Model.MarkTypes[i].Description
-                    </div>
-                </div>
-                <table class="table_popup">
-                    <thead>
-                        <tr>
-                            <th>Период</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int j = 0; j < Model.MarkTypes[i].Marks.Count; j++)
-                        {
-                            var period = Model.MarkTypes[i].Marks[j].Period;
-                            var percentageValue = Model.MarkTypes[i].Marks[j].PercentageValue;
-                            <tr>
-                                <td>
-                                    <input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(isInRole ? null : "disabled")" />
-                                </td>
-                                <td>
-                                    <input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(isInRole ? null : "disabled")" />
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                <div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)">Добавить</div>
-            </div>
-        }
-    </div>
-    @if (isInRole)
-    {
-        <button type="submit" class="add_row_btn">Сохранить</button>
-    }
-</form>
+			<div class="title">
+				Управление персоналом
+			</div>
+
+			@for (int i = 0; i < Model.MarkTypes.Count; i++)
+			{
+				<input type="hidden" asp-for="MarkTypes[i].Id">
+				<input type="hidden" asp-for="MarkTypes[i].Name">
+				<input type="hidden" asp-for="MarkTypes[i].Description">
+				<div class="table_w_info_wrapper">
+					<div class="table_w_info_content">
+						<div class="mid_title">
+							@Model.MarkTypes[i].Name
+						</div>
+						<div class="mid_description">
+							@Model.MarkTypes[i].Description
+						</div>
+					</div>
+					<table class="table_popup">
+						<thead>
+							<tr>
+								<th>Период</th>
+								<th>%</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (int j = 0; j < Model.MarkTypes[i].Marks.Count; j++)
+							{
+								var period = Model.MarkTypes[i].Marks[j].Period;
+								var percentageValue = Model.MarkTypes[i].Marks[j].PercentageValue;
+								<tr>
+									<td>
+										<input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(Model.EditAccess ? null : "disabled")" />
+									</td>
+									<td>
+										<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+									</td>
+									@if (Model.EditAccess)
+									{
+										<td>
+											<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteMark(@Model.MarkTypes[i].Marks[j].Id, @Model.GradeId)"></i>
+										</td>
+									}
+								</tr>
+							}
+						</tbody>
+					</table>
+					@if (Model.EditAccess)
+					{
+						<div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)">Добавить</div>
+					}
+				</div>
+			}
+		</div>
+		@if (Model.EditAccess)
+		{
+			<button type="button" class="add_row_btn" onclick="saveMarksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+		}
+	</form>
+}

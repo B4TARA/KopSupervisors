@@ -24,6 +24,21 @@ infoBtn.forEach(item => {
     });
 })
 
+document.addEventListener('click', (event) => {
+    if (event.target.closest('.show-modal-btn')) {
+        const sectionPopup = event.target.closest('td').querySelector('.section_popup');
+        sectionPopup.classList.toggle("active_popup");
+    }
+
+
+    if (event.target.closest('.close_btn')) {
+        const sectionPopup = event.target.closest('.section_popup'); 
+        if (sectionPopup) {
+            sectionPopup.classList.remove('active_popup');
+        }
+    }
+});
+
 closeBtn.forEach(item => {
     item.addEventListener("click", () => {
         let parentNodeModalBox = item.parentNode;

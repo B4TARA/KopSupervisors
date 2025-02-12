@@ -4,11 +4,43 @@
     Layout = null;
 }
 
+<div class="list_menu_container">
+    <ul class="list_menu_wrapper nav">
+        <li class="item_menu">
+            <button class="link_menu description" id="colleagues_assessment_link_item" onclick="getColleaguesAssessment(@Model.EmployeeId)">
+                Оценить
+            </button>
+            <span class="indicator_assessment">
+            </span>
+        </li>
+        @if (Model.IsActiveSelfAssessment)
+        {
+            <li class="item_menu active">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(@Model.EmployeeId)">
+                    Моя оценка
+                </button>
+                <span class="indicator_assessment">
+                    <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
+                </span>
+            </li>
+        }
+        else
+        {
+            <li class="item_menu">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(@Model.EmployeeId)">
+                    Моя оценка
+                </button>
+                <span class="indicator_assessment">
+                    <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
+                </span>
+            </li>
+        }
+    </ul>
+</div>
+
 <div class="user_assessment_dropdown_container" id="infoblock_main_container">
 </div>
 
 <script>
-
     getColleaguesAssessment(@Model.EmployeeId);
-
 </script>

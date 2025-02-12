@@ -1,19 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using KOP.Common.Enums;
 
 namespace KOP.DAL.Entities.AssessmentEntities
 {
     public class AssessmentType
     {
-        [Key]
-        public int Id { get; set; } // id типа качественной оценки
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public SystemAssessmentTypes SystemAssessmentType { get; set; }
 
-        [Required]
-        public string Name { get; set; } // название типа качественной оценки
-
-        public AssessmentMatrix AssessmentMatrix { get; set; } // матрица для данного типа оценки 
+        public AssessmentMatrix AssessmentMatrix { get; set; }
         public int AssessmentMatrixId { get; set; }
 
         public List<Assessment> Assessments { get; set; } = new();
+        public List<AssessmentInterpretation> AssessmentInterpretations { get; set; } = new();
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }

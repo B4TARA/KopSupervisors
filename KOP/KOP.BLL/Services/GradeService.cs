@@ -12,11 +12,13 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
+        private readonly IUserService _userService;
 
-        public GradeService(IUnitOfWork unitOfWork, IMappingService mappingService)
+        public GradeService(IUnitOfWork unitOfWork, IMappingService mappingService, IUserService userService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
+            _userService = userService;
         }
 
         public async Task<IBaseResponse<GradeDto>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
@@ -24,6 +26,7 @@ namespace KOP.BLL.Services
             try
             {
                 var includeProperties = new List<string>();
+                var allMarkTypes = new List<MarkType>();
 
                 foreach (var gradeEntity in gradeEntitiesList)
                 {
@@ -35,9 +38,11 @@ namespace KOP.BLL.Services
                     }
 
                     // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
+
                     if (gradeEntity == GradeEntities.Marks)
                     {
-                        strGradeEntity += ".MarkType";
+                        var allMarkTypesDbRes = await _unitOfWork.MarkTypes.GetAllAsync(includeProperties: "Marks");
+                        allMarkTypes = allMarkTypesDbRes.ToList();
                     }
                     // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
                     else if (gradeEntity == GradeEntities.Qualification)
@@ -59,7 +64,7 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var gradeDto = _mappingService.CreateGradeDto(grade);
+                var gradeDto = _mappingService.CreateGradeDto(grade, allMarkTypes);
 
                 if (gradeDto.StatusCode != StatusCodes.OK || gradeDto.Data == null)
                 {
@@ -110,12 +115,12 @@ namespace KOP.BLL.Services
                 {
                     var strategicTask = new StrategicTask
                     {
-                        Name = strategicTaskDto.Name,
-                        Purpose = strategicTaskDto.Purpose,
+                        Name = strategicTaskDto.Name ?? "Название",
+                        Purpose = strategicTaskDto.Purpose ?? "Цель",
                         PlanDate = strategicTaskDto.PlanDate,
                         FactDate = strategicTaskDto.FactDate,
-                        PlanResult = strategicTaskDto.PlanResult,
-                        FactResult = strategicTaskDto.FactResult,
+                        PlanResult = strategicTaskDto.PlanResult ?? "План",
+                        FactResult = strategicTaskDto.FactResult ?? "Факт",
                         Remark = strategicTaskDto.Remark,
                     };
 
@@ -126,11 +131,11 @@ namespace KOP.BLL.Services
                 {
                     var kpi = new Kpi
                     {
-                        Name = kpiDto.Name,
+                        Name = kpiDto.Name ?? "КПЭ",
                         PeriodStartDate = kpiDto.PeriodStartDate,
                         PeriodEndDate = kpiDto.PeriodEndDate,
                         CompletionPercentage = kpiDto.CompletionPercentage,
-                        CalculationMethod = kpiDto.CalculationMethod,
+                        CalculationMethod = kpiDto.CalculationMethod ?? "Методика расчета",
                     };
 
                     kpis.Add(kpi);
@@ -140,9 +145,9 @@ namespace KOP.BLL.Services
                 {
                     var project = new Project
                     {
-                        Name = projectDto.Name,
-                        SupervisorSspName = projectDto.SupervisorSspName,
-                        Stage = projectDto.Stage,
+                        Name = projectDto.Name ?? "ФИО руководителя ССП",
+                        SupervisorSspName = projectDto.SupervisorSspName ?? "Наименование проекта",
+                        Stage = projectDto.Stage ?? "Этап проекта",
                         StartDate = projectDto.StartDate,
                         EndDate = projectDto.EndDate,
                         CurrentStatusDate = projectDto.CurrentStatusDate,
@@ -161,7 +166,7 @@ namespace KOP.BLL.Services
                         var mark = new Mark
                         {
                             PercentageValue = markDto.PercentageValue,
-                            Period = markDto.Period,
+                            Period = markDto.Period ?? "Период",
                             MarkTypeId = markTypeDto.Id,
                         };
 
@@ -177,9 +182,9 @@ namespace KOP.BLL.Services
                     {
                         grade.ValueJudgment = new ValueJudgment
                         {
-                            Strengths = dto.ValueJudgment.Strengths,
-                            BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect,
-                            RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment,
+                            Strengths = dto.ValueJudgment.Strengths ?? "",
+                            BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect ?? "",
+                            RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment ?? "",
                         };
                     }
                     else
@@ -198,20 +203,20 @@ namespace KOP.BLL.Services
                     {
                         grade.Qualification = new Qualification
                         {
-                            SupervisorSspName = dto.Qualification.SupervisorSspName,
-                            Link = dto.Qualification.Link,
-                            HigherEducation = dto.Qualification.HigherEducation,
-                            Speciality = dto.Qualification.Speciality,
-                            QualificationResult = dto.Qualification.QualificationResult,
+                            SupervisorSspName = dto.Qualification.SupervisorSspName ?? "",
+                            Link = dto.Qualification.Link ?? "",
+                            HigherEducation = dto.Qualification.HigherEducation ?? "",
+                            Speciality = dto.Qualification.Speciality ?? "",
+                            QualificationResult = dto.Qualification.QualificationResult ?? "",
                             StartDate = dto.Qualification.StartDate,
                             EndDate = dto.Qualification.EndDate,
-                            AdditionalEducation = dto.Qualification.AdditionalEducation,
+                            AdditionalEducation = dto.Qualification.AdditionalEducation ?? "",
                             CurrentStatusDate = dto.Qualification.CurrentStatusDate,
                             CurrentExperienceYears = dto.Qualification.CurrentExperienceYears,
                             CurrentExperienceMonths = dto.Qualification.CurrentExperienceMonths,
                             CurrentJobStartDate = dto.Qualification.CurrentJobStartDate,
-                            CurrentJobPositionName = dto.Qualification.CurrentJobPositionName,
-                            EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations,
+                            CurrentJobPositionName = dto.Qualification.CurrentJobPositionName ?? "",
+                            EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations ?? "",
                         };
 
                         foreach (var previousJob in dto.Qualification.PreviousJobs)
@@ -220,8 +225,8 @@ namespace KOP.BLL.Services
                             {
                                 StartDate = previousJob.StartDate,
                                 EndDate = previousJob.EndDate,
-                                OrganizationName = previousJob.OrganizationName,
-                                PositionName = previousJob.PositionName,
+                                OrganizationName = previousJob.OrganizationName ?? "",
+                                PositionName = previousJob.PositionName ?? "",
                             });
                         }
                     }
@@ -248,8 +253,8 @@ namespace KOP.BLL.Services
                             {
                                 StartDate = previousJob.StartDate,
                                 EndDate = previousJob.EndDate,
-                                OrganizationName = previousJob.OrganizationName,
-                                PositionName = previousJob.PositionName,
+                                OrganizationName = previousJob.OrganizationName ?? "",
+                                PositionName = previousJob.PositionName ?? "",
                             });
                         }
                     }
@@ -264,6 +269,13 @@ namespace KOP.BLL.Services
                 grade.Projects = projects;
                 grade.Marks = marks;
 
+                grade.IsProjectsFinalized = dto.IsProjectsFinalized;
+                grade.IsStrategicTasksFinalized = dto.IsStrategicTasksFinalized;
+                grade.IsKpisFinalized = dto.IsKpisFinalized;
+                grade.IsMarksFinalized = dto.IsMarksFinalized;
+                grade.IsQualificationFinalized = dto.IsQualificationFinalized;
+                grade.IsValueJudgmentFinalized = dto.IsValueJudgmentFinalized;
+
                 _unitOfWork.Grades.Update(grade);
                 await _unitOfWork.CommitAsync();
 
@@ -277,6 +289,181 @@ namespace KOP.BLL.Services
                 return new BaseResponse<object>()
                 {
                     Description = $"[GradeService.EditGrade] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteStrategicTask(int id)
+        {
+            try
+            {
+                var strategicTaskToDelete = await _unitOfWork.StrategicTasks.GetAsync(x => x.Id == id);
+
+                if (strategicTaskToDelete is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = $"Стратегическая задача с id {id} не найдена."
+                    };
+                }
+
+                _unitOfWork.StrategicTasks.Remove(strategicTaskToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return new BaseResponse<object>()
+                {
+                    Description = $"[GradeService.DeleteStrategicTask] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteProject(int id)
+        {
+            try
+            {
+                var projectToDelete = await _unitOfWork.Projects.GetAsync(x => x.Id == id);
+
+                if (projectToDelete is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = $"Проект с id {id} не найден."
+                    };
+                }
+
+                _unitOfWork.Projects.Remove(projectToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return new BaseResponse<object>()
+                {
+                    Description = $"[GradeService.DeleteProjectTask] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteKpi(int id)
+        {
+            try
+            {
+                var kpiToDelete = await _unitOfWork.Kpis.GetAsync(x => x.Id == id);
+
+                if (kpiToDelete is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = $"КПЭ с id {id} не найден."
+                    };
+                }
+
+                _unitOfWork.Kpis.Remove(kpiToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return new BaseResponse<object>()
+                {
+                    Description = $"[GradeService.DeleteKpi] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteMark(int id)
+        {
+            try
+            {
+                var markToDelete = await _unitOfWork.Marks.GetAsync(x => x.Id == id);
+
+                if (markToDelete is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = $"Показатель с id {id} не найден."
+                    };
+                }
+
+                _unitOfWork.Marks.Remove(markToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return new BaseResponse<object>()
+                {
+                    Description = $"[GradeService.DeleteMark] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeletePreviousJob(int id)
+        {
+            try
+            {
+                var previousJobToDelete = await _unitOfWork.PreviousJobs.GetAsync(x => x.Id == id);
+
+                if (previousJobToDelete is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = $"Предыдущее место работы с id {id} не найдено."
+                    };
+                }
+
+                _unitOfWork.PreviousJobs.Remove(previousJobToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return new BaseResponse<object>()
+                {
+                    Description = $"[GradeService.DeletePreviousJob] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }

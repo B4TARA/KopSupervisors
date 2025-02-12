@@ -18,90 +18,101 @@
         </div>
     </div>
 
-    @if (Model.LastCompletedAssessmentResults.Any())
-    {
-        var rows = Model.LastCompletedAssessmentResults.First().ElementsByRow;
+	<div class="assessment_user_tab_container">
+		<div class="choose_assessment_user_container margin_container_bottom">
 
-        <div>Оценка (от 0 до 13, где 13 - высший балл)</div>
-        <table class="table_popup">
-            <thead>
-                <tr>
-                    @foreach (var headerElement in rows[0]) // Выводим строку, являющуся заголовком матрицы (самая верхняя)
-                    {
-                        <th class="table_header_elem">
-                            @headerElement.Value
-                        </th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in rows) // Выводим остальные строки
-                {
-                    <tr>
-                        @foreach (var element in row)
-                        {
-                            <td class="mid_description">@element.Value</td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @foreach (var result in Model.LastCompletedAssessmentResults) // Проходим по всем завершенным результатам кач. оценки
-        {
-            var judgeId = result.Judge.Id;
-            var judgedId = result.Judged.Id;
+			@if (!Model.AssessmentSummaryDto.SelfAssessmentResultValues.Any())
+			{
+				<div class="undefined_page_wrapper">
+					<div class="title">
+						Самооценка не произведена
+					</div>
+					<img src="/image/undefinedpage.svg" alt="default_page">
+				</div>
+			}
+			else if (!Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.Any())
+			{
+				<div class="undefined_page_wrapper">
+					<div class="title">
+						Оценка руководителя не произведена
+					</div>
+					<img src="/image/undefinedpage.svg" alt="default_page">
+				</div>
+			}
+			else
+			{
+				<table class="table_assessment">
+					<thead class="table_header">
+						<tr>
+							<th class="table_header_elem">
+								#
+							</th>
 
-            <table class="table_popup">
-                <thead>
-                    <tr>
-                        @if (judgeId == judgedId) // Если оценщник = оцениваемый => самооценка
-                        {
-                            <th class="table_header_elem">
-                                Самооценка (ФИО сотрудника)
-                            </th>
-                        }
-                        else
-                        {
-                            <th class="table_header_elem">
-                                Оценка непосредственного руководителя (ФИО руководителя сотрудника)
-                            </th>
-                        }
-                    </tr>
-                    <tr>
-                        <th class="table_header_elem">
-                            балл
-                        </th>
-                        <th class="table_header_elem">
-                            интерпретация
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 1; i < rows.Count(); i++)
-                    {
-                        var rowValue = @result.Values.First(x => x.AssessmentMatrixRow == i).Value;
+							@{
+								int count = 0;
+								int maxElementsToShow = 2;
+							}
 
-                        <tr>
-                            @foreach (var element in rows[i])
-                            {
-                                <td class="mid_description">@element.Value</td>
-                            }
-                            <td>
-                                <div class="mid_description">@rowValue</div>
-                            </td>
-                            <td>
-                                •Выявляет причины возникновения проблемных ситуаций, в дальнейшем действует таким образом, чтобы предупредить возникновение подобных ситуаций в будущем;
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    }
-    else
-    {
-        <div>
-            Тут пока ничего нет
-        </div>
-    }
+							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.ElementsByRow[0])
+							{
+								if (count >= maxElementsToShow)
+								{
+									break;
+								}
+
+								<th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+								count++;
+							}
+
+							<th class="table_header_elem">
+								Оценка непосредтсвенного руководителя
+							</th>
+							<th class="table_header_elem">
+								Моя оценка
+							</th>
+							<th class="table_header_elem">
+								Средняя оценка
+							</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						@for (int i = 1; i < Model.AssessmentSummaryDto.ElementsByRow.Count; i++)
+						{
+							<tr>
+								<td>
+									@i
+								</td>
+
+								@{
+									count = 0;
+									maxElementsToShow = 2;
+								}
+
+								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.ElementsByRow[i])
+								{
+									if (count >= maxElementsToShow)
+									{
+										break;
+									}
+
+									<td class="mid_description">@assessmentMatrixElement.Value</td>
+									count++;
+								}
+								<td>
+									<div class="mid_description">@Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
+								</td>
+								<td>
+									<div class="mid_description">@Model.AssessmentSummaryDto.SelfAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
+								</td>
+								<td>
+									<div class="mid_description">@Model.AssessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+	</div>
 </div>
