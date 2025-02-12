@@ -82,6 +82,18 @@ async function getEmployeeAssessmentLayout(employeeId) {
 }
 
 async function getEmployeeAssessment(assessmentId) {
+
+    const buttons = document.querySelectorAll('.self_assesment .link_menu');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Удаляем класс active у всех кнопок
+            buttons.forEach(b => b.classList.remove('active'));
+            // Добавляем класс active к текущей кнопке
+            btn.classList.add('active');
+        });
+    });
+
+
     try {
         // Выполняем fetch запрос
         let response = await fetch(`/Supervisor/GetEmployeeAssessment?assessmentId=${encodeURIComponent(assessmentId)}`, {
@@ -93,6 +105,7 @@ async function getEmployeeAssessment(assessmentId) {
 
         // Вставляем HTML-контент в нужный элемент
         document.getElementById('lastAssessment').innerHTML = htmlContent;
+
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');

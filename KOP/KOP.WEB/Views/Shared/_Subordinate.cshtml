@@ -4,13 +4,13 @@
     Layout = null;
 }
 
-<div class="list_division_users_wrapper users">
+<div class="list_division_users_wrapper users open">
 
     <div class="list-items">
 
         @if (Model.IsRoot)
         {
-            <div class="select-btn">
+            <div class="select-btn open" onclick="toggleSelectButton(this)">
                 <span class="btn-text">@Model.Name</span>
                 <div class="indicators_wrapper" id="indicators_wrapper">
                 </div>
