@@ -4,8 +4,8 @@
 @{
     Layout = null;
 
-    var result = Model.SelfAssessmentResult; // Результат кач. самооценки
-    var rows = result.ElementsByRow; // Строки с элементами матрицы + значениями самооценки соответственно строкам
+    var result = Model.SelfAssessmentResult;
+    var rows = result.ElementsByRow;
 }
 
 <div class="assessment_user_tab_container">
@@ -20,7 +20,7 @@
                 <img src="/image/undefinedpage.svg" alt="default_page">
             </div>
         }
-        else if (result.SystemStatus == SystemStatuses.COMPLETED)
+        else if (Model.SelfAssessmentResult.SystemStatus == SystemStatuses.COMPLETED)
         {
             <div class="container_description">
                 <div class="mid_title ">
@@ -38,11 +38,20 @@
                             #
                         </th>
 
-                        @foreach (var headerElement in rows[0])
+                        @{
+                            int count = 0;
+                            int maxElementsToShow = 2;
+                        }
+
+                        @foreach (var assessmentMatrixHeaderElement in rows[0])
                         {
-                            <th class="table_header_elem">
-                                @headerElement.Value
-                            </th>
+                            if (count >= maxElementsToShow)
+                            {
+                                break;
+                            }
+
+                            <th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+                            count++;
                         }
 
                         <th class="table_header_elem">
@@ -62,9 +71,20 @@
                                 @i
                             </td>
 
-                            @foreach (var element in rows[i])
+                            @{
+                                count = 0;
+                                maxElementsToShow = 2;
+                            }
+
+                            @foreach (var assessmentMatrixElement in rows[i])
                             {
-                                <td class="mid_description">@element.Value</td>
+                                if (count >= maxElementsToShow)
+                                {
+                                    break;
+                                }
+
+                                <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                count++;
                             }
                             <td>
                                 <div class="mid_description">@result.AverageValues.First(x => x.AssessmentMatrixRow == i).Value</div>
@@ -100,9 +120,20 @@
                                             #
                                         </th>
 
-                                        @foreach (var headerElement in rows[0])
+                                        @{
+                                            int count = 0;
+                                            int maxElementsToShow = 2;
+                                        }
+
+                                        @foreach (var assessmentMatrixHeaderElement in rows[0])
                                         {
-                                            <th class="table_header_elem">@headerElement.Value</th>
+                                            if (count >= maxElementsToShow)
+                                            {
+                                                break;
+                                            }
+
+                                            <th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+                                            count++;
                                         }
                                     </tr>
                                 </thead>
@@ -111,11 +142,58 @@
                                     @for (int i = 1; i < rows.Count(); i++)
                                     {
                                         <tr>
-                                            <td>@i</td>
+                                            <td class="competence_description">
+                                                @i
+                                                <span class="info_btn" id="info_btn">
+                                                    <div class="show-modal-btn">
+                                                        <i class="fa-solid fa-info"></i>
+                                                    </div>
+                                                </span>
+                                                <section class="section_popup">
+                                                    <div class="modal-box">
+                                                        <div class="close_btn close-btn">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </div>
+                                                        <table class="table_info_assessment ">
+                                                            <thead class="table_header">
+                                                                <tr>
+                                                                    <th class="table_header_elem">
+                                                                        #
+                                                                    </th>
 
-                                            @foreach (var element in rows[i])
+                                                                    @foreach (var assessmentMatrixHeaderElement in rows[0])
+                                                                    {
+                                                                        <th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>
+                                                                    }
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    @foreach (var assessmentMatrixElement in rows[0])
+                                                                    {
+                                                                        <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                                                    }
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </section>
+                                            </td>
+
+                                            @{
+                                                count = 0;
+                                                maxElementsToShow = 2;
+                                            }
+
+                                            @foreach (var assessmentMatrixElement in rows[i])
                                             {
-                                                <td class="mid_description">@element.Value</td>
+                                                if (count >= maxElementsToShow)
+                                                {
+                                                    break;
+                                                }
+
+                                                <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                                count++;
                                             }
 
                                             <td>

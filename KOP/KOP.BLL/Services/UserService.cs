@@ -179,12 +179,11 @@ namespace KOP.BLL.Services
                         });
                     }
 
-                    var userColleaguesAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId != userId && x.AssessmentId == assessmentId, includeProperties: new string[]
-                    {
-                        "AssessmentResultValues"
-                    });
+                    var completedAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => 
+                        x.AssessmentId == assessmentId && 
+                        x.SystemStatus == SystemStatuses.COMPLETED, includeProperties: "AssessmentResultValues");
 
-                    foreach (var assessmentResult in userColleaguesAssessmentResults)
+                    foreach (var assessmentResult in completedAssessmentResults)
                     {
                         var assessmentResultValues = assessmentResult.AssessmentResultValues;
 
@@ -197,7 +196,7 @@ namespace KOP.BLL.Services
                     foreach (var averageValue in selfAssessmentResultDto.AverageValues)
                     {
                         var sum = selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value;
-                        var average = Math.Round((double)sum / userColleaguesAssessmentResults.Count(), 1);
+                        var average = Math.Round((double)sum / completedAssessmentResults.Count(), 1);
 
                         selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value = average;
                         selfAssessmentResultDto.AverageResult += average;
@@ -234,11 +233,12 @@ namespace KOP.BLL.Services
                     {
                         Row = element.Row,
                         Value = element.Value,
+                        HtmlClassName = element.HtmlClassName,
                     });
                 }
 
                 selfAssessmentResultDto.Elements = assessmentMatrixElementsDtos;
-                selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.GroupBy(x => x.Row).ToList();
+                selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                 return new BaseResponse<AssessmentResultDto>()
                 {
@@ -260,14 +260,14 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == userId && x.JudgedId != userId && x.SystemStatus == SystemStatuses.PENDING);
+                var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == userId && x.Assessment.UserId != userId && x.SystemStatus == SystemStatuses.PENDING);
                 var dtos = new List<AssessmentResultDto>();
 
                 foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
                 {
                     var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties: new string[]
                     {
-                        "AssessmentResults.Judged",
+                        "User",
                         "AssessmentResults.AssessmentResultValues",
                         "AssessmentType.AssessmentMatrix.Elements"
                     });
@@ -291,8 +291,8 @@ namespace KOP.BLL.Services
                     assessmentResultDto.Judged = new UserDto
                     {
                         Id = assessment.UserId,
-                        ImagePath = assessmentResult.Judged.ImagePath,
-                        FullName = assessmentResult.Judged.FullName,
+                        ImagePath = assessmentResult.Assessment.User.ImagePath,
+                        FullName = assessmentResult.Assessment.User.FullName,
                     };
 
                     foreach (var value in assessmentResult.AssessmentResultValues)
@@ -310,10 +310,11 @@ namespace KOP.BLL.Services
                         {
                             Row = element.Row,
                             Value = element.Value,
+                            HtmlClassName = element.HtmlClassName
                         });
                     }
 
-                    assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).ToList();
+                    assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                     dtos.Add(assessmentResultDto);
                 }
@@ -338,7 +339,7 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId);
+                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId, includeProperties: "Judge");
 
                 if (assessmentResult == null)
                 {
@@ -363,38 +364,25 @@ namespace KOP.BLL.Services
 
                 _unitOfWork.AssessmentResults.Update(assessmentResult);
 
-                // Проверка на условия завершения оценки
-                // ПОМЕНЯТЬ ЭТОТ КОСТЫЛЬ !!! (если уже есть в БД оценка одна (руководителя или самооценка), которая завершена
-                var secondAssessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentResult.AssessmentId && x.SystemStatus == SystemStatuses.COMPLETED);
-
-                if (secondAssessmentResult == null)
+                if (assessmentResult.Judge.SystemRoles.Contains(SystemRoles.Urp))
                 {
-                    await _unitOfWork.CommitAsync();
+                    var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => 
+                        x.AssessmentId == assessmentResult.AssessmentId && 
+                        x.Judge.SystemRoles.Contains(SystemRoles.Urp) && 
+                        x.Id != assessmentResult.Id);
 
-                    return new BaseResponse<object>()
+                    foreach(var urpAssessmentResult in otherUrpAssessmentResults)
                     {
-                        StatusCode = StatusCodes.OK
-                    };
+                        _unitOfWork.AssessmentResults.Remove(urpAssessmentResult);
+                    }
                 }
-                else
-                {
-                    var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties: new string[]
-                    {
-                        "AssessmentType",
-                    });
 
-                    assessment.SystemStatus = SystemStatuses.COMPLETED;
-
-                    _unitOfWork.Assessments.Update(assessment);
-
-                    await _unitOfWork.CommitAsync();
-                }
+                await _unitOfWork.CommitAsync();
 
                 return new BaseResponse<object>()
                 {
                     StatusCode = StatusCodes.OK
                 };
-                // // // // // // // // // // //
             }
             catch (Exception ex)
             {
@@ -406,7 +394,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<AssessmentDto>> GetLastAssessmentByAssessmentType(int userId, int assessmentTypeId)
+        public async Task<IBaseResponse<AssessmentDto>> GetLastAssessmentForUserAndType(int userId, SystemAssessmentTypes assessmentType)
         {
             try
             {
@@ -415,7 +403,6 @@ namespace KOP.BLL.Services
                     "Assessments.AssessmentType.AssessmentMatrix.Elements",
                     "Assessments.AssessmentResults.AssessmentResultValues",
                     "Assessments.AssessmentResults.Judge",
-                    "Assessments.AssessmentResults.Judged"
                 });
 
                 if (user == null)
@@ -427,13 +414,13 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var lastAssessmentByAssessmentType = user.Assessments.Where(x => x.AssessmentTypeId == assessmentTypeId).OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+                var lastAssessmentByAssessmentType = user.Assessments.Where(x => x.AssessmentType.SystemAssessmentType == assessmentType).OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
 
                 if (lastAssessmentByAssessmentType == null)
                 {
                     return new BaseResponse<AssessmentDto>()
                     {
-                        Description = $"[UserService.GetLastAssessmentByAssessmentType] : Тип с id = {assessmentTypeId} не содержит оценок",
+                        Description = $"[UserService.GetLastAssessmentByAssessmentType] : Тип = {assessmentType} не содержит оценок",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -460,6 +447,46 @@ namespace KOP.BLL.Services
                 return new BaseResponse<AssessmentDto>()
                 {
                     Description = $"[UserService.GetLastAssessmentByAssessmentType] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<List<AssessmentTypeDto>>> GetAssessmentTypesForUser(int userId)
+        {
+            try
+            {
+                var userAssessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == userId, includeProperties: new string[]
+                {
+                    "AssessmentType",
+                });
+
+                var assessmentTypes = userAssessments.GroupBy(x => x.AssessmentType);
+                var assessmentTypesDtos = new List<AssessmentTypeDto>();
+
+                foreach (var assessmentType in assessmentTypes)
+                {
+                    var assessmentTypeDto = new AssessmentTypeDto
+                    {
+                        Id = assessmentType.Key.Id,
+                        Name = assessmentType.Key.Name,
+                        UserId = userId,
+                    };
+
+                    assessmentTypesDtos.Add(assessmentTypeDto);
+                }
+
+                return new BaseResponse<List<AssessmentTypeDto>>()
+                {
+                    Data = assessmentTypesDtos,
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<List<AssessmentTypeDto>>()
+                {
+                    Description = $"[AssessmentService.GetAssessmentTypes] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }

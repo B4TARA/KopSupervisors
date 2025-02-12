@@ -11,7 +11,7 @@ namespace KOP.BLL.Interfaces
     public interface IMappingService
     {
         IBaseResponse<UserDto> CreateUserDto(User user);
-        IBaseResponse<GradeDto> CreateGradeDto(Grade grade);
+        IBaseResponse<GradeDto> CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes);
         IBaseResponse<QualificationDto> CreateQualificationDto(Qualification qualification);
         IBaseResponse<MarkDto> CreateMarkDto(Mark mark);
         IBaseResponse<KpiDto> CreateKpiDto(Kpi kpi);
@@ -21,8 +21,9 @@ namespace KOP.BLL.Interfaces
         IBaseResponse<PreviousJobDto> CreatePreviousJobDto(PreviousJob previousJob);
         IBaseResponse<TrainingEventDto> CreateTrainingEventDto(TrainingEvent trainingEvent);
         IBaseResponse<AssessmentDto> CreateAssessmentDto(Assessment assessment);
-        IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix);
+        IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);
         IBaseResponse<AssessmentResultValueDto> CreateAssessmentResultValueDto(AssessmentResultValue value);
         IBaseResponse<AssessmentMatrixElementDto> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
+        IBaseResponse<AssessmentInterpretationDto> CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);        
     }
 }

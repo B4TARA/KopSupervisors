@@ -91,7 +91,7 @@ namespace KOP.WEB.Controllers
         {
             var response = await _userService.GetColleaguesAssessmentResultsForAssessment(employeeId);
 
-            if (response.StatusCode != StatusCodes.OK)
+            if (!response.HasData)
             {
                 return View("Error", new ErrorViewModel
                 {
@@ -114,7 +114,7 @@ namespace KOP.WEB.Controllers
         {
             var response = await _userService.GetUserSelfAssessmentResultByAssessment(employeeId, assessmentId);
 
-            if (response.StatusCode != StatusCodes.OK)
+            if (!response.HasData)
             {
                 return View("Error", new ErrorViewModel
                 {
@@ -137,7 +137,7 @@ namespace KOP.WEB.Controllers
         {
             var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, employeeId);
 
-            if (response.StatusCode != StatusCodes.OK)
+            if (!response.HasData)
             {
                 return View("Error", new ErrorViewModel
                 {
@@ -166,7 +166,7 @@ namespace KOP.WEB.Controllers
 
             var response = await _userService.AssessUser(assessEmployeeDTO);
 
-            if (response.StatusCode != StatusCodes.OK)
+            if (!response.IsSuccess)
             {
                 return StatusCode(Convert.ToInt32(response.StatusCode), new
                 {

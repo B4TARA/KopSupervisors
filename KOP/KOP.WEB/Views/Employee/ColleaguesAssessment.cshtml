@@ -1,0 +1,185 @@
+﻿@model KOP.WEB.Models.ViewModels.Employee.ColleagueAssessmentViewModel
+
+@{
+	Layout = null;
+}
+
+<div class="user_assessment_main_wrapper">
+	@if (Model.ColleagueAssessmentResults.Count() == 0)
+	{
+		<div class="undefined_page_wrapper">
+			<div class="title">
+				Некого оценивать
+			</div>
+			<img src="/image/undefinedpage.svg" alt="default_page">
+		</div>
+	}
+	else
+	{
+		@foreach (var colleagueAssessmentResult in Model.ColleagueAssessmentResults)
+		{
+			<div class="user_assessment_wrapper">
+				<div class="dropdown_assessment_wrapper" onclick="openDropdownList(this)">
+					<div class="user_info_container assessment">
+
+						<div class="user_image" style="background-image:url('@colleagueAssessmentResult.Judged.ImagePath');"></div>
+
+						<div class="user_info">
+							<div class="mid_title">
+								@colleagueAssessmentResult.Judged.FullName
+							</div>
+							<div class="mid_description">
+								@colleagueAssessmentResult.TypeName
+							</div>
+						</div>
+					</div>
+
+					<span class="arrow-dwn_assessment">
+						<i class="fa-solid fa-chevron-down"></i>
+					</span>
+				</div>
+
+				<div class="list-items_assessment">
+					<div class="assessment_container">
+						<div class="questions_main_wrapper">
+							<div class="question_wrapper">
+
+								@if (colleagueAssessmentResult.ElementsByRow.Count() == 0)
+								{
+									<div class="container_description">
+										<div class="mid_title">
+											Заполните матрицу качественной оценки
+										</div>
+
+										<img src="/image/undefinedpage.svg" alt="default_page">
+									</div>
+								}
+								else
+								{
+									<div class="container_description">
+										<div class="mid_title">
+											Качественная оценка
+										</div>
+										<div class="mid_description">
+											Внесите качественную оценку
+										</div>
+									</div>
+
+									<table id="table_assessment" class="table_assessment" colleagueId="@colleagueAssessmentResult.Judged.Id">
+										<thead class="table_header">
+											<tr>
+												<th class="table_header_elem">
+													#
+												</th>
+
+												@{
+													int count = 0;
+													int maxElementsToShow = 2;
+												}
+
+												@foreach (var assessmentMatrixHeaderElement in colleagueAssessmentResult.ElementsByRow[0])
+												{
+													if (count >= maxElementsToShow)
+													{
+														break;
+													}
+
+													<th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+													count++;
+												}
+											</tr>
+										</thead>
+
+										<tbody>
+											@for (int i = 1; i < colleagueAssessmentResult.ElementsByRow.Count(); i++)
+											{
+												<tr>
+													<td class="competence_description">
+														@i
+														<span class="info_btn" id="info_btn">
+															<div class="show-modal-btn">
+																<i class="fa-solid fa-info"></i>
+															</div>
+														</span>
+														<section class="section_popup">
+															<div class="modal-box">
+																<div class="close_btn close-btn">
+																	<i class="fa-solid fa-xmark"></i>
+																</div>
+																<table class="table_info_assessment ">
+																	<thead class="table_header">
+																		<tr>
+																			<th class="table_header_elem">
+																				#
+																			</th>
+
+																			@foreach (var assessmentMatrixHeaderElement in colleagueAssessmentResult.ElementsByRow[0])
+																			{
+																				<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>
+																			}
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr>
+																			@foreach (var assessmentMatrixElement in colleagueAssessmentResult.ElementsByRow[i])
+																			{
+																				<td class="mid_description">@assessmentMatrixElement.Value</td>
+																			}
+																		</tr>
+																	</tbody>
+																</table>
+															</div>
+														</section>
+													</td>
+
+													@{
+														count = 0;
+														maxElementsToShow = 2;
+													}
+
+													@foreach (var assessmentMatrixElement in colleagueAssessmentResult.ElementsByRow[i])
+													{
+														if (count >= maxElementsToShow)
+														{
+															break;
+														}
+
+														<td class="mid_description">@assessmentMatrixElement.Value</td>
+														count++;
+													}
+
+													<td>
+														<div class="grade_wrapper">
+															<div class="grade">
+																<div class="number_wrapper">
+
+																	<button class="number-minus" type="button" onclick="this.nextElementSibling.stepDown();">-</button>
+
+																	<input required="required" type="number" min="@colleagueAssessmentResult.MinValue" max="@colleagueAssessmentResult.MaxValue" value="1" class="mid_description input_assessment_value">
+
+																	<button class="number-plus" type="button" onclick="this.previousElementSibling.stepUp();">+</button>
+																</div>
+															</div>
+															<div class="grade_error">
+																<i class="fa-solid fa-circle-exclamation" style="color: #f33030;"></i>
+																<div class="grade_error_description"></div>
+															</div>
+														</div>
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+
+									<div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @colleagueAssessmentResult.AssessmentId, @colleagueAssessmentResult.Id, @colleagueAssessmentResult.Judge.Id, false)">
+										Сохранить
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	}
+</div>

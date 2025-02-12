@@ -50,138 +50,11 @@ async function getGradeInfo(id, isClickable) {
     }
 }
 
-// // // // // // POP-UPs SCRIPT // // // // //
-async function getStrategicTasksPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetStrategicTasksPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getProjectsPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetProjectsPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        popupResult(htmlContent,false)
-        //document.getElementById('popup').innerHTML = htmlContent;
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getKpisPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetKpisPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getMarksPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetMarksPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getTrainingEventsPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getQualificationPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/getQualificationPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-async function getValueJudgmentPopup(gradeId) {
-    try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Grade/getValueJudgmentPopup?gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
-
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
-        popupResult(htmlContent, false)
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
 // Assessment script
 async function getAssessmentLayout(employeeId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Employee/GetAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`);
+        let response = await fetch(`/Employee/GetAssessmentLayout?userId=${encodeURIComponent(employeeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -189,14 +62,37 @@ async function getAssessmentLayout(employeeId) {
         // Вставляем HTML-контент в элемент с id 'assessmentLayout'
         document.getElementById('assessmentLayout').innerHTML = htmlContent;
 
-        await getSelfAssessment(employeeId);
+        await getColleaguesAssessment(employeeId);
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
-async function getSelfAssessment(employeeId) {
+async function getColleaguesAssessment(employeeId) {
+    try {
+        // Устанавливаем активные классы
+        let colleaguesAssessmentLinkItem = document.getElementById('colleagues_assessment_link_item');
+        let selfAssessmentLinkItem = document.getElementById('self_assessment_link_item');
+
+        selfAssessmentLinkItem.classList.remove("active");
+        colleaguesAssessmentLinkItem.classList.add("active");
+
+        // Выполняем fetch запрос
+        let response = await fetch(`/Employee/GetColleaguesAssessment?employeeId=${encodeURIComponent(employeeId)}`);
+
+        // Получаем текстовый HTML-контент из ответа
+        let htmlContent = await response.text();
+
+        // Вставляем HTML-контент в элемент с id 'infoblock_main_container'
+        document.getElementById('infoblock_main_container').innerHTML = htmlContent;
+    } catch (error) {
+        console.error('Произошла ошибка:', error);
+        alert('Не удалось выполнить действие. Попробуйте снова.');
+    }
+}
+
+async function getSelfAssessment(employeeId, assessmentId) {
     try {
         // Выполняем fetch запрос
         let response = await fetch(`/Employee/GetSelfAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`);
@@ -224,7 +120,13 @@ async function getSelfAssessment(employeeId) {
 
         // Если есть типы оценок, то подгружаем самый первый
         if (lastAssessments && lastAssessments.length > 0) {
-            await getAssessment(employeeId, lastAssessments[0].id);
+
+            if (assessmentId !== undefined) {
+                await getAssessment(employeeId, assessmentId);
+            }
+            else {
+                await getAssessment(employeeId, lastAssessments[0].id);
+            }
         }        
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -304,7 +206,7 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
         await getAssessmentLayout(employeeId);
 
         if (isSelfAssessment) {
-            await getSelfAssessment(employeeId);
+            await getSelfAssessment(employeeId, assessmentId);
         }
 
     } catch (error) {

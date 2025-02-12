@@ -1,244 +1,296 @@
 ﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeAssessmentViewModel
+@using SystemStatuses = KOP.Common.Enums.SystemStatuses;
 
 @{
-    Layout = null;
+	Layout = null;
 }
 
-<!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
-
 <div class="results_assessment_users_container margin_container_bottom">
-    <div class="container_description">
-        <div class="mid_title">
-            Список результатов оценщиков
-        </div>
-        <div class="mid_description">
-            Здесь вы можете отслеживать результаты качественных оценок
-        </div>
-    </div>
-    <div class="results_assessment_main_wrapper">
-        <div class="mid_title">Интерпретация результатов оценки управленческих компетенций</div>
-        @if (Model.Assessment.AssessmentResults.Any())
-        {
-            <!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
-            <div class="empty_image_wrapper admin_panel">
-                <img src="/image/EmptyState.png">
-            </div>
-        }
-        else
-        {
-            <table class="table_popup">
-                <thead>
-                    <tr>
-                        <th>Балл</th>
-                        <th>Уровень</th>
-                        <th>Компетентность</th>
-                    </tr>
-                </thead>
-                
-                @if (Model.Assessment.AverageValue >= 56)
-                {
-                    <tr>
-                        <td>56-65</td>
-                        <td>A</td>
-                        <td>Высоко результативный и потенциальный ( обеспечивает высокие результаты деятельности)</td>
-                    </tr>
-                }
-                else if (Model.Assessment.AverageValue >= 41)
-                {
-                    <tr>
-                        <td>41-55</td>
-                        <td>B</td>
-                        <td>Стабильно эффективен и результативен в текущей роли</td>
-                    </tr>
-                }
-                else if (Model.Assessment.AverageValue >= 26)
-                {
-                    <tr>
-                        <td>26-40</td>
-                        <td>C</td>
-                        <td>Эффективен в большинстве случаев</td>
-                    </tr>
-                }
-                else
-                {
-                    <tr>
-                        <td>5-25</td>
-                        <td>D</td>
-                        <td>Нестабильно эффективен в текущий момент</td>
-                    </tr>
-                }
-            </table>
+	<div class="container_description">
+		<div class="mid_title">
+			Список результатов оценщиков
+		</div>
+		<div class="mid_description">
+			Здесь вы можете отслеживать результаты качественных оценок
+		</div>
+	</div>
+	<div class="results_assessment_main_wrapper">
+		<div class="mid_title">Интерпретация результатов оценки управленческих компетенций</div>
+		@if (Model.Assessment.AssessmentResults.Any(x => x.SystemStatus == SystemStatuses.COMPLETED))
+		{
+			<table class="table_popup">
+				<thead>
+					<tr>
+						<th>Балл</th>
+						<th>Уровень</th>
+						<th>Компетентность</th>
+					</tr>
+				</thead>
 
-            foreach (var result in Model.Assessment.AssessmentResults)
-            {
-                <div class="result_assessment_user_wrapper">
-                    <div class="user_assessment_wrapper">
-                        <div class="dropdown_assessment_wrapper" onclick="openDropdownList(this)">
-                            <div class="user_info_container assessment">
-                                <div class="user_image" style="background-image:url('@result.Judge.ImagePath');"></div>
+				@if (Model.Assessment.AverageAssessmentInterpretation != null)
+				{
+					<!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
+					<tr>
+						<td>@Model.Assessment.AverageAssessmentInterpretation.MinValue -@Model.Assessment.AverageAssessmentInterpretation.MaxValue</td>
+						<td>@Model.Assessment.AverageAssessmentInterpretation.Level</td>
+						<td>@Model.Assessment.AverageAssessmentInterpretation.Competence</td>
+					</tr>
+				}
+				else
+				{
+					<tr>
+						<td>-</td>
+						<td>Не удалось определить интерпретацию</td>
+						<td>-</td>
+					</tr>
+				}
+			</table>
 
-                                <div class="user_info">
-                                    <div class="mid_title">
-                                        @result.Judge.FullName
-                                    </div>
-                                </div>
+			foreach (var result in Model.Assessment.AssessmentResults)
+			{
+				<div class="result_assessment_user_wrapper">
+					<div class="user_assessment_wrapper">
+						<div class="dropdown_assessment_wrapper" onclick="openDropdownList(this)">
+							<div class="user_info_container assessment">
+								<div class="user_image" style="background-image:url('@result.Judge.ImagePath');"></div>
 
-                                @if(result.IsPassed)
-                                {
-                                    <div class="title green-text">
-                                        @result.Sum
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="title red-text">
-                                        @result.Sum
-                                    </div>
-                                }
-                            </div>
-                            <span class="arrow-dwn_assessment">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </span>
-                        </div>
+								<div class="user_info">
+									<div class="mid_title">
+										@result.Judge.FullName
+									</div>
+								</div>
 
-                        <div class="list-items_assessment">
-                            <div class="assessment_container">
-                                <div class="questions_main_wrapper">
-                                    <div class="question_wrapper">
-                                        <table class="table_assessment">
-                                            <thead class="table_header">
-                                                <tr>
-                                                    <th class="table_header_elem">
-                                                        #
-                                                    </th>
+								<!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ result.HtmlClassName -->
+								<div class="title @result.HtmlClassName">
+									@result.Sum
+								</div>
+							</div>
+							<span class="arrow-dwn_assessment">
+								<i class="fa-solid fa-chevron-down"></i>
+							</span>
+						</div>
 
-                                                    @foreach (var headerElement in result.ElementsByRow[0])
-                                                    {
-                                                        <th class="table_header_elem">
-                                                            @headerElement.Value
-                                                        </th>
-                                                    }
+						<div class="list-items_assessment">
+							<div class="assessment_container">
+								<div class="questions_main_wrapper">
+									<div class="question_wrapper">
+										<table class="table_assessment">
+											<thead class="table_header">
+												<tr>
+													<th class="table_header_elem">
+														#
+													</th>
 
-                                                    <th class="table_header_elem">
-                                                        Оценка
-                                                    </th>
-                                                </tr>
-                                            </thead>
+													@{
+														int count = 0;
+														int maxElementsToShow = 2;
+													}
 
-                                            <tbody>
-                                                @for (int i = 1; i < result.ElementsByRow.Count(); i++)
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            @i
-                                                        </td>
+													@foreach (var headerElement in result.ElementsByRow[0])
+													{
+														if (count >= maxElementsToShow)
+														{
+															break;
+														}
 
-                                                        @foreach (var assessmentMatrixElement in result.ElementsByRow[i])
-                                                        {
-                                                            <td class="mid_description">@assessmentMatrixElement.Value</td>
-                                                        }
+														<th class="table_header_elem">@headerElement.Value</th>
+														count++;
+													}
 
-                                                        <td>
-                                                            @if (result.Values.FirstOrDefault(x => x.AssessmentMatrixRow == i) != null)
-                                                            {
-                                                                <div class="mid_title">@result.Values.First(x => x.AssessmentMatrixRow == i).Value</div>
-                                                            }                                                        
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-    </div>
+													<th class="table_header_elem">
+														Оценка
+													</th>
+												</tr>
+											</thead>
+
+											<tbody>
+												@for (int i = 1; i < result.ElementsByRow.Count(); i++)
+												{
+													<tr>
+														<td>
+															@i
+														</td>
+
+														@{
+															count = 0;
+															maxElementsToShow = 2;
+														}
+
+														@foreach (var assessmentMatrixElement in result.ElementsByRow[i])
+														{
+															if (count >= maxElementsToShow)
+															{
+																break;
+															}
+
+															<th class="table_header_elem">@assessmentMatrixElement.Value</th>
+															count++;
+														}
+
+														<td>
+															@if (result.Values.FirstOrDefault(x => x.AssessmentMatrixRow == i) != null)
+															{
+																<div class="mid_title">@result.Values.First(x => x.AssessmentMatrixRow == i).Value</div>
+															}
+														</td>
+													</tr>
+												}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		}
+		else
+		{
+			<!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
+			<div class="empty_image_wrapper admin_panel">
+				<img src="/image/EmptyState.png">
+			</div>
+		}
+	</div>
 </div>
 
-@if (Model.SupervisorAssessmentResult != null && Model.SupervisorAssessmentResult.SystemStatus == KOP.Common.Enums.SystemStatuses.PENDING)
+@if (Model.SupervisorAssessmentResult != null && Model.SupervisorAssessmentResult.SystemStatus == SystemStatuses.PENDING)
 {
-    <div class="assessment_container" id="assessment_container">
-        <div class="questions_main_wrapper">
-            <div class="question_wrapper">
+	<div class="assessment_container" id="assessment_container">
+		<div class="questions_main_wrapper">
+			<div class="question_wrapper">
 
-                @if (Model.SupervisorAssessmentResult.ElementsByRow.Count() == 0)
-                {
-                    <div class="container_description">
-                        <div class="mid_title">
-                            Заполните матрицу качественной оценки
-                        </div>
+				@if (Model.SupervisorAssessmentResult.ElementsByRow.Count() == 0)
+				{
+					<div class="container_description">
+						<div class="mid_title">
+							Заполните матрицу качественной оценки
+						</div>
+						<img src="/image/undefinedpage.svg" alt="default_page">
+					</div>
+				}
+				else
+				{
+					<div class="container_description">
+						<div class="mid_title">
+							Качественная оценка
+						</div>
+						<div class="mid_description">
+							Внесите качественную оценка
+						</div>
+					</div>
 
-                        <img src="/image/undefinedpage.svg" alt="default_page">
-                    </div>
-                }
-                else
-                {
-                    <div class="container_description">
-                        <div class="mid_title">
-                            Качественная оценка
-                        </div>
-                        <div class="mid_description">
-                            Внесите качественную оценка
-                        </div>
-                    </div>
+					<table class="table_assessment" id="table_assessment" colleagueId="@Model.SupervisorAssessmentResult.Judge.Id">
+						<thead class="table_header">
+							<tr>
+								<th class="table_header_elem">
+									#
+								</th>
 
-                    <table class="table_assessment" id="table_assessment" colleagueId="@Model.SupervisorAssessmentResult.Judge.Id">
-                        <thead class="table_header">
-                            <tr>
-                                <th class="table_header_elem">
-                                    #
-                                </th>
+								@{
+									int count = 0;
+									int maxElementsToShow = 2;
+								}
 
-                                @foreach (var assessmentMatrixHeaderElement in Model.SupervisorAssessmentResult.ElementsByRow[0])
-                                {
-                                    <th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
-                                }
-                            </tr>
-                        </thead>
+								@foreach (var assessmentMatrixHeaderElement in Model.SupervisorAssessmentResult.ElementsByRow[0])
+								{
+									if (count >= maxElementsToShow)
+									{
+										break;
+									}
 
-                        <tbody>
-                            @for (int i = 1; i < Model.SupervisorAssessmentResult.ElementsByRow.Count(); i++)
-                            {
-                                <tr>
-                                    <td>@i</td>
+									<th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+									count++;
+								}
+							</tr>
+						</thead>
+						<tbody>
+							@for (int i = 1; i < Model.SupervisorAssessmentResult.ElementsByRow.Count(); i++)
+							{
+								<tr>
+									<td class="competence_description">
+										@i
+										<span class="info_btn" id="info_btn">
+											<div class="show-modal-btn">
+												<i class="fa-solid fa-info"></i>
+											</div>
+										</span>
+										<section class="section_popup">
+											<div class="modal-box">
+												<div class="close_btn close-btn">
+													<i class="fa-solid fa-xmark"></i>
+												</div>
+												<table class="table_info_assessment ">
+													<thead class="table_header">
+														<tr>
+															<th class="table_header_elem">
+																#
+															</th>
 
-                                    @foreach (var assessmentMatrixElement in Model.SupervisorAssessmentResult.ElementsByRow[i])
-                                    {
-                                        <td class="mid_description">@assessmentMatrixElement.Value</td>
-                                    }
+															@foreach (var assessmentMatrixHeaderElement in Model.SupervisorAssessmentResult.ElementsByRow[0])
+															{
+																<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>
+															}
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															@foreach (var assessmentMatrixElement in Model.SupervisorAssessmentResult.ElementsByRow[i])
+															{
+																<td class="mid_description">@assessmentMatrixElement.Value</td>
+															}
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</section>
+									</td>
 
-                                    <td>
-                                        <div class="grade_wrapper">
-                                            <div class="grade">
-                                                <div class="number_wrapper">
+									@{
+										count = 0;
+										maxElementsToShow = 2;
+									}
 
-                                                    <button class="number-minus" type="button" onclick="this.nextElementSibling.stepDown();">-</button>
+									@foreach (var assessmentMatrixElement in Model.SupervisorAssessmentResult.ElementsByRow[i])
+									{
+										if (count >= maxElementsToShow)
+										{
+											break;
+										}
 
-                                                    <input required="required" type="number" min="@Model.SupervisorAssessmentResult.MinValue" max="@Model.SupervisorAssessmentResult.MaxValue" value="1" class="mid_description input_assessment_value">
+										<td class="mid_description">@assessmentMatrixElement.Value</td>
+										count++;
+									}
 
-                                                    <button class="number-plus" type="button" onclick="this.previousElementSibling.stepUp();">+</button>
-                                                </div>
-                                            </div>
-                                            <div class="grade_error">
-                                                <i class="fa-solid fa-circle-exclamation" style="color: #f33030;"></i>
-                                                <div class="grade_error_description"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+									<td>
+										<div class="grade_wrapper">
+											<div class="grade">
+												<div class="number_wrapper">
 
-                    <div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @Model.Assessment.Id, @Model.SupervisorAssessmentResult.Id, @Model.SupervisorAssessmentResult.Judged.Id)">
-                        Сохранить
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
+													<button class="number-minus" type="button" onclick="this.nextElementSibling.stepDown();">-</button>
+
+													<input required="required" type="number" min="@Model.SupervisorAssessmentResult.MinValue" max="@Model.SupervisorAssessmentResult.MaxValue" value="1" class="mid_description input_assessment_value">
+
+													<button class="number-plus" type="button" onclick="this.previousElementSibling.stepUp();">+</button>
+												</div>
+											</div>
+											<div class="grade_error">
+												<i class="fa-solid fa-circle-exclamation" style="color: #f33030;"></i>
+												<div class="grade_error_description"></div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+
+					<div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @Model.Assessment.Id, @Model.SupervisorAssessmentResult.Id, @Model.SupervisorAssessmentResult.Judged.Id)">
+						Сохранить
+					</div>
+				}
+			</div>
+		</div>
+	</div>
 }

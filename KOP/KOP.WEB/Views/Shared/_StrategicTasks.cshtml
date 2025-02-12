@@ -1,94 +1,103 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.StrategicTasksViewModel
 
 @{
-    Layout = null;
-
-    // Перенести логику в BLL
-    // На данный момент для удобства тестирования
-    var isInRole = User.IsInRole("Employee");
-    var conclusionEditAccess = false;
-    if (User.IsInRole("Urp"))
-    {
-        conclusionEditAccess = true;
-    }
-    var controllerMethod = "EditStrategicTasks";
+	Layout = null;
 }
 
-<form id="popupForm" method="post" onsubmit="popupFormOnsubmit(event, '@controllerMethod')">
-    <input type="hidden" asp-for="GradeId">
-    <div asp-validation-summary="All">
-        <!-- Ошибки валидации будут отображаться тут-->
-    </div>
-    <div class="popup_content">
-        <div class="popup_content_header margin_container_bottom_middle">
-            <div class="title">
-                Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
-            </div>
-            <div class="description">
-                <input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(conclusionEditAccess ? null : "disabled")">
-            </div>
-        </div>
-        <table class="table_popup">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Срок</th>
-                    <th></th>
-                    <th>Результат</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th>Название проекта / стратегической задачи</th>
-                    <th>Цель проекта / стратегической задачи</th>
-                    <th>План (дата)</th>
-                    <th>Факт (дата)</th>
-                    <th>План</th>
-                    <th>Факт</th>
-                    <th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата</th>
-                </tr>
-            </thead>
-            <tbody id="rowContainer">
-                @for (int i = 0; i < Model.StrategicTasks.Count; i++)
-                {
-                    var strategicTask = Model.StrategicTasks[i];
-                    var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
-                    var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
+@if (!Model.ViewAccess)
+{
+	<div class="undefined_page_wrapper">
+		<div class="title">
+			Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей не заполнены окончательно
+		</div>
+		<img src="/image/undefinedpage.svg" alt="default_page">
+	</div>
+}
+else
+{
+	<form id="popupForm">
+		<input type="hidden" asp-for="GradeId">
+		<div asp-validation-summary="All">
+			<!-- Ошибки валидации будут отображаться тут-->
+		</div>
+		<div class="popup_content">
+			<div class="popup_content_header margin_container_bottom_middle">
+				<div class="title">
+					Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+				</div>
+				<div class="description">
+					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+				</div>
+			</div>
+			<table class="table_popup">
+				<thead>
+					<tr>
+						<th></th>
+						<th></th>
+						<th>Срок</th>
+						<th></th>
+						<th>Результат</th>
+						<th></th>
+						<th></th>
+					</tr>
+					<tr>
+						<th>Название проекта / стратегической задачи</th>
+						<th>Цель проекта / стратегической задачи</th>
+						<th>План (дата)</th>
+						<th>Факт (дата)</th>
+						<th>План</th>
+						<th>Факт</th>
+						<th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата</th>
+					</tr>
+				</thead>
+				<tbody id="rowContainer">
+					@for (int i = 0; i < Model.StrategicTasks.Count; i++)
+					{
+						var strategicTask = Model.StrategicTasks[i];
+						var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
+						var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
 
-                    <tr>
-                        <td>
-                            <input type="text" asp-for="StrategicTasks[i].Name" value="@strategicTask.Name" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="StrategicTasks[i].Purpose" value="@strategicTask.Purpose" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                        <td>
-                            <input type="text" asp-for="StrategicTasks[i].Remark" value="@strategicTask.Remark" disabled="@(isInRole ? null : "disabled")" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @if (isInRole)
-        {
-            <div class="add_row_btn add_project" onclick="addRow(this,'strategy')">Добавить</div>
-        }
-    </div>
-    @if (isInRole)
-    {
-        <button type="submit" class="add_row_btn">Сохранить</button>
-    }
-</form>
+						<tr>
+							<td>
+								<input type="text" asp-for="StrategicTasks[i].Name" value="@strategicTask.Name" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="text" asp-for="StrategicTasks[i].Purpose" value="@strategicTask.Purpose" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" disabled="@(Model.EditAccess ? null : "disabled")" required />
+							</td>
+							<td>
+								<input type="text" asp-for="StrategicTasks[i].Remark" value="@strategicTask.Remark" disabled="@(Model.EditAccess ? null : "disabled")" />
+							</td>
+							@if (Model.EditAccess)
+							{
+								<td>
+									<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTasks[i].Id, @Model.GradeId)"></i>
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+			@if (Model.EditAccess)
+			{
+				<div class="add_row_btn add_project" onclick="addRow(this,'strategy')">Добавить</div>
+			}
+		</div>
+		@if (Model.EditAccess)
+		{
+			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+		}
+	</form>
+}

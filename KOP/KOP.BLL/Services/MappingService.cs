@@ -42,9 +42,9 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var gradeDto = CreateGradeDto(lastGrade);
+                var gradeDto = CreateGradeDto(lastGrade, new List<MarkType>());
 
-                if (gradeDto.StatusCode != StatusCodes.OK || gradeDto.Data == null)
+                if (!gradeDto.HasData)
                 {
                     return new BaseResponse<UserDto>()
                     {
@@ -71,7 +71,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<GradeDto> CreateGradeDto(Grade grade)
+        public IBaseResponse<GradeDto> CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes)
         {
             try
             {
@@ -82,6 +82,12 @@ namespace KOP.BLL.Services
                     StartDate = grade.StartDate,
                     EndDate = grade.EndDate,
                     SystemStatus = grade.SystemStatus,
+                    IsProjectsFinalized = grade.IsProjectsFinalized,
+                    IsStrategicTasksFinalized = grade.IsStrategicTasksFinalized,
+                    IsKpisFinalized = grade.IsKpisFinalized,
+                    IsMarksFinalized = grade.IsMarksFinalized,
+                    IsQualificationFinalized = grade.IsQualificationFinalized,
+                    IsValueJudgmentFinalized = grade.IsValueJudgmentFinalized,
                     StrategicTasksConclusion = grade.StrategicTasksConclusion,
                     KPIsConclusion = grade.KPIsConclusion,
                     QualificationConclusion = grade.QualificationConclusion,
@@ -121,16 +127,16 @@ namespace KOP.BLL.Services
                     dto.ValueJudgment = valueJudgmentDto.Data;
                 }
 
-                foreach (var markType in grade.Marks.GroupBy(x => x.MarkType).Where(x => x.Key != null))
+                foreach (var markType in allMarkTypes)
                 {
                     var markTypeDto = new MarkTypeDto
                     {
-                        Id = markType.Key.Id,
-                        Name = markType.Key.Name,
-                        Description = markType.Key.Description,
+                        Id = markType.Id,
+                        Name = markType.Name,
+                        Description = markType.Description,
                     };
 
-                    foreach (var mark in markType)
+                    foreach (var mark in markType.Marks.Where(x => x.GradeId == grade.Id))
                     {
                         var markDto = CreateMarkDto(mark);
 
@@ -531,10 +537,10 @@ namespace KOP.BLL.Services
                     UserId = assessment.UserId,
                     SystemStatus = assessment.SystemStatus,
                 };
-
-                foreach (var result in assessment.AssessmentResults)
+            
+                foreach (var result in assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED))
                 {
-                    var resultDto = CreateAssessmentResultDto(result, assessment.AssessmentType.AssessmentMatrix);
+                    var resultDto = CreateAssessmentResultDto(result, assessment.AssessmentType);
 
                     if (resultDto.StatusCode != StatusCodes.OK || resultDto.Data == null)
                     {
@@ -546,6 +552,35 @@ namespace KOP.BLL.Services
                     }
 
                     dto.AssessmentResults.Add(resultDto.Data);
+                    dto.SumValue += resultDto.Data.Sum;
+                }
+
+                if (dto.AssessmentResults.Any())
+                {
+                    dto.AverageValue = dto.SumValue / dto.AssessmentResults.Count();
+                }
+
+                foreach (var interpretation in assessment.AssessmentType.AssessmentInterpretations)
+                {
+                    var createAssessmentInterpretationDtoRes = CreateAssessmentInterpretationDto(interpretation);
+
+                    if (createAssessmentInterpretationDtoRes.StatusCode != StatusCodes.OK || createAssessmentInterpretationDtoRes.Data == null)
+                    {
+                        return new BaseResponse<AssessmentDto>()
+                        {
+                            Description = createAssessmentInterpretationDtoRes.Description,
+                            StatusCode = createAssessmentInterpretationDtoRes.StatusCode,
+                        };
+                    }
+
+                    var interpretationDto = createAssessmentInterpretationDtoRes.Data;
+
+                    if (dto.AverageValue >= interpretationDto.MinValue && dto.AverageValue <= interpretationDto.MaxValue)
+                    {
+                        dto.AverageAssessmentInterpretation = interpretationDto;
+                    }    
+
+                    dto.AssessmentTypeInterpretations.Add(interpretationDto);
                 }
 
                 return new BaseResponse<AssessmentDto>()
@@ -564,7 +599,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentMatrix matrix)
+        public IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentType type)
         {
             try
             {
@@ -576,14 +611,6 @@ namespace KOP.BLL.Services
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
-                else if (result.Judged == null)
-                {
-                    return new BaseResponse<AssessmentResultDto>()
-                    {
-                        Description = $"[MappingService.CreateAssessmentResultDto] : AssessmentResult.Judged is null",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
 
                 var dto = new AssessmentResultDto()
                 {
@@ -591,6 +618,13 @@ namespace KOP.BLL.Services
                     SystemStatus = result.SystemStatus,
                     Sum = result.AssessmentResultValues.Sum(x => x.Value),
                 };
+
+                var assessmentInterpretation = type.AssessmentInterpretations.FirstOrDefault(x => x.MinValue <= dto.Sum && x.MaxValue >= dto.Sum);
+
+                if (assessmentInterpretation != null)
+                {
+                    dto.HtmlClassName = assessmentInterpretation.HtmlClassName;
+                }
 
                 var judgeDto = CreateUserDto(result.Judge);
 
@@ -605,7 +639,7 @@ namespace KOP.BLL.Services
 
                 dto.Judge = judgeDto.Data;
 
-                var judgedDto = CreateUserDto(result.Judged);
+                var judgedDto = CreateUserDto(result.Assessment.User);
 
                 if (judgedDto.StatusCode != StatusCodes.OK || judgedDto.Data == null)
                 {
@@ -634,7 +668,7 @@ namespace KOP.BLL.Services
                     dto.Values.Add(valueDto.Data);
                 }
 
-                foreach (var element in matrix.Elements)
+                foreach (var element in type.AssessmentMatrix.Elements)
                 {
                     var elementDto = CreateAssessmentMatrixElementDto(element);
 
@@ -650,9 +684,9 @@ namespace KOP.BLL.Services
                     dto.Elements.Add(elementDto.Data);
                 }
 
-                dto.ElementsByRow = dto.Elements.GroupBy(x => x.Row).ToList();
-                dto.MaxValue = matrix.MaxAssessmentMatrixResultValue;
-                dto.MinValue = matrix.MinAssessmentMatrixResultValue;
+                dto.ElementsByRow = dto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                dto.MaxValue = type.AssessmentMatrix.MaxAssessmentMatrixResultValue;
+                dto.MinValue = type.AssessmentMatrix.MinAssessmentMatrixResultValue;
 
                 return new BaseResponse<AssessmentResultDto>()
                 {
@@ -665,6 +699,35 @@ namespace KOP.BLL.Services
                 return new BaseResponse<AssessmentResultDto>()
                 {
                     Description = $"[MappingService.CreateAssessmentResultDto] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public IBaseResponse<AssessmentInterpretationDto> CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation)
+        {
+            try
+            {
+                var dto = new AssessmentInterpretationDto()
+                {
+                    MinValue = interpretation.MinValue,
+                    MaxValue = interpretation.MaxValue,
+                    Competence = interpretation.Competence,
+                    Level = interpretation.Level,
+                    HtmlClassName = interpretation.HtmlClassName,
+                };
+
+                return new BaseResponse<AssessmentInterpretationDto>()
+                {
+                    Data = dto,
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<AssessmentInterpretationDto>()
+                {
+                    Description = $"[MappingService.CreateAssessmentInterpretationDto] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
@@ -704,6 +767,7 @@ namespace KOP.BLL.Services
                 {
                     Row = element.Row,
                     Value = element.Value,
+                    HtmlClassName = element.HtmlClassName,
                 };
 
                 return new BaseResponse<AssessmentMatrixElementDto>()

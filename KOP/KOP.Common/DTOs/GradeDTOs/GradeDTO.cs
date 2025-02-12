@@ -9,6 +9,13 @@ namespace KOP.Common.Dtos.GradeDtos
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
 
+        public bool IsProjectsFinalized { get; set; }
+        public bool IsStrategicTasksFinalized { get; set; }
+        public bool IsKpisFinalized { get; set; }
+        public bool IsMarksFinalized { get; set; }
+        public bool IsQualificationFinalized { get; set; }
+        public bool IsValueJudgmentFinalized { get; set; }
+
         public string? StrategicTasksConclusion { get; set; }
         public string? KPIsConclusion { get; set; }
         public string? QualificationConclusion { get; set; }
