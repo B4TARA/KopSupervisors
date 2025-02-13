@@ -30,10 +30,10 @@
 		@if (Model.AssessmentSummaryDto.AverageAssessmentInterpretation != null)
 		{
 			<!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
-			<tr>
-				<td>@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MinValue - @Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MaxValue</td>
-				<td>@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Level</td>
-				<td>@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Competence</td>
+			<tr class="@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.HtmlClassName">
+				<td class="table_value">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MinValue -@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MaxValue</td>
+				<td class="table_level">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Level</td>
+				<td class="table_text">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Competence</td>
 			</tr>
 		}
 		else
@@ -46,7 +46,7 @@
 		}
 	</table>
 
-	<div class="assessment_user_tab_container">
+	<div class="assessment_user_tab_container popup_assessment_table">
 		<div class="choose_assessment_user_container margin_container_bottom">
 
 			@if (!Model.AssessmentSummaryDto.SelfAssessmentResultValues.Any())
@@ -55,7 +55,10 @@
 					<div class="title">
 						Самооценка не произведена
 					</div>
-					<img src="/image/undefinedpage.svg" alt="default_page">
+					@* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+					<div class="empty_state_image_wrapper_middle">
+						<img src="/image/EmptyState.png" alt="default_page">
+					</div>
 				</div>
 			}
 			else if (!Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.Any())
@@ -64,7 +67,10 @@
 					<div class="title">
 						Оценка руководителя не произведена
 					</div>
-					<img src="/image/undefinedpage.svg" alt="default_page">
+					@* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+					<div class="empty_state_image_wrapper_middle">
+						<img src="/image/EmptyState.png" alt="default_page">
+					</div>
 				</div>
 			}
 			else
@@ -113,7 +119,7 @@
 											<i class="fa-solid fa-info"></i>
 										</div>
 									</span>
-									<section class="section_popup">
+									@* <section class="section_popup">
 										<div class="modal-box">
 											<div class="close_btn close-btn">
 												<i class="fa-solid fa-xmark"></i>
@@ -141,7 +147,7 @@
 												</tbody>
 											</table>
 										</div>
-									</section>
+									</section> *@
 								</td>
 
 								@{

@@ -56,12 +56,9 @@ function closeBtnPopup(item, isReload) {
     let popupSection = document.getElementById("section_popup");
     let isCompareBox = document.getElementById('compare_box')
     let isSelectedWrapper = document.getElementById('selected_main_wrapper')
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.remove('active')
     popupSection.remove();
-    //if (isCompareBox != undefined || isSelectedWrapper != undefined) {
-    //    console.log(isCompareBox)
-    //} else {
-    //    location.reload();
-    //}
     bodyTag.style.overflow = 'auto'
 
     if (isReload == true) {
@@ -74,6 +71,7 @@ function popupAlert(text, isReload) {
     alertSection.className = "section_popup alert_popup active_popup";
     alertSection.setAttribute('id', 'section_popup')
 
+
     alertSection.innerHTML = `<div class="modal-box">
         <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
@@ -83,10 +81,11 @@ function popupAlert(text, isReload) {
         `;
     homeSection.appendChild(alertSection)
 
-    //setTimeout(closeBtnPopup, 1500);
 }
 function popupResult(text, isReload) {
-    bodyTag.style.overflow = 'hidden'
+    bodyTag.style.overflow = 'hidden';
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.add('active')
 
     const sectionPopup = document.querySelector('.section_popup');
     if (sectionPopup) {

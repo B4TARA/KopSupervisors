@@ -17,45 +17,49 @@ function selectedContainerOpen(elem) {
 }
 
 function optionClick(elem) {
-
     let divBtnSubmit = document.getElementById("users_assessment_submit");
     let selected = document.getElementById("selected_main_wrapper");
     let optionsContainer = document.getElementById("options-container");
     let idCol = elem.querySelector("label").getAttribute('idcol');
-    
 
-    if (!arrUsersForAssessment.includes(idCol)) {
-        if (arrUsersForAssessment.length <= 1) {
-            selected.innerHTML += `<div class="selected_item_main_wrapper" idcol = "${idCol}">
-                                                            <div class="description">
-                                                                ${elem.querySelector("label").innerText}
-                                                            </div>
-                                                            <i class="fa-solid fa-trash delete_item" onclick = "deleteUserAssessmentList(this)"></i>
-                                                          </div>`
-            console.log(idCol)
-            arrUsersForAssessment.push(idCol);
-        }
-    } else {
-
-        let alertText = "Этот сотрудник уже добавлен";
-        popupAlert(alertText, false)
+    // Проверка на максимальное количество пользователей
+    if (arrUsersForAssessment.length >= 3) {
+        let alertText = "Нельзя добавить больше трех сотрудников";
+        popupAlert(alertText, false);
+        return; // Выходим из функции, если достигнут лимит
     }
-    if (arrUsersForAssessment.length == 2 && divBtnSubmit == null) {
-        let divBtnSubmit = document.createElement('div');
+
+    // Проверка на уникальность добавляемого пользователя
+    if (!arrUsersForAssessment.includes(idCol)) {
+        selected.innerHTML += `
+            <div class="selected_item_main_wrapper" idcol="${idCol}">
+                <div class="description">
+                    ${elem.querySelector("label").innerText}
+                </div>
+                <i class="fa-solid fa-trash delete_item" onclick="deleteUser AssessmentList(this)"></i>
+            </div>`;
+
+        arrUsersForAssessment.push(idCol);
+        console.log(idCol);
+    } else {
+        let alertText = "Этот сотрудник уже добавлен";
+        popupAlert(alertText, false);
+    }
+
+    // Создание кнопки "Добавить", если добавлено 3 сотрудника
+    if (arrUsersForAssessment.length === 3 && divBtnSubmit == null) {
+        divBtnSubmit = document.createElement('div');
         optionsContainer.classList.remove("active");
-        divBtnSubmit.classList.add('action_btn');
-        divBtnSubmit.classList.add('primary_btn');
-        divBtnSubmit.classList.add('assessment');
+        divBtnSubmit.classList.add('action_btn', 'primary_btn', 'assessment');
         divBtnSubmit.setAttribute('id', 'users_assessment_submit');
         divBtnSubmit.innerHTML = "Добавить";
-        divBtnSubmit.setAttribute('onclick', "submitAssessment(this)")
-        choose_user_container.appendChild(divBtnSubmit)
+        divBtnSubmit.setAttribute('onclick', "submitAssessment(this)");
+        choose_user_container.appendChild(divBtnSubmit);
     }
 
-    // Здесь добавить код для записи в БД выбраннх сотрудников  arrUsersForAssessment
+    console.log(arrUsersForAssessment.length);
 
-
-    /*optionsContainer.classList.remove("active");*/
+    // Здесь добавить код для записи в БД выбранных сотрудников arrUsersForAssessment
 }
 
 function optionClickReport(elem) {
@@ -90,13 +94,6 @@ function optionClickReport(elem) {
         divBtnSubmit.setAttribute('onclick', `GetReportFromDatepicker(${idCol})`)
         choose_user_container.appendChild(divBtnSubmit)
     }
-}
-
-if (searchBoxItem != null) {
-    searchBoxItem.addEventListener("keyup", function (e) {
-
-        filterListSearch(e.target.value);
-    });
 }
 
 function filterListSearch(searchTerm) {

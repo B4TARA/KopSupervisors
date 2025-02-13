@@ -29,7 +29,6 @@
             <table class="table_users">
                 <thead class="table_header">
                     <tr>
-                        <th class="table_header_elem number">#</th>
                         <th class="table_header_elem">ФИО</th>
                         <th class="table_header_elem">Должность</th>
                         <th class="table_header_elem">Подразделение</th>
@@ -37,15 +36,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @{
-                        int i = 1;
-                    }
                     @foreach (var employee in Model.Users)
                     {
                         <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id)" flagHide="">
-                            <td>
-                                @(i++)
-                            </td>
+
                             <td class="fullname">
                                 @employee.FullName
                             </td>

@@ -8,7 +8,7 @@
     var rows = result.ElementsByRow;
 }
 
-<div class="assessment_user_tab_container">
+<div class="assessment_user_tab_container popup_assessment_table">
     <div class="choose_assessment_user_container margin_container_bottom">
 
         @if (result.SystemStatus == SystemStatuses.NOT_EXIST)
@@ -17,7 +17,10 @@
                 <div class="title">
                     Самооценка не назначена
                 </div>
-                <img src="/image/undefinedpage.svg" alt="default_page">
+                @* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+                <div class="empty_state_image_wrapper_middle">
+                    <img src="/image/EmptyState.png" alt="default_page">
+                </div>
             </div>
         }
         else if (Model.SelfAssessmentResult.SystemStatus == SystemStatuses.COMPLETED)
@@ -230,7 +233,10 @@
                                     Заполните матрицу качественной оценки
                                 </div>
 
-                                <img src="/image/undefinedpage.svg" alt="default_page">
+                                @* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+                                <div class="empty_state_image_wrapper_middle">
+                                    <img src="/image/EmptyState.png" alt="default_page">
+                                </div>
                             </div>
 
                         }

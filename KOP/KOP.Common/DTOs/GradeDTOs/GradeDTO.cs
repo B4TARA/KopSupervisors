@@ -31,5 +31,6 @@ namespace KOP.Common.Dtos.GradeDtos
         public List<TrainingEventDto> TrainingEvents { get; set; } = new();
 
         public SystemStatuses SystemStatus { get; set; }
+        public int UserId { get; set; }
     }
 }

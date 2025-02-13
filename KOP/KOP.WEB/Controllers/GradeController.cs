@@ -62,20 +62,20 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var lastAssessmentForUserAndTypeRes = await _userService.GetLastAssessmentForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
+                var lastAssessmentIdForUserAndTypeRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
 
-                if (!lastAssessmentForUserAndTypeRes.HasData)
+                if (!lastAssessmentIdForUserAndTypeRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
-                        StatusCode = lastAssessmentForUserAndTypeRes.StatusCode,
-                        Message = lastAssessmentForUserAndTypeRes.Description,
+                        StatusCode = lastAssessmentIdForUserAndTypeRes.StatusCode,
+                        Message = lastAssessmentIdForUserAndTypeRes.Description,
                     });
                 }
 
-                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentForUserAndTypeRes.Data.Id);
+                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
 
-                if (!lastAssessmentForUserAndTypeRes.HasData)
+                if (!assessmentSummaryRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
@@ -119,20 +119,20 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var lastAssessmentForUserAndTypeRes = await _userService.GetLastAssessmentForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
+                var lastAssessmentIdForUserAndTypeRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
 
-                if (!lastAssessmentForUserAndTypeRes.HasData)
+                if (!lastAssessmentIdForUserAndTypeRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
-                        StatusCode = lastAssessmentForUserAndTypeRes.StatusCode,
-                        Message = lastAssessmentForUserAndTypeRes.Description,
+                        StatusCode = lastAssessmentIdForUserAndTypeRes.StatusCode,
+                        Message = lastAssessmentIdForUserAndTypeRes.Description,
                     });
                 }
 
-                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentForUserAndTypeRes.Data.Id);
+                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
 
-                if (!lastAssessmentForUserAndTypeRes.HasData)
+                if (!assessmentSummaryRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {

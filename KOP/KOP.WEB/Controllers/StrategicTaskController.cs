@@ -5,6 +5,7 @@ using KOP.WEB.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -34,8 +35,9 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
+                var userId = Convert.ToInt32(User.FindFirstValue("Id"));
                 var conclusionEditAccess = User.IsInRole("Urp");
-                var editAccess = (User.IsInRole("Employee") && !gradeRes.Data.IsStrategicTasksFinalized) || User.IsInRole("Urp");
+                var editAccess = (gradeRes.Data.UserId == userId && User.IsInRole("Employee") && !gradeRes.Data.IsStrategicTasksFinalized) || User.IsInRole("Urp");
                 var viewAccess = gradeRes.Data.IsStrategicTasksFinalized || editAccess;
 
                 var viewModel = new StrategicTasksViewModel

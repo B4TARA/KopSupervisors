@@ -173,6 +173,14 @@
     .table_popup tr {
         border: 1px solid #808080; /* Добавляем нижнюю границу для каждой строки */
     }
+        .table_popup tr .table_value{
+            white-space: nowrap;
+        }
+
+        .table_popup tr.green{
+            color:#fff;
+        }
+
 
         .table_popup tr td,
         .table_popup tr th {

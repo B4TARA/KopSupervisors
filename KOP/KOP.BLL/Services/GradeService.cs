@@ -12,13 +12,11 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
-        private readonly IUserService _userService;
 
-        public GradeService(IUnitOfWork unitOfWork, IMappingService mappingService, IUserService userService)
+        public GradeService(IUnitOfWork unitOfWork, IMappingService mappingService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
-            _userService = userService;
         }
 
         public async Task<IBaseResponse<GradeDto>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
