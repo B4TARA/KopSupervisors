@@ -177,8 +177,8 @@
             white-space: nowrap;
         }
 
-        .table_popup tr.green{
-            color:#fff;
+        .table_popup tr.green, .table_popup tr.red, .table_popup tr.yellow {
+            color: #fff;
         }
 
 
