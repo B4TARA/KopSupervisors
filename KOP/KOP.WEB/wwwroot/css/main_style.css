@@ -66,6 +66,9 @@ body::-webkit-scrollbar-thumb {
     border-radius: 8px;
 }
 
+body::-webkit-scrollbar {
+    display: none;
+}
 
 .green-text {
     color: #5DAC50;
@@ -301,7 +304,7 @@ body::-webkit-scrollbar-thumb {
 }
 
     .undefined_page_wrapper .title {
-        color: #1b74fd;
+        color: #3e3e3e;
     }
 
     .undefined_page_wrapper img {
@@ -958,10 +961,9 @@ body::-webkit-scrollbar-thumb {
     justify-content: space-between;
     position: relative;
     padding: 0 16px;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     background-color: var(--sidebar-color);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
     .select-btn .btn-text {
@@ -1075,7 +1077,7 @@ body::-webkit-scrollbar-thumb {
 .right_section {
     width: 45%;
     background-color: var(--sidebar-color);
-    border-radius: 8px;
+    border-radius: 12px;
     height: fit-content;
     /*    height: auto;
     height: fit-content;
@@ -1119,7 +1121,7 @@ body::-webkit-scrollbar-thumb {
 .user_info {
     display: flex;
     flex-direction: column;
-    width: 40%;
+    width: 80%;
     /*margin-right: 80px;*/
 }
 
@@ -1735,12 +1737,18 @@ nav.close ~ .dashboard .top {
     margin-bottom: 30px;
 }
 
-.list-items .list_division_users_wrapper {
-    transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
-    max-height: 0; /* Начальная высота */
-    overflow: hidden; /* Скрываем переполнение */
-    opacity: 0; /* Начальная непрозрачность */
+/*.list_division_users_wrapper .list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
+*/
+    .list-items .list_division_users_wrapper {
+        transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
+        max-height: 0; /* Начальная высота */
+        overflow: hidden; /* Скрываем переполнение */
+        opacity: 0; /* Начальная непрозрачность */
+    }
 
     .list-items .list_division_users_wrapper.open {
         max-height: 500px; /* Установите максимальную высоту, которая будет достаточной для вашего контента */
@@ -2280,13 +2288,18 @@ button.show-modal,
 }
 
 .section_popup.result_popup .modal-box .close_btn {
-    width: 100%;
+    width: 36px;
+    height: 36px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    background-color: transparent;
+    background-color: #d3d3d3;
     position: sticky;
     top: 0;
+    padding: 10px;
+    border-radius: 50%;
+    margin-left: auto;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .section_popup.result_popup .modal-box {
@@ -2357,7 +2370,7 @@ button.show-modal,
 
 .modal-box i {
     font-size: 20px;
-    color: #4070f4;
+    color: #fff;
 }
 
 .modal-box h2 {
@@ -2793,7 +2806,7 @@ button.show-modal,
 
     .searchbox_main_wrapper .searchbox {
         background-color: #fff;
-        border-radius: 8px;
+        border-radius: 12px;
         border: none;
          height: 50px; 
         width: 100%;

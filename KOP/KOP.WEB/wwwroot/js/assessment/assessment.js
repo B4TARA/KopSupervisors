@@ -48,13 +48,6 @@ closeBtn.forEach(item => {
 
 var selectAssessmentBtn = document.querySelectorAll(".dropdown_assessment_wrapper")
 
-
-//selectAssessmentBtn.forEach(item => {
-//    item.addEventListener("click", () => {
-        
-//    });
-//})
-
 function openDropdownList(elem) {
     elem.classList.toggle("open");
 }
