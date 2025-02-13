@@ -70,10 +70,20 @@
                     <div class="profile-content">
                         <img src="@User.FindFirstValue("ImagePath")" alt="profileImg">
                     </div>
+                    @{
+                        var fullName = User.FindFirstValue("FullName");
+                        var nameParts = fullName.Split(' ');
+                        string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty; // Имя
+                        string lastName = nameParts.Length > 0 ? nameParts[0] : string.Empty; // Фамилия
+                    }
+
                     <div class="name-job">
-                        <div class="profile_name">@User.FindFirstValue("FullName")</div>
+                        <div class="profile_name">
+                            <span>@lastName</span>
+                            <span>@firstName</span>
+                        </div>
                     </div>
-                    <a asp-area="" asp-controller="Account" asp-action="Logout">
+                    <a asp-area="" asp-controller="Account" asp-action="Logout" class="logout-icon">
                         <i class='bx bx-log-out'></i>
                     </a>
                 </div>
@@ -83,6 +93,7 @@
 
     <section class="home-section" role="main">
         @RenderBody()
+        <div class="overlay" onclick="closeBtnPopup(this, false)"></div>
     </section>
 
     <script src="~/js/interface/searchbar.js"></script>
@@ -94,3 +105,4 @@
 </body>
 
 </html>
+

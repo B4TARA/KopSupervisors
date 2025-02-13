@@ -6,23 +6,6 @@
 
 @if (Model.LastAssessments.Any())
 {
-   @*  <div class="list_menu_container">
-        <ul class="list_menu_wrapper nav">
-            @foreach (var assessment in Model.LastAssessments)
-            {
-                <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
-                    <button class="link_menu description" id="assessment_link_item" onclick="getEmployeeAssessment(@assessment.Id)">
-                        @assessment.AssessmentTypeName
-                    </button>
-                    <span class="indicator_assessment">
-                        <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
-                    </span>
-                </li>
-            }
-        </ul>
-    </div> *@
-
-
     <div class="list_menu_container self_assesment header">
         <ul class="list_menu_wrapper nav">
             @for (int i = 0; i < Model.LastAssessments.Count(); i++)
@@ -44,8 +27,8 @@
 
 else
 {
-    <div class="undefined_page_wrapper">
-        <img src="/image/undefinedpage.svg" alt="default_page">
+    <div class="empty_state_image_wrapper_middle">
+        <img src="/image/EmptyState.png" alt="default_page">
     </div>
 }
 
