@@ -62,11 +62,11 @@ function openDropdownList(elem) {
 
 async function submitAssessment(elem) {
     let chooseAssessmentUserContainer = document.getElementById('choose_assessment_user_container')
-    let idUser = chooseAssessmentUserContainer.getAttribute('iduser');
+    let idAssessment = chooseAssessmentUserContainer.getAttribute('idassessment');
 
     let dataToSend = {};
     dataToSend.judgesServiceNumbers = arrUsersForAssessment;
-    dataToSend.judgedSeviceNumber = idUser;
+    dataToSend.judgedSeviceNumber = idAssessment;
 
     chooseAssessmentUserContainer.remove();
 

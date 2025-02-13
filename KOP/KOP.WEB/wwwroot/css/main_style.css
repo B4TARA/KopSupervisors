@@ -1909,12 +1909,12 @@ nav.close ~ .dashboard .top {
     background-color: #eee;
     color: #000;
     border-radius: 8px;
-    margin-bottom: 8px;
     min-height: 40px;
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap:20px;
+    column-gap:15px;
+    row-gap:10px;
     order: 0;
 }
 
@@ -2019,8 +2019,6 @@ nav.close ~ .dashboard .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    margin-right: 2px;
 }
 
 
@@ -2614,7 +2612,7 @@ button.show-modal,
 
 .action_btn.primary_btn.assessment {
     width: 100%;
-    margin-top: 50px;
+    margin-top: 20px;
 }
 
 .dropdown_wrapper.arrow-dwn {
