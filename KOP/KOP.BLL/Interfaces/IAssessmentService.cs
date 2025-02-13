@@ -11,5 +11,7 @@ namespace KOP.BLL.Interfaces
         Task<IBaseResponse<AssessmentTypeDto>> GetAssessmentType(int userId, int assessmentTypeId);
         Task<IBaseResponse<AssessmentSummaryDto>> GetAssessmentSummary(int assessmentId);
         Task<IBaseResponse<bool>> IsActiveAssessment(int judgeId, int judgedId, int? assessmentId = null);
+        Task<IBaseResponse<object>> DeleteJudgeForAssessment(int judgeId, int assessmentId);
+        Task<IBaseResponse<object>> AddJudgeForAssessment(int judgeId, int assessmentId);
     }
 }

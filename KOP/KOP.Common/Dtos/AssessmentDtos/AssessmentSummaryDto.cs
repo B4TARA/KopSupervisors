@@ -11,5 +11,6 @@
         public List<IGrouping<int, AssessmentMatrixElementDto>> ElementsByRow { get; set; } = new();
         public int SumResult { get; set; }
         public double AverageResult { get; set; }
+        public bool IsFinalized { get; set; }
     }
 }

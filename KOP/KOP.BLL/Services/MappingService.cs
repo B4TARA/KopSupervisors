@@ -93,6 +93,7 @@ namespace KOP.BLL.Services
                     QualificationConclusion = grade.QualificationConclusion,
                     ManagmentCompetenciesConclusion = grade.ManagmentCompetenciesConclusion,
                     CorporateCompetenciesConclusion = grade.CorporateCompetenciesConclusion,
+                    UserId = grade.UserId,
                 };
 
                 if (grade.Qualification != null)

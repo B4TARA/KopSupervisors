@@ -96,7 +96,7 @@ namespace KOP.DAL.Entities
             {
                 if(ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
                 {
-                    return "Вероятно, сотрудник уже уволен";
+                    return "Вероятно, контракт уже закончился";
                 }
 
                 var tempDate = ContractEndDate.AddMonths(-4);

@@ -4,6 +4,7 @@ using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Interfaces;
+using KOP.DAL.Entities.AssessmentEntities;
 
 namespace KOP.BLL.Services
 {
@@ -303,10 +304,16 @@ namespace KOP.BLL.Services
                 }
 
                 var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
+                var assessmentType = assessment.AssessmentType.SystemAssessmentType;
 
-                if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
                 {
+                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count() == 6;
                     completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId);
+                }
+                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                {
+                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count() == 2;
                 }
 
                 foreach (var result in completedAssessmentResults)
@@ -393,6 +400,87 @@ namespace KOP.BLL.Services
                 return new BaseResponse<bool>()
                 {
                     Description = $"[AssessmentService.IsActiveAssessment] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteJudgeForAssessment(int judgeId, int assessmentId)
+        {
+            try
+            {
+                var assessmentResulToDelete = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
+
+                if (assessmentResulToDelete == null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки для оценщика с id = {judgeId} и качественной оценки с id = {assessmentId} не найден",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+                else if(assessmentResulToDelete.SystemStatus == SystemStatuses.COMPLETED)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки с id = {assessmentResulToDelete.Id} невозможно удалить, так как уже была выставлена оценка",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                _unitOfWork.AssessmentResults.Remove(assessmentResulToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<object>()
+                {
+                    Description = $"[AssessmentService.DeleteJudgeForAssessment] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> AddJudgeForAssessment(int judgeId, int assessmentId)
+        {
+            try
+            {
+                var assessmentResulToAdd = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
+
+                if (assessmentResulToAdd != null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки для оценщика с id = {judgeId} и качественной оценки с id = {assessmentId} уже существует",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                assessmentResulToAdd = new AssessmentResult
+                {
+                    SystemStatus = SystemStatuses.PENDING,
+                    JudgeId = judgeId,
+                    AssessmentId = assessmentId,
+                };
+
+                await _unitOfWork.AssessmentResults.AddAsync(assessmentResulToAdd);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<object>()
+                {
+                    Description = $"[AssessmentService.AddJudgeForAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
