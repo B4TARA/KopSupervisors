@@ -1886,9 +1886,8 @@ nav.close ~ .dashboard .top {
     .select-box .fa-chevron-down {
         position: absolute;
         right: 15px;
+        z-index:2;
     }
-
-
 
     .select-box .options-container {
         background: #eee;
@@ -1915,7 +1914,7 @@ nav.close ~ .dashboard .top {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap:20px;
     order: 0;
 }
 
@@ -1995,7 +1994,7 @@ nav.close ~ .dashboard .top {
     font-size: 16px;
     position: absolute;
     border-radius: 8px 8px 0 0;
-    z-index: 100;
+    z-index: 1;
     border: 8px solid #eee;
     opacity: 0;
     pointer-events: none;
@@ -2015,7 +2014,7 @@ nav.close ~ .dashboard .top {
     padding: 10px;
     background-color: #c0c0c0;
     border-radius: 5px;
-    width: 48%;
+    width: 45%;
     position: relative;
     display: flex;
     justify-content: space-between;

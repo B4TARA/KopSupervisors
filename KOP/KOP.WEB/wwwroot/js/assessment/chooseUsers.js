@@ -40,7 +40,7 @@ function optionClick(elem) {
         let alertText = "Этот сотрудник уже добавлен";
         popupAlert(alertText, false)
     }
-    if (arrUsersForAssessment.length == 2 && divBtnSubmit == null) {
+    if (arrUsersForAssessment.length == 3 && divBtnSubmit == null) {
         let divBtnSubmit = document.createElement('div');
         optionsContainer.classList.remove("active");
         divBtnSubmit.classList.add('action_btn');
