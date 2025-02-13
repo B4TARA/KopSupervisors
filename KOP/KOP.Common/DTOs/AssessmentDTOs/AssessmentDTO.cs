@@ -8,6 +8,7 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public int Number { get; set; }
         public int UserId { get; set; }
         public string AssessmentTypeName { get; set; } = string.Empty;
+        public SystemAssessmentTypes SystemAssessmentType { get; set; }
         public SystemStatuses SystemStatus { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
