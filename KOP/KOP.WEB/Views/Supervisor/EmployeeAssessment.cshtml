@@ -76,10 +76,10 @@
 				@if (Model.Assessment.AverageAssessmentInterpretation != null)
 				{
 					<!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
-					<tr>
-						<td>@Model.Assessment.AverageAssessmentInterpretation.MinValue -@Model.Assessment.AverageAssessmentInterpretation.MaxValue</td>
-						<td>@Model.Assessment.AverageAssessmentInterpretation.Level</td>
-						<td>@Model.Assessment.AverageAssessmentInterpretation.Competence</td>
+					<tr class="@Model.Assessment.AverageAssessmentInterpretation.HtmlClassName">
+						<td class="table_value">@Model.Assessment.AverageAssessmentInterpretation.MinValue -@Model.Assessment.AverageAssessmentInterpretation.MaxValue</td>
+						<td class="table_level">@Model.Assessment.AverageAssessmentInterpretation.Level</td>
+						<td class="table_text">@Model.Assessment.AverageAssessmentInterpretation.Competence</td>
 					</tr>
 				}
 				else
@@ -169,7 +169,7 @@
 																break;
 															}
 
-															<th class="table_header_elem">@assessmentMatrixElement.Value</th>
+															<th class="mid_description">@assessmentMatrixElement.Value</th>
 															count++;
 														}
 
@@ -194,8 +194,8 @@
 		else
 		{
 			<!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
-			<div class="empty_image_wrapper admin_panel">
-				<img src="/image/EmptyState.png">
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
 			</div>
 		}
 	</div>
@@ -214,7 +214,10 @@
 						<div class="mid_title">
 							Заполните матрицу качественной оценки
 						</div>
-						<img src="/image/undefinedpage.svg" alt="default_page">
+						@* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+						<div class="empty_state_image_wrapper_middle">
+							<img src="/image/EmptyState.png" alt="default_page">
+						</div>
 					</div>
 				}
 				else

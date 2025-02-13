@@ -8,9 +8,11 @@
 {
 	<div class="undefined_page_wrapper">
 		<div class="title">
-			Результаты выполнения ключевых показателей эффективности деятельности не заполнены окончательно
+			Результаты выполнения ключевых показателей не заполнены
 		</div>
-		<img src="/image/undefinedpage.svg" alt="default_page">
+		<div class="empty_state_image_wrapper_middle">
+			<img src="/image/EmptyState.png" alt="default_page">
+		</div>
 	</div>
 }
 else
@@ -25,8 +27,12 @@ else
 				<div class="title">
 					Результаты выполнения ключевых показателей эффективности деятельности
 				</div>
-				<div class="description">
-					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+				<div class="conclusion-popup-wrapper">
+					<div class="title">
+						<i class="fa-solid fa-list"></i>
+						Вывод
+					</div>
+					<input type="text" asp-for="Conclusion" value="" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
 				</div>
 			</div>
 			<table class="table_popup">
