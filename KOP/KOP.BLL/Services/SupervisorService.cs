@@ -18,6 +18,59 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
+        public async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(int supervisorId)
+        {
+            try
+            {
+                var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
+                {
+                    "SubordinateSubdivisions.Users.Grades",
+                    "SubordinateSubdivisions.Children.Users.Grades",
+                });
+
+                if (supervisor == null)
+                {
+                    return new BaseResponse<List<UserDto>>()
+                    {
+                        Description = $"Пользователь с id = {supervisorId} не найден",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                var allSubordinateUsers = new List<UserDto>();
+
+                foreach (var subdivision in supervisor.SubordinateSubdivisions)
+                {
+                    var getSubordinateUsersRes = await GetSubordinateUsers(subdivision);
+
+                    if (!getSubordinateUsersRes.HasData)
+                    {
+                        return new BaseResponse<List<UserDto>>()
+                        {
+                            Description = getSubordinateUsersRes.Description,
+                            StatusCode = getSubordinateUsersRes.StatusCode,
+                        };
+                    }
+
+                    allSubordinateUsers.AddRange(getSubordinateUsersRes.Data);
+                }
+
+                return new BaseResponse<List<UserDto>>()
+                {
+                    Data = allSubordinateUsers,
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<List<UserDto>>()
+                {
+                    Description = $"[SupervisorService.GetSubordinateUsers] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
         private async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(Subdivision subdivision)
         {
             try
@@ -28,7 +81,7 @@ namespace KOP.BLL.Services
                 {
                     var userDto = _mappingService.CreateUserDto(user);
 
-                    if (userDto.HasData)
+                    if (!userDto.HasData)
                     {
                         continue;
                     }
@@ -40,7 +93,7 @@ namespace KOP.BLL.Services
                 {
                     var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsers(childSubdivision);
 
-                    if (subordinateUsersFromChildSubdivisionRes.HasData)
+                    if (!subordinateUsersFromChildSubdivisionRes.HasData)
                     {
                         return new BaseResponse<List<UserDto>>()
                         {
@@ -124,7 +177,7 @@ namespace KOP.BLL.Services
                 Children = new List<SubdivisionDto>()
             };
 
-            if(subdivision.NestingLevel == 1)
+            if (subdivision.NestingLevel == 1)
             {
                 subdivisionDto.IsRoot = true;
             }
