@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# Wwwroot huge amount of user images
+wwwroot/UserImages/
+

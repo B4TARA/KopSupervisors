@@ -59,32 +59,3 @@ function openDropdownList(elem) {
     elem.classList.toggle("open");
 }
 
-
-async function submitAssessment(elem) {
-    let chooseAssessmentUserContainer = document.getElementById('choose_assessment_user_container')
-    let idAssessment = chooseAssessmentUserContainer.getAttribute('idassessment');
-
-    let dataToSend = {};
-    dataToSend.judgesServiceNumbers = arrUsersForAssessment;
-    dataToSend.judgedSeviceNumber = idAssessment;
-
-    chooseAssessmentUserContainer.remove();
-
-    const response = await fetch('/SupervisorUdpo/ChooseJudgesForKkAssessment', {
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-        },
-        method: 'POST',
-        body: JSON.stringify(dataToSend)
-
-    })
-
-    if (response.status == 200) {
-        let alertText = "Оценщики успешно добавлены!";
-        popupAlert(alertText,false)
-    } else {
-        let alertText = "Упс..Что-то пошло не так";
-        popupAlert(alertText,false)
-    }
-}
-
