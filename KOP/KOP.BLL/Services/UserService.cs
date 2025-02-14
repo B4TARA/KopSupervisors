@@ -440,7 +440,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<int>()
                     {
-                        Description = $"[UserService.GetLastAssessmentIdForUserAndType] : Тип = {assessmentType} не содержит оценок",
+                        Description = $"Тип = {assessmentType} не содержит оценок",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }

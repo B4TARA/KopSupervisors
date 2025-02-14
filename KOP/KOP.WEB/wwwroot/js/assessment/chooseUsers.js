@@ -161,7 +161,7 @@ function addJudges() {
         });
 }
 
-function deleteJudge(assessmentId, judgeId, employeeId) {
+function deleteJudge(userId) {
 
     const formData = new FormData();
     formData.append('assessmentId', assessmentId);

@@ -30,6 +30,16 @@ namespace KOP.BLL.Services
                     SystemRoles = user.SystemRoles,
                 };
 
+                foreach(var grade in user.Grades)
+                {
+                    dto.Grades.Add(new GradeSummaryDto
+                    {
+                        Id = grade.Id,
+                        Number = grade.Number,
+                        DateOfCreation = grade.DateOfCreation,
+                    });
+                }
+
                 var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
 
                 if (lastGrade == null)

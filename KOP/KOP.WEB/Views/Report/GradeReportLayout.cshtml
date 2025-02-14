@@ -1,0 +1,43 @@
+﻿@model List<KOP.Common.Dtos.UserDto>
+
+<div class="home-content">
+    <div class="home_content_info">
+        <div class="home_content_info_icon">
+            <i class="fa-solid fa-folder"></i>
+        </div>
+        <div class="mid_title">
+            Отчет
+        </div>
+    </div>
+</div>
+<section class="tab_info_report_content margin_container_bottom_small">
+    <div class="description margin_container_bottom_small" reportid="3part1" id="reportType">Отчет по результатам оценок</div>
+    <div class="filters_main_container">
+        <div class="choose_user_container" id="choose_user_container">
+            <div class="select-box">
+                <div class="options-container report" id="options-container">
+                    <div class="option" onclick="optionClickReport(this)">
+                        <input type="radio" value="" class="radio" id="film" name="category" disabled />
+                        <label for="film" class="select_user_assessment" idcol="0">Выберите сотрудника</label>
+                    </div>
+                    @foreach (var user in Model)
+                    {
+                        <div class="option" onclick="optionClickReport(this)">
+                            <input type="radio" value="" class="radio" id="film" name="category" disabled />
+                            <label for="film" class="select_user_assessment" idcol="@user.Id">@user.FullName</label>
+                        </div>
+                    }
+                </div>
+                <div class="selected_main_wrapper report" id="selected_main_wrapper" onclick="selectedContainerOpen()">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="search-box">
+                    <input type="text" placeholder="" id="input_searchbox_assessment">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grades-select-container" id="grades-select-container"></div>
+</section>
+<section class="main_container_content" id="main_container_content">
+</section>

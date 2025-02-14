@@ -132,50 +132,6 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var lastСorporateAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
-
-                if (!lastСorporateAssessmentIdRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastСorporateAssessmentIdRes.StatusCode,
-                        Message = lastСorporateAssessmentIdRes.Description,
-                    });
-                }
-
-                var lastСorporateAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastСorporateAssessmentIdRes.Data);
-
-                if (!lastСorporateAssessmentSummaryRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastСorporateAssessmentSummaryRes.StatusCode,
-                        Message = lastСorporateAssessmentSummaryRes.Description,
-                    });
-                }
-
-                var lastManagmentAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
-
-                if (!lastManagmentAssessmentIdRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastManagmentAssessmentIdRes.StatusCode,
-                        Message = lastManagmentAssessmentIdRes.Description,
-                    });
-                }
-
-                var lastManagmentAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastManagmentAssessmentIdRes.Data);
-
-                if (!lastManagmentAssessmentSummaryRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastManagmentAssessmentSummaryRes.StatusCode,
-                        Message = lastManagmentAssessmentSummaryRes.Description,
-                    });
-                }
-
                 var viewModel = new EmployeeGradeLayoutViewModel
                 {
                     Id = getUserRes.Data.Id,
@@ -187,9 +143,31 @@ namespace KOP.WEB.Controllers
                     ContractEndDate = getUserRes.Data.ContractEndDate,
                     ImagePath = getUserRes.Data.ImagePath,
                     LastGrade = getUserRes.Data.LastGrade,
-                    IsCorporateCompetenciesFinalized = lastСorporateAssessmentSummaryRes.Data.IsFinalized,
-                    IsManagmentCompetenciesFinalized = lastManagmentAssessmentSummaryRes.Data.IsFinalized,
                 };
+
+                var lastСorporateAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
+
+                if (lastСorporateAssessmentIdRes.HasData)
+                {
+                    var lastСorporateAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastСorporateAssessmentIdRes.Data);
+
+                    if (lastСorporateAssessmentSummaryRes.HasData)
+                    {
+                        viewModel.IsCorporateCompetenciesFinalized = lastСorporateAssessmentSummaryRes.Data.IsFinalized;
+                    }
+                }           
+
+                var lastManagmentAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
+
+                if (lastManagmentAssessmentIdRes.HasData)
+                {
+                    var lastManagmentAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastManagmentAssessmentIdRes.Data);
+
+                    if (lastManagmentAssessmentSummaryRes.HasData)
+                    {
+                        viewModel.IsCorporateCompetenciesFinalized = lastManagmentAssessmentSummaryRes.Data.IsFinalized;
+                    }
+                }        
 
                 return View("EmployeeGradeLayout", viewModel);
             }
