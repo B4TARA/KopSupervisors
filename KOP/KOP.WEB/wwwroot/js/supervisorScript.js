@@ -162,8 +162,6 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
             return;
         }
 
-        //alert('Оценка успешно принята!');
-
         popupAlert('Оценка успешно принята!', false)
 
         await getEmployeeLayout(employeeId);

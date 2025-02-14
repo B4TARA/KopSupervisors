@@ -1,4 +1,5 @@
 ﻿using KOP.Common.Dtos.GradeDtos;
+using KOP.Common.Enums;
 
 namespace KOP.Common.Dtos
 {
@@ -13,6 +14,7 @@ namespace KOP.Common.Dtos
         public string NextGradeStartDate { get; set; }
         public DateOnly ContractEndDate { get; set; }
         public string ImagePath { get; set; }
+        public List<SystemRoles> SystemRoles { get; set; } = new();
         public GradeDto? LastGrade { get; set; }
     }
 }

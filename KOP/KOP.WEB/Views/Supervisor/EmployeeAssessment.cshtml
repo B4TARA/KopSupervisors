@@ -9,7 +9,7 @@
 	@if (Model.ChooseJudgesAccess)
 	{
 		<div class="assessment_user_tab_container">
-			<div class="choose_assessment_user_container margin_container_bottom" id="choose_assessment_user_container" idassessment="@Model.Assessment.Id">
+			<div class="choose_assessment_user_container margin_container_bottom" id="choose_assessment_user_container" assessmentId="@Model.Assessment.Id" employeeId="@Model.Assessment.UserId">
 				<div class="container_description">
 					<div class="mid_title">
 						Выбор оценщиков
@@ -39,7 +39,7 @@
 									</div>
 									@if (!choosedCandidate.HasJudged)
 									{
-										<i class="fa-solid fa-trash delete_item" onclick="deleteUserAssessmentList(this)"></i>
+										<i class="fa-solid fa-trash delete_item" onclick="deleteJudge(@Model.Assessment.Id, @choosedCandidate.Id, @Model.Assessment.UserId)"></i>
 									}
 								</div>
 							}
@@ -62,7 +62,7 @@
 	</div>
 	<div class="results_assessment_main_wrapper">
 		<div class="mid_title">Интерпретация результатов оценки управленческих компетенций</div>
-		@if (Model.Assessment.AssessmentResults.Any(x => x.SystemStatus == SystemStatuses.COMPLETED))
+		@if (Model.Assessment.CompletedAssessmentResults.Any())
 		{
 			<table class="table_popup">
 				<thead>
@@ -92,7 +92,7 @@
 				}
 			</table>
 
-			foreach (var result in Model.Assessment.AssessmentResults)
+			foreach (var result in Model.Assessment.CompletedAssessmentResults)
 			{
 				<div class="result_assessment_user_wrapper">
 					<div class="user_assessment_wrapper">

@@ -532,7 +532,15 @@ namespace KOP.BLL.Services
             var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
             var userSupervisor = await GetUserSupervisor(userId);
             var supervisorId = userSupervisor.Id;
-            var filteredAssessmentResults = assessmentResults.Where(x => x.Judge.Id != userId && x.Judge.Id != supervisorId);
+            var currentUserId = userId;
+            var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
+            var excludedRole = SystemRoles.Curator;
+
+            var filteredAssessmentResults = assessmentResults.Where(x =>
+                x.Judge.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
+                !x.Judge.SystemRoles.Contains(excludedRole) &&
+                x.Judge.Id != supervisorId &&
+                x.Judge.Id != currentUserId);
 
             foreach (var result in filteredAssessmentResults)
             {
@@ -551,7 +559,7 @@ namespace KOP.BLL.Services
             bool isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
             bool isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
             bool isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
-            int completedJudgesCount = assessmentDto.AssessmentResults.Count(x => x.SystemStatus == SystemStatuses.COMPLETED && x.Judge.Id != x.Judged.Id);
+            int completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.Judge.Id != x.Judged.Id);
 
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }

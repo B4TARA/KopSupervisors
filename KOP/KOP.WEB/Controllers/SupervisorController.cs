@@ -6,6 +6,7 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Supervisor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
@@ -268,9 +269,14 @@ namespace KOP.WEB.Controllers
                 }
 
                 var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+                var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AllAssessmentResults, getAssessmentRes.Data.UserId);
+                var allCandidates = await _userService.GetCandidatesForJudges(getAssessmentRes.Data.UserId);
+                var choosedCandidateIds = choosedCandidates.Select(c => c.Id).ToList();
+                var remainingCandidates = allCandidates.Where(c => !choosedCandidateIds.Contains(c.Id)).ToList();
+
                 viewModel.ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, getAssessmentRes.Data);
-                viewModel.CandidatesForJudges = await _userService.GetCandidatesForJudges(getAssessmentRes.Data.UserId);
-                viewModel.ChoosedCandidatesForJudges = await _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AssessmentResults, getAssessmentRes.Data.UserId);
+                viewModel.ChoosedCandidatesForJudges = choosedCandidates;
+                viewModel.CandidatesForJudges = remainingCandidates;
 
                 return View("EmployeeAssessment", viewModel);
             }
@@ -289,8 +295,11 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
             try
-            {
-                if (requestModel.judgesIds.Count() > 3)
+            {             
+                var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
+                var assessmentId = requestModel.assessmentId;
+
+                if (judgesIds.Count() > 3)
                 {
                     return BadRequest(new
                     {
@@ -299,11 +308,9 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var assessmentId = requestModel.assessmentId;
-
-                foreach (var judgeId in requestModel.judgesIds)
+                foreach (var judgeId in judgesIds)
                 {
-                    await _assessmentService.AddJudgeForAssessment(judgeId, assessmentId);
+                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), assessmentId);
                 }
 
                 return Ok("Сохранение прошло успешно");

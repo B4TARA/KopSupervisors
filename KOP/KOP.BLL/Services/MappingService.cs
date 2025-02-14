@@ -27,6 +27,7 @@ namespace KOP.BLL.Services
                     NextGradeStartDate = user.GetNextGradeStartDate,
                     ContractEndDate = user.ContractEndDate,
                     ImagePath = user.ImagePath,
+                    SystemRoles = user.SystemRoles,
                 };
 
                 var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
@@ -540,6 +541,24 @@ namespace KOP.BLL.Services
                     SystemAssessmentType = assessment.AssessmentType.SystemAssessmentType,
                 };
 
+                var allAssessmentResults = assessment.AssessmentResults;
+
+                foreach (var result in allAssessmentResults)
+                {
+                    var resultDto = CreateAssessmentResultDto(result, assessment.AssessmentType);
+
+                    if (!resultDto.HasData)
+                    {
+                        return new BaseResponse<AssessmentDto>()
+                        {
+                            Description = resultDto.Description,
+                            StatusCode = resultDto.StatusCode,
+                        };
+                    }
+
+                    dto.AllAssessmentResults.Add(resultDto.Data);
+                }
+
                 var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
 
                 if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
@@ -560,13 +579,13 @@ namespace KOP.BLL.Services
                         };
                     }
 
-                    dto.AssessmentResults.Add(resultDto.Data);
+                    dto.CompletedAssessmentResults.Add(resultDto.Data);
                     dto.SumValue += resultDto.Data.Sum;
                 }
 
-                if (dto.AssessmentResults.Any())
+                if (dto.CompletedAssessmentResults.Any())
                 {
-                    dto.AverageValue = dto.SumValue / dto.AssessmentResults.Count();
+                    dto.AverageValue = dto.SumValue / dto.CompletedAssessmentResults.Count();
                 }
 
                 foreach (var interpretation in assessment.AssessmentType.AssessmentInterpretations)
