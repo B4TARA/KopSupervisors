@@ -1665,9 +1665,13 @@ nav.close ~ .dashboard .top {
             cursor: pointer;
         }
 
-    .table_users tbody .fullname {
-        font-weight: 600;
-    }
+            .table_users tbody tr:last-child.active{
+                border-radius:0px 0px 12px 12px;
+            }
+
+            .table_users tbody .fullname {
+                font-weight: 600;
+            }
 
     /* .table_users tbody .fullname:hover {
         font-weight: 800;
@@ -2325,8 +2329,8 @@ button.show-modal,
 }
 
 .section_popup.result_popup .modal-box {
-    max-height: 100vh;
-    overflow: auto;
+    max-height: 90vh;
+    /*overflow: auto;*/
     width: 70%;
 }
 
