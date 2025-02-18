@@ -85,7 +85,7 @@ function popupAlert(text, isReload) {
 function popupResult(text, isReload) {
     bodyTag.style.overflow = 'hidden';
     const overlay = document.querySelector('.overlay');
-    overlay.classList.add('active')
+    overlay.classList.add('active') 
 
     const sectionPopup = document.querySelector('.section_popup');
     if (sectionPopup) {
