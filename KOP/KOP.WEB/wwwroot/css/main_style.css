@@ -1390,6 +1390,14 @@ body::-webkit-scrollbar {
     align-items: center;
 }
 
+.action_btn.full_width{
+    width:100%;
+}
+
+    .action_btn:last-child{
+        margin-right:0px;
+    }
+
     .action_btn:hover {
         transition: background-color 0.2s cubic-bezier(0.4, 0, 1, 1);
     }
