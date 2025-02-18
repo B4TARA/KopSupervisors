@@ -7,11 +7,25 @@
 <div class="user_assessment_main_wrapper">
 	@if (Model.ColleagueAssessmentResults.Count() == 0)
 	{
-		<div class="undefined_page_wrapper">
+		@* <div class="undefined_page_wrapper">
 			<div class="title">
 				Некого оценивать
 			</div>
-			@* <img src="/image/undefinedpage.svg" alt="default_page"> *@
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div> *@
+
+		<div class="undefined_page_wrapper">
+
+			<div class="container_description">
+				<div class="title">
+					Нет доступных для оценки коллег
+				</div>
+				<div class="mid_description">
+					Список сотрудников для оценки будет доступен после их добавления
+				</div>
+			</div>
 			<div class="empty_state_image_wrapper_middle">
 				<img src="/image/EmptyState.png" alt="default_page">
 			</div>
