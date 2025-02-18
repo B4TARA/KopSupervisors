@@ -67,6 +67,9 @@ function closeBtnPopup(item, isReload) {
     let isCompareBox = document.getElementById('compare_box')
     let isSelectedWrapper = document.getElementById('selected_main_wrapper')
     popupSection.remove();
+
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.remove('active') 
     //if (isCompareBox != undefined || isSelectedWrapper != undefined) {
     //    console.log(isCompareBox)
     //} else {
@@ -85,7 +88,7 @@ function popupAlert(text, isReload) {
     alertSection.setAttribute('id', 'section_popup')
 
     alertSection.innerHTML = `<div class="modal-box">
-        <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
+        <div class="close_btn close-btn" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
                                 </div>
         <div class="mid_title">${text}</div>
@@ -112,7 +115,7 @@ function popupResult(text, isReload) {
     alertSection.setAttribute('id', 'section_popup')
 
     alertSection.innerHTML = `<div class="modal-box">
-        <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
+        <div class="close_btn close-btn" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
         </div>
             <div id="popupText">
