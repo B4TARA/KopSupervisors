@@ -19,7 +19,7 @@
 					<div class="d-th table_header_elem">Номер</div>
 					<div class="d-th table_header_elem">Период</div>
 					<div class="d-th table_header_elem">Дата назначения</div>
-					<div class="d-th table_header_elem"></div>
+					<div class="d-th table_header_elem download">Документ</div>
 				</div>
 
 				@{
@@ -29,11 +29,15 @@
 				<div class="d-tbody">
 					@foreach (var grade in Model)
 					{
-						<div class="d-td number">@(count++)</div>
-						<div class="d-td fullname">@grade.Number</div>
-						<div class="d-td">@grade.StartDate - @grade.EndDate</div>
-						<div class="d-td">@grade.DateOfCreation</div>
-						<button onclick="downloadGradeWordDocument(@grade.Id)">скачать</button>
+						<div class="d-tr download-tr">
+							<div class="d-td number">@(count++)</div>
+							<div class="d-td fullname">@grade.Number</div>
+							<div class="d-td">@grade.StartDate - @grade.EndDate</div>
+							<div class="d-td">@grade.DateOfCreation</div>
+							<div class="d-td"><button onclick="downloadGradeWordDocument(@grade.Id)" class="action_btn primary_btn">Скачать</button></div>
+							
+						</div>
+						
 					}
 				</div>
 			</div>

@@ -199,13 +199,14 @@
             
         }
 
-        .table_popup tr th {
-            font-weight: 600;
-            border-right: 1px solid #d3d3d3;
-            padding: 10px 15px;
-            background-color:#f5f7f8;
-            color:#424242;
-        }
+    .table_popup tr th {
+        font-weight: 600;
+        border-right: 1px solid #d3d3d3;
+        padding: 10px 15px;
+        background-color: #f5f7f8;
+        color: #424242;
+        border-bottom: 1px solid #d3d3d3;
+    }
 
         .table_popup tr th:last-child {
             border-right: none;

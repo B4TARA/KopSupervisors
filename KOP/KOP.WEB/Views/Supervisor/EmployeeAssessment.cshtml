@@ -52,27 +52,33 @@
 			</div>
 		</div>
 	}
-	<div class="container_description user_info_block">
-		<div class="mid_title">
-			Список результатов оценщиков
-		</div>
-		<div class="mid_description">
-			Здесь вы можете отслеживать результаты качественных оценок
-		</div>
-	</div>
 
-	<div class="results_assessment_main_wrapper">
-		<div class="mid_title header_info_block">Интерпретация результатов оценки управленческих компетенций</div>
-		@if (Model.Assessment.CompletedAssessmentResults.Any())
-		{
+	@if (Model.Assessment.CompletedAssessmentResults.Any())
+	{
+		<div class="container_description">
+			<div class="mid_title">
+				Список результатов оценщиков
+			</div>
+			<div class="mid_description">
+				Здесь вы можете отслеживать результаты качественных оценок
+			</div>
+		</div>
+
+		<div class="results_assessment_main_wrapper">
 			<table class="table_popup">
+				
 				<thead>
+					<tr>
+						<th colspan="3" style="text-align:center;">Интерпретация результатов оценки управленческих компетенций</th>
+					</tr>
 					<tr>
 						<th>Балл</th>
 						<th>Уровень</th>
 						<th>Компетентность</th>
 					</tr>
 				</thead>
+
+				
 
 				@if (Model.Assessment.AverageAssessmentInterpretation != null)
 				{
@@ -93,7 +99,7 @@
 				}
 			</table>
 
-			foreach (var result in Model.Assessment.CompletedAssessmentResults)
+			@foreach (var result in Model.Assessment.CompletedAssessmentResults)
 			{
 				<div class="result_assessment_user_wrapper">
 					<div class="user_assessment_wrapper">
@@ -191,30 +197,29 @@
 					</div>
 				</div>
 			}
-		}
-		else
-		{
-			<!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
-			@* <div class="empty_state_image_wrapper_middle">
+		</div>
+	}
+	else
+	{
+		<!-- НАДО ПОМЕНЯТЬ СТИЛИ (НАЗВАНИЯ)-->
+		@* <div class="empty_state_image_wrapper_middle">
 				<img src="/image/EmptyState.png" alt="default_page">
 			</div> *@
-			<div class="undefined_page_wrapper">
+		<div class="undefined_page_wrapper">
 
-				<div class="container_description">
-					<div class="title">
-						Оценки пока отсутсвуют
-					</div>
-					<div class="mid_description">
-						Здесь будут отображаться результаты оценок после их добавления
-					</div>
+			<div class="container_description">
+				<div class="title">
+					Оценки пока отсутсвуют
 				</div>
-				<div class="empty_state_image_wrapper_middle">
-					<img src="/image/EmptyState.png" alt="default_page">
+				<div class="mid_description">
+					Здесь будут отображаться результаты оценок после их добавления
 				</div>
 			</div>
-		}
-	</div>
-
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+	}
 </div>
 
 @if (Model.SupervisorAssessmentResult != null && Model.SupervisorAssessmentResult.SystemStatus == SystemStatuses.PENDING)
