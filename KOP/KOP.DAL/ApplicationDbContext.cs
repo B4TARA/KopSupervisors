@@ -39,6 +39,10 @@ namespace KOP.DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Assessment>()
+                .HasIndex(a => new { a.AssessmentTypeId, a.GradeId })
+                .IsUnique();
+
             modelBuilder.Entity<Qualification>()
                 .HasOne(a => a.Grade)
                 .WithOne(a => a.Qualification)

@@ -47,36 +47,39 @@ namespace KOP.BLL.Services
                     {
                         strGradeEntity += ".PreviousJobs";
                     }
+                    // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
+                    else if (gradeEntity == GradeEntities.Assessments)
+                    {
+                        strGradeEntity += ".AssessmentType.AssessmentMatrix";
+                    }
 
                     includeProperties.Add(strGradeEntity);
                 }
 
                 var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: includeProperties.ToArray());
-
                 if (grade == null)
                 {
                     return new BaseResponse<GradeDto>()
                     {
-                        Description = $"[GradeService.GetGrade] : Оценка с id = {gradeId} не найдена",
+                        Description = $"Оценка с id = {gradeId} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var gradeDto = _mappingService.CreateGradeDto(grade, allMarkTypes);
-
-                if (gradeDto.StatusCode != StatusCodes.OK || gradeDto.Data == null)
+                var createGradeDtoRes = _mappingService.CreateGradeDto(grade, allMarkTypes);
+                if (!createGradeDtoRes.HasData)
                 {
                     return new BaseResponse<GradeDto>()
                     {
-                        StatusCode = gradeDto.StatusCode,
-                        Description = gradeDto.Description
+                        StatusCode = createGradeDtoRes.StatusCode,
+                        Description = createGradeDtoRes.Description
                     };
                 }
 
                 return new BaseResponse<GradeDto>()
                 {
                     StatusCode = StatusCodes.OK,
-                    Data = gradeDto.Data
+                    Data = createGradeDtoRes.Data
                 };
             }
             catch (Exception ex)

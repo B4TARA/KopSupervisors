@@ -207,18 +207,32 @@ namespace KOP.BLL.Services
 
                 foreach (var trainingEvent in grade.TrainingEvents)
                 {
-                    var trainingEventDto = CreateTrainingEventDto(trainingEvent);
-
-                    if (trainingEventDto.StatusCode != StatusCodes.OK || trainingEventDto.Data == null)
+                    var createTrainingEventDtoRes = CreateTrainingEventDto(trainingEvent);
+                    if (!createTrainingEventDtoRes.HasData)
                     {
                         return new BaseResponse<GradeDto>()
                         {
-                            Description = trainingEventDto.Description,
-                            StatusCode = trainingEventDto.StatusCode,
+                            Description = createTrainingEventDtoRes.Description,
+                            StatusCode = createTrainingEventDtoRes.StatusCode,
                         };
                     }
 
-                    dto.TrainingEvents.Add(trainingEventDto.Data);
+                    dto.TrainingEvents.Add(createTrainingEventDtoRes.Data);
+                }
+
+                foreach (var assessment in grade.Assessments)
+                {
+                    var createAssessmentDtoRes = CreateAssessmentDto(assessment);
+                    if (!createAssessmentDtoRes.HasData)
+                    {
+                        return new BaseResponse<GradeDto>()
+                        {
+                            Description = createAssessmentDtoRes.Description,
+                            StatusCode = createAssessmentDtoRes.StatusCode,
+                        };
+                    }
+
+                    dto.AssessmentDtos.Add(createAssessmentDtoRes.Data);
                 }
 
                 return new BaseResponse<GradeDto>()
@@ -519,7 +533,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<AssessmentDto>()
                     {
-                        Description = $"[MappingService.CreateAssessmentDto] : Assessment.AssessmentType is null",
+                        Description = $"Не найден AssessmentType для Assessment с ID {assessment.Id}",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -527,7 +541,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<AssessmentDto>()
                     {
-                        Description = $"[MappingService.CreateAssessmentDto] : Assessment.AssessmentType.AssessmentMatrix is null",
+                        Description = $"Не найден AssessmentMatrix для AssessmentType с ID {assessment.AssessmentType.Id}",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }

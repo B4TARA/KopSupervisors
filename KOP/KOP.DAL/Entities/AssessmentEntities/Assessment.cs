@@ -1,4 +1,5 @@
 ﻿using KOP.Common.Enums;
+using KOP.DAL.Entities.GradeEntities;
 
 namespace KOP.DAL.Entities.AssessmentEntities
 {
@@ -13,6 +14,9 @@ namespace KOP.DAL.Entities.AssessmentEntities
 
         public AssessmentType AssessmentType { get; set; }
         public int AssessmentTypeId { get; set; }
+
+        public Grade Grade { get; set; }
+        public int GradeId { get; set; }
 
         public List<AssessmentResult> AssessmentResults { get; set; } = new();
 

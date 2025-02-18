@@ -10,5 +10,6 @@
         TrainingEvents,
         Qualification,
         ValueJudgment,
+        Assessments,
     }
 }

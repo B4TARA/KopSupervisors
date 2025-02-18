@@ -1,4 +1,5 @@
-﻿using KOP.Common.Enums;
+﻿using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Enums;
 
 namespace KOP.Common.Dtos.GradeDtos
 {
@@ -29,6 +30,7 @@ namespace KOP.Common.Dtos.GradeDtos
         public List<ProjectDto> Projects { get; set; } = new();
         public List<StrategicTaskDto> StrategicTasks { get; set; } = new();
         public List<TrainingEventDto> TrainingEvents { get; set; } = new();
+        public List<AssessmentDto> AssessmentDtos { get; set; } = new();
 
         public SystemStatuses SystemStatus { get; set; }
         public int UserId { get; set; }

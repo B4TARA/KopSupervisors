@@ -1,4 +1,5 @@
 ﻿using KOP.Common.Enums;
+using KOP.DAL.Entities.AssessmentEntities;
 
 namespace KOP.DAL.Entities.GradeEntities
 {
@@ -37,6 +38,7 @@ namespace KOP.DAL.Entities.GradeEntities
         public List<Project> Projects { get; set; } = new();
         public List<StrategicTask> StrategicTasks { get; set; } = new();
         public List<TrainingEvent> TrainingEvents { get; set; } = new();
+        public List<Assessment> Assessments { get; set; } = new();
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
