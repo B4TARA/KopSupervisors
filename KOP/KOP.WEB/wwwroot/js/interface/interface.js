@@ -6,17 +6,27 @@
 
 const bodyTag = document.getElementsByTagName('body')[0];
 
-arrowShowMenu.forEach(item => {
-    item.addEventListener("click", (e) => {
-        let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
-        arrowParent.classList.toggle("showMenu");
-    });
-})
+//arrowShowMenu.forEach(item => {
+//    item.addEventListener("click", (e) => {
+//        let arrowParent = e.target.closest('.iocn-link').parentElement; // Находим родительский элемент li
+//        arrowParent.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
+//    });
+//});
+
 if (sidebarBtn != null) {
     sidebarBtn.addEventListener("click", () => {
         sidebar.classList.toggle("close_sidebar");
     });
 }
+
+const navItems = document.querySelectorAll(".nav-links > li");
+
+navItems.forEach(item => {
+    item.addEventListener("click", (e) => {
+            item.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
+        
+    });
+});
 
 arrowShowSubMenu.forEach(item => {
     item.addEventListener("click", (e) => {
