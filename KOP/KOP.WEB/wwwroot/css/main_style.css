@@ -1373,7 +1373,7 @@ body::-webkit-scrollbar {
 .action_btn {
     width: 200px;
     height: 50px;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 15px 10px;
     border: none;
     margin-right: 20px;
@@ -1384,6 +1384,10 @@ body::-webkit-scrollbar {
     justify-content: space-evenly;
     align-items: center;
 }
+
+    .action_btn:hover {
+        transition: background-color 0.2s cubic-bezier(0.4, 0, 1, 1);
+    }
 
     .action_btn a {
         text-decoration: none;
@@ -1623,6 +1627,7 @@ nav.close ~ .dashboard .top {
         height: 60px;
         background-color: #f5f7f8;
         color: #424242;
+        line-height:100%;
     }
 
     .table_users tbody td {
@@ -1640,6 +1645,7 @@ nav.close ~ .dashboard .top {
 
     .table_users tbody tr {
         height: 70px;
+        transition: background-color 0.2s ease-in;
     }
 
         .table_users tbody tr:hover {
@@ -1647,6 +1653,7 @@ nav.close ~ .dashboard .top {
             color: #1b74fd;
             cursor: pointer;
             border-radius: 0px 0px 10px 10px;
+            transition: background-color 0.2s ease-in;
         }
 
         .table_users tbody tr:last-child:hover {
@@ -1814,6 +1821,10 @@ nav.close ~ .dashboard .top {
 
     .list_division_users_wrapper.users .list-items .description {
         border-radius: 12px 12px 0px 0px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        line-height:150%;
 
     }
 
@@ -2870,11 +2881,18 @@ button.show-modal,
 
 .result_assessment_user_wrapper {
     display: flex;
-    margin-bottom:10px;
+    margin-bottom: 10px;
+    margin-left: -25px;
+    margin-right: -25px;
+    padding:0px 25px;
 }
 
-    .result_assessment_user_wrapper:last-child{
-        margin-bottom:0px;
+    .result_assessment_user_wrapper:hover {
+        background-color: #f5f7f8;
+    }
+
+    .result_assessment_user_wrapper:last-child {
+        margin-bottom: 0px;
     }
 
     .user_assessment_wrapper {
@@ -3706,7 +3724,7 @@ button.show-modal,
     gap: 8px;
     justify-content: center;
     cursor: pointer;
-    transition: 0.2s all ease-in;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 1, 1);
     margin-left: auto;
 }
 
