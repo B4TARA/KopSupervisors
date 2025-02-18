@@ -1,9 +1,12 @@
 ﻿using System.Security.Claims;
 using KOP.BLL.Interfaces;
+using KOP.Common.Enums;
+using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Supervisor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
@@ -118,29 +121,53 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var response = await _userService.GetUser(employeeId);
+                var getUserRes = await _userService.GetUser(employeeId);
 
-                if (response.StatusCode != StatusCodes.OK || response.Data == null)
+                if (!getUserRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {
-                        StatusCode = response.StatusCode,
-                        Message = response.Description,
+                        StatusCode = getUserRes.StatusCode,
+                        Message = getUserRes.Description,
                     });
                 }
 
                 var viewModel = new EmployeeGradeLayoutViewModel
                 {
-                    Id = response.Data.Id,
-                    FullName = response.Data.FullName,
-                    Position = response.Data.Position,
-                    SubdivisionFromFile = response.Data.SubdivisionFromFile,
-                    GradeGroup = response.Data.GradeGroup,
-                    WorkPeriod = response.Data.WorkPeriod,
-                    ContractEndDate = response.Data.ContractEndDate,
-                    ImagePath = response.Data.ImagePath,
-                    LastGrade = response.Data.LastGrade,
+                    Id = getUserRes.Data.Id,
+                    FullName = getUserRes.Data.FullName,
+                    Position = getUserRes.Data.Position,
+                    SubdivisionFromFile = getUserRes.Data.SubdivisionFromFile,
+                    GradeGroup = getUserRes.Data.GradeGroup,
+                    WorkPeriod = getUserRes.Data.WorkPeriod,
+                    ContractEndDate = getUserRes.Data.ContractEndDate,
+                    ImagePath = getUserRes.Data.ImagePath,
+                    LastGrade = getUserRes.Data.LastGrade,
                 };
+
+                var lastСorporateAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
+
+                if (lastСorporateAssessmentIdRes.HasData)
+                {
+                    var lastСorporateAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastСorporateAssessmentIdRes.Data);
+
+                    if (lastСorporateAssessmentSummaryRes.HasData)
+                    {
+                        viewModel.IsCorporateCompetenciesFinalized = lastСorporateAssessmentSummaryRes.Data.IsFinalized;
+                    }
+                }           
+
+                var lastManagmentAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
+
+                if (lastManagmentAssessmentIdRes.HasData)
+                {
+                    var lastManagmentAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastManagmentAssessmentIdRes.Data);
+
+                    if (lastManagmentAssessmentSummaryRes.HasData)
+                    {
+                        viewModel.IsCorporateCompetenciesFinalized = lastManagmentAssessmentSummaryRes.Data.IsFinalized;
+                    }
+                }        
 
                 return View("EmployeeGradeLayout", viewModel);
             }
@@ -220,9 +247,14 @@ namespace KOP.WEB.Controllers
                 }
 
                 var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+                var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AllAssessmentResults, getAssessmentRes.Data.UserId);
+                var allCandidates = await _userService.GetCandidatesForJudges(getAssessmentRes.Data.UserId);
+                var choosedCandidateIds = choosedCandidates.Select(c => c.Id).ToList();
+                var remainingCandidates = allCandidates.Where(c => !choosedCandidateIds.Contains(c.Id)).ToList();
+
                 viewModel.ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, getAssessmentRes.Data);
-                viewModel.CandidatesForJudges = await _userService.GetCandidatesForJudges();
-                viewModel.ChoosedCandidatesForJudges = _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AssessmentResults);
+                viewModel.ChoosedCandidatesForJudges = choosedCandidates;
+                viewModel.CandidatesForJudges = remainingCandidates;
 
                 return View("EmployeeAssessment", viewModel);
             }
@@ -232,6 +264,70 @@ namespace KOP.WEB.Controllers
                 {
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Supervisor, Urp")]
+        public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
+        {
+            try
+            {             
+                var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
+                var assessmentId = requestModel.assessmentId;
+
+                if (judgesIds.Count() > 3)
+                {
+                    return BadRequest(new
+                    {
+                        error = "Произошла ошибка при сохранении.",
+                        details = "Число оценщиков должно быть меньше 3"
+                    });
+                }
+
+                foreach (var judgeId in judgesIds)
+                {
+                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), assessmentId);
+                }
+
+                return Ok("Сохранение прошло успешно");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при сохранении.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = "Supervisor, Urp")]
+        public async Task<IActionResult> DeleteJudge(DeleteJudgeRequestModel requestModel)
+        {
+            try
+            {
+                var deleteJudgeRes = await _assessmentService.DeleteJudgeForAssessment(requestModel.judgeId, requestModel.assessmentId);
+
+                if (!deleteJudgeRes.IsSuccess)
+                {
+                    return BadRequest(new
+                    {
+                        error = "Произошла ошибка при удалении.",
+                        details = deleteJudgeRes.Description,
+                    });
+                }
+
+                return Ok("Удаление прошло успешно");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при удалении.",
+                    details = ex.Message
                 });
             }
         }

@@ -23,7 +23,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGrade(gradeId, new List<GradeEntities> { GradeEntities.Marks });
+                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Marks });
 
                 if (!gradeRes.HasData)
                 {
@@ -63,7 +63,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getGradeRes = await _gradeService.GetGrade(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
+                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
 
                 if (!getGradeRes.HasData)
                 {

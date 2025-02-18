@@ -12,10 +12,10 @@ namespace KOP.BLL.Interfaces
         Task<IBaseResponse<List<AssessmentResultDto>>> GetColleaguesAssessmentResultsForAssessment(int userId);
         Task<IBaseResponse<AssessmentResultDto>> GetUserSelfAssessmentResultByAssessment(int userId, int assessmentId);
         Task<IBaseResponse<object>> AssessUser(AssessUserDto assessUserDto);
-        Task<IBaseResponse<AssessmentDto>> GetLastAssessmentForUserAndType(int userId, SystemAssessmentTypes assessmentType);
+        Task<IBaseResponse<int>> GetLastAssessmentIdForUserAndType(int userId, SystemAssessmentTypes assessmentType);
         Task<IBaseResponse<List<AssessmentTypeDto>>> GetAssessmentTypesForUser(int userId);
         bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto);
-        List<CandidateForJudgeDto> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults);
-        Task<List<CandidateForJudgeDto>> GetCandidatesForJudges();
+        Task<List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId);
+        Task<List<CandidateForJudgeDto>> GetCandidatesForJudges(int userId);
     }
 }

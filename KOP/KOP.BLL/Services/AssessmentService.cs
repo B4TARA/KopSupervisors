@@ -4,6 +4,8 @@ using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Interfaces;
+using KOP.DAL.Entities.AssessmentEntities;
+using DocumentFormat.OpenXml.Presentation;
 
 namespace KOP.BLL.Services
 {
@@ -205,7 +207,7 @@ namespace KOP.BLL.Services
 
                         assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
-                        assessmentDto.AssessmentResults.Add(assessmentResultDto);
+                        assessmentDto.CompletedAssessmentResults.Add(assessmentResultDto);
                     }
 
                     assessmentTypeDto.Assessments.Add(assessmentDto);
@@ -243,93 +245,97 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<AssessmentSummaryDto>()
                     {
-                        Description = $"[AssessmentService.GetAssessmentSummary] : Оценка с id = {assessmentId} не найдена",
+                        Description = $"Оценка с id = {assessmentId} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
                 var assessmentSummaryDto = new AssessmentSummaryDto();
-                var assessmentMatrixElementsDtos = new List<AssessmentMatrixElementDto>();
-
-                foreach (var element in assessment.AssessmentType.AssessmentMatrix.Elements)
-                {
-                    assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDto
+                var assessmentMatrixElementsDtos = assessment.AssessmentType?.AssessmentMatrix?.Elements?
+                    .Select(element => new AssessmentMatrixElementDto
                     {
                         Row = element.Row,
                         Value = element.Value,
                         HtmlClassName = element.HtmlClassName,
-                    });
-                }
+                    })
+                    .ToList() ?? new List<AssessmentMatrixElementDto>();
 
                 assessmentSummaryDto.Elements = assessmentMatrixElementsDtos;
                 assessmentSummaryDto.ElementsByRow = assessmentSummaryDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
+                assessmentSummaryDto.AverageAssessmentResultValues = assessment.AssessmentType?.AssessmentMatrix?.Elements?
+                    .Select(element => new AssessmentResultValueDto
+                    {
+                        Value = 0,
+                        AssessmentMatrixRow = element.Row,
+                    })
+                    .ToList() ?? new List<AssessmentResultValueDto>();
+
                 var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == assessment.UserId);
+                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Judge?.SystemRoles.Contains(SystemRoles.Supervisor) ?? false);
 
-                if (selfAssessmentResult != null)
+                if (selfAssessmentResult?.AssessmentResultValues != null)
                 {
-                    var selfAssessmentResultValues = selfAssessmentResult.AssessmentResultValues;
-
-                    foreach (var value in selfAssessmentResultValues)
-                    {
-                        assessmentSummaryDto.SelfAssessmentResultValues.Add(new AssessmentResultValueDto
+                    assessmentSummaryDto.SelfAssessmentResultValues = selfAssessmentResult.AssessmentResultValues
+                        .Select(value => new AssessmentResultValueDto
                         {
                             Value = value.Value,
                             AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-
-                        assessmentSummaryDto.AverageAssessmentResultValues.Add(new AssessmentResultValueDto
-                        {
-                            Value = 0,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-                    }
+                        })
+                        .ToList();
                 }
 
-                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Judge.SystemRoles.Contains(SystemRoles.Supervisor));
-
-                if (supervisorAssessmentResult != null)
+                if (supervisorAssessmentResult?.AssessmentResultValues != null)
                 {
-                    var supervisorAssessmentResultValues = supervisorAssessmentResult.AssessmentResultValues;
-
-                    foreach (var value in supervisorAssessmentResultValues)
-                    {
-                        assessmentSummaryDto.SupervisorAssessmentResultValues.Add(new AssessmentResultValueDto
+                    assessmentSummaryDto.SupervisorAssessmentResultValues = supervisorAssessmentResult.AssessmentResultValues
+                        .Select(value => new AssessmentResultValueDto
                         {
                             Value = value.Value,
                             AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-                    }
+                        })
+                        .ToList();
                 }
 
-                var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
+                var assessmentType = assessment.AssessmentType?.SystemAssessmentType;
+                var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED).ToList();
 
-                if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
                 {
-                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId);
+                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count == 6;
+                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId).ToList();
+                }
+                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                {
+                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count == 2;
                 }
 
-                foreach (var result in completedAssessmentResults)
+                if (completedAssessmentResults.Any())
                 {
-                    var assessmentResultValues = result.AssessmentResultValues;
-
-                    foreach (var value in assessmentResultValues)
+                    foreach (var result in completedAssessmentResults)
                     {
-                        assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value += value.Value;
-                        assessmentSummaryDto.SumResult += value.Value;
+                        foreach (var value in result.AssessmentResultValues)
+                        {
+                            var avgResult = assessmentSummaryDto.AverageAssessmentResultValues.FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
+                            if (avgResult != null)
+                            {
+                                avgResult.Value += value.Value;
+                            }
+
+                            assessmentSummaryDto.SumResult += value.Value;
+                        }
+                    }
+
+                    foreach (var value in assessmentSummaryDto.AverageAssessmentResultValues)
+                    {
+                        var sum = value.Value;
+                        var average = sum / completedAssessmentResults.Count;
+
+                        value.Value = average;
+                        assessmentSummaryDto.AverageResult += average;
                     }
                 }
 
-                foreach (var value in assessmentSummaryDto.AverageAssessmentResultValues)
-                {
-                    var sum = assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value;
-                    var average = sum / completedAssessmentResults.Count();
-
-                    assessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value = average;
-                    assessmentSummaryDto.AverageResult += average;
-                }
-
-                foreach (var interpretation in assessment.AssessmentType.AssessmentInterpretations)
+                foreach (var interpretation in assessment.AssessmentType?.AssessmentInterpretations ?? Enumerable.Empty<AssessmentInterpretation>())
                 {
                     var createAssessmentInterpretationDtoRes = _mappingService.CreateAssessmentInterpretationDto(interpretation);
 
@@ -393,6 +399,89 @@ namespace KOP.BLL.Services
                 return new BaseResponse<bool>()
                 {
                     Description = $"[AssessmentService.IsActiveAssessment] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> DeleteJudgeForAssessment(int judgeId, int assessmentId)
+        {
+            try
+            {
+                var assessmentResulToDelete = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
+
+                if (assessmentResulToDelete == null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки для оценщика с id = {judgeId} и качественной оценки с id = {assessmentId} не найден",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+                else if (assessmentResulToDelete.SystemStatus == SystemStatuses.COMPLETED)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки с id = {assessmentResulToDelete.Id} невозможно удалить, так как уже была выставлена оценка",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                _unitOfWork.AssessmentResults.Remove(assessmentResulToDelete);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<object>()
+                {
+                    Description = $"[AssessmentService.DeleteJudgeForAssessment] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<object>> AddJudgeForAssessment(int judgeId, int assessmentId)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId);
+                var judge = await _unitOfWork.Users.GetAsync(x => x.Id == judgeId);
+                var assessmentResulToAdd = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
+
+                if (assessmentResulToAdd != null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Результат оценки для оценщика с id = {judgeId} и качественной оценки с id = {assessmentId} уже существует",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                assessmentResulToAdd = new AssessmentResult
+                {
+                    SystemStatus = SystemStatuses.PENDING,
+                    JudgeId = judgeId,
+                    AssessmentId = assessmentId,
+                };
+
+                await _unitOfWork.AssessmentResults.AddAsync(assessmentResulToAdd);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<object>()
+                {
+                    Description = $"[AssessmentService.AddJudgeForAssessment] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }

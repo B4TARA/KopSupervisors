@@ -17,8 +17,16 @@ async function getSubordinates(supervisorId) {
     }
 }
 
-async function getEmployeeLayout(employeeId) {
+async function getEmployeeLayout(employeeId, elem) {
     try {
+
+        const userRows = document.querySelectorAll('.user_row');
+        userRows.forEach(row => {
+            row.classList.remove('active')
+        })
+
+        elem.classList.add('active')
+
         // Выполняем fetch запрос
         let response = await fetch(`/Supervisor/GetEmployeeLayout?employeeId=${encodeURIComponent(employeeId)}`);
 
@@ -161,8 +169,6 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
             alert(`Ошибка ${response.status}: ${errorData.message}`);
             return;
         }
-
-        //alert('Оценка успешно принята!');
 
         popupAlert('Оценка успешно принята!', false)
 

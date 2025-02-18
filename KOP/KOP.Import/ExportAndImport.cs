@@ -88,6 +88,11 @@ namespace KOP.Import
 
         private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
         {
+            if(IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile))
+            {
+                return;
+            }
+
             var subdivision = await uow.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == parentSubdivisionName.Replace(" ", "").ToLower());
 
             if (subdivision is null)
@@ -143,13 +148,13 @@ namespace KOP.Import
 
         private async Task PopulateUserWithRole(User userFromExcel, UnitOfWork uow)
         {
-            userFromExcel.SystemRoles.Add(SystemRoles.Employee);
+            //userFromExcel.SystemRoles.Add(SystemRoles.Employee);
 
             if (userFromExcel.SubdivisionFromFile is null)
             {
                 return;
             }
-            else if (userFromExcel.SubdivisionFromFile.Contains("УМСТ"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УМСТ "))
             {
                 userFromExcel.SystemRoles.Add(SystemRoles.Umst);
 
@@ -157,7 +162,7 @@ namespace KOP.Import
 
                 userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (userFromExcel.SubdivisionFromFile.Contains("ЦУП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("ЦУП "))
             {
                 userFromExcel.SystemRoles.Add(SystemRoles.Cup);
 
@@ -165,7 +170,7 @@ namespace KOP.Import
 
                 userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (userFromExcel.SubdivisionFromFile.Contains("УРП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УРП "))
             {
                 userFromExcel.SystemRoles.Add(SystemRoles.Urp);
 
@@ -173,7 +178,7 @@ namespace KOP.Import
 
                 userFromExcel.SubordinateSubdivisions = rootSubdivisions.ToList();
             }
-            else if (userFromExcel.SubdivisionFromFile.Contains("УОП"))
+            else if (userFromExcel.SubdivisionFromFile.Contains("УОП "))
             {
                 userFromExcel.SystemRoles.Add(SystemRoles.Uop);
 
@@ -227,6 +232,7 @@ namespace KOP.Import
                         existingUser.Email = userFromExcel.Email;
                         existingUser.ImagePath = userFromExcel.ImagePath;
                         existingUser.ParentSubdivision = userFromExcel.ParentSubdivision;
+                        //existingUser.SystemRoles = userFromExcel.SystemRoles;
 
                         uow.Users.Update(existingUser);
                         await uow.CommitAsync();
@@ -395,7 +401,7 @@ namespace KOP.Import
                             EndDate = new DateOnly(TermManager.GetDate().Year, 12, 31),
                             SystemStatus = SystemStatuses.PENDING,
                             UserId = employee.Id,
-                            Qualification = new Qualification { SupervisorSspName = employee.FullName},
+                            Qualification = new Qualification { SupervisorSspName = employee.FullName },
                             ValueJudgment = new ValueJudgment(),
                             QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         };
@@ -416,7 +422,7 @@ namespace KOP.Import
 
                             var supervisor = await GetUserSupervisor(employee);
 
-                            if(supervisor != null)
+                            if (supervisor != null)
                             {
                                 var newSupervisorAssessmentResult = new AssessmentResult
                                 {
@@ -425,7 +431,7 @@ namespace KOP.Import
                                 };
 
                                 newAssessment.AssessmentResults.Add(newSupervisorAssessmentResult);
-                            }              
+                            }
 
                             var newSelfAssessmentResult = new AssessmentResult
                             {
@@ -472,21 +478,21 @@ namespace KOP.Import
             {
                 var parentSubdivision = await uow.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
 
-                if(parentSubdivision == null)
+                if (parentSubdivision == null)
                 {
                     return null;
                 }
 
                 var supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
 
-                if(supervisor != null)
+                if (supervisor != null)
                 {
                     return supervisor;
                 }
 
                 var rootSubdivision = parentSubdivision.Parent;
 
-                while(rootSubdivision != null)
+                while (rootSubdivision != null)
                 {
                     supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
 
@@ -494,6 +500,8 @@ namespace KOP.Import
                     {
                         return supervisor;
                     }
+
+                    rootSubdivision = rootSubdivision.Parent;
                 }
 
                 return null;
@@ -504,7 +512,7 @@ namespace KOP.Import
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var allUrpUsers = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Urp));     
+                var allUrpUsers = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Urp));
 
                 return allUrpUsers;
             }
@@ -547,7 +555,7 @@ namespace KOP.Import
             return true;
         }
 
-        private bool IsMeetUserInfoBusinessRequirements(DataRow dataRow)
+        private bool IsMeetUserInfoBusinessRequirements(DataRow dataRow, User userFromExcel)
         {
             var structureStatus = Convert.ToString(dataRow[27]);
 
@@ -562,6 +570,11 @@ namespace KOP.Import
         private bool IsAdditionalUser(int userServiceNumber)
         {
             return additionalUsersServiceNumbers.Contains(userServiceNumber);
+        }
+
+        private bool IsAdditionalSubdivision(string subdivision)
+        {
+            return subdivision.Contains("УРП ") || subdivision.Contains("УМСТ ");
         }
 
         private List<int> ReadAdditionalUsersServiceNumbersFromFile(string filePath)
@@ -607,17 +620,24 @@ namespace KOP.Import
                     try
                     {
                         var userServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]);
+                        bool meetsBusinessRequirements = IsMeetUserStructureBusinessRequirements(table.Rows[rowCounter]);
+                        bool isAdditionalUser = IsAdditionalUser(userServiceNumber);
 
-                        if (!IsMeetUserStructureBusinessRequirements(table.Rows[rowCounter]) && !IsAdditionalUser(userServiceNumber))
+                        if (!meetsBusinessRequirements && !isAdditionalUser)
                         {
                             continue;
                         }
 
                         var userFromExcel = new User
                         {
-                            ServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]),
+                            ServiceNumber = userServiceNumber,
                             GradeGroup = Convert.ToString(table.Rows[rowCounter][44]),
                         };
+
+                        if (meetsBusinessRequirements)
+                        {
+                            userFromExcel.SystemRoles.Add(SystemRoles.Employee);
+                        }
 
                         usersFromExcel.Add(userFromExcel);
                     }
@@ -652,16 +672,40 @@ namespace KOP.Import
                     try
                     {
                         var serviceNumber = Convert.ToInt32(table.Rows[rowCounter][2]);
+                        var subdivision = Convert.ToString(table.Rows[rowCounter][22]);
                         var userFromExcel = usersFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
+
+                        if (IsAdditionalSubdivision(subdivision) && userFromExcel is null)
+                        {
+                            userFromExcel = new User
+                            {
+                                ServiceNumber = serviceNumber,
+                                GradeGroup = "-",
+                            };
+
+                            usersFromExcel.Add(userFromExcel);
+                        }
 
                         if (userFromExcel is null)
                         {
                             _logger.Warn($"Не удалось найти сопоставление из СЧ в ШР для пользователя с табельным номером {serviceNumber}");
                             continue;
                         }
-                        else if (!IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter]) && !IsAdditionalUser(serviceNumber))
+
+                        bool meetsBusinessRequirements = IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter], userFromExcel);
+                        bool isAdditionalUser = IsAdditionalUser(serviceNumber);
+                        bool isAdditionalSubdivision = IsAdditionalSubdivision(subdivision);
+
+                        if (!meetsBusinessRequirements)
                         {
-                            usersFromExcel.Remove(userFromExcel);
+                            if (isAdditionalUser || isAdditionalSubdivision)
+                            {
+                                userFromExcel.SystemRoles.Remove(SystemRoles.Employee);
+                            }
+                            else
+                            {
+                                usersFromExcel.Remove(userFromExcel);
+                            }
                         }
 
                         userFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]);

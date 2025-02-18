@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
 
     <title>КОП</title>
 
@@ -62,7 +62,10 @@
                         <li>
                             <a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>
                         </li>
-                    }               
+                    }          
+                    <li>
+                        <a asp-controller="Report" asp-action="GetSubordinateEmployees">Отчет</a>
+                    </li>
                 </ul>
             </li>
             <li>
@@ -73,8 +76,8 @@
                     @{
                         var fullName = User.FindFirstValue("FullName");
                         var nameParts = fullName.Split(' ');
-                        string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty; // Имя
-                        string lastName = nameParts.Length > 0 ? nameParts[0] : string.Empty; // Фамилия
+                        string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+                        string lastName = nameParts.Length > 0 ? nameParts[0] : string.Empty;
                     }
 
                     <div class="name-job">
@@ -102,9 +105,8 @@
     <script src="~/js/assessment/assessment.js"></script>
     <script src="~/js/assessment/chooseUsers.js"></script>
     <script src="~/js/interface/interface.js"></script>
-
+    <script src="~/js/reportScript.js"></script>
 
 </body>
 
 </html>
-

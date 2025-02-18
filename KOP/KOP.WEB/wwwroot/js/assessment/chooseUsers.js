@@ -5,7 +5,7 @@ var arrUsersForAssessment = [];
 
 function selectedContainerOpen(elem) {
     let optionsContainer = document.getElementById("options-container");
-   
+
     optionsContainer.classList.toggle("active");
     searchBoxItem.value = "";
     filterListSearch("");
@@ -13,7 +13,7 @@ function selectedContainerOpen(elem) {
     if (optionsContainer.classList.contains("active")) {
         searchBoxItem.focus();
     }
-   
+
 }
 
 function optionClick(elem) {
@@ -53,7 +53,7 @@ function optionClick(elem) {
         divBtnSubmit.classList.add('action_btn', 'primary_btn', 'assessment');
         divBtnSubmit.setAttribute('id', 'users_assessment_submit');
         divBtnSubmit.innerHTML = "Добавить";
-        divBtnSubmit.setAttribute('onclick', "submitAssessment(this)");
+        divBtnSubmit.setAttribute('onclick', "addJudges()");
         choose_user_container.appendChild(divBtnSubmit);
     }
 
@@ -111,7 +111,6 @@ function filterListSearch(searchTerm) {
     });
 }
 
-
 function deleteUserAssessmentList(idcol) {
     let divBtnSubmit = document.getElementById("users_assessment_submit")
     let deleteUserSelect = idcol.parentElement;
@@ -124,4 +123,70 @@ function deleteUserAssessmentList(idcol) {
         arrUsersForAssessment.splice(userIndex, 1);
     }
     divBtnSubmit.remove()
+}
+
+function addJudges() {
+
+    let chooseAssessmentUserContainer = document.getElementById('choose_assessment_user_container')
+    let assessmentId = chooseAssessmentUserContainer.getAttribute('assessmentId');
+    let employeeId = chooseAssessmentUserContainer.getAttribute('employeeId');
+
+    const formData = new FormData();
+    formData.append('assessmentId', assessmentId);
+    formData.append('judgesIds', JSON.stringify(arrUsersForAssessment));
+
+    console.log(arrUsersForAssessment);
+
+    fetch(`/Supervisor/AddJudges`, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Неизвестная ошибка');
+                });
+            }
+            return response.text();
+        })
+        .then(successMessage => {
+            popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
+            getEmployeeAssessmentLayout(employeeId);
+            getEmployeeAssessment(assessmentId);
+        })
+        .catch(error => {
+            console.error('Произошла ошибка:', error);
+            popupResult('Ошибка: ' + error.message, false);
+        });
+}
+
+function deleteJudge(userId) {
+
+    const formData = new FormData();
+    formData.append('assessmentId', assessmentId);
+    formData.append('judgeId', judgeId);
+
+    fetch(`/Supervisor/DeleteJudge`, {
+        method: 'DELETE',
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Неизвестная ошибка');
+                });
+            }
+            return response.text();
+        })
+        .then(successMessage => {
+            popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
+            getEmployeeAssessmentLayout(employeeId);
+            getEmployeeAssessment(assessmentId);
+        })
+        .catch(error => {
+            console.error('Произошла ошибка:', error);
+            popupResult('Ошибка: ' + error.message, false);
+        });
 }

@@ -5,6 +5,7 @@ using KOP.WEB.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -23,7 +24,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGrade(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
+                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
 
                 if (!gradeRes.HasData)
                 {
@@ -34,8 +35,9 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
+                var userId = Convert.ToInt32(User.FindFirstValue("Id"));
                 var conclusionEditAccess = User.IsInRole("Urp");
-                var editAccess = (User.IsInRole("Employee") && !gradeRes.Data.IsStrategicTasksFinalized) || User.IsInRole("Urp");
+                var editAccess = (gradeRes.Data.UserId == userId && User.IsInRole("Employee") && !gradeRes.Data.IsStrategicTasksFinalized) || User.IsInRole("Urp");
                 var viewAccess = gradeRes.Data.IsStrategicTasksFinalized || editAccess;
 
                 var viewModel = new StrategicTasksViewModel
@@ -66,7 +68,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getGradeRes = await _gradeService.GetGrade(viewModel.GradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
+                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
 
                 if (!getGradeRes.HasData)
                 {
