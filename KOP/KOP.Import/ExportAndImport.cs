@@ -418,6 +418,7 @@ namespace KOP.Import
                                 SystemStatus = SystemStatuses.PENDING,
                                 UserId = employee.Id,
                                 AssessmentTypeId = assessmentType.Id,
+                                Grade = newGrade,
                             };
 
                             var supervisor = await GetUserSupervisor(employee);

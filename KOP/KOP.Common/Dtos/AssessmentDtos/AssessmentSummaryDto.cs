@@ -1,4 +1,6 @@
-﻿namespace KOP.Common.Dtos.AssessmentDtos
+﻿using KOP.Common.Enums;
+
+namespace KOP.Common.Dtos.AssessmentDtos
 {
     public class AssessmentSummaryDto
     {
