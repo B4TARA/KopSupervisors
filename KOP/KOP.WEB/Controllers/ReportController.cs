@@ -1,29 +1,33 @@
 ﻿using System.Security.Claims;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using KOP.BLL.Interfaces;
+using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.XWPF.UserModel;
+using Org.BouncyCastle.Asn1.Ocsp;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
     public class ReportController : Controller
     {
-        private readonly ISupervisorService _supervisorService;
+        private readonly IReportService _reportService;
 
-        public ReportController(ISupervisorService supervisorService)
+        public ReportController(IReportService reportService)
         {
-            _supervisorService = supervisorService;
+            _reportService = reportService;
         }
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetGradeReportLayout()
+        public async Task<IActionResult> GetSubordinateEmployees()
         {
             try
             {
                 var supervisorId = Convert.ToInt32(User.FindFirstValue("Id"));
-                var getSubordinateEmployeesRes = await _supervisorService.GetSubordinateUsers(supervisorId);
+                var getSubordinateEmployeesRes = await _reportService.GetSubordinateUsers(supervisorId);
 
                 if (!getSubordinateEmployeesRes.HasData)
                 {
@@ -34,9 +38,7 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var subordinateUsersWithGrades = getSubordinateEmployeesRes.Data.Where(x => x.Grades.Any()).ToList();
-
-                return View("GradeReportLayout", subordinateUsersWithGrades);
+                return View("SubordinateEmployees", getSubordinateEmployeesRes.Data);
             }
             catch
             {
@@ -48,38 +50,59 @@ namespace KOP.WEB.Controllers
             }
         }
 
-        //[HttpPost]
-        //[Authorize(Roles = "Urp, Umst, Uprb, Uko, SupervisorUdpo, SupervisorUprb, SupervisorUko")]
-        //public async Task<JsonResult> SaveReport1(string viewDate)
-        //{
-        //    try
-        //    {
-        //        int serviceNumber = Convert.ToInt32(User.FindFirst("service_number").Value);
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetEmployeeGrades(int employeeId)
+        {
+            try
+            {
+                var getEmployeeGradesRes = await _reportService.GetEmployeeGrades(employeeId);
 
+                if (!getEmployeeGradesRes.HasData)
+                {
+                    return View("Error", new ErrorViewModel
+                    {
+                        StatusCode = getEmployeeGradesRes.StatusCode,
+                        Message = getEmployeeGradesRes.Description
+                    });
+                }
 
-        //        var response = await _reportService.SaveReport1(viewDate, serviceNumber);
+                return View("EmployeeGrades", getEmployeeGradesRes.Data);
+            }
+            catch
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> GenerateGradeWordDocument([FromBody] GenerateGradeWordDocumentRequestModel requestModel)
+        {
+            try
+            {
+                var generateGradeWordDocumentRes = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
 
-        //        Response.StatusCode = (int)response.StatusCode;
+                if (!generateGradeWordDocumentRes.HasData)
+                {
+                    return BadRequest(new
+                    {
+                        error = "Ошибка при создании документа Word.",
+                        details = generateGradeWordDocumentRes.Description,
+                    });
+                }
+                var fileName = $"Report_Grade_{requestModel.gradeId}.docx";
+                return File(generateGradeWordDocumentRes.Data, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Ошибка при создании документа Word.");
+            }
+        }
 
-
-        //        if (response.StatusCode != Domain.Enums.StatusCodes.OK)
-        //        {
-        //            return Json("Упс... Что-то пошло не так: " + response.Description);
-        //        }
-
-
-        //        return Json(response.Data);
-        //    }
-
-
-        //    catch (Exception ex)
-        //    {
-        //        Response.StatusCode = 400;
-
-
-        //        return Json("Упс... Что-то пошло не так : " + ex.Message);
-        //    }
-        //}
     }
 }

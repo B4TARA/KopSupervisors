@@ -1,0 +1,43 @@
+﻿@model List<KOP.Common.Dtos.GradeDtos.GradeSummaryDto>
+
+<div class="home-content">
+	<div class="home_content_info">
+		<div class="home_content_info_icon">
+			<i class="fa-solid fa-folder"></i>
+		</div>
+		<div class="mid_title">
+			Отчетность
+		</div>
+	</div>
+</div>
+<div class="main_container_content" id="main_container_content">	
+	<section class="list_users_archive_container">
+		<div class="list_division_users_wrapper archive">
+			<div class="d-table table_users">
+				<div class="d-tr-th table_header">
+					<div class="d-th table_header_elem number">#</div>
+					<div class="d-th table_header_elem">Номер</div>
+					<div class="d-th table_header_elem">Период</div>
+					<div class="d-th table_header_elem">Дата назначения</div>
+					<div class="d-th table_header_elem"></div>
+				</div>
+
+				@{
+					int count = 1;
+				}
+
+				<div class="d-tbody">
+					@foreach (var grade in Model)
+					{
+						<div class="d-td number">@(count++)</div>
+						<div class="d-td fullname">@grade.Number</div>
+						<div class="d-td">@grade.StartDate - @grade.EndDate</div>
+						<div class="d-td">@grade.DateOfCreation</div>
+						<button onclick="downloadGradeWordDocument(@grade.Id)">скачать</button>
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+

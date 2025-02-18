@@ -7,7 +7,7 @@ namespace KOP.Common.Dtos.GradeDtos
         public int Id { get; set; }
         public int Number { get; set; }
         public DateOnly StartDate { get; set; }
-        public DateOnly? EndDate { get; set; }
+        public DateOnly EndDate { get; set; }
 
         public bool IsProjectsFinalized { get; set; }
         public bool IsStrategicTasksFinalized { get; set; }
