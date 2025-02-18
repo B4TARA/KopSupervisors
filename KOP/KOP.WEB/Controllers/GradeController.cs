@@ -27,7 +27,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGrade(gradeId, new List<GradeEntities> { GradeEntities.TrainingEvents });
+                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.TrainingEvents });
 
                 if (!gradeRes.HasData)
                 {
@@ -84,7 +84,7 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var gradeRes = await _gradeService.GetGrade(gradeId, new List<GradeEntities>());
+                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
 
                 if (!gradeRes.HasData)
                 {
@@ -141,7 +141,7 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var gradeRes = await _gradeService.GetGrade(gradeId, new List<GradeEntities>());
+                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
 
                 if (!gradeRes.HasData)
                 {

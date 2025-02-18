@@ -19,7 +19,7 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<IBaseResponse<GradeDto>> GetGrade(int gradeId, List<GradeEntities> gradeEntitiesList)
+        public async Task<IBaseResponse<GradeDto>> GetGradeDto(int gradeId, List<GradeEntities> gradeEntitiesList)
         {
             try
             {

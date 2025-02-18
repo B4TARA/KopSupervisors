@@ -16,13 +16,5 @@ namespace KOP.Common.Dtos
         public string ImagePath { get; set; }
         public List<SystemRoles> SystemRoles { get; set; } = new();
         public GradeDto? LastGrade { get; set; }
-        public List<GradeSummaryDto> Grades { get; set; } = new();
-    }
-
-    public class GradeSummaryDto
-    {
-        public int Id { get; set; }
-        public int Number { get; set; }
-        public DateOnly DateOfCreation { get; set; }
     }
 }
