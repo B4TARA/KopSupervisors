@@ -1601,7 +1601,6 @@ nav.close ~ .dashboard .top {
     border-collapse: separate;
     background-color: #fff;
     border-radius: 10px;
-    /*box-shadow: 0 5px 10px rgb(0 0 0 / 10%);*/
     border-spacing: 0px;
 }
 
@@ -1614,6 +1613,8 @@ nav.close ~ .dashboard .top {
         padding: 10px 15px;
         font-size: 14px;
         height: 60px;
+        background-color: #f5f7f8;
+        color: #424242;
     }
 
     .table_users tbody td {
@@ -1634,8 +1635,8 @@ nav.close ~ .dashboard .top {
     }
 
         .table_users tbody tr:hover {
-            background-color: #F6F5FF;
-            color: #000;
+            background-color: #1b74fd30;
+            color: #1b74fd;
             cursor: pointer;
             border-radius: 0px 0px 10px 10px;
         }
@@ -1800,9 +1801,8 @@ nav.close ~ .dashboard .top {
     }
 
     .list_division_users_wrapper.users .list-items .description {
-        /*max-height: 500px;*/
-        /*overflow-y: scroll;*/
-        border-radius: 8px 8px 0px 0px;
+        border-radius: 12px 12px 0px 0px;
+
     }
 
     .list_division_users_wrapper.users .list-items::-webkit-scrollbar {
@@ -1915,10 +1915,11 @@ nav.close ~ .dashboard .top {
         position: absolute;
         right: 15px;
         z-index:2;
+        color:#1b74fd;
     }
 
     .select-box .options-container {
-        background: #eee;
+        background: #f1f1f0;
         color: #000;
         max-height: 0;
         width: 100%;
@@ -1934,15 +1935,15 @@ nav.close ~ .dashboard .top {
         }
 
 .selected_main_wrapper {
-    background-color: #eee;
+    background-color: #f1f1f0;
     color: #000;
     border-radius: 8px;
     min-height: 40px;
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    column-gap:15px;
-    row-gap:10px;
+    column-gap: 15px;
+    row-gap: 10px;
     order: 0;
 }
 
@@ -2040,7 +2041,8 @@ nav.close ~ .dashboard .top {
 
 .selected_item_main_wrapper {
     padding: 10px;
-    background-color: #c0c0c0;
+    background-color: #1B74FD30;
+    color:#1b74fd;
     border-radius: 5px;
     width: 45%;
     position: relative;
@@ -2838,6 +2840,7 @@ button.show-modal,
     .searchbox_main_wrapper .searchbox_icon {
         position: absolute;
         right: 15px;
+        color:#1b74fd;
         /* cursor: pointer; */
     }
 
@@ -3262,8 +3265,8 @@ button.show-modal,
 }
 
 .table_users tbody tr.active {
-    background-color: #E4EFFF;
-    color: #000;
+    background-color: #1b74fd30;
+    color: #1b74fd;
     cursor: pointer;
 }
 
@@ -3745,4 +3748,8 @@ button.show-modal,
 
 .results_assessment_main_wrapper .table_popup{
     margin:20px 0px;
+}
+
+.section_popup.alert_popup .modal-box i{
+    color:#1b74fd;
 }
