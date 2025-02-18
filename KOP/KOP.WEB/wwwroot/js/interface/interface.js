@@ -96,7 +96,10 @@ function popupAlert(text, isReload) {
     //setTimeout(closeBtnPopup, 1500);
 }
 function popupResult(text, isReload) {
-    bodyTag.style.overflow = 'hidden'
+
+    bodyTag.style.overflow = 'hidden';
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.add('active') 
 
     const sectionPopup = document.querySelector('.section_popup');
     if (sectionPopup) {
