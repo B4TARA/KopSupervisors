@@ -556,6 +556,7 @@ body::-webkit-scrollbar {
         width: 100%;
         display: flex;
         align-items: center;
+        text-decoration:none;
     }
 
         .sidebar .logo-details img {
@@ -985,7 +986,7 @@ body::-webkit-scrollbar {
 
     .select-btn .btn-text {
         width: 80%;
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 600;
         color: var(--text-color);
     }
@@ -2880,12 +2881,17 @@ button.show-modal,
         cursor: pointer;
     }
 
-    .searchbox_main_wrapper .searchbox_icon {
-        position: absolute;
-        right: 15px;
-        color:#1b74fd;
-        /* cursor: pointer; */
-    }
+        .searchbox_main_wrapper .searchbox::placeholder {
+            color: #ababc8;
+            font-size:14px;
+        }
+
+        .searchbox_main_wrapper .searchbox_icon {
+            position: absolute;
+            right: 15px;
+            color: #1b74fd;
+            /* cursor: pointer; */
+        }
 
     .searchbox_main_wrapper.boss {
         margin-right: 0px;
@@ -3674,7 +3680,7 @@ button.show-modal,
     .result_user_list .result_item {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 20px;
         background-color: #fff;
         border: 1px solid #1b74fd;
         border-radius: 12px;
@@ -3710,7 +3716,6 @@ button.show-modal,
     align-items: center;
     justify-content: center;
     padding: 10px;
-    margin-right: 45px;
 }
 
     .result_item span.result_item_status{
@@ -3741,7 +3746,7 @@ button.show-modal,
 }
 
 .popup_content_header .title{
-    font-size:24px;
+    font-size:22px;
 }
 
 .add_row_btn {
@@ -3861,4 +3866,8 @@ button.show-modal,
 
 .section_popup.alert_popup .modal-box i{
     color:#1b74fd;
+}
+
+.delete_item:hover{
+    transform:scale(1.1);
 }

@@ -27,10 +27,20 @@
         <div class="sidebar_close_btn_wrapper">
             <i class="fa-solid fa-angle-left sidebar_btn"></i>
         </div>
-        <div class="logo-details">
-            <img src="/logo.svg" alt="logo">
-            <span class="logo_name">КОП</span>
-        </div>
+        @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+        {
+            <a asp-controller="Supervisor" asp-action="GetSupervisorLayout" class="logo-details">
+                <img src="/logo.svg" alt="logo">
+                <span class="logo_name">КОП</span>
+            </a>
+        }else if (User.IsInRole("Employee"))
+        {
+             <a asp-controller="Employee" asp-action="GetEmployeeLayout">
+                <img src="/logo.svg" alt="logo">
+                <span class="logo_name">КОП</span>
+             </a>
+        }
+        
         <ul class="nav-links">
             <li>
                 @if (User.IsInRole("Employee"))
