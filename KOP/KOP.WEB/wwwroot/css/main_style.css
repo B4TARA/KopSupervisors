@@ -1636,9 +1636,9 @@ nav.close ~ .dashboard .top {
         font-weight: 600;
         text-align: left;
         border: none;
-        padding: 10px 15px;
+        padding: 5px 15px;
         font-size: 14px;
-        height: 60px;
+        height: 50px;
         background-color: #f5f7f8;
         color: #424242;
         line-height:100%;
@@ -1833,14 +1833,15 @@ nav.close ~ .dashboard .top {
         z-index: 1;
     }
 
-    .list_division_users_wrapper.users .list-items .description {
-        border-radius: 12px 12px 0px 0px;
-        display:flex;
-        align-items:center;
-        gap:10px;
-        line-height:150%;
-
-    }
+.list_division_users_wrapper.users .list-items .description {
+    border-radius: 12px 12px 0px 0px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 150%;
+    background-color: #f5f7f8;
+    border-bottom: 1px solid #d3d3d3;
+}
 
     .list_division_users_wrapper.users .list-items::-webkit-scrollbar {
         width: 8px;
