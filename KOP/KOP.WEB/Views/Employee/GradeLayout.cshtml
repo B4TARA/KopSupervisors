@@ -382,3 +382,20 @@
         </div>
     }
 </div>
+
+@if(Model.ReadyForEmployeeApproval)
+{
+    <div class="actions_container">
+        <div class="action_buttons_wrapper">
+            <div onclick="approveGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
+                Ознакомиться
+            </div>
+        </div>
+    </div>
+}
+else if (Model.ApprovedByEmployee)
+{
+    <div>
+        ВЫ УСПЕШНО ОЗНАКОМИЛИСЬ
+    </div>
+}

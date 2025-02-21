@@ -10,6 +10,7 @@ namespace KOP.DAL.Entities.GradeEntities
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
         public SystemStatuses SystemStatus { get; set; }
+        public GradeStatuses GradeStatus { get; set; }
 
         public bool IsProjectsFinalized { get; set; }
         public bool IsStrategicTasksFinalized { get; set; }

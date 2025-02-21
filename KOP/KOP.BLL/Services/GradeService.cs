@@ -36,7 +36,6 @@ namespace KOP.BLL.Services
                     }
 
                     // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
-
                     if (gradeEntity == GradeEntities.Marks)
                     {
                         var allMarkTypesDbRes = await _unitOfWork.MarkTypes.GetAllAsync(includeProperties: "Marks");
@@ -190,9 +189,9 @@ namespace KOP.BLL.Services
                     }
                     else
                     {
-                        valueJudgment.Strengths = dto.ValueJudgment.Strengths;
-                        valueJudgment.BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect;
-                        valueJudgment.RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment;
+                        valueJudgment.Strengths = dto.ValueJudgment.Strengths ?? "";
+                        valueJudgment.BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect ?? "";
+                        valueJudgment.RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment ?? "";
                     }
                 }
 
@@ -233,20 +232,20 @@ namespace KOP.BLL.Services
                     }
                     else
                     {
-                        qualification.SupervisorSspName = dto.Qualification.SupervisorSspName;
-                        qualification.Link = dto.Qualification.Link;
-                        qualification.HigherEducation = dto.Qualification.HigherEducation;
-                        qualification.Speciality = dto.Qualification.Speciality;
-                        qualification.QualificationResult = dto.Qualification.QualificationResult;
+                        qualification.SupervisorSspName = dto.Qualification.SupervisorSspName ?? "";
+                        qualification.Link = dto.Qualification.Link ?? "";
+                        qualification.HigherEducation = dto.Qualification.HigherEducation ?? "";
+                        qualification.Speciality = dto.Qualification.Speciality ?? "";
+                        qualification.QualificationResult = dto.Qualification.QualificationResult ?? "";
                         qualification.StartDate = dto.Qualification.StartDate;
                         qualification.EndDate = dto.Qualification.EndDate;
-                        qualification.AdditionalEducation = dto.Qualification.AdditionalEducation;
+                        qualification.AdditionalEducation = dto.Qualification.AdditionalEducation ?? "";
                         qualification.CurrentStatusDate = dto.Qualification.CurrentStatusDate;
                         qualification.CurrentExperienceYears = dto.Qualification.CurrentExperienceYears;
                         qualification.CurrentExperienceMonths = dto.Qualification.CurrentExperienceMonths;
                         qualification.CurrentJobStartDate = dto.Qualification.CurrentJobStartDate;
-                        qualification.CurrentJobPositionName = dto.Qualification.CurrentJobPositionName;
-                        qualification.EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations;
+                        qualification.CurrentJobPositionName = dto.Qualification.CurrentJobPositionName ?? "";
+                        qualification.EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations ?? "";
 
                         foreach (var previousJob in dto.Qualification.PreviousJobs)
                         {

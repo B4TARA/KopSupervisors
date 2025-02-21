@@ -19,7 +19,7 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetValueJudgmentPopup(int gradeId)
+        public async Task<IActionResult> GetPopup(int gradeId)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace KOP.WEB.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> EditValueJudgment(ValueJudgmentViewModel viewModel)
+        public async Task<IActionResult> Edit(ValueJudgmentViewModel viewModel)
         {
             try
             {
