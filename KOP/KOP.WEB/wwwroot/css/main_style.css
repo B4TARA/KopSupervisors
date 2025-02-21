@@ -945,6 +945,7 @@ body::-webkit-scrollbar {
     padding: 30px 30px 0px 30px;
     gap: 15px;
     padding-bottom:20px;
+    position:relative;
 }
 
 
@@ -1629,8 +1630,6 @@ nav.close ~ .dashboard .top {
     border-radius: 10px;
     border-spacing: 0px;
 }
-
-
 
     .table_users thead th {
         font-weight: 600;

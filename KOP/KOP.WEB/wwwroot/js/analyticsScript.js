@@ -104,6 +104,7 @@ function drawAssessmentAnalytics(item) {
         },
         options: getChartOptions()
     });
+
 }
 
 // Проверка наличия данных
@@ -180,6 +181,7 @@ function displayNoDataMessage() {
             </div>
         </div>
     `;
+
 }
 
 // Получить данные для отрисовки графика (json)
@@ -211,7 +213,7 @@ function createTabs(data) {
     data.forEach((item, index) => {
         const tab = document.createElement('button');
         tab.className = 'tab';
-        tab.innerText = item.typeName + " " + item.generalAvgValue;
+        tab.innerText = item.typeName;            ;
         tab.onclick = () => {
 
             drawAssessmentAnalytics(item);
@@ -273,27 +275,67 @@ async function loadCompetenciesAnalytics(userId) {
         topDescriptions.innerHTML = '';
         data.topCompetencies.forEach((item, index) => {
             var newTopCompetenceDiv = document.createElement('div');
-            newTopCompetenceDiv.textContent = `${item.name} ${item.avgValue}`;
+            newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            const itemPercentage = ( item.avgValue/13) * 100;
+            newTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text mid_description">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
             topCompetencies.appendChild(newTopCompetenceDiv);
 
             var newTopDescription = document.createElement('div');
             newTopDescription.textContent = item.competenceDescription;
+            newTopDescription.classList.add('mid_description')
             topDescriptions.appendChild(newTopDescription);
         });
 
         antiTopCompetencies.innerHTML = '';
         antiTopDescriptions.innerHTML = '';
         data.antiTopCompetencies.forEach((item, index) => {
+            const itemPercentage = (item.avgValue/13) * 100;
             var newAntiTopCompetenceDiv = document.createElement('div');
-            newAntiTopCompetenceDiv.textContent = `${item.name} ${item.avgValue}`;
+            newAntiTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            newAntiTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text mid_description">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
             antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
 
             var newAntiTopDescription = document.createElement('div');
             newAntiTopDescription.textContent = item.competenceDescription;
+            newAntiTopDescription.classList.add('mid_description')
             antiTopDescriptions.appendChild(newAntiTopDescription);
         });
 
+        
+        document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {
+            headerBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // Находим соответствующий контент
+                const content = this.nextElementSibling;
+
+                // Проверяем, есть ли у контента класс active
+                if (content.classList.contains('active')) {
+                    // Если есть, удаляем класс active
+                    content.classList.remove('active');
+                } else {
+                    // Если нет, сначала убираем класс active у всех элементов контента
+                    document.querySelectorAll('.dashboard-description-content').forEach(function (item) {
+                        item.classList.remove('active');
+                    });
+                    // Затем добавляем класс active к текущему контенту
+                    content.classList.add('active');
+                }
+            });
+        });
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }
+
