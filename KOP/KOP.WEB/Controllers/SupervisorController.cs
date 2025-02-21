@@ -132,42 +132,66 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
+                var user = getUserRes.Data;
                 var viewModel = new EmployeeGradeLayoutViewModel
                 {
-                    Id = getUserRes.Data.Id,
-                    FullName = getUserRes.Data.FullName,
-                    Position = getUserRes.Data.Position,
-                    SubdivisionFromFile = getUserRes.Data.SubdivisionFromFile,
-                    GradeGroup = getUserRes.Data.GradeGroup,
-                    WorkPeriod = getUserRes.Data.WorkPeriod,
-                    ContractEndDate = getUserRes.Data.ContractEndDate,
-                    ImagePath = getUserRes.Data.ImagePath,
-                    LastGrade = getUserRes.Data.LastGrade,
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Position = user.Position,
+                    SubdivisionFromFile = user.SubdivisionFromFile,
+                    GradeGroup = user.GradeGroup,
+                    WorkPeriod = user.WorkPeriod,
+                    ContractEndDate = user.ContractEndDate,
+                    ImagePath = user.ImagePath,
+                    LastGrade = user.LastGrade,
                 };
 
-                var lastСorporateAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
-
-                if (lastСorporateAssessmentIdRes.HasData)
+                if(user.LastGrade is null)
                 {
-                    var lastСorporateAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastСorporateAssessmentIdRes.Data);
+                    return View("EmployeeGradeLayout", viewModel);
+                }
 
-                    if (lastСorporateAssessmentSummaryRes.HasData)
-                    {
-                        viewModel.IsCorporateCompetenciesFinalized = lastСorporateAssessmentSummaryRes.Data.IsFinalized;
-                    }
-                }           
-
-                var lastManagmentAssessmentIdRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
-
-                if (lastManagmentAssessmentIdRes.HasData)
+                foreach(var dto in user.LastGrade.AssessmentDtos)
                 {
-                    var lastManagmentAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastManagmentAssessmentIdRes.Data);
+                    var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
 
-                    if (lastManagmentAssessmentSummaryRes.HasData)
+                    if(!getAssessmentSummaryRes.HasData)
                     {
-                        viewModel.IsCorporateCompetenciesFinalized = lastManagmentAssessmentSummaryRes.Data.IsFinalized;
+                        continue;
                     }
-                }        
+
+                    var assessmentSummary = getAssessmentSummaryRes.Data;
+                    if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                    {
+                        viewModel.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
+                    }
+                    else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                    {
+                        viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
+                    }
+                }    
+                
+                var readyForSupervisorApproval = user.LastGrade.GradeStatus == GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
+                if(!readyForSupervisorApproval)
+                {
+                    return View("EmployeeGradeLayout", viewModel);
+                }
+
+                var supervisor = await _supervisorService.GetSupervisorForUser(employeeId);
+                if (supervisor == null)
+                {
+                    return View("EmployeeGradeLayout", viewModel);                  
+                }
+
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var accessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
+                if(!accessForSupervisorApproval)
+                {
+                    return View("EmployeeGradeLayout", viewModel);
+                }
+
+                viewModel.ReadyForSupervisorApproval = readyForSupervisorApproval;
+                viewModel.AccessForSupervisorApproval = accessForSupervisorApproval;
 
                 return View("EmployeeGradeLayout", viewModel);
             }
@@ -327,6 +351,34 @@ namespace KOP.WEB.Controllers
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Supervisor, Urp")]
+        public async Task<IActionResult> ApproveEmployeeGrade([FromBody] int gradeId)
+        {
+            try
+            {
+                var approveEmployeeGradeRes = await _supervisorService.ApproveEmployeeGrade(gradeId);
+                if (!approveEmployeeGradeRes.IsSuccess)
+                {
+                    return BadRequest(new
+                    {
+                        error = "Произошла ошибка при завершении оценки.",
+                        details = approveEmployeeGradeRes.Description,
+                    });
+                }
+
+                return Ok("Оценка успешно завершена");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при завершении оценки.",
                     details = ex.Message
                 });
             }

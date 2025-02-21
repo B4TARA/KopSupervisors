@@ -532,5 +532,40 @@ namespace KOP.BLL.Services
 
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }
+
+        public async Task<IBaseResponse<object>> ApproveGrade(int gradeId)
+        {
+            try
+            {
+                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
+                if (grade is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Оценка с ID = {gradeId} не найдена",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                grade.GradeStatus = GradeStatuses.APPROVED_BY_EMPLOYEE;
+
+                _unitOfWork.Grades.Update(grade);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return new BaseResponse<object>()
+                {
+                    Description = $"[SupervisorService.ApproveEmployeeGrade] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
     }
 }

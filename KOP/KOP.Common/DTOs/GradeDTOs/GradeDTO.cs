@@ -33,6 +33,7 @@ namespace KOP.Common.Dtos.GradeDtos
         public List<AssessmentDto> AssessmentDtos { get; set; } = new();
 
         public SystemStatuses SystemStatus { get; set; }
+        public GradeStatuses GradeStatus { get; set; }
         public int UserId { get; set; }
     }
 }

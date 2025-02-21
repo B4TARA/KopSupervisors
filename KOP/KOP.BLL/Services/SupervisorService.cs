@@ -104,6 +104,53 @@ namespace KOP.BLL.Services
             }
         }
 
+        public async Task<IBaseResponse<object>> ApproveEmployeeGrade(int gradeId)
+        {
+            try
+            {
+                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
+                if (grade is null)
+                {
+                    return new BaseResponse<object>()
+                    {
+                        Description = $"Оценка с ID = {gradeId} не найдена",
+                        StatusCode = StatusCodes.EntityNotFound,
+                    };
+                }
+
+                grade.GradeStatus = GradeStatuses.COMPLETED;
+                grade.SystemStatus = SystemStatuses.COMPLETED;
+
+                foreach(var assessment in grade.Assessments)
+                {
+                    var pendingAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.PENDING);
+                    foreach(var result in pendingAssessmentResults)
+                    {
+                        _unitOfWork.AssessmentResults.Remove(result);
+                    }
+
+                    assessment.SystemStatus = SystemStatuses.COMPLETED;
+                }
+
+                _unitOfWork.Grades.Update(grade);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponse<object>()
+                {
+                    StatusCode = StatusCodes.OK,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return new BaseResponse<object>()
+                {
+                    Description = $"[SupervisorService.ApproveEmployeeGrade] : {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+            }
+        }
+
         private async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(Subdivision subdivision)
         {
             try

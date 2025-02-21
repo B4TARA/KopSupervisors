@@ -32,7 +32,7 @@ else
 						<i class="fa-solid fa-list"></i>
 						Вывод
 					</div>
-					<input type="text" asp-for="Conclusion" value="" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
 				</div>
 			</div>
 			<table class="table_popup">

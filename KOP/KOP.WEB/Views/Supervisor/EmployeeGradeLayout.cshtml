@@ -174,13 +174,11 @@
             {
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
-                        @* Добавить *@
-                        @if (Model.LastGrade.IsStrategicTasksFinalized)
+                        @if (Model.IsManagmentCompetenciesFinalized)
                         {
                             <span class="result_item_status green">
                                 <i class="fa-solid fa-check"></i>
                             </span>
-
                         }
                         else
                         {
@@ -197,13 +195,11 @@
                 </div>
                 <div class="margin_container_bottom_small">
                     <div class="result_item">
-                        @* Добавить *@
-                        @if (Model.LastGrade.IsStrategicTasksFinalized)
+                        @if (Model.IsCorporateCompetenciesFinalized)
                         {
                             <span class="result_item_status green">
                                 <i class="fa-solid fa-check"></i>
                             </span>
-
                         }
                         else
                         {
@@ -291,7 +287,6 @@
                         <span class="result_item_status green">
                             <i class="fa-solid fa-check"></i>
                         </span>
-
                     }
                     else
                     {
@@ -311,10 +306,13 @@
 
 </div>
 
-<div class="actions_container">
-    <div class="action_buttons_wrapper">
-        <div onclick="" class="action_btn green_btn full_width">
-            Ознакомиться
+@if (Model.ReadyForSupervisorApproval && Model.AccessForSupervisorApproval)
+{
+    <div class="actions_container">
+        <div class="action_buttons_wrapper">
+            <div onclick="approveEmployeeGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
+                Ознакомиться
+            </div>
         </div>
     </div>
-</div>
+}

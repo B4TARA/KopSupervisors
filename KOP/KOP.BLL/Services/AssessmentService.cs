@@ -334,7 +334,7 @@ namespace KOP.BLL.Services
         {
             if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
             {
-                return completedResults.Count == 6 && completedResults.All(x => x.JudgeId != userId);
+                return completedResults.Count == 6;
             }
             else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
             {

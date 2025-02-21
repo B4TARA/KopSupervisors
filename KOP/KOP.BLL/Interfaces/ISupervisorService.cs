@@ -9,5 +9,6 @@ namespace KOP.BLL.Interfaces
         Task<User?> GetSupervisorForUser(int userId);
         Task<IBaseResponse<IEnumerable<SubdivisionDto>>> GetUserSubordinateSubdivisions(int supervisorId, bool onlySubdivisionsWithPendingUsersGrades);
         Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(int supervisorId);
+        Task<IBaseResponse<object>> ApproveEmployeeGrade(int gradeId);
     }
 }

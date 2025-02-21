@@ -17,5 +17,6 @@ namespace KOP.BLL.Interfaces
         bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto);
         Task<List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId);
         Task<List<CandidateForJudgeDto>> GetCandidatesForJudges(int userId);
+        Task<IBaseResponse<object>> ApproveGrade(int gradeId);
     }
 }
