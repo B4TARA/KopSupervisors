@@ -2,7 +2,6 @@
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
-using KOP.DAL.Entities;
 
 namespace KOP.BLL.Interfaces
 {

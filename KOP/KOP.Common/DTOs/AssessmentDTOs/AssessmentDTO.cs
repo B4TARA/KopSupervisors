@@ -10,14 +10,11 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public string AssessmentTypeName { get; set; } = string.Empty;
         public SystemAssessmentTypes SystemAssessmentType { get; set; }
         public SystemStatuses SystemStatus { get; set; }
-        public DateOnly StartDate { get; set; }
-        public DateOnly? EndDate { get; set; }
         public bool IsActiveAssessment { get; set; }
         public int SumValue { get; set; }
         public int AverageValue { get; set; }
         public List<AssessmentResultDto> AllAssessmentResults { get; set; } = new();
         public List<AssessmentResultDto> CompletedAssessmentResults { get; set; } = new();
-        public List<AssessmentInterpretationDto> AssessmentTypeInterpretations { get; set; } = new();
         public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
     }
 }

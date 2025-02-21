@@ -17,6 +17,39 @@ namespace KOP.BLL.Services
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
         }
+        public async Task<User?> GetSupervisorForUser(int userId)
+        {
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId);
+            var parentSubdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
+
+            if (parentSubdivision == null)
+            {
+                return null;
+            }
+
+            var supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
+
+            if (supervisor != null)
+            {
+                return supervisor;
+            }
+
+            var rootSubdivision = parentSubdivision.Parent;
+
+            while (rootSubdivision != null)
+            {
+                supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
+
+                if (supervisor != null)
+                {
+                    return supervisor;
+                }
+
+                rootSubdivision = rootSubdivision.Parent;
+            }
+
+            return null;
+        }
 
         public async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(int supervisorId)
         {

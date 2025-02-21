@@ -5,107 +5,126 @@
 <html lang="en" dir="ltr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <title>КОП</title>
+	<title>КОП</title>
 
-    <link rel="stylesheet" href="~/css/main_style.css">
-    <link rel="stylesheet" href="~/css/style_matrix_table.css">
-    <link rel="stylesheet" href="~/css/style_popup.css">
-    <link rel="stylesheet" href="~/css/dashboard.css">
+	<link rel="stylesheet" href="~/css/main_style.css">
+	<link rel="stylesheet" href="~/css/style_matrix_table.css">
+	<link rel="stylesheet" href="~/css/style_popup.css">
+	<link rel="stylesheet" href="~/css/dashboard.css">
 
-    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="icon" sizes="128x128" href="/logo.svg">
+	<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link rel="icon" sizes="128x128" href="/logo.svg">
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <aside class="sidebar close_sidebar">
-        <div class="sidebar_close_btn_wrapper">
-            <i class="fa-solid fa-angle-left sidebar_btn"></i>
-        </div>
-        <div class="logo-details">
-            <img src="/logo.svg" alt="logo">
-            <span class="logo_name">КОП</span>
-        </div>
-        <ul class="nav-links">
-            <li>
-                @if (User.IsInRole("Employee"))
-                {
-                    <a asp-area="" asp-controller="Employee" asp-action="GetEmployeeLayout">
-                        <i class='bx bx-grid-alt'></i>
-                        <span class="link_name">Главная</span>
-                    </a>
-                }
-            </li>
-            <li>
-                <div class="iocn-link">
-                    <a href="#">
-                        <i class='bx bx-collection'></i>
-                        <span class="link_name">Кабинеты</span>
-                    </a>
-                    <i class='bx bxs-chevron-down arrow'></i>
-                </div>
-                <ul class="sub-menu">
-                    <li><a class="link_name" href="#">Кабинеты</a></li>
-                    @if (User.IsInRole("Employee"))
-                    {
-                        <li>
-                            <a asp-controller="Employee" asp-action="GetEmployeeLayout">Личный кабинет</a>
-                        </li>
-                    }
-                    @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
-                    {
-                        <li>
-                            <a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>
-                        </li>
-                    }          
-                    <li>
-                        <a asp-controller="Report" asp-action="GetSubordinateEmployees">Отчет</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <div class="profile-details">
-                    <div class="profile-content">
-                        <img src="@User.FindFirstValue("ImagePath")" alt="profileImg">
-                    </div>
-                    @{
-                        var fullName = User.FindFirstValue("FullName");
-                        var nameParts = fullName.Split(' ');
-                        string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
-                        string lastName = nameParts.Length > 0 ? nameParts[0] : string.Empty;
-                    }
+	<aside class="sidebar close_sidebar">
+		<div class="sidebar_close_btn_wrapper">
+			<i class="fa-solid fa-angle-left sidebar_btn"></i>
+		</div>
+		<div class="logo-details">
+			<img src="/logo.svg" alt="logo">
+			<span class="logo_name">КОП</span>
+		</div>
+		<ul class="nav-links">
+			<li>
+				@if (User.IsInRole("Employee"))
+				{
+					<a asp-area="" asp-controller="Employee" asp-action="GetEmployeeLayout">
+						<i class='bx bx-grid-alt'></i>
+						<span class="link_name">Главная</span>
+					</a>
+				}
+			</li>
+			<li>
+				<div class="iocn-link">
+					<a href="#">
+						<i class='bx bx-collection'></i>
+						<span class="link_name">Кабинеты</span>
+					</a>
+					<i class='bx bxs-chevron-down arrow'></i>
+				</div>
+				<ul class="sub-menu">
+					<li><a class="link_name" href="#">Кабинеты</a></li>
+					@if (User.IsInRole("Employee"))
+					{
+						<li>
+							<a asp-controller="Employee" asp-action="GetEmployeeLayout">Личный кабинет</a>
+						</li>
+					}
+					@if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+					{
+						<li>
+							<a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>
+						</li>
+					}
+				</ul>
+			</li>
+			@if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+			{
+				<li>
+					<a asp-area="" asp-controller="Analytics" asp-action="GetAnalyticsLayout">
+						<i class='bx bx-bar-chart-alt-2'></i>
+						<span class="link_name">Аналитика</span>
+					</a>
+				</li>
+				<li>
+					<div class="iocn-link">
+						<a href="#">
+							<i class='bx bx-chart'></i>
+							<span class="link_name">Отчетность</span>
+						</a>
+						<i class='bx bxs-chevron-down arrow'></i>
+					</div>
+					<ul class="sub-menu">
+						<li><a class="link_name" href="#">Отчетность</a></li>
+						<li><a asp-controller="Report" asp-action="GetSubordinateEmployees">Сотрудники и оценки</a></li>
+					</ul>
+				</li>
+			}
+			<li>
+				<div class="profile-details">
+					<div class="profile-content">
+						<img src="@User.FindFirstValue("ImagePath")" alt="profileImg">
+					</div>
+					@{
+						var fullName = User.FindFirstValue("FullName");
+						var nameParts = fullName.Split(' ');
+						string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+						string lastName = nameParts.Length > 0 ? nameParts[0] : string.Empty;
+					}
 
-                    <div class="name-job">
-                        <div class="profile_name">
-                            <span>@lastName</span>
-                            <span>@firstName</span>
-                        </div>
-                    </div>
-                    <a asp-area="" asp-controller="Account" asp-action="Logout" class="logout-icon">
-                        <i class='bx bx-log-out'></i>
-                    </a>
-                </div>
-            </li>
-        </ul>
-    </aside>
+					<div class="name-job">
+						<div class="profile_name">
+							<span>@lastName</span>
+							<span>@firstName</span>
+						</div>
+					</div>
+					<a asp-area="" asp-controller="Account" asp-action="Logout" class="logout-icon">
+						<i class='bx bx-log-out'></i>
+					</a>
+				</div>
+			</li>
+		</ul>
+	</aside>
 
-    <section class="home-section" role="main">
-        @RenderBody()
-        <div class="overlay" onclick="closeBtnPopup(this, false)"></div>
-    </section>
+	<section class="home-section" role="main">
+		@RenderBody()
+		<div class="overlay" onclick="closeBtnPopup(this, false)"></div>
+	</section>
 
-    <script src="~/js/interface/searchbar.js"></script>
-    <script src="~/js/interface/filter.js"></script>
-    <script src="~/js/interface/drawCountStatuses.js"></script>
-    <script src="~/js/assessment/assessment.js"></script>
-    <script src="~/js/assessment/chooseUsers.js"></script>
-    <script src="~/js/interface/interface.js"></script>
-    <script src="~/js/reportScript.js"></script>
+	<script src="/js/interface/searchbar.js"></script>
+	<script src="/js/interface/filter.js"></script>
+	<script src="/js/interface/drawCountStatuses.js"></script>
+	<script src="/js/assessment/assessment.js"></script>
+	<script src="/js/assessment/chooseUsers.js"></script>
+	<script src="/js/interface/interface.js"></script>
+	<script src="/js/reportScript.js"></script>
 
 </body>
 

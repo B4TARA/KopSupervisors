@@ -85,7 +85,7 @@
 								int maxElementsToShow = 2;
 							}
 
-							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.ElementsByRow[0])
+							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.RowsWithElements[0])
 							{
 								if (count >= maxElementsToShow)
 								{
@@ -107,7 +107,7 @@
 					 
 
 					<tbody>
-						@for (int i = 1; i < Model.AssessmentSummaryDto.ElementsByRow.Count; i++)
+						@for (int i = 1; i < Model.AssessmentSummaryDto.RowsWithElements.Count; i++)
 						{
 							<tr>
 								<td>
@@ -153,7 +153,7 @@
 									maxElementsToShow = 2;
 								}
 
-								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.ElementsByRow[i])
+								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.RowsWithElements[i])
 								{
 									if (count >= maxElementsToShow)
 									{
@@ -167,7 +167,7 @@
 									<div class="mid_description">@Model.AssessmentSummaryDto.SelfAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
 								</td>
 								<td>
-									<div class="mid_description">@Model.AssessmentSummaryDto.AverageAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
+									<div class="mid_description">@Model.AssessmentSummaryDto.AverageValuesByRow.First(x => x.AssessmentMatrixRow == i).Value</div>
 								</td>
 							</tr>
 						}

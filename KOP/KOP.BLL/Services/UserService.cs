@@ -3,7 +3,6 @@ using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
-using KOP.DAL.Entities;
 using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 
@@ -13,13 +12,15 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
+        private readonly ISupervisorService _supervisorService;
         private readonly IMappingService _mappingService;
 
-        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService)
+        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService, ISupervisorService supervisorService)
         {
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
             _mappingService = mappingService;
+            _supervisorService = supervisorService;
         }
 
         public async Task<IBaseResponse<UserDto>> GetUser(int id)
@@ -71,40 +72,6 @@ namespace KOP.BLL.Services
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
-        }
-
-        private async Task<User?> GetUserSupervisor(int userId)
-        {
-            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId);
-            var parentSubdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
-
-            if (parentSubdivision == null)
-            {
-                return null;
-            }
-
-            var supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
-
-            if (supervisor != null)
-            {
-                return supervisor;
-            }
-
-            var rootSubdivision = parentSubdivision.Parent;
-
-            while (rootSubdivision != null)
-            {
-                supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
-
-                if (supervisor != null)
-                {
-                    return supervisor;
-                }
-
-                rootSubdivision = rootSubdivision.Parent;
-            }
-
-            return null;
         }
 
         public async Task<IBaseResponse<List<AssessmentDto>>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
@@ -266,6 +233,7 @@ namespace KOP.BLL.Services
                 {
                     assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDto
                     {
+                        Column = element.Column,
                         Row = element.Row,
                         Value = element.Value,
                         HtmlClassName = element.HtmlClassName,
@@ -343,6 +311,7 @@ namespace KOP.BLL.Services
                     {
                         assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
                         {
+                            Column = element.Column,
                             Row = element.Row,
                             Value = element.Value,
                             HtmlClassName = element.HtmlClassName
@@ -504,7 +473,7 @@ namespace KOP.BLL.Services
         public async Task<List<CandidateForJudgeDto>> GetCandidatesForJudges(int userId)
         {
             var candidatesForJudgesDtos = new List<CandidateForJudgeDto>();
-            var userSupervisor = await GetUserSupervisor(userId);
+            var userSupervisor = await _supervisorService.GetSupervisorForUser(userId);
             var supervisorId = userSupervisor.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
@@ -527,10 +496,10 @@ namespace KOP.BLL.Services
             return candidatesForJudgesDtos;
         }
 
-        public async Task <List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId)
+        public async Task<List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId)
         {
             var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
-            var userSupervisor = await GetUserSupervisor(userId);
+            var userSupervisor = await _supervisorService.GetSupervisorForUser(userId);
             var supervisorId = userSupervisor.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
