@@ -4,68 +4,62 @@
     Layout = null;
 }
 
-<div class="user_info_container margin_container_bottom_small">
+<div class="user_info_container user_info_block margin_container_bottom_small">
     <div class="user_info">
         <div class="title">
             @Model.FullName
         </div>
-
+        <div class="description_wrapper">
+            <div class="mid_title">@Model.Position</div>
+        </div>
     </div>
-
     <div class="user_image_wrapper">
         <div class="user_image" style="background-image:url('@Model.ImagePath');"></div>
     </div>
+
 </div>
 
-<div class="user_info_container  margin_container_bottom">
+<div class="user_info_container user_info_block  margin_container_bottom_small">
     <div class="user_info extra_info">
-        <div class="description_wrapper">
-            <div class="mid_title">Должность:</div>
-            <div class="description">
-                @Model.Position
-            </div>
+        <div class="mid_title header_info_block">
+            Общая информация
         </div>
 
         <div class="description_wrapper">
-            <div class="mid_title">Подразделение:</div>
-            <div class="description">
+            <div class="description">Подразделение</div>
+            <div class="mid_title">
                 @Model.SubdivisionFromFile
             </div>
         </div>
-
         <div class="description_wrapper">
-            <div class="mid_title">Группа грейда:</div>
-            <div class="description">
+            <div class=" description">Группа грейда</div>
+            <div class="mid_title">
                 @Model.GradeGroup
             </div>
         </div>
-
         <div class="description_wrapper">
-            <div class="mid_title">Срок работы в Банке:</div>
-            <div class="description">
+            <div class="description">Срок работы в Банке</div>
+            <div class="mid_title ">
                 @Model.WorkPeriod
             </div>
         </div>
-
         <div class="description_wrapper">
-            <div class="mid_title">Дата окончания контракта:</div>
-            <div class="description">
+            <div class="description">Дата окончания контракта</div>
+            <div class="mid_title ">
                 @Model.ContractEndDate
             </div>
         </div>
-
         <div class="description_wrapper">
-
-            <div class="mid_title">Период оценки:</div>
+            <div class="description">Период оценки</div>
             @if (Model.LastGrade != null)
             {
-                <div class="description">
+                <div class="mid_title ">
                     @Model.LastGrade.StartDate -  @Model.LastGrade.EndDate
                 </div>
             }
             else
             {
-                <div class="description">
+                <div class="mid_title">
                     -
                 </div>
             }
@@ -75,18 +69,19 @@
 </div>
 
 <div class="results_container margin_container_bottom">
-    <div class="container_description">
-        <div class="mid_title">
-            Результаты
-        </div>
-    </div>
+    
     @if (Model.LastGrade == null)
     {
         <div class="undefined_page_wrapper">
-            <div class="title">
-                Оценка не найдена
+
+            <div class="container_description">
+                <div class="title">
+                    Оценки пока отсутсвуют
+                </div>
+                <div class="mid_description">
+                    Здесь будут отображаться результаты оценок после их добавления
+                </div>
             </div>
-            @* <img src="/image/undefinedpage.svg" alt="default_page"> *@
             <div class="empty_state_image_wrapper_middle">
                 <img src="/image/EmptyState.png" alt="default_page">
             </div>
@@ -94,6 +89,13 @@
     }
     else
     {
+
+        <div class="container_description">
+            <div class="mid_title">
+                Результаты
+            </div>
+        </div>
+
         <div class="result_user_list ">
             <div class="margin_container_bottom_small">
                 <div class="result_item">

@@ -36,7 +36,7 @@ function optionClick(elem) {
                 <div class="description">
                     ${elem.querySelector("label").innerText}
                 </div>
-                <i class="fa-solid fa-trash delete_item" onclick="deleteUser AssessmentList(this)"></i>
+                <i class="fa-solid fa-trash delete_item"></i>
             </div>`;
 
         arrUsersForAssessment.push(idCol);
@@ -46,54 +46,44 @@ function optionClick(elem) {
         popupAlert(alertText, false);
     }
 
-    // Создание кнопки "Добавить", если добавлено 3 сотрудника
-    if (arrUsersForAssessment.length === 3 && divBtnSubmit == null) {
+    // Создание кнопки "Добавить"
+    if ( divBtnSubmit == null) {
         divBtnSubmit = document.createElement('div');
-        optionsContainer.classList.remove("active");
         divBtnSubmit.classList.add('action_btn', 'primary_btn', 'assessment');
         divBtnSubmit.setAttribute('id', 'users_assessment_submit');
         divBtnSubmit.innerHTML = "Добавить";
         divBtnSubmit.setAttribute('onclick', "addJudges()");
         choose_user_container.appendChild(divBtnSubmit);
     }
-
-    console.log(arrUsersForAssessment.length);
-
-    // Здесь добавить код для записи в БД выбранных сотрудников arrUsersForAssessment
-}
-
-function optionClickReport(elem) {
-    let divBtnSubmit = document.getElementById("users_assessment_submit");
-    let selected = document.getElementById("selected_main_wrapper");
-    let optionsContainer = document.getElementById("options-container");
-    let idCol = elem.querySelector("label").getAttribute('idcol');
-
-    if (!arrUsersForAssessment.includes(idCol)) {
-        if (arrUsersForAssessment.length <= 0) {
-            selected.innerHTML += `<div class="selected_item_main_wrapper" idcol = "${idCol}">
-                                                            <div class="description">
-                                                                ${elem.querySelector("label").innerText}
-                                                            </div>
-                                                            <i class="fa-solid fa-trash delete_item" onclick = "deleteUserAssessmentList(this)"></i>
-                                                          </div>`
-            console.log(idCol)
-            arrUsersForAssessment.push(idCol);
-        }
-    } else {
-
-        let alertText = "Этот сотрудник уже добавлен";
-        popupAlert(alertText, false)
-    }
-    if (arrUsersForAssessment.length == 1 && divBtnSubmit == null) {
-        let divBtnSubmit = document.createElement('div');
+    //Если добавлено 3 сотрудника, то закрываем
+    if (arrUsersForAssessment.length === 3) {
         optionsContainer.classList.remove("active");
-        divBtnSubmit.classList.add('action_btn');
-        divBtnSubmit.classList.add('primary_btn');
-        divBtnSubmit.setAttribute('id', 'users_assessment_submit');
-        divBtnSubmit.innerHTML = "Показать";
-        divBtnSubmit.setAttribute('onclick', `GetReportFromDatepicker(${idCol})`)
-        choose_user_container.appendChild(divBtnSubmit)
     }
+
+
+    const deleteItemBtn = document.querySelectorAll('.delete_item');
+    deleteItemBtn.forEach(elem => {
+        elem.addEventListener('click', (e) => {
+            e.stopPropagation()
+            console.log(arrUsersForAssessment)
+            let divBtnSubmit = document.getElementById("users_assessment_submit")
+            let deleteUserSelect = e.target.parentElement;
+            deleteUserSelect.remove()
+
+            let idCol = deleteUserSelect.getAttribute('idcol');
+
+            let userIndex = arrUsersForAssessment.indexOf(idCol);
+            if (userIndex !== -1) {
+                arrUsersForAssessment.splice(userIndex, 1);
+            }
+
+            if (arrUsersForAssessment.length == 0) {
+                divBtnSubmit.remove()
+            }
+
+        })
+    })
+
 }
 
 function filterListSearch(searchTerm) {
@@ -122,7 +112,11 @@ function deleteUserAssessmentList(idcol) {
     if (userIndex !== -1) {
         arrUsersForAssessment.splice(userIndex, 1);
     }
-    divBtnSubmit.remove()
+
+    if (arrUsersForAssessment.length == 0) {
+        divBtnSubmit.remove()
+    }
+    
 }
 
 function addJudges() {
@@ -134,8 +128,7 @@ function addJudges() {
     const formData = new FormData();
     formData.append('assessmentId', assessmentId);
     formData.append('judgesIds', JSON.stringify(arrUsersForAssessment));
-
-    console.log(arrUsersForAssessment);
+    let htmlContentMessage;
 
     fetch(`/Supervisor/AddJudges`, {
         method: 'POST',
@@ -150,22 +143,26 @@ function addJudges() {
             return response.text();
         })
         .then(successMessage => {
-            popupResult(successMessage, false);
+            htmlContentMessage = `<div class="title">${successMessage}</div>`
+            popupResult(htmlContentMessage, false);
             getEmployeeLayout(employeeId);
             getEmployeeAssessmentLayout(employeeId);
             getEmployeeAssessment(assessmentId);
         })
         .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
+            //console.error('Произошла ошибка:', error);
+            htmlContentMessage = `<div class="title">Ошибка:${error.message}</div>`
+            popupResult(htmlContentMessage, false);
         });
 }
 
-function deleteJudge(userId) {
+function deleteJudge(assessmentId, judgeId, employeeId) {
 
     const formData = new FormData();
     formData.append('assessmentId', assessmentId);
     formData.append('judgeId', judgeId);
+
+    let htmlContentMessage;
 
     fetch(`/Supervisor/DeleteJudge`, {
         method: 'DELETE',
@@ -180,13 +177,20 @@ function deleteJudge(userId) {
             return response.text();
         })
         .then(successMessage => {
-            popupResult(successMessage, false);
+            htmlContentMessage = `<div class="title">${successMessage}</div>`
+            popupResult(htmlContentMessage, false);
             getEmployeeLayout(employeeId);
             getEmployeeAssessmentLayout(employeeId);
             getEmployeeAssessment(assessmentId);
         })
         .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
+            //console.error('Произошла ошибка:', error);
+            htmlContentMessage = `<div class="title">Ошибка:${error.message}</div>`
+            popupResult(htmlContentMessage, false);
         });
+
+    let divBtnSubmit = document.getElementById("users_assessment_submit")
+    if (arrUsersForAssessment.length == 0) {
+        divBtnSubmit.remove()
+    }
 }

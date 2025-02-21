@@ -21,7 +21,8 @@
         }
         else
         {
-            <div class="description">@Model.Name</div>
+
+            <div class="description"> <i class="fa-regular fa-folder"></i> @Model.Name</div>
         }
 
         @if (Model.Users.Any())
@@ -32,24 +33,24 @@
                         <th class="table_header_elem">ФИО</th>
                         <th class="table_header_elem">Должность</th>
                         <th class="table_header_elem">Подразделение</th>
-                        <th class="table_header_elem date">Дата следующей оценки</th>
+                        <th class="table_header_elem date">Дата оценки</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var employee in Model.Users)
                     {
-                        <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id)" flagHide="">
+                        <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row">
 
                             <td class="fullname">
                                 @employee.FullName
                             </td>
-                            <td>
+                            <td class="position">
                                 @employee.Position
                             </td>
-                            <td>
+                            <td class="division">
                                 @employee.SubdivisionFromFile
                             </td>
-                            <td>
+                            <td class="assessment_date">
                                 @employee.NextGradeStartDate
                             </td>
                         </tr>

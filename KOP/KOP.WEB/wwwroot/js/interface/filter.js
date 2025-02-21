@@ -16,7 +16,7 @@ function addFilterIcons() {
             headers = thead.querySelectorAll(".table_header_elem");
 
             for (j = 0; j < headers.length; j++) {
-                headers[j].innerHTML = `<a href='#' class = "link_decoration filter_wrapper"> ${headers[j].innerText}<i class="fa-solid fa-sort filter_icon" style="color: #697388;"></i> </a>`;
+                headers[j].innerHTML = `<a href='#' class = "link_decoration filter_wrapper"> ${headers[j].innerText} <i class="fa-solid fa-arrow-up-wide-short filter_icon"></i> </a>`;
             }
             let sort_asc = true;
 

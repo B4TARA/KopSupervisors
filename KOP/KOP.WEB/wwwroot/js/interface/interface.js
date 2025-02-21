@@ -6,17 +6,27 @@
 
 const bodyTag = document.getElementsByTagName('body')[0];
 
-arrowShowMenu.forEach(item => {
-    item.addEventListener("click", (e) => {
-        let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
-        arrowParent.classList.toggle("showMenu");
-    });
-})
+//arrowShowMenu.forEach(item => {
+//    item.addEventListener("click", (e) => {
+//        let arrowParent = e.target.closest('.iocn-link').parentElement; // Находим родительский элемент li
+//        arrowParent.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
+//    });
+//});
+
 if (sidebarBtn != null) {
     sidebarBtn.addEventListener("click", () => {
         sidebar.classList.toggle("close_sidebar");
     });
 }
+
+const navItems = document.querySelectorAll(".nav-links > li");
+
+navItems.forEach(item => {
+    item.addEventListener("click", (e) => {
+            item.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
+        
+    });
+});
 
 arrowShowSubMenu.forEach(item => {
     item.addEventListener("click", (e) => {
@@ -57,6 +67,9 @@ function closeBtnPopup(item, isReload) {
     let isCompareBox = document.getElementById('compare_box')
     let isSelectedWrapper = document.getElementById('selected_main_wrapper')
     popupSection.remove();
+
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.remove('active') 
     //if (isCompareBox != undefined || isSelectedWrapper != undefined) {
     //    console.log(isCompareBox)
     //} else {
@@ -75,7 +88,7 @@ function popupAlert(text, isReload) {
     alertSection.setAttribute('id', 'section_popup')
 
     alertSection.innerHTML = `<div class="modal-box">
-        <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
+        <div class="close_btn close-btn" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
                                 </div>
         <div class="mid_title">${text}</div>
@@ -86,7 +99,10 @@ function popupAlert(text, isReload) {
     //setTimeout(closeBtnPopup, 1500);
 }
 function popupResult(text, isReload) {
-    bodyTag.style.overflow = 'hidden'
+
+    bodyTag.style.overflow = 'hidden';
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.add('active') 
 
     const sectionPopup = document.querySelector('.section_popup');
     if (sectionPopup) {
@@ -99,7 +115,7 @@ function popupResult(text, isReload) {
     alertSection.setAttribute('id', 'section_popup')
 
     alertSection.innerHTML = `<div class="modal-box">
-        <div class="close_btn close-btn margin_container_bottom_middle" onclick = "closeBtnPopup(this,${isReload})">
+        <div class="close_btn close-btn" onclick = "closeBtnPopup(this,${isReload})">
                                     <i class="fa-solid fa-xmark"></i>
         </div>
             <div id="popupText">
