@@ -3,9 +3,8 @@ using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
-using KOP.DAL.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
-using DocumentFormat.OpenXml.Presentation;
+using KOP.DAL.Interfaces;
 
 namespace KOP.BLL.Services
 {
@@ -13,11 +12,13 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
+        private readonly ISupervisorService _supervisorService;
 
-        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService)
+        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, ISupervisorService supervisorService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
+            _supervisorService = supervisorService;
         }
 
         public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id)
@@ -199,6 +200,7 @@ namespace KOP.BLL.Services
                         {
                             assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
                             {
+                                Column = assessmentMatrixElement.Column,
                                 Row = assessmentMatrixElement.Row,
                                 Value = assessmentMatrixElement.Value,
                                 HtmlClassName = assessmentMatrixElement.HtmlClassName,
@@ -243,122 +245,62 @@ namespace KOP.BLL.Services
 
                 if (assessment is null)
                 {
-                    return new BaseResponse<AssessmentSummaryDto>()
+                    return new BaseResponse<AssessmentSummaryDto>
                     {
                         Description = $"Оценка с id = {assessmentId} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
-                var assessmentSummaryDto = new AssessmentSummaryDto();
-                var assessmentMatrixElementsDtos = assessment.AssessmentType?.AssessmentMatrix?.Elements?
-                    .Select(element => new AssessmentMatrixElementDto
-                    {
-                        Row = element.Row,
-                        Value = element.Value,
-                        HtmlClassName = element.HtmlClassName,
-                    })
-                    .ToList() ?? new List<AssessmentMatrixElementDto>();
-
-                assessmentSummaryDto.Elements = assessmentMatrixElementsDtos;
-                assessmentSummaryDto.ElementsByRow = assessmentSummaryDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
-
-                assessmentSummaryDto.AverageAssessmentResultValues = assessment.AssessmentType?.AssessmentMatrix?.Elements?
-                    .Select(element => new AssessmentResultValueDto
-                    {
-                        Value = 0,
-                        AssessmentMatrixRow = element.Row,
-                    })
-                    .ToList() ?? new List<AssessmentResultValueDto>();
+                var supervisor = await _supervisorService.GetSupervisorForUser(assessment.UserId);
+                var assessmentSummaryDto = new AssessmentSummaryDto
+                {
+                    RowsWithElements = assessment.AssessmentType.AssessmentMatrix.Elements
+                        .Select(element => new AssessmentMatrixElementDto
+                        {
+                            Column = element.Column,
+                            Row = element.Row,
+                            Value = element.Value,
+                            HtmlClassName = element.HtmlClassName,
+                        })
+                        .GroupBy(x => x.Row)
+                        .OrderBy(x => x.Key)
+                        .ToList()
+                };
 
                 var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == assessment.UserId);
-                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Judge?.SystemRoles.Contains(SystemRoles.Supervisor) ?? false);
+                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == supervisor?.Id);
+                var colleaguesAssessmentResults = assessment.AssessmentResults
+                    .Where(x => x.JudgeId != supervisor?.Id && x.JudgeId != assessment.UserId)
+                    .ToList();
 
-                if (selfAssessmentResult?.AssessmentResultValues != null)
-                {
-                    assessmentSummaryDto.SelfAssessmentResultValues = selfAssessmentResult.AssessmentResultValues
-                        .Select(value => new AssessmentResultValueDto
-                        {
-                            Value = value.Value,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        })
-                        .ToList();
-                }
+                // Обработка результатов самооценки
+                assessmentSummaryDto.SelfAssessmentResultValues = GetAssessmentResultValues(selfAssessmentResult);
+                assessmentSummaryDto.AverageSelfValue = CalculateAverage(assessmentSummaryDto.SelfAssessmentResultValues);
 
-                if (supervisorAssessmentResult?.AssessmentResultValues != null)
-                {
-                    assessmentSummaryDto.SupervisorAssessmentResultValues = supervisorAssessmentResult.AssessmentResultValues
-                        .Select(value => new AssessmentResultValueDto
-                        {
-                            Value = value.Value,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        })
-                        .ToList();
-                }
+                // Обработка результатов оценки руководителя
+                assessmentSummaryDto.SupervisorAssessmentResultValues = GetAssessmentResultValues(supervisorAssessmentResult);
+                assessmentSummaryDto.AverageSupervisorValue = CalculateAverage(assessmentSummaryDto.SupervisorAssessmentResultValues);
 
+                // Определение типа оценки
                 var assessmentType = assessment.AssessmentType?.SystemAssessmentType;
-                var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED).ToList();
+                var completedAssessmentResults = assessment.AssessmentResults
+                    .Where(x => x.SystemStatus == SystemStatuses.COMPLETED)
+                    .ToList();
 
-                if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                {
-                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count == 6;
-                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId).ToList();
-                }
-                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                {
-                    assessmentSummaryDto.IsFinalized = completedAssessmentResults.Count == 2;
-                }
+                // Установка финализированного статуса
+                assessmentSummaryDto.IsFinalized = IsAssessmentFinalized(assessmentType, completedAssessmentResults, assessment.UserId);
 
-                if (completedAssessmentResults.Any())
-                {
-                    foreach (var result in completedAssessmentResults)
-                    {
-                        foreach (var value in result.AssessmentResultValues)
-                        {
-                            var avgResult = assessmentSummaryDto.AverageAssessmentResultValues.FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
-                            if (avgResult != null)
-                            {
-                                avgResult.Value += value.Value;
-                            }
+                // Обработка результатов коллег
+                ProcessColleaguesResults(colleaguesAssessmentResults, assessmentSummaryDto);
 
-                            assessmentSummaryDto.SumResult += value.Value;
-                        }
-                    }
+                // Обработка результатов завершенных оценок
+                ProcessCompletedResults(completedAssessmentResults, assessmentSummaryDto);
 
-                    foreach (var value in assessmentSummaryDto.AverageAssessmentResultValues)
-                    {
-                        var sum = value.Value;
-                        var average = sum / completedAssessmentResults.Count;
+                // Обработка интерпретаций
+                ProcessInterpretations(assessment, assessmentSummaryDto);
 
-                        value.Value = average;
-                        assessmentSummaryDto.AverageResult += average;
-                    }
-                }
-
-                foreach (var interpretation in assessment.AssessmentType?.AssessmentInterpretations ?? Enumerable.Empty<AssessmentInterpretation>())
-                {
-                    var createAssessmentInterpretationDtoRes = _mappingService.CreateAssessmentInterpretationDto(interpretation);
-
-                    if (!createAssessmentInterpretationDtoRes.HasData)
-                    {
-                        return new BaseResponse<AssessmentSummaryDto>()
-                        {
-                            Description = createAssessmentInterpretationDtoRes.Description,
-                            StatusCode = createAssessmentInterpretationDtoRes.StatusCode,
-                        };
-                    }
-
-                    var interpretationDto = createAssessmentInterpretationDtoRes.Data;
-
-                    if (assessmentSummaryDto.AverageResult >= interpretationDto.MinValue && assessmentSummaryDto.AverageResult <= interpretationDto.MaxValue)
-                    {
-                        assessmentSummaryDto.AverageAssessmentInterpretation = interpretationDto;
-                    }
-
-                    assessmentSummaryDto.AssessmentTypeInterpretations.Add(interpretationDto);
-                }
-
-                return new BaseResponse<AssessmentSummaryDto>()
+                return new BaseResponse<AssessmentSummaryDto>
                 {
                     Data = assessmentSummaryDto,
                     StatusCode = StatusCodes.OK
@@ -366,11 +308,136 @@ namespace KOP.BLL.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<AssessmentSummaryDto>()
+                return new BaseResponse<AssessmentSummaryDto>
                 {
                     Description = $"[AssessmentService.GetAssessmentSummary] : {ex.Message}",
                     StatusCode = StatusCodes.InternalServerError,
                 };
+            }
+        }
+
+        private List<AssessmentResultValueDto> GetAssessmentResultValues(AssessmentResult result)
+        {
+            return result?.AssessmentResultValues?.Select(value => new AssessmentResultValueDto
+            {
+                Value = value.Value,
+                AssessmentMatrixRow = value.AssessmentMatrixRow,
+            }).ToList() ?? new List<AssessmentResultValueDto>();
+        }
+
+        private double CalculateAverage(List<AssessmentResultValueDto> values)
+        {
+            return values.Count > 0 ? values.Average(x => x.Value) : 0;
+        }
+
+        private bool IsAssessmentFinalized(SystemAssessmentTypes? assessmentType, List<AssessmentResult> completedResults, int userId)
+        {
+            if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
+            {
+                return completedResults.Count == 6 && completedResults.All(x => x.JudgeId != userId);
+            }
+            else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+            {
+                return completedResults.Count == 2;
+            }
+            return false;
+        }
+
+        private void ProcessColleaguesResults(List<AssessmentResult> completedColleaguesResults, AssessmentSummaryDto assessmentSummaryDto)
+        {
+            if (completedColleaguesResults.Any())
+            {
+                foreach (var result in completedColleaguesResults)
+                {
+                    foreach (var value in result.AssessmentResultValues)
+                    {
+                        var avgResult = assessmentSummaryDto.ColleaguesAssessmentResultValues
+                            .FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
+
+                        if (avgResult != null)
+                        {
+                            avgResult.Value += value.Value;
+                            assessmentSummaryDto.ColleaguesSumResult += value.Value;
+                        }
+                        else
+                        {
+                            assessmentSummaryDto.ColleaguesAssessmentResultValues.Add(new AssessmentResultValueDto
+                            {
+                                Value = value.Value,
+                                AssessmentMatrixRow = value.AssessmentMatrixRow
+                            });
+                            assessmentSummaryDto.ColleaguesSumResult += value.Value;
+                        }
+                    }
+                }
+
+                // Вычисление среднего значения для коллег
+                foreach (var value in assessmentSummaryDto.ColleaguesAssessmentResultValues)
+                {
+                    var average = Math.Round(value.Value / completedColleaguesResults.Count, 1);
+                    value.Value = average;
+                    assessmentSummaryDto.AverageColleaguesResult += average;
+                }
+            }
+        }
+
+        private void ProcessCompletedResults(List<AssessmentResult> completedResults, AssessmentSummaryDto assessmentSummaryDto)
+        {
+            if (completedResults.Any())
+            {
+                foreach (var result in completedResults)
+                {
+                    foreach (var value in result.AssessmentResultValues)
+                    {
+                        var avgResult = assessmentSummaryDto.AverageValuesByRow
+                            .FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
+
+                        if (avgResult != null)
+                        {
+                            avgResult.Value += value.Value;
+                            assessmentSummaryDto.SumResult += value.Value;
+                        }
+                        else
+                        {
+                            assessmentSummaryDto.AverageValuesByRow.Add(new AssessmentResultValueDto
+                            {
+                                Value = value.Value,
+                                AssessmentMatrixRow = value.AssessmentMatrixRow
+                            });
+                            assessmentSummaryDto.SumResult += value.Value;
+                        }
+                    }
+                }
+
+                // Вычисление среднего значения для завершенных оценок
+                foreach (var value in assessmentSummaryDto.AverageValuesByRow)
+                {
+                    var average = Math.Round(value.Value / completedResults.Count, 1);
+                    value.Value = average;
+                    assessmentSummaryDto.GeneralAverageResult += average;
+                }
+            }
+        }
+
+        private void ProcessInterpretations(Assessment assessment, AssessmentSummaryDto assessmentSummaryDto)
+        {
+            foreach (var interpretation in assessment.AssessmentType?.AssessmentInterpretations ?? Enumerable.Empty<AssessmentInterpretation>())
+            {
+                var createAssessmentInterpretationDtoRes = _mappingService.CreateAssessmentInterpretationDto(interpretation);
+
+                if (!createAssessmentInterpretationDtoRes.HasData)
+                {
+                    throw new Exception(createAssessmentInterpretationDtoRes.Description);
+                }
+
+                var interpretationDto = createAssessmentInterpretationDtoRes.Data;
+
+                if (assessmentSummaryDto.GeneralAverageResult >= interpretationDto.MinValue && assessmentSummaryDto.GeneralAverageResult <= interpretationDto.MaxValue)
+                {
+                    assessmentSummaryDto.AverageAssessmentInterpretation = interpretationDto;
+                }
+
+                assessmentSummaryDto.AssessmentTypeInterpretations.Add(interpretationDto);
             }
         }
 
@@ -485,6 +552,34 @@ namespace KOP.BLL.Services
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
+        }
+
+        // !!! КОСТЫЛЬ-МЕТОД ДЛЯ ВРЕМЕННОЙ ЗАГЛУШКИ !!!
+        // Добавить таблицу AssessmentColumns для указания соответствия между столбцом матрицы и диапазоном значений //
+        public int GetInterpretationColumnByAssessmentValue(int? value)
+        {
+            if (value is null)
+            {
+                return 0;
+            }
+            else if (1 <= value && value <= 5)
+            {
+                return 2;
+            }
+            else if (6 <= value && value <= 8)
+            {
+                return 3;
+            }
+            else if (9 <= value && value <= 11)
+            {
+                return 4;
+            }
+            else if (12 <= value && value <= 13)
+            {
+                return 5;
+            }
+
+            return 0;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using DocumentFormat.OpenXml.Spreadsheet;
 using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
@@ -7,10 +6,8 @@ using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
-using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 using NPOI.OpenXmlFormats.Wordprocessing;
-using NPOI.SS.Formula.Functions;
 using NPOI.XWPF.UserModel;
 
 namespace KOP.BLL.Services
@@ -63,7 +60,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsers(int supervisorId)
+        public async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsersWithGrade(int supervisorId)
         {
             try
             {
@@ -86,7 +83,7 @@ namespace KOP.BLL.Services
 
                 foreach (var subdivision in supervisor.SubordinateSubdivisions)
                 {
-                    var getSubordinateUsersRes = await GetSubordinateUsers(subdivision);
+                    var getSubordinateUsersRes = await GetSubordinateUsersWithGrade(subdivision);
 
                     if (!getSubordinateUsersRes.HasData)
                     {
@@ -116,7 +113,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        private async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsers(Subdivision subdivision)
+        private async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsersWithGrade(Subdivision subdivision)
         {
             try
             {
@@ -135,7 +132,7 @@ namespace KOP.BLL.Services
 
                 foreach (var childSubdivision in subdivision.Children)
                 {
-                    var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsers(childSubdivision);
+                    var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsersWithGrade(childSubdivision);
 
                     if (!subordinateUsersFromChildSubdivisionRes.HasData)
                     {
@@ -517,13 +514,22 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row2.GetCell(4), "балл", true, ParagraphAlignment.CENTER, "#F2F4F0");
             AddTextToCellWithFormatting(row2.GetCell(5), "интерпретация", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
-            for (int i = 1; i < summaryDto.ElementsByRow.Count; i++)
+            for (int i = 1; i < summaryDto.RowsWithElements.Count; i++)
             {
-                var elementsByRow = summaryDto.ElementsByRow[i].ToList();
+                var elementsByRow = summaryDto.RowsWithElements[i].ToList();
                 var selfAssessmentRowValue = summaryDto.SelfAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
                 var supervisorAssessmentRowValue = summaryDto.SupervisorAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
-                var selfAssessmentRowValueInterpretation = elementsByRow[GetInterpretationColumnByAssessmentValue(selfAssessmentRowValue)].Value;
-                var supervisorAssessmentRowValueInterpretation = elementsByRow[GetInterpretationColumnByAssessmentValue(supervisorAssessmentRowValue)].Value;
+                // Округление selfAssessmentRowValue до int
+                int? roundedSelfAssessmentRowValue = selfAssessmentRowValue.HasValue
+                    ? (int)Math.Round(selfAssessmentRowValue.Value)
+                    : (int?)null; // Если значение null, то roundedSelfAssessmentRowValue будет null
+
+                // Округление supervisorAssessmentRowValue до int
+                int? roundedSupervisorAssessmentRowValue = supervisorAssessmentRowValue.HasValue
+                    ? (int)Math.Round(supervisorAssessmentRowValue.Value)
+                    : (int?)null; // Если значение null, то roundedSupervisorAssessmentRowValue будет null
+                var selfAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSelfAssessmentRowValue)].Value;
+                var supervisorAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSupervisorAssessmentRowValue)].Value;
 
                 var row = table.GetRow(3 + i - 1); // т.к. i начинает отсчет с 1
                 AddTextToCellWithFormatting(row.GetCell(0), elementsByRow[0].Value, true);
@@ -675,33 +681,6 @@ namespace KOP.BLL.Services
                 var tcPr = cell.GetCTTc().AddNewTcPr();
                 tcPr.AddNewVMerge().val = ST_Merge.@continue;
             }
-        }
-
-        // !!! КОСТЫЛЬ-МЕТОД ДЛЯ ВРЕМЕННОЙ ЗАГЛУШКИ !!!
-        private int GetInterpretationColumnByAssessmentValue(int? value)
-        {
-            if(value is null)
-            {
-                return 0;
-            }
-            else if(1 <= value && value <= 5)
-            {
-                return 2;
-            }
-            else if(6 <= value && value <= 8)
-            {
-                return 3;
-            }
-            else if (9 <= value && value <= 11)
-            {
-                return 4;
-            }
-            else if (12 <= value && value <= 13)
-            {
-                return 5;
-            }
-
-            return 0;
         }
     }
 }

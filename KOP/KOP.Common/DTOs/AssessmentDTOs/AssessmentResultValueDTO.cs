@@ -2,7 +2,7 @@
 {
     public class AssessmentResultValueDto
     {
-        public int Value { get; set; }
+        public double Value { get; set; }
         public int AssessmentMatrixRow { get; set; }
     }
 }

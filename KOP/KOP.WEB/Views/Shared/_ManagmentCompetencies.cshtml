@@ -85,7 +85,7 @@
 								int maxElementsToShow = 2;
 							}
 
-							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.ElementsByRow[0])
+							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.RowsWithElements[0])
 							{
 								if (count >= maxElementsToShow)
 								{
@@ -106,7 +106,7 @@
 					</thead>
 
 					<tbody>
-						@for (int i = 1; i < Model.AssessmentSummaryDto.ElementsByRow.Count; i++)
+						@for (int i = 1; i < Model.AssessmentSummaryDto.RowsWithElements.Count; i++)
 						{
 							<tr>
 								<td>
@@ -152,7 +152,7 @@
 									maxElementsToShow = 2;
 								}
 
-								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.ElementsByRow[i])
+								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.RowsWithElements[i])
 								{
 									if (count >= maxElementsToShow)
 									{

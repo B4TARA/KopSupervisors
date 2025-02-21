@@ -575,11 +575,6 @@ namespace KOP.BLL.Services
 
                 var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED);
 
-                if (assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                {
-                    completedAssessmentResults = completedAssessmentResults.Where(x => x.JudgeId != assessment.UserId);
-                }
-
                 foreach (var result in completedAssessmentResults)
                 {
                     var resultDto = CreateAssessmentResultDto(result, assessment.AssessmentType);
@@ -620,9 +615,7 @@ namespace KOP.BLL.Services
                     if (dto.AverageValue >= interpretationDto.MinValue && dto.AverageValue <= interpretationDto.MaxValue)
                     {
                         dto.AverageAssessmentInterpretation = interpretationDto;
-                    }    
-
-                    dto.AssessmentTypeInterpretations.Add(interpretationDto);
+                    }
                 }
 
                 return new BaseResponse<AssessmentDto>()
@@ -662,37 +655,22 @@ namespace KOP.BLL.Services
                 };
 
                 var assessmentInterpretation = type.AssessmentInterpretations.FirstOrDefault(x => x.MinValue <= dto.Sum && x.MaxValue >= dto.Sum);
-
                 if (assessmentInterpretation != null)
                 {
                     dto.HtmlClassName = assessmentInterpretation.HtmlClassName;
                 }
 
-                var judgeDto = CreateUserDto(result.Judge);
+                dto.Judge = new UserDto 
+                { 
+                    Id = result.Judge.Id,
+                    FullName = result.Judge.FullName,
+                };     
 
-                if (judgeDto.StatusCode != StatusCodes.OK || judgeDto.Data == null)
+                dto.Judged = new UserDto
                 {
-                    return new BaseResponse<AssessmentResultDto>()
-                    {
-                        Description = judgeDto.Description,
-                        StatusCode = judgeDto.StatusCode,
-                    };
-                }
-
-                dto.Judge = judgeDto.Data;
-
-                var judgedDto = CreateUserDto(result.Assessment.User);
-
-                if (judgedDto.StatusCode != StatusCodes.OK || judgedDto.Data == null)
-                {
-                    return new BaseResponse<AssessmentResultDto>()
-                    {
-                        Description = judgedDto.Description,
-                        StatusCode = judgedDto.StatusCode,
-                    };
-                }
-
-                dto.Judged = judgedDto.Data;
+                    Id = result.Assessment.User.Id,
+                    FullName = result.Assessment.User.FullName,
+                }; ;
 
                 foreach (var value in result.AssessmentResultValues)
                 {
@@ -713,8 +691,7 @@ namespace KOP.BLL.Services
                 foreach (var element in type.AssessmentMatrix.Elements)
                 {
                     var elementDto = CreateAssessmentMatrixElementDto(element);
-
-                    if (elementDto.StatusCode != StatusCodes.OK || elementDto.Data == null)
+                    if (!elementDto.HasData)
                     {
                         return new BaseResponse<AssessmentResultDto>()
                         {
@@ -807,6 +784,7 @@ namespace KOP.BLL.Services
             {
                 var dto = new AssessmentMatrixElementDto()
                 {
+                    Column = element.Column,
                     Row = element.Row,
                     Value = element.Value,
                     HtmlClassName = element.HtmlClassName,

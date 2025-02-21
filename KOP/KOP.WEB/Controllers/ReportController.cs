@@ -27,7 +27,7 @@ namespace KOP.WEB.Controllers
             try
             {
                 var supervisorId = Convert.ToInt32(User.FindFirstValue("Id"));
-                var getSubordinateEmployeesRes = await _reportService.GetSubordinateUsers(supervisorId);
+                var getSubordinateEmployeesRes = await _reportService.GetSubordinateUsersWithGrade(supervisorId);
 
                 if (!getSubordinateEmployeesRes.HasData)
                 {
