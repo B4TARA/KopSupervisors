@@ -261,104 +261,25 @@ async function getGradeInfo(id, isClickable) {
     }
 }
 
-async function acceptEmployeeGrade(gradeId, employeeId, supervisorId, gradeTypeId) {
+async function approveEmployeeGrade(gradeId, employeeId) {
     try {
-        var comment = document.getElementById("comment").value;
-
-        var feedback = document.getElementById("feedback").value;
-
-        let requestModel = {
-            gradeId: gradeId,
-            comment: comment,
-            feedback: feedback,
-        };
-
-        let response = await fetch('/Supervisor/AcceptEmployeeGrade', {
+        let response = await fetch('/Supervisor/ApproveEmployeeGrade', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
-            body: JSON.stringify(requestModel)
+            body: gradeId
         });
 
-        if (!response.ok) {
-            let errorData = await response.json();
-            alert(`Ошибка ${errorData.status}: ${errorData.message}`);
-            return;
-        }
-
-        popupAlert('Оценка успешно принята!', false)
-
-        // Проверяем текущий URL
-        let currentPath = window.location.pathname;
-
-        if (currentPath === "/Supervisor/GetAppointedGradesLayout") {
-            location.reload();
-        }
-        else if (currentPath === "/Supervisor/GetSupervisorLayout") {
-            await getSubordinates(supervisorId)
-
-            await getEmployeeLayout(employeeId);
-
-            await getGradeType(employeeId, gradeTypeId);
-
-            await getGradeInfo(gradeId, true);
+        if (response.ok) {
+            popupAlert('Оценка успешно завершена', false);
+            getEmployeeGradeLayout(employeeId);
+        } else {
+            console.error("Ошибка при создании Word документа:", response.statusText);
+            alert("Ошибка при создании Word документа. Пожалуйста, посмотрите в консоль для деталей.");
         }
     } catch (error) {
-        // Обработка сетевых ошибок
-        console.error('Сетевая ошибка:', error);
-        alert('Произошла сетевая ошибка. Пожалуйста, проверьте подключение и попробуйте снова.');
-    }
-}
-
-async function declineEmployeeGrade(gradeId, employeeId, supervisorId, gradeTypeId) {
-    try {
-        var comment = document.getElementById("comment").value;
-
-        var feedback = document.getElementById("feedback").value;
-
-        let requestModel = {
-            gradeId: gradeId,
-            comment: comment,
-            feedback: feedback,
-        };
-
-        let response = await fetch('/Supervisor/DeclineEmployeeGrade', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(requestModel)
-        });
-
-        if (!response.ok) {
-            let errorData = await response.json();
-            alert(`Ошибка ${errorData.status}: ${errorData.message}`);
-            return;
-        }
-
-        //alert('Оценка успешно принята!');
-        popupAlert('Оценка успешно принята!', false)
-
-        // Проверяем текущий URL
-        let currentPath = window.location.pathname;
-
-        if (currentPath === "/Supervisor/GetAppointedGradesLayout") {
-            location.reload();
-        }
-        else if (currentPath === "/Supervisor/GetSupervisorLayout") {
-            await getSubordinates(supervisorId)
-
-            await getEmployeeLayout(employeeId);
-
-            await getGradeType(employeeId, gradeTypeId);
-
-            await getGradeInfo(gradeId, true);
-        }
-
-    } catch (error) {
-        // Обработка сетевых ошибок
-        console.error('Сетевая ошибка:', error);
-        alert('Произошла сетевая ошибка. Пожалуйста, проверьте подключение и попробуйте снова.');
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
@@ -82,6 +83,14 @@ namespace KOP.WEB.Controllers
                 LastGrade = response.Data.LastGrade,
             };
 
+            if (response.Data.LastGrade is null)
+            {
+                return View("EmployeeGradeLayout", viewModel);
+            }
+
+            viewModel.ReadyForEmployeeApproval = response.Data.LastGrade.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
+            viewModel.ApprovedByEmployee = response.Data.LastGrade.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE;
+
             return View("GradeLayout", viewModel);
         }
 
@@ -155,7 +164,6 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> AssessEmployee([FromBody] AssessEmployeeRequestModel requestModel)
         {
             var assessEmployeeDTO = new AssessUserDto
@@ -175,6 +183,34 @@ namespace KOP.WEB.Controllers
             }
 
             return StatusCode(200);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> ApproveGrade([FromBody] int gradeId)
+        {
+            try
+            {
+                var approveGradeRes = await _userService.ApproveGrade(gradeId);
+                if (!approveGradeRes.IsSuccess)
+                {
+                    return BadRequest(new
+                    {
+                        error = "Произошла ошибка при завершении оценки.",
+                        details = approveGradeRes.Description,
+                    });
+                }
+
+                return Ok("Оценка успешно завершена");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при завершении оценки.",
+                    details = ex.Message
+                });
+            }
         }
     }
 }

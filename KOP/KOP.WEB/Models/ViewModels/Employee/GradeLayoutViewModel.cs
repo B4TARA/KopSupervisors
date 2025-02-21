@@ -13,5 +13,7 @@ namespace KOP.WEB.Models.ViewModels.Employee
         public DateOnly ContractEndDate { get; set; }
         public string ImagePath { get; set; }
         public GradeDto? LastGrade { get; set; }
+        public bool ReadyForEmployeeApproval { get; set; }
+        public bool ApprovedByEmployee { get; set; }
     }
 }

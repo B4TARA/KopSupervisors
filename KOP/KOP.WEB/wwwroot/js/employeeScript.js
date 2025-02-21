@@ -254,3 +254,26 @@ function validationFormAssessment(item, type) {
         item.parentNode.parentNode.nextElementSibling.style.display = 'none'
     }
 }
+
+async function approveGrade(gradeId, employeeId) {
+    try {
+        let response = await fetch('/Employee/ApproveGrade', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: gradeId
+        });
+
+        if (response.ok) {
+            popupAlert('Оценка успешно завершена', false);
+            getGradeLayout(employeeId);
+        } else {
+            console.error("Ошибка при создании Word документа:", response.statusText);
+            alert("Ошибка при создании Word документа. Пожалуйста, посмотрите в консоль для деталей.");
+        }
+    } catch (error) {
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
+    }
+}

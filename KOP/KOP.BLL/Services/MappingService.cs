@@ -83,6 +83,7 @@ namespace KOP.BLL.Services
                     StartDate = grade.StartDate,
                     EndDate = grade.EndDate,
                     SystemStatus = grade.SystemStatus,
+                    GradeStatus = grade.GradeStatus,
                     IsProjectsFinalized = grade.IsProjectsFinalized,
                     IsStrategicTasksFinalized = grade.IsStrategicTasksFinalized,
                     IsKpisFinalized = grade.IsKpisFinalized,
@@ -642,7 +643,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<AssessmentResultDto>()
                     {
-                        Description = $"[MappingService.CreateAssessmentResultDto] : AssessmentResult.Judge is null",
+                        Description = $"Не удалось найти оценщика с ID = {result.Judge.Id}",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -664,13 +665,14 @@ namespace KOP.BLL.Services
                 { 
                     Id = result.Judge.Id,
                     FullName = result.Judge.FullName,
+                    SystemRoles = result.Judge.SystemRoles
                 };     
 
                 dto.Judged = new UserDto
                 {
                     Id = result.Assessment.User.Id,
                     FullName = result.Assessment.User.FullName,
-                }; ;
+                };
 
                 foreach (var value in result.AssessmentResultValues)
                 {

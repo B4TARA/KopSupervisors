@@ -60,7 +60,6 @@ function optionClick(elem) {
         optionsContainer.classList.remove("active");
     }
 
-
     const deleteItemBtn = document.querySelectorAll('.delete_item');
     deleteItemBtn.forEach(elem => {
         elem.addEventListener('click', (e) => {

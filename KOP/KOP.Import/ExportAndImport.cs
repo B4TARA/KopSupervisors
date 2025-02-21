@@ -88,7 +88,7 @@ namespace KOP.Import
 
         private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
         {
-            if(IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile))
+            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile))
             {
                 return;
             }
@@ -369,12 +369,35 @@ namespace KOP.Import
         {
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
-                var employees = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee) && !x.Grades.Any(x => x.SystemStatus == SystemStatuses.PENDING), includeProperties: "Grades");
+                var employees = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee), includeProperties: "Grades");
 
                 foreach (var employee in employees)
                 {
                     try
                     {
+                        var lastGrade = employee.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+
+                        if (lastGrade != null && ReadyForEmployeeApproval(employee, lastGrade))
+                        {
+                            lastGrade.GradeStatus = GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
+                            uow.Grades.Update(lastGrade);
+                            await uow.CommitAsync();
+
+                            continue;
+                        }
+                        else if (lastGrade != null && ReadyForSupervisorEmployeeApproval(employee, lastGrade))
+                        {
+                            lastGrade.GradeStatus = GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
+                            uow.Grades.Update(lastGrade);
+                            await uow.CommitAsync();
+
+                            continue;
+                        }
+                        else if (lastGrade != null && lastGrade.SystemStatus != SystemStatuses.PENDING)
+                        {
+                            continue;
+                        }
+
                         var currentDay = TermManager.GetDate().Day;
                         var currentMonth = TermManager.GetDate().Month;
                         var currentYear = TermManager.GetDate().Year;
@@ -400,6 +423,7 @@ namespace KOP.Import
                             StartDate = new DateOnly(TermManager.GetDate().Year - 1, 1, 1),
                             EndDate = new DateOnly(TermManager.GetDate().Year, 12, 31),
                             SystemStatus = SystemStatuses.PENDING,
+                            GradeStatus = GradeStatuses.PENDING,
                             UserId = employee.Id,
                             Qualification = new Qualification { SupervisorSspName = employee.FullName },
                             ValueJudgment = new ValueJudgment(),
@@ -448,13 +472,13 @@ namespace KOP.Import
 
                                 foreach (var urp in urps)
                                 {
-                                    var newUepAssessmentResult = new AssessmentResult
+                                    var newUrpAssessmentResult = new AssessmentResult
                                     {
                                         SystemStatus = SystemStatuses.PENDING,
                                         JudgeId = urp.Id,
                                     };
 
-                                    newAssessment.AssessmentResults.Add(newUepAssessmentResult);
+                                    newAssessment.AssessmentResults.Add(newUrpAssessmentResult);
                                 }
                             }
 
@@ -471,6 +495,35 @@ namespace KOP.Import
                     }
                 }
             }
+        }
+
+        public bool ReadyForEmployeeApproval(User user, Grade lastGrade)
+        {
+            //if (DateTime.Today.Day != 8 || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.PENDING))
+            //{
+            //    return false;
+            //}
+
+            //var nextMonthDate = lastGrade.StartDate.AddMonths(1);
+            //var eighthDayDate = new DateTime(nextMonthDate.Year, nextMonthDate.Month, 8);
+
+            //return DateTime.Today == eighthDayDate;
+
+            return true;
+        }
+
+        public bool ReadyForSupervisorEmployeeApproval(User user, Grade lastGrade)
+        {
+            if (DateTime.Today.Day != 11 
+                || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
+            {
+                return false;
+            }
+
+            var nextMonthDate = lastGrade.StartDate.AddMonths(1);
+            var eleventhDayDate = new DateTime(nextMonthDate.Year, nextMonthDate.Month, 11);
+
+            return DateTime.Today == eleventhDayDate;
         }
 
         private async Task<User?> GetUserSupervisor(User user)
