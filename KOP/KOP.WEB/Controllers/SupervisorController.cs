@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Runtime.InteropServices;
+using System.Security.Claims;
 using KOP.BLL.Interfaces;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -46,11 +47,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
-        public async Task<IActionResult> GetSubordinates(int supervisorId, bool onlyPending = false)
+        public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
             try
             {
-                var response = await _supervisorService.GetUserSubordinateSubdivisions(supervisorId, onlyPending);
+                var response = await _supervisorService.GetUserSubordinateSubdivisions(supervisorId);
 
                 if (response.StatusCode != StatusCodes.OK || response.Data == null)
                 {
@@ -63,6 +64,7 @@ namespace KOP.WEB.Controllers
 
                 var viewModel = new SubordinatesViewModel
                 {
+                    SupervisorId = supervisorId,
                     Subdivisions = response.Data.ToList(),
                 };
 
@@ -122,7 +124,6 @@ namespace KOP.WEB.Controllers
             try
             {
                 var getUserRes = await _userService.GetUser(employeeId);
-
                 if (!getUserRes.HasData)
                 {
                     return View("Error", new ErrorViewModel
@@ -146,16 +147,18 @@ namespace KOP.WEB.Controllers
                     LastGrade = user.LastGrade,
                 };
 
-                if(user.LastGrade is null)
+                if (user.LastGrade is null)
                 {
+                    viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
-                foreach(var dto in user.LastGrade.AssessmentDtos)
+                viewModel.GradeStatus = user.LastGrade.GradeStatus;
+
+                foreach (var dto in user.LastGrade.AssessmentDtos)
                 {
                     var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
-
-                    if(!getAssessmentSummaryRes.HasData)
+                    if (!getAssessmentSummaryRes.HasData)
                     {
                         continue;
                     }
@@ -169,10 +172,9 @@ namespace KOP.WEB.Controllers
                     {
                         viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
                     }
-                }    
-                
-                var readyForSupervisorApproval = user.LastGrade.GradeStatus == GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
-                if(!readyForSupervisorApproval)
+                }         
+
+                if(user.LastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
                 {
                     return View("EmployeeGradeLayout", viewModel);
                 }
@@ -180,18 +182,11 @@ namespace KOP.WEB.Controllers
                 var supervisor = await _supervisorService.GetSupervisorForUser(employeeId);
                 if (supervisor == null)
                 {
-                    return View("EmployeeGradeLayout", viewModel);                  
-                }
-
-                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-                var accessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
-                if(!accessForSupervisorApproval)
-                {
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
-                viewModel.ReadyForSupervisorApproval = readyForSupervisorApproval;
-                viewModel.AccessForSupervisorApproval = accessForSupervisorApproval;
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");         
 
                 return View("EmployeeGradeLayout", viewModel);
             }
@@ -264,7 +259,6 @@ namespace KOP.WEB.Controllers
                 };
 
                 var getAssessmentResultRes = await _assessmentService.GetAssessmentResult(Convert.ToInt32(User.FindFirstValue("Id")), assessmentId);
-
                 if (getAssessmentResultRes.HasData)
                 {
                     viewModel.SupervisorAssessmentResult = getAssessmentResultRes.Data;
@@ -297,7 +291,7 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
             try
-            {             
+            {
                 var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
                 var assessmentId = requestModel.assessmentId;
 

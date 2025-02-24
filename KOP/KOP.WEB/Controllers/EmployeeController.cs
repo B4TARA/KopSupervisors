@@ -59,37 +59,57 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetGradeLayout(int employeeId)
         {
-            var response = await _userService.GetUser(employeeId);
+            var getUserRes = await _userService.GetUser(employeeId);
 
-            if (response.StatusCode != StatusCodes.OK || response.Data == null)
+            if (!getUserRes.HasData)
             {
                 return View("Error", new ErrorViewModel
                 {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
+                    StatusCode = getUserRes.StatusCode,
+                    Message = getUserRes.Description,
                 });
             }
 
+            var user = getUserRes.Data;
             var viewModel = new GradeLayoutViewModel
             {
-                Id = response.Data.Id,
-                FullName = response.Data.FullName,
-                Position = response.Data.Position,
-                SubdivisionFromFile = response.Data.SubdivisionFromFile,
-                GradeGroup = response.Data.GradeGroup,
-                WorkPeriod = response.Data.WorkPeriod,
-                ContractEndDate = response.Data.ContractEndDate,
-                ImagePath = response.Data.ImagePath,
-                LastGrade = response.Data.LastGrade,
+                Id = user.Id,
+                FullName = user.FullName,
+                Position = user.Position,
+                SubdivisionFromFile = user.SubdivisionFromFile,
+                GradeGroup = user.GradeGroup,
+                WorkPeriod = user.WorkPeriod,
+                ContractEndDate = user.ContractEndDate,
+                ImagePath = user.ImagePath,
+                LastGrade = user.LastGrade,
             };
 
-            if (response.Data.LastGrade is null)
+            if (user.LastGrade is null)
             {
-                return View("EmployeeGradeLayout", viewModel);
+                viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
+                return View("GradeLayout", viewModel);
             }
 
-            viewModel.ReadyForEmployeeApproval = response.Data.LastGrade.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
-            viewModel.ApprovedByEmployee = response.Data.LastGrade.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE;
+            viewModel.GradeStatus = user.LastGrade.GradeStatus;
+
+            foreach (var dto in user.LastGrade.AssessmentDtos)
+            {
+                var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
+                if (!getAssessmentSummaryRes.HasData)
+                {
+                    continue;
+                }
+
+                var assessmentSummary = getAssessmentSummaryRes.Data;
+                if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                {
+                    viewModel.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
+                }
+                else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                {
+                    viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
+                }
+            }
 
             return View("GradeLayout", viewModel);
         }

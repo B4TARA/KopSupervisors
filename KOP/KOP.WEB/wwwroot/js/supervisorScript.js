@@ -3,8 +3,7 @@
 async function getSubordinates(supervisorId) {
     try {
         // Выполняем fetch запрос
-        //let response = await fetch(`/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}&onlyPending=${encodeURIComponent(true)}`);
-        let response = await fetch(`/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}`);
+        let response = await fetch(`/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();

@@ -1,125 +1,141 @@
 ﻿@model KOP.WEB.Models.ViewModels.Employee.GradeLayoutViewModel
+@using GradeStatuses = KOP.Common.Enums.GradeStatuses;
 
 @{
-    Layout = null;
+	Layout = null;
 }
 
 <div class="user_info_container user_info_block margin_container_bottom_small">
-    <div class="user_info">
-        <div class="title">
-            @Model.FullName
-        </div>
-        <div class="description_wrapper">
-            <div class="mid_title">@Model.Position</div>
-        </div>
-    </div>
-    <div class="user_image_wrapper">
-        <div class="user_image" style="background-image:url('@Model.ImagePath');"></div>
-    </div>
+	<div class="user_info">
+		<div class="title">
+			@Model.FullName
+		</div>
+		<div class="description_wrapper">
+			<div class="mid_title">@Model.Position</div>
+		</div>
+		@if (Model.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE)
+		{
+			<div class="status_btn_wrapper done_status">
+				Сотрудник ознакомлен
+			</div>
+		}
+		else if (Model.GradeStatus == GradeStatuses.COMPLETED)
+		{
+			<div class="status_btn_wrapper done_status">
+				Оценка завершена
+			</div>
+		}
+	</div>
+	<div class="user_image_wrapper">
+		<div class="user_image" style="background-image:url('@Model.ImagePath');"></div>
+	</div>
 
 </div>
 
 <div class="user_info_container user_info_block  margin_container_bottom_small">
-    <div class="user_info extra_info">
-        <div class="mid_title header_info_block">
-            Общая информация
-        </div>
+	<div class="user_info extra_info">
+		<div class="mid_title header_info_block">
+			Общая информация
+		</div>
 
-        <div class="description_wrapper">
-            <div class="description">Подразделение</div>
-            <div class="mid_title">
-                @Model.SubdivisionFromFile
-            </div>
-        </div>
-        <div class="description_wrapper">
-            <div class=" description">Группа грейда</div>
-            <div class="mid_title">
-                @Model.GradeGroup
-            </div>
-        </div>
-        <div class="description_wrapper">
-            <div class="description">Срок работы в Банке</div>
-            <div class="mid_title ">
-                @Model.WorkPeriod
-            </div>
-        </div>
-        <div class="description_wrapper">
-            <div class="description">Дата окончания контракта</div>
-            <div class="mid_title ">
-                @Model.ContractEndDate
-            </div>
-        </div>
-        <div class="description_wrapper">
-            <div class="description">Период оценки</div>
-            @if (Model.LastGrade != null)
-            {
-                <div class="mid_title ">
-                    @Model.LastGrade.StartDate -  @Model.LastGrade.EndDate
-                </div>
-            }
-            else
-            {
-                <div class="mid_title">
-                    -
-                </div>
-            }
-        </div>
+		<div class="description_wrapper">
+			<div class="description">Подразделение</div>
+			<div class="mid_title">
+				@Model.SubdivisionFromFile
+			</div>
+		</div>
+		<div class="description_wrapper">
+			<div class=" description">Группа грейда</div>
+			<div class="mid_title">
+				@Model.GradeGroup
+			</div>
+		</div>
+		<div class="description_wrapper">
+			<div class="description">Срок работы в Банке</div>
+			<div class="mid_title ">
+				@Model.WorkPeriod
+			</div>
+		</div>
+		<div class="description_wrapper">
+			<div class="description">Дата окончания контракта</div>
+			<div class="mid_title ">
+				@Model.ContractEndDate
+			</div>
+		</div>
+		<div class="description_wrapper">
+			<div class="description">Период оценки</div>
+			@if (Model.LastGrade != null)
+			{
+				<div class="mid_title ">
+					@Model.LastGrade.StartDate -  @Model.LastGrade.EndDate
+				</div>
+			}
+			else
+			{
+				<div class="mid_title">
+					-
+				</div>
+			}
+		</div>
 
-    </div>
+	</div>
 </div>
 
 <div class="results_container margin_container_bottom">
-    
-    @if (Model.LastGrade == null)
-    {
-        <div class="undefined_page_wrapper">
 
-            <div class="container_description">
-                <div class="title">
-                    Оценки пока отсутсвуют
-                </div>
-                <div class="mid_description">
-                    Здесь будут отображаться результаты оценок после их добавления
-                </div>
-            </div>
-            <div class="empty_state_image_wrapper_middle">
-                <img src="/image/EmptyState.png" alt="default_page">
-            </div>
-        </div>
-    }
-    else
-    {
+	@if (Model.LastGrade == null)
+	{
+		<div class="undefined_page_wrapper">
 
-        <div class="container_description">
-            <div class="mid_title">
-                Результаты
-            </div>
-        </div>
+			<div class="container_description">
+				<div class="title">
+					Оценки пока отсутсвуют
+				</div>
+				<div class="mid_description">
+					Здесь будут отображаться результаты оценок после их добавления
+				</div>
+			</div>
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+	}
+	else
+	{
 
-        <div class="result_user_list ">
-            <div class="margin_container_bottom_small">
-                <div class="result_item">
-                   @if(Model.LastGrade.IsStrategicTasksFinalized){
-                       <span class="result_item_status green">
-                            <i class="fa-solid fa-check"></i>
-                       </span>
-                        
-                   }else{
-                        <span class="result_item_status yellow">
-                            <i class="fa-regular fa-clock"></i>
-                        </span>
-                   }
-                    <div class="mid_title">Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей</div>
-                    <div class="result_item_popup_btn" onclick="getStrategicTasksPopup(@Model.LastGrade.Id)">
+		<div class="container_description">
+			<div class="mid_title">
+				Результаты
+			</div>
+		</div>
 
-                        Подробнее
-                        <i class="fa-solid fa-circle-arrow-right" ></i>
+		<div class="result_user_list ">
+			<div class="margin_container_bottom_small">
+				<div class="result_item">
+					@if (Model.LastGrade.IsStrategicTasksFinalized)
+					{
+						<span class="result_item_status green">
+							<i class="fa-solid fa-check"></i>
+						</span>
 
-                    </div>
+					}
+					else
+					{
+						<span class="result_item_status yellow">
+							<i class="fa-regular fa-clock"></i>
+						</span>
+					}
+					<div class="mid_title">Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей</div>
+					<div class="result_item_popup_btn" onclick="getStrategicTasksPopup(@Model.LastGrade.Id)">
+
+						Подробнее
+						<i class="fa-solid fa-circle-arrow-right"></i>
+
+					</div>
 
 
-                </div>
-                @*@if (Model.LastGrade.StrategicTasksConclusion != null)
+				</div>
+				@*@if (Model.LastGrade.StrategicTasksConclusion != null)
             {
                 <div>
                         <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
@@ -132,58 +148,58 @@
                     Пусто
                 </div>
             }*@
-            </div>
+			</div>
 
-            <div class="result_item margin_container_bottom_small">
+			<div class="result_item margin_container_bottom_small">
 
-                @if (Model.LastGrade.IsProjectsFinalized)
-                {
-                    <span class="result_item_status green">
-                        <i class="fa-solid fa-check"></i>
-                    </span>
+				@if (Model.LastGrade.IsProjectsFinalized)
+				{
+					<span class="result_item_status green">
+						<i class="fa-solid fa-check"></i>
+					</span>
 
-                }
-                else
-                {
-                    <span class="result_item_status yellow">
-                        <i class="fa-regular fa-clock"></i>
-                    </span>
-                }
-                <div class="mid_title">Результаты выполнения стратегических проектов и задач</div>
-                <div class="result_item_popup_btn" onclick="getProjectsPopup(@Model.LastGrade.Id)">
+				}
+				else
+				{
+					<span class="result_item_status yellow">
+						<i class="fa-regular fa-clock"></i>
+					</span>
+				}
+				<div class="mid_title">Результаты выполнения стратегических проектов и задач</div>
+				<div class="result_item_popup_btn" onclick="getProjectsPopup(@Model.LastGrade.Id)">
 
-                    Подробнее
-                    <i class="fa-solid fa-circle-arrow-right" ></i>
+					Подробнее
+					<i class="fa-solid fa-circle-arrow-right"></i>
 
-                </div>
+				</div>
 
-            </div>
+			</div>
 
-            <div class="margin_container_bottom_small">
-                <div class="result_item">
+			<div class="margin_container_bottom_small">
+				<div class="result_item">
 
-                    @if (Model.LastGrade.IsKpisFinalized)
-                    {
-                        <span class="result_item_status green">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
+					@if (Model.LastGrade.IsKpisFinalized)
+					{
+						<span class="result_item_status green">
+							<i class="fa-solid fa-check"></i>
+						</span>
 
-                    }
-                    else
-                    {
-                        <span class="result_item_status yellow">
-                            <i class="fa-regular fa-clock"></i>
-                        </span>
-                    }
-                    <div class="mid_title">Результаты выполнения ключевых показателей эффективности деятельности</div>
-                    <div class="result_item_popup_btn" onclick="getKpisPopup(@Model.LastGrade.Id)">
+					}
+					else
+					{
+						<span class="result_item_status yellow">
+							<i class="fa-regular fa-clock"></i>
+						</span>
+					}
+					<div class="mid_title">Результаты выполнения ключевых показателей эффективности деятельности</div>
+					<div class="result_item_popup_btn" onclick="getKpisPopup(@Model.LastGrade.Id)">
 
-                        Подробнее
-                        <i class="fa-solid fa-circle-arrow-right" ></i>
+						Подробнее
+						<i class="fa-solid fa-circle-arrow-right"></i>
 
-                    </div>
-                </div>
-                @*@if (Model.LastGrade.KPIsConclusion != null)
+					</div>
+				</div>
+				@*@if (Model.LastGrade.KPIsConclusion != null)
             {
                 <div>
                         <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
@@ -196,34 +212,29 @@
                     Пусто
                 </div>
             }*@
-            </div>
+			</div>
 
-            <div class="margin_container_bottom_small">
-                <div class="result_item">
-
-                    @* Добавить *@
-                    @if (Model.LastGrade.IsStrategicTasksFinalized)
-                    {
-                        <span class="result_item_status green">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
-
-                    }
-                    else
-                    {
-                        <span class="result_item_status yellow">
-                            <i class="fa-regular fa-clock"></i>
-                        </span>
-                    }
-                    <div class="mid_title">Оценка управленческих компетенций</div>
-                    <div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
-
-                        Подробнее
-                        <i class="fa-solid fa-circle-arrow-right" ></i>
-
-                    </div>
-                </div>
-                @*@if (Model.LastGrade.ManagmentCompetenciesConclusion != null)
+			<div class="margin_container_bottom_small">
+				<div class="result_item">
+					@if (Model.IsManagmentCompetenciesFinalized)
+					{
+						<span class="result_item_status green">
+							<i class="fa-solid fa-check"></i>
+						</span>
+					}
+					else
+					{
+						<span class="result_item_status yellow">
+							<i class="fa-regular fa-clock"></i>
+						</span>
+					}
+					<div class="mid_title">Оценка управленческих компетенций</div>
+					<div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
+						Подробнее
+						<i class="fa-solid fa-circle-arrow-right"></i>
+					</div>
+				</div>
+				@*@if (Model.LastGrade.ManagmentCompetenciesConclusion != null)
             {
                 <div>
                         <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
@@ -236,34 +247,30 @@
                     Пусто
                 </div>
             }*@
-            </div>
+			</div>
 
-            <div class="margin_container_bottom_small">
-                <div class="result_item">
+			<div class="margin_container_bottom_small">
+				<div class="result_item">
+					@if (Model.IsCorporateCompetenciesFinalized)
+					{
+						<span class="result_item_status green">
+							<i class="fa-solid fa-check"></i>
+						</span>
 
-                    @* Добавить *@
-                    @if (Model.LastGrade.IsStrategicTasksFinalized)
-                    {
-                        <span class="result_item_status green">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
-
-                    }
-                    else
-                    {
-                        <span class="result_item_status yellow">
-                            <i class="fa-regular fa-clock"></i>
-                        </span>
-                    }
-                    <div class="mid_title">Оценка корпоративных компетенций</div>
-                    <div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
-
-                        Подробнее
-                        <i class="fa-solid fa-circle-arrow-right" ></i>
-
-                    </div>
-                </div>
-                @*@if (Model.LastGrade.CorporateCompetenciesConclusion != null)
+					}
+					else
+					{
+						<span class="result_item_status yellow">
+							<i class="fa-regular fa-clock"></i>
+						</span>
+					}
+					<div class="mid_title">Оценка корпоративных компетенций</div>
+					<div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
+						Подробнее
+						<i class="fa-solid fa-circle-arrow-right"></i>
+					</div>
+				</div>
+				@*@if (Model.LastGrade.CorporateCompetenciesConclusion != null)
             {
                 <div>
                         <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
@@ -276,72 +283,72 @@
                     Пусто
                 </div>
             }*@
-            </div>
+			</div>
 
-            <div class="result_item margin_container_bottom_small">
+			<div class="result_item margin_container_bottom_small">
 
-                
-                @if (Model.LastGrade.IsMarksFinalized)
-                {
-                    <span class="result_item_status green">
-                        <i class="fa-solid fa-check"></i>
-                    </span>
 
-                }
-                else
-                {
-                    <span class="result_item_status yellow">
-                        <i class="fa-regular fa-clock"></i>
-                    </span>
-                }
-                <div class="mid_title">Управление персоналом</div>
-                <div class="result_item_popup_btn" onclick="getMarksPopup(@Model.LastGrade.Id)">
-                    Подробнее
-                    <i class="fa-solid fa-circle-arrow-right" ></i>
+				@if (Model.LastGrade.IsMarksFinalized)
+				{
+					<span class="result_item_status green">
+						<i class="fa-solid fa-check"></i>
+					</span>
 
-                </div>
+				}
+				else
+				{
+					<span class="result_item_status yellow">
+						<i class="fa-regular fa-clock"></i>
+					</span>
+				}
+				<div class="mid_title">Управление персоналом</div>
+				<div class="result_item_popup_btn" onclick="getMarksPopup(@Model.LastGrade.Id)">
+					Подробнее
+					<i class="fa-solid fa-circle-arrow-right"></i>
 
-            </div>
+				</div>
 
-            <div class="result_item margin_container_bottom_small">
+			</div>
 
-                    <span class="result_item_status green">
-                        <i class="fa-solid fa-check"></i>
-                    </span>
-                <div class="mid_title">Обучающие мероприятия</div>
-                <div class="result_item_popup_btn" onclick="getTrainingEventsPopup(@Model.LastGrade.Id)">
+			<div class="result_item margin_container_bottom_small">
 
-                    Подробнее
-                    <i class="fa-solid fa-circle-arrow-right" ></i>
+				<span class="result_item_status green">
+					<i class="fa-solid fa-check"></i>
+				</span>
+				<div class="mid_title">Обучающие мероприятия</div>
+				<div class="result_item_popup_btn" onclick="getTrainingEventsPopup(@Model.LastGrade.Id)">
 
-                </div>
-            </div>
+					Подробнее
+					<i class="fa-solid fa-circle-arrow-right"></i>
 
-            <div class="margin_container_bottom_small">
-                <div class="result_item">
+				</div>
+			</div>
 
-                    @if (Model.LastGrade.IsQualificationFinalized)
-                    {
-                        <span class="result_item_status green">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
+			<div class="margin_container_bottom_small">
+				<div class="result_item">
 
-                    }
-                    else
-                    {
-                        <span class="result_item_status yellow">
-                            <i class="fa-regular fa-clock"></i>
-                        </span>
-                    }
-                    <div class="mid_title">Квалификация Руководителя</div>
-                    <div class="result_item_popup_btn" onclick="getQualificationPopup(@Model.LastGrade.Id)">
+					@if (Model.LastGrade.IsQualificationFinalized)
+					{
+						<span class="result_item_status green">
+							<i class="fa-solid fa-check"></i>
+						</span>
 
-                        Подробнее
-                        <i class="fa-solid fa-circle-arrow-right" ></i>
+					}
+					else
+					{
+						<span class="result_item_status yellow">
+							<i class="fa-regular fa-clock"></i>
+						</span>
+					}
+					<div class="mid_title">Квалификация Руководителя</div>
+					<div class="result_item_popup_btn" onclick="getQualificationPopup(@Model.LastGrade.Id)">
 
-                    </div>
-                </div>
-                @*@if (Model.LastGrade.QualificationConclusion != null)
+						Подробнее
+						<i class="fa-solid fa-circle-arrow-right"></i>
+
+					</div>
+				</div>
+				@*@if (Model.LastGrade.QualificationConclusion != null)
             {
                 <div>
                         <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
@@ -354,48 +361,42 @@
                     Пусто
                 </div>
             }*@
-            </div>
+			</div>
 
-            <div class="result_item margin_container_bottom_small">
+			<div class="result_item margin_container_bottom_small">
 
-                @if (Model.LastGrade.IsValueJudgmentFinalized)
-                {
-                    <span class="result_item_status green">
-                        <i class="fa-solid fa-check"></i>
-                    </span>
+				@if (Model.LastGrade.IsValueJudgmentFinalized)
+				{
+					<span class="result_item_status green">
+						<i class="fa-solid fa-check"></i>
+					</span>
 
-                }
-                else
-                {
-                    <span class="result_item_status yellow">
-                        <i class="fa-regular fa-clock"></i>
-                    </span>
-                }
-                <div class="mid_title">ОС от руководителя</div>
-                <div class="result_item_popup_btn" onclick="getValueJudgmentPopup(@Model.LastGrade.Id)">
+				}
+				else
+				{
+					<span class="result_item_status yellow">
+						<i class="fa-regular fa-clock"></i>
+					</span>
+				}
+				<div class="mid_title">ОС от руководителя</div>
+				<div class="result_item_popup_btn" onclick="getValueJudgmentPopup(@Model.LastGrade.Id)">
 
-                    Подробнее
-                    <i class="fa-solid fa-circle-arrow-right" ></i>
+					Подробнее
+					<i class="fa-solid fa-circle-arrow-right"></i>
 
-                </div>
-            </div>
-        </div>
-    }
+				</div>
+			</div>
+		</div>
+	}
 </div>
 
-@if(Model.ReadyForEmployeeApproval)
+@if (Model.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL)
 {
-    <div class="actions_container">
-        <div class="action_buttons_wrapper">
-            <div onclick="approveGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
-                Ознакомиться
-            </div>
-        </div>
-    </div>
-}
-else if (Model.ApprovedByEmployee)
-{
-    <div>
-        ВЫ УСПЕШНО ОЗНАКОМИЛИСЬ
-    </div>
+	<div class="actions_container">
+		<div class="action_buttons_wrapper">
+			<div onclick="approveGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
+				Ознакомиться
+			</div>
+		</div>
+	</div>
 }

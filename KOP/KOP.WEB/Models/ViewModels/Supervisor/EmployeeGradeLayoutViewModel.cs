@@ -1,4 +1,5 @@
 ﻿using KOP.Common.Dtos.GradeDtos;
+using KOP.Common.Enums;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {
@@ -15,7 +16,7 @@ namespace KOP.WEB.Models.ViewModels.Supervisor
         public GradeDto? LastGrade { get; set; }
         public bool IsCorporateCompetenciesFinalized { get; set; }
         public bool IsManagmentCompetenciesFinalized { get; set; }
-        public bool ReadyForSupervisorApproval { get; set; }
         public bool AccessForSupervisorApproval { get; set; }
+        public GradeStatuses GradeStatus { get; set; }
     }
 }

@@ -38,13 +38,12 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<AssessmentDto>()
                     {
-                        Description = $"[AssessmentService.GetAssessment] : Качественная оценка с id = {id} не найдена",
+                        Description = $"Качественная оценка с id = {id} не найдена",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
                 var createAssessmentDtoRes = _mappingService.CreateAssessmentDto(assessment);
-
                 if (!createAssessmentDtoRes.HasData)
                 {
                     return new BaseResponse<AssessmentDto>()
