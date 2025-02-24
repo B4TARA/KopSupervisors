@@ -36,7 +36,7 @@
 				@if (User.IsInRole("Employee"))
 				{
 					<a asp-area="" asp-controller="Employee" asp-action="GetEmployeeLayout">
-						<i class='bx bx-grid-alt'></i>
+						<i class='bx bx-grid-alt box-icon'></i>
 						<span class="link_name">Главная</span>
 					</a>
 				}
@@ -44,10 +44,10 @@
 			<li>
 				<div class="iocn-link">
 					<a href="#">
-						<i class='bx bx-collection'></i>
+						<i class='bx bx-collection box-icon'></i>
 						<span class="link_name">Кабинеты</span>
 					</a>
-					<i class='bx bxs-chevron-down arrow'></i>
+					<i class="fa-solid fa-chevron-down arrow"></i>
 				</div>
 				<ul class="sub-menu">
 					<li><a class="link_name" href="#">Кабинеты</a></li>
@@ -69,17 +69,17 @@
 			{
 				<li>
 					<a asp-area="" asp-controller="Analytics" asp-action="GetAnalyticsLayout">
-						<i class='bx bx-bar-chart-alt-2'></i>
+						<i class='bx bx-bar-chart-alt-2 box-icon'></i>
 						<span class="link_name">Аналитика</span>
 					</a>
 				</li>
 				<li>
 					<div class="iocn-link">
 						<a href="#">
-							<i class='bx bx-chart'></i>
+							<i class='bx bx-chart box-icon'></i>
 							<span class="link_name">Отчетность</span>
 						</a>
-						<i class='bx bxs-chevron-down arrow'></i>
+						<i class="fa-solid fa-chevron-down arrow"></i>
 					</div>
 					<ul class="sub-menu">
 						<li><a class="link_name" href="#">Отчетность</a></li>
@@ -106,7 +106,7 @@
 						</div>
 					</div>
 					<a asp-area="" asp-controller="Account" asp-action="Logout" class="logout-icon">
-						<i class='bx bx-log-out'></i>
+						<i class="fa-solid fa-arrow-right-from-bracket"></i>
 					</a>
 				</div>
 			</li>

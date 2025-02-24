@@ -159,7 +159,7 @@ function addRow(elem, type, id) {
                             <td>
                                 <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required />
                             </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
+                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -188,7 +188,7 @@ function addRow(elem, type, id) {
                         <td>
                             <input type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание" />
                         </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
+                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -196,7 +196,7 @@ function addRow(elem, type, id) {
         const row = document.createElement('div');
         row.innerHTML = `
             
-        <div class="project_info">
+        <div class="project_info_content">
             <div class="mid_title">
                 Проект ${newIndex + 1}
             </div>
@@ -226,7 +226,7 @@ function addRow(elem, type, id) {
                 Коэффициент реализации проекта: 
                 <input type="number"  name="Projects[${newIndex}].SPn" required /> %
             </div>
-            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>         
+            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>
                 `
         projectsInfoList.appendChild(row)
@@ -246,8 +246,9 @@ function addRow(elem, type, id) {
                     -
                     <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" required />
                     ;
-                    <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>         
+                       
                 </div>
+                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>      
                 `
 
         rowContainer.appendChild(row)
@@ -265,15 +266,172 @@ function addRow(elem, type, id) {
                         <td><input type="text" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].Period" placeholder="Период" required /></td>
                         <td><input type="number" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" required/></td>
                     </tr>
-                    <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this)"></i>
+                    <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tableBody.appendChild(row)
     }
 }
-function deleteRow(elem) {
-    elem.parentElement.remove()
+function deleteRow(elem, type) {
+    // Удаляем строку
+    elem.parentElement.remove();
+
+    // Обновляем индексы оставшихся строк
+    updateIndices(type);
 }
 
+function updateIndices(type) {
+    const tablePopup = document.querySelector('table tbody');
+    const rowContainer = document.getElementById("rowContainer");
+    const markTableBody = document.querySelector('.table_popup tbody');
+
+    // Обновляем индексы для KPI
+    if (type === 'kpi') {
+        const kpiRows = tablePopup.querySelectorAll('tr');
+        kpiRows.forEach((row, index) => {
+            row.querySelector('input[name^="Kpis["][name$=".PeriodStartDateTime"]').name = `Kpis[${index}].PeriodStartDateTime`;
+            row.querySelector('input[name^="Kpis["][name$=".PeriodEndDateTime"]').name = `Kpis[${index}].PeriodEndDateTime`;
+            row.querySelector('input[name^="Kpis["][name$=".Name"]').name = `Kpis[${index}].Name`;
+            row.querySelector('input[name^="Kpis["][name$=".CompletionPercentage"]').name = `Kpis[${index}].CompletionPercentage`;
+            row.querySelector('input[name^="Kpis["][name$=".CalculationMethod"]').name = `Kpis[${index}].CalculationMethod`;
+        });
+    }
+
+    // Обновляем индексы для стратегий
+    if (type === 'strategy' && rowContainer) {
+        const strategyRows = rowContainer.querySelectorAll('tr');
+        strategyRows.forEach((row, index) => {
+            const nameInput = row.querySelector('input[name^="StrategicTasks"][name$=".Name"]');
+            if (nameInput) {
+                nameInput.name = `StrategicTasks[${index}].Name`;
+            }
+
+            const purposeInput = row.querySelector('input[name^="StrategicTasks"][name$=".Purpose"]');
+            if (purposeInput) {
+                purposeInput.name = `StrategicTasks[${index}].Purpose`;
+            }
+
+            const planDateTimeInput = row.querySelector('input[name^="StrategicTasks"][name$=".PlanDateTime"]');
+            if (planDateTimeInput) {
+                planDateTimeInput.name = `StrategicTasks[${index}].PlanDateTime`;
+            }
+
+            const factDateTimeInput = row.querySelector('input[name^="StrategicTasks"][name$=".FactDateTime"]');
+            if (factDateTimeInput) {
+                factDateTimeInput.name = `StrategicTasks[${index}].FactDateTime`;
+            }
+
+            const planResultInput = row.querySelector('input[name^="StrategicTasks"][name$=".PlanResult"]');
+            if (planResultInput) {
+                planResultInput.name = `StrategicTasks[${index}].PlanResult`;
+            }
+
+            const factResultInput = row.querySelector('input[name^="StrategicTasks"][name$=".FactResult"]');
+            if (factResultInput) {
+                factResultInput.name = `StrategicTasks[${index}].FactResult`;
+            }
+
+            const remarkInput = row.querySelector('input[name^="StrategicTasks"][name$=".Remark"]');
+            if (remarkInput) {
+                remarkInput.name = `StrategicTasks[${index}].Remark`;
+            }
+        });
+    }
+
+    // Обновляем индексы для проектов
+    if (type === 'project' && rowContainer) {
+        const projectRows = rowContainer.querySelectorAll('div.project_info_content');
+        projectRows.forEach((row, index) => {
+            const supervisorInput = row.querySelector('input[name^="Projects"][name$=".SupervisorSspName"]');
+            if (supervisorInput) {
+                supervisorInput.name = `Projects[${index}].SupervisorSspName`;
+            }
+
+            const nameInput = row.querySelector('input[name^="Projects"][name$=".Name"]');
+            if (nameInput) {
+                nameInput.name = `Projects[${index}].Name`;
+            }
+
+            const stageInput = row.querySelector('input[name^="Projects"][name$=".Stage"]');
+            if (stageInput) {
+                stageInput.name = `Projects[${index}].Stage`;
+            }
+
+            const startDateInput = row.querySelector('input[name^="Projects"][name$=".StartDateTime"]');
+            if (startDateInput) {
+                startDateInput.name = `Projects[${index}].StartDateTime`;
+            }
+
+            const endDateInput = row.querySelector('input[name^="Projects"][name$=".EndDateTime"]');
+            if (endDateInput) {
+                endDateInput.name = `Projects[${index}].EndDateTime`;
+            }
+
+            const currentStatusDateInput = row.querySelector('input[name^="Projects"][name$=".CurrentStatusDateTime"]');
+            if (currentStatusDateInput) {
+                currentStatusDateInput.name = `Projects[${index}].CurrentStatusDateTime`;
+            }
+
+            const factStagesInput = row.querySelector('input[name^="Projects"][name$=".FactStages"]');
+            if (factStagesInput) {
+                factStagesInput.name = `Projects[${index}].FactStages`;
+            }
+
+            const planStagesInput = row.querySelector('input[name^="Projects"][name$=".PlanStages"]');
+            if (planStagesInput) {
+                planStagesInput.name = `Projects[${index}].PlanStages`;
+            }
+
+            const spnInput = row.querySelector('input[name^="Projects"][name$=".SPn"]');
+            if (spnInput) {
+                spnInput.name = `Projects[${index}].SPn`;
+            }
+        });
+    }
+
+    // Обновляем индексы для квалификации
+    if (type === 'experience' && rowContainer) {
+        const experienceItems = rowContainer.querySelectorAll('.experience_item');
+        experienceItems.forEach((item, index) => {
+            const startDateInput = item.querySelector('input[name^="Qualification.PreviousJobs"][name$=".StartDateTime"]');
+            if (startDateInput) {
+                startDateInput.name = `Qualification.PreviousJobs[${index}].StartDateTime`;
+            }
+
+            const endDateInput = item.querySelector('input[name^="Qualification.PreviousJobs"][name$=".EndDateTime"]');
+            if (endDateInput) {
+                endDateInput.name = `Qualification.PreviousJobs[${index}].EndDateTime`;
+            }
+
+            const organizationInput = item.querySelector('input[name^="Qualification.PreviousJobs"][name$=".OrganizationName"]');
+            if (organizationInput) {
+                organizationInput.name = `Qualification.PreviousJobs[${index}].OrganizationName`;
+            }
+
+            const positionInput = item.querySelector('input[name^="Qualification.PreviousJobs"][name$=".PositionName"]');
+            if (positionInput) {
+                positionInput.name = `Qualification.PreviousJobs[${index}].PositionName`;
+            }
+        });
+    }
+
+    // Обновляем индексы для марок
+    if (type === 'mark' && markTableBody) {
+        const markRows = markTableBody.querySelectorAll('tr');
+        markRows.forEach((row, index) => {
+            const periodInput = row.querySelector('input[name^="MarkTypes"][name$=".Period"]');
+            if (periodInput) {
+                periodInput.name = `MarkTypes[0].Marks[${index}].Period`;
+            }
+
+            const percentageValueInput = row.querySelector('input[name^="MarkTypes"][name$=".PercentageValue"]');
+            if (percentageValueInput) {
+                percentageValueInput.name = `MarkTypes[0].Marks[${index}].PercentageValue`;
+            }
+        });
+    }
+
+
+}
 // StrategicTasks
 async function getStrategicTasksPopup(gradeId) {
     try {

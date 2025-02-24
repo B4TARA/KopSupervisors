@@ -166,13 +166,13 @@ else
 			</div>
 			@if (Model.EditAccess)
 			{
-				<div class="add_row_btn add_project" onclick="addRow(this,'project')">Добавить</div>
+				<div class="add_row_btn add_project" onclick="addRow(this,'project')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
 			}
 		</div>
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveProjectsAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId)">Сохранить</button>
 		}
 	</form>
 }

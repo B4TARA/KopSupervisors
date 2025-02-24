@@ -27,27 +27,7 @@ else
 			<div asp-validation-summary="All">
 				<!-- Ошибки валидации будут отображаться тут-->
 			</div>
-		<div class="popup_content">
-			<div class="popup_content_header margin_container_bottom_middle">
-				<div class="title">
-					ОС от руководителя
-				</div>
-			</div>
-			<div class="project_info_content">
-				<div>
-					Сильные стороны работника: <b>@strengths</b>
-				</div>
-				<div>
-					Зоны деятельности / поведение работника, требующие корректировки: <b>@behaviorToCorrect</b>
-				</div>
-				<div>
-					Рекомендации по развитию работника: <b>@recommendations</b>
-				</div>
-			</div>
-
-		</div>
-			@if (Model.EditAccess)
-			{
+			
 			<div class="popup_content">
 				<div class="popup_content_header margin_container_bottom_middle">
 					<div class="title">
@@ -56,20 +36,46 @@ else
 				</div>
 				<div class="project_info_content">
 					<div>
-						Сильные стороны работника: <textarea asp-for="ValueJudgment.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+						Сильные стороны работника:
+					@if (Model.EditAccess)
+					{
+						<textarea asp-for="ValueJudgment.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+					}else{
+						<b>@strengths</b>
+					}
 					</div>
 					<div>
-						Зоны деятельности / поведение работника, требующие корректировки: <textarea asp-for="ValueJudgment.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+						Зоны деятельности / поведение работника, требующие корректировки:
+					@if (Model.EditAccess)
+					{
+						<textarea asp-for="ValueJudgment.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+					}
+					else
+					{
+						<b>@behaviorToCorrect</b>
+					}
+						
 					</div>
 					<div>
-						Рекомендации по развитию работника:<textarea asp-for="ValueJudgment.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+						Рекомендации по развитию работника:
+					@if (Model.EditAccess)
+					{
+						<textarea asp-for="ValueJudgment.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+					}
+					else
+					{
+						<b>@recommendations</b>
+					}
+						
 					</div>
 				</div>
 
 			</div>
+		@if (Model.EditAccess)
+		{
 				<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-				<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsFinal(@Model.GradeId)">Сохранить окончательно</button>
-			}
+				<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsFinal(@Model.GradeId)">Сохранить</button>
+		}
 		</form>
 	
 }

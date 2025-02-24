@@ -73,7 +73,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@strategicTask.Name</b>
+                                    @strategicTask.Name
                                 }
                             </td>
                             <td>
@@ -83,7 +83,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@strategicTask.Purpose</b>
+                                   @strategicTask.Purpose
                                 }
                             </td>
                             <td>
@@ -93,7 +93,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@planDateTime</b>
+                                    @planDateTime
                                 }
                             </td>
                             <td>
@@ -103,7 +103,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@factDateTime</b>
+                                    @factDateTime
                                 }
                             </td>
                             <td>
@@ -113,7 +113,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@strategicTask.PlanResult</b>
+                                    @strategicTask.PlanResult
                                 }
                             </td>
                             <td>
@@ -123,7 +123,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@strategicTask.FactResult</b>
+                                    @strategicTask.FactResult
                                 }
                             </td>
                             <td>
@@ -133,7 +133,7 @@ else
                                 }
                                 else
                                 {
-                                    <b>@strategicTask.Remark</b>
+                                    @strategicTask.Remark
                                 }
                             </td>
                             @if (Model.EditAccess)
@@ -148,13 +148,13 @@ else
 			</table>
 			@if (Model.EditAccess)
 			{
-				<div class="add_row_btn add_project" onclick="addRow(this,'strategy')">Добавить</div>
+                <div class="add_row_btn add_project" onclick="addRow(this,'strategy')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
 			}
 		</div>
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId)">Сохранить</button>
 		}
 	</form>
 }

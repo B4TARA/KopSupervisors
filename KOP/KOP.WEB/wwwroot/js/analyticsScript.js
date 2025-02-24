@@ -26,7 +26,7 @@ document.querySelectorAll('.custom-select-politics').forEach(select => {
             options.style.display = 'none'; // Скрыть опции
 
             const userId = this.getAttribute('data-id');
-            loadCompetenciesAnalytics(userId) 
+            loadCompetenciesAnalytics(userId)
             loadAssessmentAnalytics(userId);
         });
     });
@@ -116,9 +116,64 @@ function hasData(item) {
 
 // Очищаем сообщение об отсутствии данных
 function clearNoDataMessage() {
+    const dashboardItemContentLeft = document.getElementById('dashboardItemContentLeft');
+    dashboardItemContentLeft.style.display = 'flex';
+    const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
+    dashboardItemContentRight.style.display = 'flex'
+
     const emptyImageElement = document.getElementById('emptyImage');
     emptyImageElement.innerHTML = ''; // Очищаем содержимое элемента
+
+    const emptyImageElementRight = document.getElementById('emptyImageRight');
+    emptyImageElementRight.innerHTML = ''; // Очищаем содержимое элемента
 }
+
+function displayNoDataMessage() {
+    const dashboardItemContentLeft = document.getElementById('dashboardItemContentLeft');
+    dashboardItemContentLeft.style.display = 'none'
+    const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
+    dashboardItemContentRight.style.display = 'none'
+
+    const emptyImageElement = document.getElementById('emptyImage');
+    emptyImageElement.innerHTML = `
+        <div class="undefined_page_wrapper">
+
+			<div class="container_description">
+				<div class="title">
+					Нет данных
+				</div>
+				<div class="mid_description">
+					Данные для аналитики еще заполнены
+				</div>
+			</div>
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+    `;
+
+
+
+    const emptyImageElementRight = document.getElementById('emptyImageRight');
+    emptyImageElementRight.innerHTML = `
+        <div class="undefined_page_wrapper">
+
+			<div class="container_description">
+				<div class="title">
+					Нет данных
+				</div>
+				<div class="mid_description">
+					Данные для аналитики еще заполнены
+				</div>
+			</div>
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+    `;
+
+}
+
 
 // Создаем наборы данных для графика
 function createDatasets(item) {
@@ -171,18 +226,6 @@ function getChartOptions() {
 }
 
 // Отобразить сообщение об отсутствии данных
-function displayNoDataMessage() {
-    const emptyImageElement = document.getElementById('emptyImage');
-    emptyImageElement.innerHTML = `
-        <div class="undefined_page_wrapper">
-            <div class="title">Никто не оценил</div>
-            <div class="empty_state_image_wrapper_middle">
-                <img src="/image/EmptyState.png" alt="default_page">
-            </div>
-        </div>
-    `;
-
-}
 
 // Получить данные для отрисовки графика (json)
 async function loadAssessmentAnalytics(userId) {
@@ -213,7 +256,7 @@ function createTabs(data) {
     data.forEach((item, index) => {
         const tab = document.createElement('button');
         tab.className = 'tab';
-        tab.innerText = item.typeName;            ;
+        tab.innerText = item.typeName;;
         tab.onclick = () => {
 
             drawAssessmentAnalytics(item);
@@ -276,9 +319,9 @@ async function loadCompetenciesAnalytics(userId) {
         data.topCompetencies.forEach((item, index) => {
             var newTopCompetenceDiv = document.createElement('div');
             newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
-            const itemPercentage = ( item.avgValue/13) * 100;
+            const itemPercentage = (item.avgValue / 13) * 100;
             newTopCompetenceDiv.innerHTML = ` 
-            <div class="dashboard-competences-group-item-text mid_description">${item.name}</div>
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
 							<div class="dashboard-competences-group-item-scale-wrapper">
 								<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
 								<div class="description">${item.avgValue}</div>
@@ -286,20 +329,19 @@ async function loadCompetenciesAnalytics(userId) {
             `;
             topCompetencies.appendChild(newTopCompetenceDiv);
 
-            var newTopDescription = document.createElement('div');
+            var newTopDescription = document.createElement('li');
             newTopDescription.textContent = item.competenceDescription;
-            newTopDescription.classList.add('mid_description')
             topDescriptions.appendChild(newTopDescription);
         });
 
         antiTopCompetencies.innerHTML = '';
         antiTopDescriptions.innerHTML = '';
         data.antiTopCompetencies.forEach((item, index) => {
-            const itemPercentage = (item.avgValue/13) * 100;
+            const itemPercentage = (item.avgValue / 13) * 100;
             var newAntiTopCompetenceDiv = document.createElement('div');
             newAntiTopCompetenceDiv.classList.add('dashboard-competences-group-item');
             newAntiTopCompetenceDiv.innerHTML = ` 
-            <div class="dashboard-competences-group-item-text mid_description">${item.name}</div>
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
 							<div class="dashboard-competences-group-item-scale-wrapper">
 								<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
 								<div class="description">${item.avgValue}</div>
@@ -307,18 +349,22 @@ async function loadCompetenciesAnalytics(userId) {
             `;
             antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
 
-            var newAntiTopDescription = document.createElement('div');
+            var newAntiTopDescription = document.createElement('li');
             newAntiTopDescription.textContent = item.competenceDescription;
-            newAntiTopDescription.classList.add('mid_description')
             antiTopDescriptions.appendChild(newAntiTopDescription);
         });
 
-        
+
         document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {
+
+            headerBtn.classList.remove('active')
+
             headerBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 // Находим соответствующий контент
                 const content = this.nextElementSibling;
+
+                this.classList.toggle('active')
 
                 // Проверяем, есть ли у контента класс active
                 if (content.classList.contains('active')) {
@@ -338,4 +384,3 @@ async function loadCompetenciesAnalytics(userId) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }
-

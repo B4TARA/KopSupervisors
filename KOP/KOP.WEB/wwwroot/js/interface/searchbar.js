@@ -27,7 +27,7 @@ function filterList(searchTerm, type) {
 
 function checkIfHideListItems() {
     // Получаем все элементы list-items
-    const listItems = document.querySelectorAll('.list_division_users_wrapper .list-items');
+    const listItems = document.querySelectorAll('.list_division_users_wrapper ');
 
     listItems.forEach(item => {
         // Получаем все строки в текущей таблице

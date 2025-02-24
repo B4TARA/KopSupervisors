@@ -88,7 +88,7 @@ else
 					</table>
 					@if (Model.EditAccess)
 					{
-						<div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)">Добавить</div>
+						<div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
 					}
 				</div>
 			}
@@ -96,7 +96,7 @@ else
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveMarksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId)">Сохранить</button>
 		}
 	</form>
 }

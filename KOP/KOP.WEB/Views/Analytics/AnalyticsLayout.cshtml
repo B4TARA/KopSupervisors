@@ -53,74 +53,84 @@
 	</div>
 	<div class="dashboard-container">
 		<div class="dashboard-item left-dashboard-item">
-			<div class="header-wrapper">
-				<div class="title">
-					ОЦЕНКА КОМПЕТЕНЦИЙ
+			<div class="dashboard-item-content" id="dashboardItemContentLeft">
+				<div class="header-wrapper">
+					<div class="title">
+						ОЦЕНКА КОМПЕТЕНЦИЙ
+					</div>
+					<div class="header-btns-wrapper">
+						<button class="expand-btn" data-target="chart4"><i class="fa-solid fa-expand" style="color: #b5b5c2;"></i></button>
+					</div>
 				</div>
-				<div class="header-btns-wrapper">
-					<button class="expand-btn" data-target="chart4"><i class="fa-solid fa-expand" style="color: #b5b5c2;"></i></button>
+				<div id="tabContainer" class="tab-container"></div>
+				<div class="dashboard-results-list">
+					<div class="dashboard-result-item">
+						<div id="generalAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Общий балл</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="selfAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Самооценка</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="supervisorAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Оценка руководителя</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="colleaguesAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Оценка коллег</div>
+					</div>
 				</div>
+				<div class="chart-container">
+					<canvas id="chart4" data-modal="chart4Modal"></canvas>
+				</div>
+				
 			</div>
-			<div class="dashboard-results-list">				
-				<div class="dashboard-result-item">
-					<div id="generalAvgValue" class="dashboard-result-value title"></div>
-					<div class="dashboard-result-text description">Общий балл</div>
-				</div>
-				<div class="dashboard-result-item">
-					<div id="selfAvgValue" class="dashboard-result-value title"></div>
-					<div class="dashboard-result-text description">Самооценка</div>
-				</div>
-				<div class="dashboard-result-item">
-					<div id="supervisorAvgValue" class="dashboard-result-value title"></div>
-					<div class="dashboard-result-text description">Оценка руководителя</div>
-				</div>
-				<div class="dashboard-result-item">
-					<div id="colleaguesAvgValue" class="dashboard-result-value title"></div>
-					<div class="dashboard-result-text description">Оценка коллег</div>
-				</div>
-			</div>
-			<div id="tabContainer" class="tab-container"></div>
-			<canvas id="chart4" data-modal="chart4Modal"></canvas>
+			
 			<div id="emptyImage"></div>
 		</div>
 		<div class="dashboard-item right-dashboard-item">
 
-			<div class="dashboard-competences-list">
+			<div class="dashboard-item-content" id="dashboardItemContentRight">
+				<div class="dashboard-competences-list">
 
-				<div class="dashboard-competence-item">
-					<div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
+					<div class="dashboard-competence-item">
+						<div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
 
-					<div id="topCompetencies" class="dashboard-competences-group">
+						<div id="topCompetencies" class="dashboard-competences-group">
+						</div>
 					</div>
+
+					<div class="dashboard-competence-item">
+						<div class="dashboard-competence-header mid_title">АНТИТОП-5 КОМПЕТЕНЦИЙ</div>
+						<div id="antiTopCompetencies" class="dashboard-competences-group">
+						</div>
+					</div>
+
 				</div>
 
-				<div class="dashboard-competence-item">
-					<div class="dashboard-competence-header mid_title">АНТИТОП-5 КОМПЕТЕНЦИЙ</div>
-					<div id="antiTopCompetencies" class="dashboard-competences-group">
-					</div>
-				</div>
+				<div class="dashboard-description-list">
 
+					<div class="dashboard-description-item">
+						<div class="dashboard-description-header-btn mid_title"><span>ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+						<ul id="topDescriptions" class="dashboard-description-content">
+						</ul>
+
+					</div>
+
+					<div class="dashboard-description-item">
+						<div class="dashboard-description-header-btn mid_title"><span>НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+						<ul id="antiTopDescriptions" class="dashboard-description-content">
+						</ul>
+
+
+
+					</div>
+
+				</div>
 			</div>
 
-			<div class="dashboard-description-list">
-
-				<div class="dashboard-description-item">
-					<div class="dashboard-description-header-btn mid_title">ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ <i class="fa-solid fa-chevron-down"></i></div>
-					<div id="topDescriptions" class="dashboard-description-content">
-					</div>
-					
-				</div>
-
-				<div class="dashboard-description-item">
-					<div class="dashboard-description-header-btn mid_title">НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ <i class="fa-solid fa-chevron-down"></i></div>
-					<div id="antiTopDescriptions" class="dashboard-description-content">
-					</div>
-
-					
-
-				</div>
-
-			</div>
+			<div id="emptyImageRight"></div>
 
 		</div>
 		<div id="chartModal" class="modal">
@@ -136,33 +146,21 @@
 
 
 <script>
-	
+
 	// Проверка наличия пользователей и вызов функции с ID первого пользователя
 	@if (Model.SubordinateUsers.Any())
 	{
-	<text>
-		loadAssessmentAnalytics('@Model.SubordinateUsers.First().Id');
-		loadCompetenciesAnalytics('@Model.SubordinateUsers.First().Id');
-				
-	</text>
+		<text>
+			loadAssessmentAnalytics('@Model.SubordinateUsers.First().Id');
+			loadCompetenciesAnalytics('@Model.SubordinateUsers.First().Id');
+
+		</text>
 	}
 	else
 	{
 		<text>
-						displayNoDataMessage()
+							displayNoDataMessage()
 		</text>
 	}
 </script>
 
-<style>
-	
-</style>
-
-<script src="~/js/gauge.js"></script>
-<script>
-	// document.addEventListener('DOMContentLoaded', () => {
-	// 	console.log(gauge)
-	// 	gauge.init('#gauge');
-	// });
-	// gauge.set('#gauge', 75);
-</script>

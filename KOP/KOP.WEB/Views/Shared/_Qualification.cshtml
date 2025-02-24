@@ -42,36 +42,121 @@ else{
             </div>
             <div>
                 Соответствие
-                <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" disabled="@(Model.EditAccess ? null : "disabled")" required />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" required />
+                }
+                else
+                {
+                    <b>@Model.Qualification.SupervisorSspName</b>
+                }
+
                 квалификационным требованиям
-                <input type="text" asp-for="Qualification.Link" value="@Model.Qualification.Link" disabled="@(Model.EditAccess ? null : "disabled")" required  />:
+
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.Link" value="@Model.Qualification.Link" required />
+                }
+                else
+                {
+                    <b>@Model.Qualification.Link</b>
+                }
             </div>
             <div class="mid_title">
                 1. Образование:
             </div>
             <div>
                 - Высшее образование:
-                <input type="text" asp-for="Qualification.HigherEducation" value="@Model.Qualification.HigherEducation" disabled="@(Model.EditAccess ? null : "disabled")" required  />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.HigherEducation" value="@Model.Qualification.HigherEducation" required />
+                }
+                else
+                {
+                    <b>@Model.Qualification.HigherEducation</b>
+                }
+
                 , специальность
-                <input type="text" asp-for="Qualification.Speciality" value="@Model.Qualification.Speciality" disabled="@(Model.EditAccess ? null : "disabled")" required />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.Speciality" value="@Model.Qualification.Speciality" required />
+                }
+                else
+                {
+                    <b>@Model.Qualification.Speciality</b>
+                }
+
                 , квалификация
-                <input type="text" asp-for="Qualification.QualificationResult" value="@Model.Qualification.QualificationResult" disabled="@(Model.EditAccess ? null : "disabled")" required  />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.QualificationResult" value="@Model.Qualification.QualificationResult" required />
+                }
+                else
+                {
+                    <b>@Model.Qualification.QualificationResult</b>
+                }
                 , период обучения с
-                <input type="date" asp-for="Qualification.StartDateTime" value="@startDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required />
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.StartDateTime" value="@startDateTime" required />
+                }
+                else
+                {
+                    <b>@startDateTime</b>
+                }
+
                 по
-                <input type="date" asp-for="Qualification.EndDateTime" value="@endDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required  />
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.EndDateTime" value="@endDateTime" required />
+                }
+                else
+                {
+                    <b>@endDateTime</b>
+                }
             </div>
             <div>
                 - Дополнительное образование (повышение квалификации):
-                <input type="text" asp-for="Qualification.AdditionalEducation" value="@Model.Qualification.AdditionalEducation" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.AdditionalEducation" value="@Model.Qualification.AdditionalEducation" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.AdditionalEducation</b>
+                }
             </div>
             <div class="mid_title">
                 2. Стаж работы в банковской системе по состоянию на
-                <input type="date" asp-for="Qualification.CurrentStatusDateTime" value="@currentStatusDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.CurrentStatusDateTime" value="@currentStatusDateTime" />
+                }
+                else
+                {
+                    <b>@currentStatusDateTime</b>
+                }
+
                 -
-                <input type="number" asp-for="Qualification.CurrentExperienceYears" value="@Model.Qualification.CurrentExperienceYears" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="number" asp-for="Qualification.CurrentExperienceYears" value="@Model.Qualification.CurrentExperienceYears" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentExperienceYears</b>
+                }
+
                 лет
-                <input type="number" asp-for="Qualification.CurrentExperienceMonths" value="@Model.Qualification.CurrentExperienceMonths" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="number" asp-for="Qualification.CurrentExperienceMonths" value="@Model.Qualification.CurrentExperienceMonths" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentExperienceMonths</b>
+                }
+
                 мес., в т.ч.:
             </div>
             <div class="experience_list" id="rowContainer">
@@ -83,13 +168,46 @@ else{
 
                     <div class="experience_item">
                         c
-                        <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" value="@jobStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" value="@jobStartDateTime" />
+                        }
+                        else
+                        {
+                            <b>@jobStartDateTime</b>
+                        }
+
                         по
-                        <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" value="@jobEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" value="@jobEndDateTime" />
+                        }
+                        else
+                        {
+                            <b>@jobEndDateTime</b>
+                        }
+
                         -
-                        <input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" value="@Model.Qualification.PreviousJobs[i].OrganizationName" disabled="@(Model.EditAccess ? null : "disabled")" />
+                        @if (Model.EditAccess)
+                        {
+
+                            <input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" value="@Model.Qualification.PreviousJobs[i].OrganizationName" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.PreviousJobs[i].OrganizationName</b>
+                        }
+
                         -
-                        <input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" value="@Model.Qualification.PreviousJobs[i].PositionName" disabled="@(Model.EditAccess ? null : "disabled")" />
+                        @if (Model.EditAccess)
+                        {
+                            <input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" value="@Model.Qualification.PreviousJobs[i].PositionName" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.PreviousJobs[i].PositionName</b>
+                        }
+
                         ;
                     </div>
                     @if (Model.EditAccess)
@@ -102,35 +220,66 @@ else{
             </div>
             @if (Model.EditAccess)
             {
-                <div class="add_row_btn add_project" onclick="addRow(this,'experience')">Добавить</div>
+                <div class="add_row_btn add_project" onclick="addRow(this,'experience')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
             }
             <div>
                 ЗАО "МТБанк":
             </div>
             <div>
                 с
-                <input type="date" asp-for="Qualification.CurrentJobStartDateTime" value="@currentJobStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.CurrentJobStartDateTime" value="@currentJobStartDateTime" />
+                }
+                else
+                {
+                    <b>@currentJobStartDateTime</b>
+                }
+
                 по настоящее время -
-                <input type="text" asp-for="Qualification.CurrentJobPositionName" value="@Model.Qualification.CurrentJobPositionName" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.CurrentJobPositionName" value="@Model.Qualification.CurrentJobPositionName" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentJobPositionName</b>
+                }
             </div>
             <div class="mid_title">
                 3. Дополнительная информация
             </div>
             <div>
-                <input type="text" asp-for="Qualification.EmploymentContarctTerminations" value="@Model.Qualification.EmploymentContarctTerminations" disabled="@(Model.EditAccess ? null : "disabled")" />
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.EmploymentContarctTerminations" value="@Model.Qualification.EmploymentContarctTerminations" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.EmploymentContarctTerminations</b>
+                }
+
                 в течение последних двух лет факты расторжения трудового договора (контракта) по
                 инициативе нанимателя в случае совершения лицом виновных действий,
                 являющихся основаниями для утраты доверия к нему со стороны нанимателя.
             </div>
             <div>
-                <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" disabled="@(Model.EditAccess ? null : "disabled")" />
-                соответсвует квалификационным требованиям и требованиям к деловой репутации
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.SupervisorSspName" value="@Model.Qualification.SupervisorSspName" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.SupervisorSspName</b>
+                }
+
+                соответствует квалификационным требованиям и требованиям к деловой репутации.
             </div>
         </div>
         @if (Model.EditAccess)
         {
             <button type="button" class="add_row_btn" onclick="saveQualificationAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-            <button type="button" class="add_row_btn" onclick="saveQualificationAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+            <button type="button" class="add_row_btn" onclick="saveQualificationAsFinal(@Model.GradeId)">Сохранить</button>
         }
     </form>
 }
