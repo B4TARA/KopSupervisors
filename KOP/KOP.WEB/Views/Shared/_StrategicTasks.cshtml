@@ -27,9 +27,15 @@ else
 				<div class="title">
 					Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
 				</div>
-				<div class="description">
-					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
-				</div>
+
+				@if (!string.IsNullOrEmpty(Model.Conclusion))
+				{
+					<div class="description">
+						<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+					</div>
+				}
+				
+				
 			</div>
 			<table class="table_popup">
 				<thead>
@@ -59,35 +65,84 @@ else
 						var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
 						var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
 
-						<tr>
-							<td>
-								<textarea type="text" asp-for="StrategicTasks[i].Name" disabled="@(Model.EditAccess ? null : "disabled")" required>@strategicTask.Name</textarea>
-							</td>
-							<td>
-								<textarea type="text" asp-for="StrategicTasks[i].Purpose" disabled="@(Model.EditAccess ? null : "disabled")" required>@strategicTask.Purpose</textarea>
-							</td>
-							<td>
-								<input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required />
-							</td>
-							<td>
-								<input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" disabled="@(Model.EditAccess ? null : "disabled")" required />
-							</td>
-							<td>
-								<input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" disabled="@(Model.EditAccess ? null : "disabled")" required />
-							</td>
-							<td>
-								<input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" disabled="@(Model.EditAccess ? null : "disabled")" required />
-							</td>
-							<td>
-								<textarea type="text" asp-for="StrategicTasks[i].Remark" disabled="@(Model.EditAccess ? null : "disabled")">@strategicTask.Remark</textarea>
-							</td>
-							@if (Model.EditAccess)
-							{
-								<td>
-									<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTasks[i].Id, @Model.GradeId)"></i>
-								</td>
-							}
-						</tr>
+                        <tr>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <textarea type="text" asp-for="StrategicTasks[i].Name" required>@strategicTask.Name</textarea>
+                                }
+                                else
+                                {
+                                    <b>@strategicTask.Name</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <textarea type="text" asp-for="StrategicTasks[i].Purpose" required>@strategicTask.Purpose</textarea>
+                                }
+                                else
+                                {
+                                    <b>@strategicTask.Purpose</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" required />
+                                }
+                                else
+                                {
+                                    <b>@planDateTime</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" required />
+                                }
+                                else
+                                {
+                                    <b>@factDateTime</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" required />
+                                }
+                                else
+                                {
+                                    <b>@strategicTask.PlanResult</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" required />
+                                }
+                                else
+                                {
+                                    <b>@strategicTask.FactResult</b>
+                                }
+                            </td>
+                            <td>
+                                @if (Model.EditAccess)
+                                {
+                                    <textarea type="text" asp-for="StrategicTasks[i].Remark">@strategicTask.Remark</textarea>
+                                }
+                                else
+                                {
+                                    <b>@strategicTask.Remark</b>
+                                }
+                            </td>
+                            @if (Model.EditAccess)
+                            {
+                                <td>
+                                    <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTasks[i].Id, @Model.GradeId)"></i>
+                                </td>
+                            }
+                        </tr>
 					}
 				</tbody>
 			</table>

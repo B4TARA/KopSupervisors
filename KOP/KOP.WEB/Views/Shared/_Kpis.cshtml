@@ -27,13 +27,18 @@ else
 				<div class="title">
 					Результаты выполнения ключевых показателей эффективности деятельности
 				</div>
-				<div class="conclusion-popup-wrapper">
-					<div class="title">
-						<i class="fa-solid fa-list"></i>
-						Вывод
+
+
+				@if (!string.IsNullOrEmpty(Model.Conclusion))
+				{
+					<div class="conclusion-popup-wrapper">
+						<div class="title">
+							<i class="fa-solid fa-list"></i>
+							Вывод
+						</div>
+						<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
 					</div>
-					<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
-				</div>
+				}
 			</div>
 			<table class="table_popup">
 				<thead>
@@ -53,19 +58,57 @@ else
 						var periodEndDateTime = kpi.PeriodEndDateTime.ToString("yyyy-MM-dd");
 						<tr>
 							<td>
-								<input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+								@if (Model.EditAccess)
+								{
+									<input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}else{
+									@periodStartDateTime
+								}
+								
 							</td>
 							<td>
-								<input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+								@if (Model.EditAccess)
+								{
+									<input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}
+								else
+								{
+									@periodEndDateTime
+								}
+								
 							</td>
 							<td>
-								<input type="text" asp-for="Kpis[i].Name" value="@kpi.Name" disabled="@(Model.EditAccess ? null : "disabled")" />
+								@if (Model.EditAccess)
+								{
+									<input type="text" asp-for="Kpis[i].Name" value="@kpi.Name" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}
+								else
+								{
+									@kpi.Name
+								}
+								
 							</td>
 							<td>
-								<input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(Model.EditAccess ? null : "disabled")" />
+								@if (Model.EditAccess)
+								{
+									<input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}
+								else
+								{
+									@kpi.CompletionPercentage
+								}
+								
 							</td>
 							<td>
-								<input type="text" asp-for="Kpis[i].CalculationMethod" value="@kpi.CalculationMethod" disabled="@(Model.EditAccess ? null : "disabled")" />
+								@if (Model.EditAccess)
+								{
+									<input type="text" asp-for="Kpis[i].CalculationMethod" value="@kpi.CalculationMethod" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}
+								else
+								{
+									@kpi.CalculationMethod
+								}
+								
 							</td>
 							@if (Model.EditAccess)
 							{

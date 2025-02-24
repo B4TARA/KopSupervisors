@@ -86,6 +86,8 @@ function popupAlert(text, isReload) {
     let homeSection = document.querySelector('.home-content')
     alertSection.className = "section_popup alert_popup active_popup";
     alertSection.setAttribute('id', 'section_popup')
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.add('active');
 
     alertSection.innerHTML = `<div class="modal-box">
         <div class="close_btn close-btn" onclick = "closeBtnPopup(this,${isReload})">
@@ -108,7 +110,7 @@ function popupResult(text, isReload) {
     if (sectionPopup) {
         sectionPopup.remove()
     }
-
+    console.log(overlay)
     let alertSection = document.createElement('section');
     let homeSection = document.querySelector('.home-content')
     alertSection.className = "section_popup result_popup active_popup";

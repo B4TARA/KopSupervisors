@@ -57,10 +57,24 @@ else
 								var percentageValue = Model.MarkTypes[i].Marks[j].PercentageValue;
 								<tr>
 									<td>
-										<input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(Model.EditAccess ? null : "disabled")" />
+										@if (Model.EditAccess)
+										{
+											<input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(Model.EditAccess ? null : "disabled")" />
+										}else{
+											@period
+										}
+										
 									</td>
 									<td>
-										<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+										@if (Model.EditAccess)
+										{
+											<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+										}
+										else
+										{
+											@percentageValue
+										}
+										
 									</td>
 									@if (Model.EditAccess)
 									{
