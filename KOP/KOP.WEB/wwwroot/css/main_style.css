@@ -3308,11 +3308,11 @@ button.show-modal,
         cursor: default;
     }
 
-    .d-tr:first-child:hover .d-td:first-child {
+    .d-tr:last-child:hover .d-td:first-child {
         border-radius: 0px 0px 0px 12px;
     }
 
-    .d-tr:first-child:hover .d-td:last-child {
+    .d-tr:last-child:hover .d-td:last-child {
         border-radius: 0px 0px 12px 0px;
     }
 
