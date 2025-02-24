@@ -79,19 +79,22 @@ window.addEventListener('click', function (event) {
 });
 
 // Отрисовать график
-function drawAssessmentAnalytics(item) {
+function drawAssessmentAnalytics(item,typeRender) {
     // Удаляем предыдущий график, если он существует
     if (window.radarChart) {
         window.radarChart.destroy();
     }
 
-    // Проверяем наличие данных
-    if (!hasData(item)) {
-        displayNoDataMessage(); // Вызываем сообщение об отсутствии данных
-        return; // Завершаем выполнение функции
-    }
+    if (typeRender) {
+        // Проверяем наличие данных
+        if (!hasData(item)) {
+            displayNoDataMessage(); // Вызываем сообщение об отсутствии данных
+            return; // Завершаем выполнение функции
+        }
 
-    clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+        clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+    }
+    
 
     const ctx = document.getElementById('chart4').getContext('2d');
 
@@ -259,7 +262,7 @@ function createTabs(data) {
         tab.innerText = item.typeName;;
         tab.onclick = () => {
 
-            drawAssessmentAnalytics(item);
+            drawAssessmentAnalytics(item,false);
 
             const generalAvgValue = document.getElementById('generalAvgValue');
             generalAvgValue.innerHTML = item.generalAvgValue;
@@ -277,7 +280,7 @@ function createTabs(data) {
 
         // Отрисовываем график для первой вкладки
         if (index === 0) {
-            drawAssessmentAnalytics(item);
+            drawAssessmentAnalytics(item, true);
 
             const generalAvgValue = document.getElementById('generalAvgValue');
             generalAvgValue.innerHTML = item.generalAvgValue;
