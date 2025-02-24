@@ -12,7 +12,7 @@ async function getGradeLayout(employeeId) {
         document.getElementById('gradeLayout').innerHTML = htmlContent;
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -46,7 +46,7 @@ async function getGradeInfo(id, isClickable) {
         }
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -65,7 +65,7 @@ async function getAssessmentLayout(employeeId) {
         await getColleaguesAssessment(employeeId);
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -91,7 +91,7 @@ async function getColleaguesAssessment(employeeId) {
         console.log(firstLinkMenu)
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -119,7 +119,7 @@ async function getSelfAssessment(employeeId, assessmentId) {
 
         // Проверка на результат ответа
         if (!jsonResponse.success) {
-            alert(jsonResponse.message);
+            //alert(jsonResponse.message);
             return;
         }
 
@@ -138,7 +138,7 @@ async function getSelfAssessment(employeeId, assessmentId) {
         }        
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -171,7 +171,7 @@ async function getAssessment(employeeId, assessmentId) {
         
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -184,26 +184,39 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
         jsonToSend.resultValues = [];
         jsonToSend.assessmentResultId = assessmentResultId;
 
+        let isValid = true; // Флаг для проверки валидности
+
         assessmentValues.forEach((item) => {
-            let itemValue = item.value;
+            let itemValue = item.value.trim(); // Убираем пробелы по краям
             let itemMax = +item.max;
             let itemMin = +item.min;
 
-            if (itemValue <= itemMax && itemValue >= itemMin) {
-                if (itemValue.includes('.')) {
-                    jsonToSend.resultValues.push(itemValue.split('.')[0]);
-                    validationFormAssessment(item, 'errorInclude');
-                } else if (itemValue.includes(',')) {
-                    jsonToSend.resultValues.push(itemValue.split(',')[0]);
-                    validationFormAssessment(item, 'errorInclude');
-                } else {
-                    jsonToSend.resultValues.push(itemValue);
-                    validationFormAssessment(item, 'success');
-                }
+            // Проверка на наличие недопустимых символов
+            const invalidCharacters = /[^\d]/; // Регулярное выражение для проверки на недопустимые символы (все, кроме цифр)
+
+            if (invalidCharacters.test(itemValue)) {
+                isValid = false; // Устанавливаем флаг в false
+                validationFormAssessment(item, 'errorInclude'); // Вызов функции валидации
+                return; // Прерываем выполнение текущей итерации
+            }
+
+            // Преобразуем значение в число
+            let numericValue = +itemValue;
+
+            // Проверка на валидность
+            if (numericValue < itemMin || numericValue > itemMax) {
+                isValid = false; // Устанавливаем флаг в false
+                validationFormAssessment(item, 'errorValidation'); // Вызов функции валидации
             } else {
-                validationFormAssessment(item, 'errorValidation');
+                validationFormAssessment(item, 'success'); // Успешная валидация
+                jsonToSend.resultValues.push(numericValue + ""); // Добавляем значение в массив
             }
         });
+
+        // Если есть ошибки валидации, не отправляем данные
+        if (!isValid) {
+            return;
+        }
 
         let url = '/Employee/AssessEmployee';
 
@@ -217,12 +230,10 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
 
         if (!response.ok) {
             let errorData = await response.json();
-            alert(`Ошибка ${response.status}: ${errorData.message}`);
             return;
         }
 
-        //alert('Оценка успешно принята!');
-        popupAlert('Оценка успешно принята!', false)
+        popupAlert('Оценка успешно принята!', false);
 
         // Обновление интерфейса после успешной оценки
         await getAssessmentLayout(employeeId);
@@ -233,10 +244,10 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
+// Пример функции валидации
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";
     let errorElem = item.parentNode.parentNode.nextElementSibling.querySelector('.grade_error_description');
@@ -244,14 +255,14 @@ function validationFormAssessment(item, type) {
     if (type == 'errorInclude') {
         textError = 'Неверное значение';
         errorElem.innerHTML = textError;
-        item.parentNode.parentNode.nextElementSibling.style.display = 'flex'
+        item.parentNode.parentNode.nextElementSibling.style.display = 'flex';
     } else if (type == 'errorValidation') {
-        textError = 'Значение должно быть меньше или равно максимального';
+        textError = 'Значение должно быть в пределах ' + item.min + ' и ' + item.max;
         errorElem.innerHTML = textError;
-        item.parentNode.parentNode.nextElementSibling.style.display = 'flex'
+        item.parentNode.parentNode.nextElementSibling.style.display = 'flex';
     } else if (type == 'success') {
         item.style.color = "#000";
-        item.parentNode.parentNode.nextElementSibling.style.display = 'none'
+        item.parentNode.parentNode.nextElementSibling.style.display = 'none';
     }
 }
 
@@ -270,10 +281,10 @@ async function approveGrade(gradeId, employeeId) {
             getGradeLayout(employeeId);
         } else {
             console.error("Ошибка при создании Word документа:", response.statusText);
-            alert("Ошибка при создании Word документа. Пожалуйста, посмотрите в консоль для деталей.");
+            //alert("Ошибка при создании Word документа. Пожалуйста, посмотрите в консоль для деталей.");
         }
     } catch (error) {
         console.error("Ошибка:", error);
-        alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
+        //alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
     }
 }
