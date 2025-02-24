@@ -121,10 +121,10 @@ namespace KOP.BLL.Services
                 grade.GradeStatus = GradeStatuses.COMPLETED;
                 grade.SystemStatus = SystemStatuses.COMPLETED;
 
-                foreach(var assessment in grade.Assessments)
+                foreach (var assessment in grade.Assessments)
                 {
                     var pendingAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.PENDING);
-                    foreach(var result in pendingAssessmentResults)
+                    foreach (var result in pendingAssessmentResults)
                     {
                         _unitOfWork.AssessmentResults.Remove(result);
                     }
@@ -201,7 +201,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<IEnumerable<SubdivisionDto>>> GetUserSubordinateSubdivisions(int supervisorId, bool onlySubdivisionsWithPendingUsersGrades)
+        public async Task<IBaseResponse<IEnumerable<SubdivisionDto>>> GetUserSubordinateSubdivisions(int supervisorId)
         {
             try
             {
@@ -224,7 +224,7 @@ namespace KOP.BLL.Services
 
                 foreach (var subdivision in supervisor.SubordinateSubdivisions)
                 {
-                    var subdivisionDto = await ProcessSubdivision(subdivision, onlySubdivisionsWithPendingUsersGrades);
+                    var subdivisionDto = await ProcessSubdivision(subdivision);
                     if (subdivisionDto != null)
                     {
                         subdivisionsDtos.Add(subdivisionDto);
@@ -247,7 +247,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        private async Task<SubdivisionDto?> ProcessSubdivision(Subdivision subdivision, bool onlySubdivisionsWithPendingUsersGrades)
+        private async Task<SubdivisionDto?> ProcessSubdivision(Subdivision subdivision)
         {
             var subdivisionDto = new SubdivisionDto
             {
@@ -267,16 +267,13 @@ namespace KOP.BLL.Services
                 var userDto = _mappingService.CreateUserDto(user);
                 if (userDto.HasData)
                 {
-                    if (!onlySubdivisionsWithPendingUsersGrades || (userDto.Data.LastGrade != null && userDto.Data.LastGrade.SystemStatus == SystemStatuses.PENDING))
-                    {
-                        subdivisionDto.Users.Add(userDto.Data);
-                    }
+                    subdivisionDto.Users.Add(userDto.Data);
                 }
             }
 
             foreach (var child in subdivision.Children)
             {
-                var childSubdivisionDto = await ProcessSubdivision(child, onlySubdivisionsWithPendingUsersGrades);
+                var childSubdivisionDto = await ProcessSubdivision(child);
                 if (childSubdivisionDto != null)
                 {
                     subdivisionDto.Children.Add(childSubdivisionDto);

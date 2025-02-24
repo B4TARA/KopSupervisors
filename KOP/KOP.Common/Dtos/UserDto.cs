@@ -16,5 +16,6 @@ namespace KOP.Common.Dtos
         public string ImagePath { get; set; }
         public List<SystemRoles> SystemRoles { get; set; } = new();
         public GradeDto? LastGrade { get; set; }
+        public bool PendingGradeStatus { get; set; }
     }
 }

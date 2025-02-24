@@ -31,9 +31,9 @@ namespace KOP.BLL.Services
                 };
 
                 var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
-
                 if (lastGrade == null)
                 {
+                    dto.PendingGradeStatus = false;
                     dto.LastGrade = null;
 
                     return new BaseResponse<UserDto>()
@@ -44,7 +44,6 @@ namespace KOP.BLL.Services
                 }
 
                 var gradeDto = CreateGradeDto(lastGrade, new List<MarkType>());
-
                 if (!gradeDto.HasData)
                 {
                     return new BaseResponse<UserDto>()
@@ -55,6 +54,10 @@ namespace KOP.BLL.Services
                 }
 
                 dto.LastGrade = gradeDto.Data;
+                if(gradeDto.Data.SystemStatus == SystemStatuses.PENDING)
+                {
+                    dto.PendingGradeStatus = true;
+                }
 
                 return new BaseResponse<UserDto>()
                 {
@@ -665,7 +668,8 @@ namespace KOP.BLL.Services
                 { 
                     Id = result.Judge.Id,
                     FullName = result.Judge.FullName,
-                    SystemRoles = result.Judge.SystemRoles
+                    SystemRoles = result.Judge.SystemRoles,
+                    ImagePath = result.Judge.ImagePath,
                 };     
 
                 dto.Judged = new UserDto

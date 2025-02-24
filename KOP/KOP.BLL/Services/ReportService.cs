@@ -235,7 +235,7 @@ namespace KOP.BLL.Services
 
                 // Добавляем заголовок пункта 2.1
                 AddParagraph(document, "2.1. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей (позадачник)", true, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, "Данные предоставил ФИО сотрудника, начальник Управления ___", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                AddParagraph(document, $"Данные предоставил {user.FullName}, {user.Position}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
                 AddParagraph(document, "Таблица 1.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
                 // Добавляем таблицу для пункта 2.1 "Подзадачник"
@@ -264,12 +264,15 @@ namespace KOP.BLL.Services
                 AddParagraph(document, "Таблица 2.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
                 // Добавляем таблицу для пункта 2.3 "KPI"
-                var kpiDates = gradeDto.Kpis
-                    .GroupBy(x => x.PeriodStartDate.ToString("MMMM yyyy", new CultureInfo("ru-RU")))
-                    .Select(g => new KpiDate { MonthYear = g.Key, Kpis = g.ToList() })
-                    .ToList();
-                var kpiTable = document.CreateTable(2 + gradeDto.Kpis.Count + kpiDates.Count(), 7);
-                FillKpiTable(kpiTable, gradeDto, kpiDates);
+                var kpiPeriods = gradeDto.Kpis
+                    .GroupBy(kpi => $"{kpi.PeriodStartDate.ToShortDateString()} - {kpi.PeriodEndDate.ToShortDateString()}")
+                    .Select(group => new KpiPeriod
+                    {
+                        Period = group.Key,
+                        Kpis = group.ToList()
+                    }).ToList();
+                var kpiTable = document.CreateTable(2 + gradeDto.Kpis.Count + kpiPeriods.Count(), 7);
+                FillKpiTable(kpiTable, gradeDto, kpiPeriods);
                 AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
                 // Добавляем заголовок пункта 2.4
@@ -291,7 +294,7 @@ namespace KOP.BLL.Services
 
                 // Добавляем таблицу «Общий вывод по оценке Руководителя» (2 строки, 1 столбец)
                 var conclusionTable = document.CreateTable(2, 1);
-                FillConclusionTable(conclusionTable, managmentAssessmentSummary);
+                FillConclusionTable(conclusionTable, managmentAssessmentSummary, user);
 
                 // Сохраняем документ в MemoryStream
                 document.Write(memoryStream);
@@ -374,7 +377,15 @@ namespace KOP.BLL.Services
             // Строка 7: Стратегические проекты
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов и задач.", true, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), "", false, ParagraphAlignment.LEFT);
+            foreach (var project in gradeDto.Projects)
+            {
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"{project.SupervisorSspName} является заказчиком стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Проект находится на этапе {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата открытия проекта - {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Срок реализации проекта - {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"На число {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Коэффициент реализации проекта - {project.SPn}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+            }
 
             // Строка 8: Вывод по KPI
             AddTextToCellWithFormatting(table.GetRow(8).GetCell(0), "2.3.", false, ParagraphAlignment.CENTER);
@@ -434,7 +445,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        private void FillKpiTable(XWPFTable table, GradeDto gradeDto, List<KpiDate> kpiDates)
+        private void FillKpiTable(XWPFTable table, GradeDto gradeDto, List<KpiPeriod> kpiPeriods)
         {
             // Вертикальное объединение для столбцов 0 и 1 на 2 строки
             SetVerticalMerge(table, 0, 0, 2);
@@ -460,12 +471,12 @@ namespace KOP.BLL.Services
 
             var rowIndex = 2;
             var kpiIndex = 1;
-            foreach (var date in kpiDates)
+            foreach (var date in kpiPeriods)
             {
                 // Строка с названием месяца и года (объединённая на всю ширину)
-                var monthRow = table.GetRow(rowIndex);
+                var periodRow = table.GetRow(rowIndex);
                 table.GetRow(rowIndex).MergeCells(0, 6);
-                AddTextToCellWithFormatting(monthRow.GetCell(0), date.MonthYear, true);
+                AddTextToCellWithFormatting(periodRow.GetCell(0), date.Period, true);
                 rowIndex++;
 
                 // Строки с данными по KPI для месяцев
@@ -574,7 +585,7 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(cell3, $"{user.FullName} соответствует квалификационным требованиям и требованиям к деловой репутации.", removePreviousParagraph: false);
         }
 
-        private void AddTextToCellWithFormatting(XWPFTableCell cell, string? text, bool bold = false, ParagraphAlignment alignment = ParagraphAlignment.LEFT, string? color = null, bool removePreviousParagraph = true)
+        private void AddTextToCellWithFormatting(XWPFTableCell cell, string? text, bool bold = false, ParagraphAlignment alignment = ParagraphAlignment.LEFT, string? color = null, bool removePreviousParagraph = true, bool underline = false)
         {
             if (removePreviousParagraph)
             {
@@ -597,6 +608,10 @@ namespace KOP.BLL.Services
 
             var run = paragraph.CreateRun();
             run.IsBold = bold;
+            if(underline)
+            {
+                run.Underline = UnderlinePatterns.Single;
+            }
             run.FontFamily = "Times New Roman";
             run.FontSize = 10;
 
@@ -606,11 +621,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        private void FillConclusionTable(XWPFTable table, AssessmentSummaryDto summaryDto)
+        private void FillConclusionTable(XWPFTable table, AssessmentSummaryDto summaryDto, User user)
         {
             var selfAssessmentSum = summaryDto.SelfAssessmentResultValues.Sum(x => x.Value);
             var supervisorAssessmentSum = summaryDto.SupervisorAssessmentResultValues.Sum(x => x.Value);
-            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "";
+            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "-";
             var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить интерпретацию";
 
             // Row 0: Заголовок с выравниванием по центру
@@ -618,20 +633,35 @@ namespace KOP.BLL.Services
 
             // Row 1: Основной текст с несколькими абзацами
             var row1 = table.GetRow(1);
-            AddTextToCellWithFormatting(row1.GetCell(0), "1. Результат оценки управленческих компетенций:", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), "1. Результат оценки управленческих компетенций:", removePreviousParagraph: false, underline: true);
             AddTextToCellWithFormatting(row1.GetCell(0), $"- Самооценка – {selfAssessmentSum} балл;", removePreviousParagraph: false);
             AddTextToCellWithFormatting(row1.GetCell(0), $"- Оценка руководителя – {supervisorAssessmentSum} балл.", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(row1.GetCell(0), $"Интерпретация результатов: Уровень управленческих компетенций – {interpretationLevel} {interpretationCompetence}", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(row1.GetCell(0), "Вместе с тем, следует поддерживать на должном лидерском уровне следующие компетенции: ...", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(row1.GetCell(0), "Для поддержания лидерского уровня развития компетенций рекомендовано на выбор:", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), "Интерпретация результатов:", removePreviousParagraph: false, underline: true);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"Уровень управленческих компетенций – {interpretationLevel} {interpretationCompetence}", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"По итогам самооценки и оценки руководителя все управленческие компетенции { user.FullName } находятся на ___ уровне развития.", removePreviousParagraph: false);
+
+            // Компетенции, которые стоит поддерживать
+            AddTextToCellWithFormatting(row1.GetCell(0), "Вместе с тем, следует поддерживать на должном лидерском уровне следующие компетенции:", removePreviousParagraph: false);
+            string[] competencies = {
+                "Компетенция 1",
+                "Компетенция 2",
+                "Компетенция 3",
+            };
+
+            foreach (var competence in competencies)
+            {
+                AddTextToCellWithFormatting(row1.GetCell(0), "- " + competence, removePreviousParagraph: false);
+            }
+
+            AddTextToCellWithFormatting(row1.GetCell(0), string.Empty, removePreviousParagraph: false); // Отступ
+            AddTextToCellWithFormatting(row1.GetCell(0), "Для поддержания лидерского уровня развития компетенций рекомендовано на выбор:", removePreviousParagraph: false, underline: true);         
 
             // Рекомендации: бизнес-литература
             AddTextToCellWithFormatting(row1.GetCell(0), "Изучение бизнес-литературы:", true, removePreviousParagraph: false);
             string[] literature = {
-                "Р.Чаран «Исполнение. Система достижения целей» (ссылка ...)",
-                "Р.Мауэр «Шаг за шагом к достижению цели» (ссылка ...)",
-                "С.Иванова «Развитие потенциала сотрудников...» (ссылка ...)",
-                "Д.Лайкер, Д.Майер «Талантливые сотрудники:...» (ссылка ...)"
+                "Литература 1",
+                "Литература 2",
+                "Литература 3",
             };
             foreach (var item in literature)
             {
@@ -641,8 +671,9 @@ namespace KOP.BLL.Services
             // Рекомендации: электронный курс
             AddTextToCellWithFormatting(row1.GetCell(0), "Электронный курс на Корпоративном Портале МТSpace:", true, removePreviousParagraph: false);
             string[] courses = {
-                "«Как мотивировать сотрудников компании» (ссылка ...)",
-                "«Обратная связь как инструмент эффективного руководителя» (ссылка ...)"
+                "Курс 1",
+                "Курс 2",
+                "Курс 3"
             };
             foreach (var course in courses)
             {
@@ -652,16 +683,17 @@ namespace KOP.BLL.Services
             // Рекомендации: семинары и тренинги
             AddTextToCellWithFormatting(row1.GetCell(0), "Семинары, тренинги, курсы, конференции и иное:", true, removePreviousParagraph: false);
             string[] events = {
-                "Индивидуальная работа с коучем",
-                "«Мотивация и вовлеченность персонала» (обучение)",
-                "«Современный менеджмент» от Coursera (онлайн-курс)"
+                "Семинар 1",
+                "Семинар 2",
+                "Семинар 3"
             };
             foreach (var ev in events)
             {
                 AddTextToCellWithFormatting(row1.GetCell(0), "- " + ev, removePreviousParagraph: false);
             }
 
-            AddTextToCellWithFormatting(row1.GetCell(0), "По итогам самооценки и оценки руководителя все управленческие компетенции находятся на высоком лидерском уровне развития...", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), "2. Продление трудовых отношений:", removePreviousParagraph: false, underline: true);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"В связи с вышеизложенным, требованием законодательства и предоставленным { user.FullName } заявлением предлагаем продлить трудовые отношения с { user.FullName } в должности { user.Position } сроком на ___ года.", removePreviousParagraph: false);
         }
 
         private void SetVerticalMerge(XWPFTable table, int startRow, int columnIndex, int rowCount)
@@ -685,8 +717,8 @@ namespace KOP.BLL.Services
     }
 }
 
-public class KpiDate
+public class KpiPeriod
 {
-    public string MonthYear { get; set; }
+    public string Period { get; set; }
     public List<KpiDto> Kpis { get; set; } = new();
 }

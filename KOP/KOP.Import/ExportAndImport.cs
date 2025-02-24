@@ -393,7 +393,7 @@ namespace KOP.Import
 
                             continue;
                         }
-                        else if (lastGrade != null && lastGrade.SystemStatus != SystemStatuses.PENDING)
+                        else if (lastGrade != null &&  lastGrade.SystemStatus != SystemStatuses.PENDING)
                         {
                             continue;
                         }
@@ -499,31 +499,29 @@ namespace KOP.Import
 
         public bool ReadyForEmployeeApproval(User user, Grade lastGrade)
         {
-            //if (DateTime.Today.Day != 8 || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.PENDING))
-            //{
-            //    return false;
-            //}
+            if (TermManager.GetDate().Day != 8 || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.PENDING))
+            {
+                return false;
+            }
 
-            //var nextMonthDate = lastGrade.StartDate.AddMonths(1);
-            //var eighthDayDate = new DateTime(nextMonthDate.Year, nextMonthDate.Month, 8);
+            var nextMonthDate = lastGrade.StartDate.AddMonths(1);
+            var eighthDayDate = new DateOnly(nextMonthDate.Year, nextMonthDate.Month, 8);
 
-            //return DateTime.Today == eighthDayDate;
-
-            return true;
+            return TermManager.GetDate() == eighthDayDate;
         }
 
         public bool ReadyForSupervisorEmployeeApproval(User user, Grade lastGrade)
         {
-            if (DateTime.Today.Day != 11 
+            if (TermManager.GetDate().Day != 11 
                 || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
             {
                 return false;
             }
 
             var nextMonthDate = lastGrade.StartDate.AddMonths(1);
-            var eleventhDayDate = new DateTime(nextMonthDate.Year, nextMonthDate.Month, 11);
+            var eleventhDayDate = new DateOnly(nextMonthDate.Year, nextMonthDate.Month, 11);
 
-            return DateTime.Today == eleventhDayDate;
+            return TermManager.GetDate() == eleventhDayDate;
         }
 
         private async Task<User?> GetUserSupervisor(User user)

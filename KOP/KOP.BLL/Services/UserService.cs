@@ -36,20 +36,21 @@ namespace KOP.BLL.Services
                     "Grades.Projects",
                     "Grades.StrategicTasks",
                     "Grades.TrainingEvents",
+                    "Grades.Assessments.AssessmentType.AssessmentMatrix",
                 });
 
                 if (user == null)
                 {
                     return new BaseResponse<UserDto>()
                     {
-                        Description = $"[UserService.GetUser] : Пользователь с id = {id} не найден",
+                        Description = $"Пользователь с id = {id} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
 
                 var userDto = _mappingService.CreateUserDto(user);
 
-                if (userDto.StatusCode != StatusCodes.OK || userDto.Data == null)
+                if (!userDto.HasData)
                 {
                     return new BaseResponse<UserDto>()
                     {
