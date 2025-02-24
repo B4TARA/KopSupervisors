@@ -29,7 +29,9 @@
 			{
 				<span class="select-label-politics">Нет пользователей</span>
 			}
-			<span class="select-arrow-politics"><img src="/image/chevron-down-grey.svg" alt=""></span>
+			<span class="select-arrow-politics">
+				<i class="fa-solid fa-chevron-down"></i>
+			</span>
 		</div>
 		<div class="select-options-politics">
 			@if (Model.SubordinateUsers.Any())
@@ -50,46 +52,86 @@
 		</div>
 	</div>
 	<div class="dashboard-container">
-		<div class="dashboard-item active-challenges">
-			<div class="header-wrapper">
-				<div class="description">
-					ОЦЕНКА КОМПЕТЕНЦИЙ
+		<div class="dashboard-item left-dashboard-item">
+			<div class="dashboard-item-content" id="dashboardItemContentLeft">
+				<div class="header-wrapper">
+					<div class="title">
+						ОЦЕНКА КОМПЕТЕНЦИЙ
+					</div>
+					<div class="header-btns-wrapper">
+						<button class="expand-btn" data-target="chart4"><i class="fa-solid fa-expand" style="color: #b5b5c2;"></i></button>
+					</div>
 				</div>
-				<div>
-					<div id="generalAvgValue"></div>
-					<div id="selfAvgValue"></div>
-					<div id="supervisorAvgValue"></div>
-					<div id="colleaguesAvgValue"></div>
+				<div id="tabContainer" class="tab-container"></div>
+				<div class="dashboard-results-list">
+					<div class="dashboard-result-item">
+						<div id="generalAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Общий балл</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="selfAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Самооценка</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="supervisorAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Оценка руководителя</div>
+					</div>
+					<div class="dashboard-result-item">
+						<div id="colleaguesAvgValue" class="dashboard-result-value title"></div>
+						<div class="dashboard-result-text description">Оценка коллег</div>
+					</div>
 				</div>
-				<div class="header-btns-wrapper">
-					<button class="expand-btn" data-target="chart4"><i class="fa-solid fa-expand" style="color: #b5b5c2;"></i></button>
+				<div class="chart-container">
+					<canvas id="chart4" data-modal="chart4Modal"></canvas>
 				</div>
+				
 			</div>
-			<div id="tabContainer"></div>
-			<canvas id="chart4" data-modal="chart4Modal"></canvas>
+			
 			<div id="emptyImage"></div>
 		</div>
-		<div class="dashboard-item active-challenges">
-			<div>
-				ТОП-5 КОМПЕТЕНЦИЙ
-				<div id="topCompetencies">
+		<div class="dashboard-item right-dashboard-item">
+
+			<div class="dashboard-item-content" id="dashboardItemContentRight">
+				<div class="dashboard-competences-list">
+
+					<div class="dashboard-competence-item">
+						<div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
+
+						<div id="topCompetencies" class="dashboard-competences-group">
+						</div>
+					</div>
+
+					<div class="dashboard-competence-item">
+						<div class="dashboard-competence-header mid_title">АНТИТОП-5 КОМПЕТЕНЦИЙ</div>
+						<div id="antiTopCompetencies" class="dashboard-competences-group">
+						</div>
+					</div>
+
+				</div>
+
+				<div class="dashboard-description-list">
+
+					<div class="dashboard-description-item">
+						<div class="dashboard-description-header-btn mid_title"><span>ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+						<ul id="topDescriptions" class="dashboard-description-content">
+						</ul>
+
+					</div>
+
+					<div class="dashboard-description-item">
+						<div class="dashboard-description-header-btn mid_title"><span>НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+						<ul id="antiTopDescriptions" class="dashboard-description-content">
+						</ul>
+
+
+
+					</div>
+
 				</div>
 			</div>
-			<div>
-				АНТИТОП-5 КОМПЕТЕНЦИЙ
-				<div id="antiTopCompetencies">
-				</div>
-			</div>
-			<div>
-				ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ
-				<div id="topDescriptions">
-				</div>
-			</div>
-			<div>
-				НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ
-				<div id="antiTopDescriptions">
-				</div>
-			</div>
+
+			<div id="emptyImageRight"></div>
+
 		</div>
 		<div id="chartModal" class="modal">
 			<span class="close"><i class="fa-solid fa-xmark" style="color: #ffffff;"></i></span>
@@ -102,43 +144,23 @@
 
 <script src="/js/analyticsScript.js"></script>
 
+
 <script>
+
 	// Проверка наличия пользователей и вызов функции с ID первого пользователя
 	@if (Model.SubordinateUsers.Any())
 	{
 		<text>
-							loadAssessmentAnalytics('@Model.SubordinateUsers.First().Id');
-									loadCompetenciesAnalytics('@Model.SubordinateUsers.First().Id');
+			loadAssessmentAnalytics('@Model.SubordinateUsers.First().Id');
+			loadCompetenciesAnalytics('@Model.SubordinateUsers.First().Id');
+
 		</text>
 	}
 	else
 	{
 		<text>
-						displayNoDataMessage()
+							displayNoDataMessage()
 		</text>
 	}
 </script>
 
-<style>
-	.tab-container {
-		display: flex;
-		border-bottom: 1px solid #ccc;
-	}
-
-	.tab {
-		padding: 10px 20px;
-		cursor: pointer;
-		background: none;
-		border: none;
-		outline: none;
-	}
-
-		.tab.active {
-			font-weight: bold;
-			border-bottom: 2px solid #007bff; /* Цвет активной вкладки */
-		}
-
-	.content-container {
-		padding: 20px;
-	}
-</style>

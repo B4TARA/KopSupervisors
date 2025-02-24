@@ -26,7 +26,7 @@ document.querySelectorAll('.custom-select-politics').forEach(select => {
             options.style.display = 'none'; // Скрыть опции
 
             const userId = this.getAttribute('data-id');
-            loadCompetenciesAnalytics(userId) 
+            loadCompetenciesAnalytics(userId)
             loadAssessmentAnalytics(userId);
         });
     });
@@ -79,19 +79,22 @@ window.addEventListener('click', function (event) {
 });
 
 // Отрисовать график
-function drawAssessmentAnalytics(item) {
+function drawAssessmentAnalytics(item,typeRender) {
     // Удаляем предыдущий график, если он существует
     if (window.radarChart) {
         window.radarChart.destroy();
     }
 
-    // Проверяем наличие данных
-    if (!hasData(item)) {
-        displayNoDataMessage(); // Вызываем сообщение об отсутствии данных
-        return; // Завершаем выполнение функции
-    }
+    if (typeRender) {
+        // Проверяем наличие данных
+        if (!hasData(item)) {
+            displayNoDataMessage(); // Вызываем сообщение об отсутствии данных
+            return; // Завершаем выполнение функции
+        }
 
-    clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+        clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+    }
+    
 
     const ctx = document.getElementById('chart4').getContext('2d');
 
@@ -104,6 +107,7 @@ function drawAssessmentAnalytics(item) {
         },
         options: getChartOptions()
     });
+
 }
 
 // Проверка наличия данных
@@ -115,9 +119,64 @@ function hasData(item) {
 
 // Очищаем сообщение об отсутствии данных
 function clearNoDataMessage() {
+    const dashboardItemContentLeft = document.getElementById('dashboardItemContentLeft');
+    dashboardItemContentLeft.style.display = 'flex';
+    const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
+    dashboardItemContentRight.style.display = 'flex'
+
     const emptyImageElement = document.getElementById('emptyImage');
     emptyImageElement.innerHTML = ''; // Очищаем содержимое элемента
+
+    const emptyImageElementRight = document.getElementById('emptyImageRight');
+    emptyImageElementRight.innerHTML = ''; // Очищаем содержимое элемента
 }
+
+function displayNoDataMessage() {
+    const dashboardItemContentLeft = document.getElementById('dashboardItemContentLeft');
+    dashboardItemContentLeft.style.display = 'none'
+    const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
+    dashboardItemContentRight.style.display = 'none'
+
+    const emptyImageElement = document.getElementById('emptyImage');
+    emptyImageElement.innerHTML = `
+        <div class="undefined_page_wrapper">
+
+			<div class="container_description">
+				<div class="title">
+					Нет данных
+				</div>
+				<div class="mid_description">
+					Данные для аналитики еще заполнены
+				</div>
+			</div>
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+    `;
+
+
+
+    const emptyImageElementRight = document.getElementById('emptyImageRight');
+    emptyImageElementRight.innerHTML = `
+        <div class="undefined_page_wrapper">
+
+			<div class="container_description">
+				<div class="title">
+					Нет данных
+				</div>
+				<div class="mid_description">
+					Данные для аналитики еще заполнены
+				</div>
+			</div>
+			<div class="empty_state_image_wrapper_middle">
+				<img src="/image/EmptyState.png" alt="default_page">
+			</div>
+		</div>
+    `;
+
+}
+
 
 // Создаем наборы данных для графика
 function createDatasets(item) {
@@ -170,17 +229,6 @@ function getChartOptions() {
 }
 
 // Отобразить сообщение об отсутствии данных
-function displayNoDataMessage() {
-    const emptyImageElement = document.getElementById('emptyImage');
-    emptyImageElement.innerHTML = `
-        <div class="undefined_page_wrapper">
-            <div class="title">Никто не оценил</div>
-            <div class="empty_state_image_wrapper_middle">
-                <img src="/image/EmptyState.png" alt="default_page">
-            </div>
-        </div>
-    `;
-}
 
 // Получить данные для отрисовки графика (json)
 async function loadAssessmentAnalytics(userId) {
@@ -211,10 +259,10 @@ function createTabs(data) {
     data.forEach((item, index) => {
         const tab = document.createElement('button');
         tab.className = 'tab';
-        tab.innerText = item.typeName + " " + item.generalAvgValue;
+        tab.innerText = item.typeName;;
         tab.onclick = () => {
 
-            drawAssessmentAnalytics(item);
+            drawAssessmentAnalytics(item,false);
 
             const generalAvgValue = document.getElementById('generalAvgValue');
             generalAvgValue.innerHTML = item.generalAvgValue;
@@ -232,7 +280,7 @@ function createTabs(data) {
 
         // Отрисовываем график для первой вкладки
         if (index === 0) {
-            drawAssessmentAnalytics(item);
+            drawAssessmentAnalytics(item, true);
 
             const generalAvgValue = document.getElementById('generalAvgValue');
             generalAvgValue.innerHTML = item.generalAvgValue;
@@ -273,10 +321,18 @@ async function loadCompetenciesAnalytics(userId) {
         topDescriptions.innerHTML = '';
         data.topCompetencies.forEach((item, index) => {
             var newTopCompetenceDiv = document.createElement('div');
-            newTopCompetenceDiv.textContent = `${item.name} ${item.avgValue}`;
+            newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            const itemPercentage = (item.avgValue / 13) * 100;
+            newTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
             topCompetencies.appendChild(newTopCompetenceDiv);
 
-            var newTopDescription = document.createElement('div');
+            var newTopDescription = document.createElement('li');
             newTopDescription.textContent = item.competenceDescription;
             topDescriptions.appendChild(newTopDescription);
         });
@@ -284,15 +340,49 @@ async function loadCompetenciesAnalytics(userId) {
         antiTopCompetencies.innerHTML = '';
         antiTopDescriptions.innerHTML = '';
         data.antiTopCompetencies.forEach((item, index) => {
+            const itemPercentage = (item.avgValue / 13) * 100;
             var newAntiTopCompetenceDiv = document.createElement('div');
-            newAntiTopCompetenceDiv.textContent = `${item.name} ${item.avgValue}`;
+            newAntiTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            newAntiTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
             antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
 
-            var newAntiTopDescription = document.createElement('div');
+            var newAntiTopDescription = document.createElement('li');
             newAntiTopDescription.textContent = item.competenceDescription;
             antiTopDescriptions.appendChild(newAntiTopDescription);
         });
 
+
+        document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {
+
+            headerBtn.classList.remove('active')
+
+            headerBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // Находим соответствующий контент
+                const content = this.nextElementSibling;
+
+                this.classList.toggle('active')
+
+                // Проверяем, есть ли у контента класс active
+                if (content.classList.contains('active')) {
+                    // Если есть, удаляем класс active
+                    content.classList.remove('active');
+                } else {
+                    // Если нет, сначала убираем класс active у всех элементов контента
+                    document.querySelectorAll('.dashboard-description-content').forEach(function (item) {
+                        item.classList.remove('active');
+                    });
+                    // Затем добавляем класс active к текущему контенту
+                    content.classList.add('active');
+                }
+            });
+        });
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }

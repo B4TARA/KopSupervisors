@@ -237,38 +237,41 @@
             border-bottom-right-radius: 12px; /* Закругление нижнего правого угла */
         }
 
-        .table_popup tr textarea {
-            width: 100%;
-            resize: none;
-        }
+    .table_popup tr textarea {
+        width: 100%;
+        resize: none;
+        border-radius: 12px;
+        padding-left: 10px;
+        border: 1px solid #d3d3d3;
+    }
 
-        .table_popup tr input {
-            width: 100%;
-            outline: none;
-            border: 2px solid #808080; /* Убедитесь, что граница для input не конфликтует с границами ячеек */
-        }
+    .table_popup tr input {
+        width: 100%;
+        outline: none;
+        border: 1px solid #d3d3d3;
+        border-radius: 12px;
+        padding-left: 10px;
+        height:40px;
+    }
 
 .popup_content div input {
     width: 150px;
     resize: none;
     outline: none;
-    background-color: #f5f5f5;
-    border-radius: 6px;
-    border:none;
+    border: 1px solid #d3d3d3;
+    border-radius: 12px;
+    padding-left: 10px;
     height: 40px;
-    margin:0px 5px;
-    padding:0px 5px;
 }
 
 .popup_content div textarea {
-    width: 150px;
+    min-width: 150px;
     resize: none;
     outline: none;
     background-color: #f5f5f5;
-    border-radius: 6px;
-    border: none;
-    height: 40px;
-    margin: 0px 5px;
+    border: 1px solid #d3d3d3;
+    border-radius: 12px;
+    padding-left: 10px;
 }
 
 .popup_content_header div input{
@@ -304,4 +307,10 @@
 
 .result_popup #popupText{
     width:100%;
+}
+
+.project_info_content{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
 }

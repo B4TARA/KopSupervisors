@@ -15,7 +15,6 @@ function optionClick(elem) {
 
     const resultAssessmentWrapper = elem.parentElement.nextElementSibling.querySelector('.input_assessment_value');
     const descriptionAssessmentValElem = elem.parentElement.nextElementSibling.querySelector('.value_asessessment');
-    console.log(elem)
     //Открытие закрытие дива с селектом
     const optionsContainer = elem.parentElement;
     optionsContainer.nextElementSibling.classList.toggle("active_border");

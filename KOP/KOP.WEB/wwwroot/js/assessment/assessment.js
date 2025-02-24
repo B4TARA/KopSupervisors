@@ -6,8 +6,6 @@
 
 /*var optionsList = document.querySelectorAll(".option");*/
 
-
-
 // В ASSESSMENT JS
 
 var sections = document.querySelectorAll(".section_popup"),
@@ -16,19 +14,28 @@ var sections = document.querySelectorAll(".section_popup"),
 var infoBtn = document.querySelectorAll(".info_btn")
 
 infoBtn.forEach(item => {
-    item.addEventListener("click", () => {
+    item.addEventListener("click", (e) => {
+        e.stopPropagation()
         sections.forEach(item => {
             item.classList.remove("active_popup")
         })
+        const overlay = document.querySelector('.overlay');
+        overlay.classList.add('active') 
         item.nextElementSibling.classList.toggle("active_popup");
+        
     });
 })
 
 document.addEventListener('click', (event) => {
 
     if (event.target.closest('.show-modal-btn')) {
+        event.stopPropagation()
         const sectionPopup = event.target.closest('td').querySelector('.section_popup');
         sectionPopup.classList.toggle("active_popup");
+        bodyTag.style.overflow = 'hidden'
+        //const overlay = document.querySelector('.overlay');
+        //overlay.classList.add('active');
+        
     }
 
     if (event.target.closest('.close_btn')) {
@@ -36,7 +43,11 @@ document.addEventListener('click', (event) => {
         if (sectionPopup) {
             sectionPopup.classList.remove('active_popup');
         }
+
+        bodyTag.style.overflow = 'auto'
     }
+
+    
 });
 
 closeBtn.forEach(item => {

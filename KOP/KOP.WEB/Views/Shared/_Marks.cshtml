@@ -57,10 +57,24 @@ else
 								var percentageValue = Model.MarkTypes[i].Marks[j].PercentageValue;
 								<tr>
 									<td>
-										<input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(Model.EditAccess ? null : "disabled")" />
+										@if (Model.EditAccess)
+										{
+											<input type="text" asp-for="MarkTypes[i].Marks[j].Period" value="@period" disabled="@(Model.EditAccess ? null : "disabled")" />
+										}else{
+											@period
+										}
+										
 									</td>
 									<td>
-										<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+										@if (Model.EditAccess)
+										{
+											<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+										}
+										else
+										{
+											@percentageValue
+										}
+										
 									</td>
 									@if (Model.EditAccess)
 									{
@@ -74,7 +88,7 @@ else
 					</table>
 					@if (Model.EditAccess)
 					{
-						<div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)">Добавить</div>
+						<div class="add_row_btn add_project" onclick="addRow(this,'mark', @i)"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
 					}
 				</div>
 			}
@@ -82,7 +96,7 @@ else
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveMarksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId)">Сохранить окончательно</button>
+			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId)">Сохранить</button>
 		}
 	</form>
 }
