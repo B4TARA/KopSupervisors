@@ -511,7 +511,7 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<object>> AddJudgeForAssessment(int judgeId, int assessmentId)
+        public async Task<IBaseResponse<object>> AddJudgeForAssessment(int judgeId, int assessmentId, int assignerId)
         {
             try
             {
@@ -533,6 +533,7 @@ namespace KOP.BLL.Services
                     SystemStatus = SystemStatuses.PENDING,
                     JudgeId = judgeId,
                     AssessmentId = assessmentId,
+                    AssignedBy = assignerId,
                 };
 
                 await _unitOfWork.AssessmentResults.AddAsync(assessmentResulToAdd);

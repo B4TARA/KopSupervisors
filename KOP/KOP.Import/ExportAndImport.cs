@@ -88,11 +88,6 @@ namespace KOP.Import
 
         private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
         {
-            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile))
-            {
-                return;
-            }
-
             var subdivision = await uow.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == parentSubdivisionName.Replace(" ", "").ToLower());
 
             if (subdivision is null)
@@ -148,7 +143,8 @@ namespace KOP.Import
 
         private async Task PopulateUserWithRole(User userFromExcel, UnitOfWork uow)
         {
-            //userFromExcel.SystemRoles.Add(SystemRoles.Employee);
+            // ПРОВЕРИТЬ ВЫДАЧУ РОЛИ СОТРУДНИКА ВСЕМ, КРОМЕ АДМ_АДМИНИСТРАЦИЯ
+            userFromExcel.SystemRoles.Add(SystemRoles.Employee);
 
             if (userFromExcel.SubdivisionFromFile is null)
             {
@@ -201,7 +197,6 @@ namespace KOP.Import
                     try
                     {
                         var result = _userValidator.Validate(userFromExcel);
-
                         if (!result.IsValid)
                         {
                             invalidUsers.Add(userFromExcel);
@@ -375,41 +370,47 @@ namespace KOP.Import
                 {
                     try
                     {
-                        var lastGrade = employee.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+                        //var lastGrade = employee.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
 
-                        if (lastGrade != null && ReadyForEmployeeApproval(employee, lastGrade))
+                        //if (lastGrade != null && ReadyForEmployeeApproval(employee, lastGrade))
+                        //{
+                        //    lastGrade.GradeStatus = GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
+                        //    uow.Grades.Update(lastGrade);
+                        //    await uow.CommitAsync();
+
+                        //    continue;
+                        //}
+                        //else if (lastGrade != null && ReadyForSupervisorEmployeeApproval(employee, lastGrade))
+                        //{
+                        //    lastGrade.GradeStatus = GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
+                        //    uow.Grades.Update(lastGrade);
+                        //    await uow.CommitAsync();
+
+                        //    continue;
+                        //}
+                        //else if (lastGrade != null &&  lastGrade.SystemStatus != SystemStatuses.PENDING)
+                        //{
+                        //    continue;
+                        //}
+
+                        //var currentDay = TermManager.GetDate().Day;
+                        //var currentMonth = TermManager.GetDate().Month;
+                        //var currentYear = TermManager.GetDate().Year;
+                        //var gradeStartMonth = employee.ContractEndDate.AddMonths(-4).Month;
+                        //var gradeStartYear = employee.ContractEndDate.AddMonths(-4).Year;
+
+                        //if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
+                        //{
+                        //    continue;
+                        //}
+
+                        // // // // // // TEST // // // // // //
+                        int[] idArray = { 157, 176, 156, 180, 178, 195, 188, 198 };
+                        if (!idArray.Contains(employee.Id))
                         {
-                            lastGrade.GradeStatus = GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
-                            uow.Grades.Update(lastGrade);
-                            await uow.CommitAsync();
-
                             continue;
                         }
-                        else if (lastGrade != null && ReadyForSupervisorEmployeeApproval(employee, lastGrade))
-                        {
-                            lastGrade.GradeStatus = GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
-                            uow.Grades.Update(lastGrade);
-                            await uow.CommitAsync();
 
-                            continue;
-                        }
-                        else if (lastGrade != null &&  lastGrade.SystemStatus != SystemStatuses.PENDING)
-                        {
-                            continue;
-                        }
-
-                        var currentDay = TermManager.GetDate().Day;
-                        var currentMonth = TermManager.GetDate().Month;
-                        var currentYear = TermManager.GetDate().Year;
-                        var gradeStartMonth = employee.ContractEndDate.AddMonths(-4).Month;
-                        var gradeStartYear = employee.ContractEndDate.AddMonths(-4).Year;
-
-                        if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
-                        {
-                            continue;
-                        }
-
-                        var gradeStartDate = new DateOnly(currentYear, currentMonth, 1);
                         var gradeNumber = 1;
 
                         if (employee.Grades.Any())

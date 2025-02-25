@@ -264,8 +264,9 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.JudgeId == userId && x.Assessment.UserId != userId && x.SystemStatus == SystemStatuses.PENDING);
                 var dtos = new List<AssessmentResultDto>();
+                var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults
+                    .GetAllAsync(x => x.JudgeId == userId && x.Assessment.UserId != userId && x.SystemStatus == SystemStatuses.PENDING && x.AssignedBy.HasValue);
 
                 foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
                 {
