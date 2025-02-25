@@ -36,6 +36,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
+    line-height: 200%;
 }
 
 :root {
@@ -2097,6 +2098,7 @@ nav.close ~ .dashboard .top {
     display: flex;
     flex-direction: row;
     margin-bottom: 30px;
+    justify-content: space-between;
 }
 
     .list_menu_wrapper .item_menu {
@@ -2104,6 +2106,7 @@ nav.close ~ .dashboard .top {
         text-decoration: none;
         list-style: none;
         position: relative;
+        width: 50%;
     }
 
         .list_menu_wrapper .item_menu .link_menu {
@@ -2271,9 +2274,9 @@ nav.close ~ .dashboard .top {
     cursor: pointer;
 }
 
-.number-minus:hover{
-    background-color:#1b74fd30;
-    color:#1b74fd;
+.number-minus:hover {
+    background-color: #1b74fd30;
+    color: #1b74fd;
 }
 
 .number-plus:hover {
@@ -2318,7 +2321,7 @@ button {
 .show-modal-btn {
     color: #fff;
     font-size: 16px;
-    width:100%;
+    width: 100%;
 }
 
 button.show-modal,
@@ -2390,25 +2393,26 @@ button.show-modal,
     max-height: 90vh;
     overflow: auto;
 }
-.section_popup .modal-box::-webkit-scrollbar {
-    width: 6px;
-    display: none;
-}
 
-
-    .section_popup.result_popup .modal-box::-webkit-scrollbar {
+    .section_popup .modal-box::-webkit-scrollbar {
         width: 6px;
         display: none;
     }
 
-    .section_popup.result_popup .modal-box::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 10px;
-    }
 
-    .section_popup.result_popup .modal-box::-webkit-scrollbar-track {
-        background: transparent;
-    }
+.section_popup.result_popup .modal-box::-webkit-scrollbar {
+    width: 6px;
+    display: none;
+}
+
+.section_popup.result_popup .modal-box::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+.section_popup.result_popup .modal-box::-webkit-scrollbar-track {
+    background: transparent;
+}
 
 
 .modal-box {
@@ -3553,7 +3557,7 @@ button.show-modal,
 
 
 .left_section.user .list_menu_container .list_menu_wrapper {
-    background-color: #f1f1f0;
+    background-color: #ededfb;
     padding: 5px;
     border-radius: 8px;
 }

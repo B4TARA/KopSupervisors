@@ -85,6 +85,10 @@ function drawAssessmentAnalytics(item,typeRender) {
         window.radarChart.destroy();
     }
 
+    if (window.gaugeChart) {
+        window.gaugeChart.destroy();
+    }
+
     if (typeRender) {
         // Проверяем наличие данных
         if (!hasData(item)) {
@@ -107,6 +111,41 @@ function drawAssessmentAnalytics(item,typeRender) {
         },
         options: getChartOptions()
     });
+
+
+    var maxValue = 13; // Максимальное значение
+
+    var options = {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [item.generalAvgValue, maxValue - item.generalAvgValue], // Используем значение
+                backgroundColor: ["#1b74fd", "#ededfb"]
+            }]
+        },
+        options: {
+            rotation: 270, // начальный угол в градусах
+            circumference: 180, // угол охвата в градусах
+            plugins: {
+                legend: {
+                    display: false // скрыть легенду
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            // Отображаем только значение в подсказке
+                            return tooltipItem.raw;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //// Создание графика
+    var gaugeCtx = document.getElementById('chartJSContainer').getContext('2d');
+
+    window.gaugeChart = new Chart(gaugeCtx, options);
 
 }
 
@@ -274,6 +313,8 @@ function createTabs(data) {
             colleaguesAvgValue.innerHTML = item.colleaguesAvgValue;
 
             setActiveTab(tab);
+
+            
         };
 
         tabContainer.appendChild(tab);
@@ -292,8 +333,12 @@ function createTabs(data) {
             colleaguesAvgValue.innerHTML = item.colleaguesAvgValue;
 
             setActiveTab(tab); // Делаем первую вкладку активной
+
+            
         }
     });
+
+    	
 }
 
 // Устанавливаем активную вкладку
