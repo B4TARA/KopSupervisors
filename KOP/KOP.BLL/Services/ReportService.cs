@@ -247,16 +247,16 @@ namespace KOP.BLL.Services
                 AddParagraph(document, "2.2. Результаты выполнения стратегических проектов и задач.", true, "Cambria", 10, ParagraphAlignment.LEFT);
                 AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
-                // Добавляем "Проекты"
-                foreach (var project in gradeDto.Projects)
-                {
-                    AddParagraph(document, $"{project.SupervisorSspName} является заказчиком стратегического проекта \"{project.Name}\". Проект находится на этапе {project.Stage}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                    AddParagraph(document, $"Дата открытия проекта - {project.StartDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                    AddParagraph(document, $"Плановая дата завершения проекта - {project.EndDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                    AddParagraph(document, $"По состоянию на {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов, запланированных к реализации до {project.EndDate}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                    AddParagraph(document, $"Коэффициент реализации проекта – {project.SPn}%.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                }
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+                //// Добавляем "Проекты"
+                //foreach (var project in gradeDto.Projects)
+                //{
+                //    AddParagraph(document, $"{project.SupervisorSspName} является заказчиком стратегического проекта \"{project.Name}\". Проект находится на этапе {project.Stage}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                //    AddParagraph(document, $"Дата открытия проекта - {project.StartDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                //    AddParagraph(document, $"Плановая дата завершения проекта - {project.EndDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                //    AddParagraph(document, $"По состоянию на {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов, запланированных к реализации до {project.EndDate}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                //    AddParagraph(document, $"Коэффициент реализации проекта – {project.SPn}%.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                //}
+                //AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
                 // Добавляем заголовок пункта 2.3
                 AddParagraph(document, "2.3. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей.", true, "Cambria", 10, ParagraphAlignment.LEFT);
@@ -431,18 +431,18 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row1.GetCell(5), "Факт", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
             var rowCounter = 2;
-            foreach (var strategicTask in gradeDto.StrategicTasks)
-            {
-                var row = table.GetRow(rowCounter);
-                AddTextToCellWithFormatting(row.GetCell(0), $"{strategicTask.Name}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(1), $"{strategicTask.Purpose}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(2), $"{strategicTask.PlanDate}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(3), $"{strategicTask.FactDate}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(4), $"{strategicTask.PlanResult}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(5), $"{strategicTask.FactResult}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(6), $"{strategicTask.Remark}", false, ParagraphAlignment.LEFT);
-                rowCounter++;
-            }
+            //foreach (var strategicTask in gradeDto.StrategicTasks)
+            //{
+            //    var row = table.GetRow(rowCounter);
+            //    AddTextToCellWithFormatting(row.GetCell(0), $"{strategicTask.Name}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(1), $"{strategicTask.Purpose}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(2), $"{strategicTask.PlanDate}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(3), $"{strategicTask.FactDate}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(4), $"{strategicTask.PlanResult}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(5), $"{strategicTask.FactResult}", false, ParagraphAlignment.LEFT);
+            //    AddTextToCellWithFormatting(row.GetCell(6), $"{strategicTask.Remark}", false, ParagraphAlignment.LEFT);
+            //    rowCounter++;
+            //}
         }
 
         private void FillKpiTable(XWPFTable table, GradeDto gradeDto, List<KpiPeriod> kpiPeriods)
@@ -471,29 +471,29 @@ namespace KOP.BLL.Services
 
             var rowIndex = 2;
             var kpiIndex = 1;
-            foreach (var date in kpiPeriods)
-            {
-                // Строка с названием месяца и года (объединённая на всю ширину)
-                var periodRow = table.GetRow(rowIndex);
-                table.GetRow(rowIndex).MergeCells(0, 6);
-                AddTextToCellWithFormatting(periodRow.GetCell(0), date.Period, true);
-                rowIndex++;
+            //foreach (var date in kpiPeriods)
+            //{
+            //    // Строка с названием месяца и года (объединённая на всю ширину)
+            //    var periodRow = table.GetRow(rowIndex);
+            //    table.GetRow(rowIndex).MergeCells(0, 6);
+            //    AddTextToCellWithFormatting(periodRow.GetCell(0), date.Period, true);
+            //    rowIndex++;
 
-                // Строки с данными по KPI для месяцев
-                foreach (var kpi in date.Kpis)
-                {
-                    var dataRow = table.GetRow(rowIndex);
-                    AddTextToCellWithFormatting(dataRow.GetCell(0), $"{kpiIndex}");
-                    AddTextToCellWithFormatting(dataRow.GetCell(1), $"{kpi.Name}");
-                    AddTextToCellWithFormatting(dataRow.GetCell(2), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(3), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(4), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(5), $"{kpi.CompletionPercentage}");
-                    AddTextToCellWithFormatting(dataRow.GetCell(6), $"{kpi.CalculationMethod}");
-                    rowIndex++;
-                    kpiIndex++;
-                }
-            }
+            //    // Строки с данными по KPI для месяцев
+            //    foreach (var kpi in date.Kpis)
+            //    {
+            //        var dataRow = table.GetRow(rowIndex);
+            //        AddTextToCellWithFormatting(dataRow.GetCell(0), $"{kpiIndex}");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(1), $"{kpi.Name}");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(2), $"-");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(3), $"-");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(4), $"-");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(5), $"{kpi.CompletionPercentage}");
+            //        AddTextToCellWithFormatting(dataRow.GetCell(6), $"{kpi.CalculationMethod}");
+            //        rowIndex++;
+            //        kpiIndex++;
+            //    }
+            //}
         }
 
         private void FillCompetenciesTable(XWPFTable table, AssessmentSummaryDto summaryDto)
@@ -525,31 +525,31 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row2.GetCell(4), "балл", true, ParagraphAlignment.CENTER, "#F2F4F0");
             AddTextToCellWithFormatting(row2.GetCell(5), "интерпретация", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
-            for (int i = 1; i < summaryDto.RowsWithElements.Count; i++)
-            {
-                var elementsByRow = summaryDto.RowsWithElements[i].ToList();
-                var selfAssessmentRowValue = summaryDto.SelfAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
-                var supervisorAssessmentRowValue = summaryDto.SupervisorAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
-                // Округление selfAssessmentRowValue до int
-                int? roundedSelfAssessmentRowValue = selfAssessmentRowValue.HasValue
-                    ? (int)Math.Round(selfAssessmentRowValue.Value)
-                    : (int?)null; // Если значение null, то roundedSelfAssessmentRowValue будет null
+            //for (int i = 1; i < summaryDto.RowsWithElements.Count; i++)
+            //{
+            //    var elementsByRow = summaryDto.RowsWithElements[i].ToList();
+            //    var selfAssessmentRowValue = summaryDto.SelfAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
+            //    var supervisorAssessmentRowValue = summaryDto.SupervisorAssessmentResultValues?.FirstOrDefault(x => x.AssessmentMatrixRow == i)?.Value;
+            //    // Округление selfAssessmentRowValue до int
+            //    int? roundedSelfAssessmentRowValue = selfAssessmentRowValue.HasValue
+            //        ? (int)Math.Round(selfAssessmentRowValue.Value)
+            //        : (int?)null; // Если значение null, то roundedSelfAssessmentRowValue будет null
 
-                // Округление supervisorAssessmentRowValue до int
-                int? roundedSupervisorAssessmentRowValue = supervisorAssessmentRowValue.HasValue
-                    ? (int)Math.Round(supervisorAssessmentRowValue.Value)
-                    : (int?)null; // Если значение null, то roundedSupervisorAssessmentRowValue будет null
-                var selfAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSelfAssessmentRowValue)].Value;
-                var supervisorAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSupervisorAssessmentRowValue)].Value;
+            //    // Округление supervisorAssessmentRowValue до int
+            //    int? roundedSupervisorAssessmentRowValue = supervisorAssessmentRowValue.HasValue
+            //        ? (int)Math.Round(supervisorAssessmentRowValue.Value)
+            //        : (int?)null; // Если значение null, то roundedSupervisorAssessmentRowValue будет null
+            //    var selfAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSelfAssessmentRowValue)].Value;
+            //    var supervisorAssessmentRowValueInterpretation = elementsByRow[_assessmentService.GetInterpretationColumnByAssessmentValue(roundedSupervisorAssessmentRowValue)].Value;
 
-                var row = table.GetRow(3 + i - 1); // т.к. i начинает отсчет с 1
-                AddTextToCellWithFormatting(row.GetCell(0), elementsByRow[0].Value, true);
-                AddTextToCellWithFormatting(row.GetCell(1), elementsByRow[1].Value);
-                AddTextToCellWithFormatting(row.GetCell(2), selfAssessmentRowValue?.ToString());
-                AddTextToCellWithFormatting(row.GetCell(3), selfAssessmentRowValueInterpretation);
-                AddTextToCellWithFormatting(row.GetCell(4), supervisorAssessmentRowValue?.ToString());
-                AddTextToCellWithFormatting(row.GetCell(5), supervisorAssessmentRowValueInterpretation);
-            }
+            //    var row = table.GetRow(3 + i - 1); // т.к. i начинает отсчет с 1
+            //    AddTextToCellWithFormatting(row.GetCell(0), elementsByRow[0].Value, true);
+            //    AddTextToCellWithFormatting(row.GetCell(1), elementsByRow[1].Value);
+            //    AddTextToCellWithFormatting(row.GetCell(2), selfAssessmentRowValue?.ToString());
+            //    AddTextToCellWithFormatting(row.GetCell(3), selfAssessmentRowValueInterpretation);
+            //    AddTextToCellWithFormatting(row.GetCell(4), supervisorAssessmentRowValue?.ToString());
+            //    AddTextToCellWithFormatting(row.GetCell(5), supervisorAssessmentRowValueInterpretation);
+            //}
 
             // Вывод общего результата
             AddTextToCellWithFormatting(table.GetRow(8).GetCell(0), "Общий итог полученных баллов:", true);

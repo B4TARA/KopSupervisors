@@ -511,7 +511,9 @@ namespace KOP.BLL.Services
                 x.Judge.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
                 !x.Judge.SystemRoles.Contains(excludedRole) &&
                 x.Judge.Id != supervisorId &&
-                x.Judge.Id != currentUserId);
+                x.Judge.Id != currentUserId &&
+                x.AssignedBy.HasValue);
+                
 
             foreach (var result in filteredAssessmentResults)
             {

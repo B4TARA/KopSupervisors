@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Xml;
+using DocumentFormat.OpenXml.Bibliography;
 using ExcelDataReader;
 using KOP.BLL.Validators;
 using KOP.Common.Enums;
@@ -88,6 +89,11 @@ namespace KOP.Import
 
         private async Task PopulateUserWithModule(User userFromExcel, UnitOfWork uow, string parentSubdivisionName)
         {
+            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile) && !IsMeetUserStructureBusinessRequirements(userFromExcel.StructureRole, userFromExcel.GradeGroup))
+            {
+                return;
+            }
+
             var subdivision = await uow.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == parentSubdivisionName.Replace(" ", "").ToLower());
 
             if (subdivision is null)
@@ -608,6 +614,20 @@ namespace KOP.Import
             return true;
         }
 
+        private bool IsMeetUserStructureBusinessRequirements(string structureRole, string gradeGroup)
+        {
+            if (structureRole != "Начальник ССП")
+            {
+                return false;
+            }
+            else if (gradeGroup != "BOARD-1" && gradeGroup != "BOARD-2")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private bool IsMeetUserInfoBusinessRequirements(DataRow dataRow, User userFromExcel)
         {
             var structureStatus = Convert.ToString(dataRow[27]);
@@ -685,6 +705,7 @@ namespace KOP.Import
                         {
                             ServiceNumber = userServiceNumber,
                             GradeGroup = Convert.ToString(table.Rows[rowCounter][44]),
+                            StructureRole = Convert.ToString(table.Rows[rowCounter][46]),
                         };
 
                         if (meetsBusinessRequirements)

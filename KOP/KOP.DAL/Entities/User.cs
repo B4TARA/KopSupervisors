@@ -11,6 +11,7 @@ namespace KOP.DAL.Entities
         public string FullName { get; set; }
         public string Position { get; set; }
         public string SubdivisionFromFile { get; set; }
+        public string StructureRole { get; set; }
         public string GradeGroup { get; set; }
         public DateOnly HireDate { get; set; }
         public DateOnly ContractStartDate { get; set; }
