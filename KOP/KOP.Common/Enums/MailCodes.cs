@@ -6,16 +6,24 @@
 
         CreateAssessmentGroupAndAssessEmployeeReminder = 2,
 
-        CreatePerformanceResultsAndSelfAssessmentNotification = 3,
+        CreateStrategicTasksAndSelfAssessmentNotification = 3,
 
-        CreatePerformanceResultsAndSelfAssessmentReminder = 4,
+        CreateStrategicTasksAndSelfAssessmentReminder = 4,
 
-        CreateCriteriaNotification = 5,
+        CreateAssessmentCriteriaNotification = 5,
 
-        CreateCriteriaReminder = 6,
+        CreateAssessmentCriteriaReminder = 6,
 
-        CreateAssessmentNotification = 7,
+        CreateConclusionsAndCheckGradeNotification = 7,
 
-        CreateAssessmentReminder = 8,
+        CreateValueJudgmentAndApproveEmployeeNotification = 8,
+
+        CreateValueJudgmentAndApproveEmployeeReminder = 9,
+
+        CreateApprovementByEmployeeNotification = 10,
+
+        CreateApprovementByEmployeeReminder = 11,
+
+        CreateReportAndCheckAssessmentCompletionNotification = 12,
     }
 }

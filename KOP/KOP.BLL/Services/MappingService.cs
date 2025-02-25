@@ -656,6 +656,7 @@ namespace KOP.BLL.Services
                     Id = result.Id,
                     SystemStatus = result.SystemStatus,
                     Sum = result.AssessmentResultValues.Sum(x => x.Value),
+                    AssignedBy = result.AssignedBy
                 };
 
                 var assessmentInterpretation = type.AssessmentInterpretations.FirstOrDefault(x => x.MinValue <= dto.Sum && x.MaxValue >= dto.Sum);
