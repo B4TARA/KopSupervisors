@@ -294,6 +294,7 @@ namespace KOP.WEB.Controllers
             {
                 var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
                 var assessmentId = requestModel.assessmentId;
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
                 if (judgesIds.Count() > 3)
                 {
@@ -306,7 +307,7 @@ namespace KOP.WEB.Controllers
 
                 foreach (var judgeId in judgesIds)
                 {
-                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), assessmentId);
+                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), assessmentId, currentUserId);
                 }
 
                 return Ok("Сохранение прошло успешно");
