@@ -252,7 +252,7 @@ function getChartOptions() {
             },
             title: {
                 display: false,
-                text: 'Chart.js Polar Area Chart'
+               
             },
             tooltip: {
                 callbacks: {
