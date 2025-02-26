@@ -159,7 +159,7 @@ function addRow(elem, type, id) {
                             <td>
                                 <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required />
                             </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -188,7 +188,7 @@ function addRow(elem, type, id) {
                         <td>
                             <textarea type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание"></textarea>
                         </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -226,7 +226,7 @@ function addRow(elem, type, id) {
                 Коэффициент реализации проекта: 
                 <input type="number"  name="Projects[${newIndex}].SPn" required /> %
             </div>
-            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
+            <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>
                 `
         projectsInfoList.appendChild(row)
@@ -248,7 +248,7 @@ function addRow(elem, type, id) {
                     ;
                        
                 </div>
-                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>      
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>      
                 `
 
         rowContainer.appendChild(row)
@@ -266,7 +266,7 @@ function addRow(elem, type, id) {
                         <td><input type="text" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].Period" placeholder="Период" required /></td>
                         <td><input type="number" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" required/></td>
                     </tr>
-                    <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                    <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tableBody.appendChild(row)
     }
