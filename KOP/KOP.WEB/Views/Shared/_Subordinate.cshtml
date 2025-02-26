@@ -38,12 +38,19 @@
                 <tbody>
                     @foreach (var employee in Model.Users)
                     {
-                        <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row">
-@*                             <td style="background-image: url('@employee.ImagePath');">
-                                <!-- Дополнительный контент, если необходимо -->
-                            </td> *@
+                        <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row" data-assessment-flag="@employee.PendingGradeStatus">
+
                             <td class="fullname">
-                                @employee.FullName
+                                @* @if (@employee.PendingGradeStatus)
+                                {
+                                    <div class="td-status blue">Оценка</div>
+                                } *@
+                                
+                                <div class="fullname-info">
+                                    <div class="user_image" style="background-image: url('@employee.ImagePath');"></div>
+                                    @employee.FullName
+                                </div>
+                                
                             </td>
                             <td class="position">
                                 @employee.Position
@@ -66,3 +73,4 @@
         }
     </div>
 </div>
+
