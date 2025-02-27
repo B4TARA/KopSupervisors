@@ -14,16 +14,18 @@
 
         CreateAssessmentCriteriaReminder = 6,
 
-        CreateConclusionsAndCheckGradeNotification = 7,
+        CreateCorporateCompeteciesAssessmentNotification = 7,
 
-        CreateValueJudgmentAndApproveEmployeeNotification = 8,
+        CreateConclusionsAndCheckGradeNotification = 8,
 
-        CreateValueJudgmentAndApproveEmployeeReminder = 9,
+        CreateValueJudgmentAndApproveEmployeeNotification = 9,
 
-        CreateApprovementByEmployeeNotification = 10,
+        CreateValueJudgmentAndApproveEmployeeReminder = 10,
 
-        CreateApprovementByEmployeeReminder = 11,
+        CreateApprovementByEmployeeNotification = 11,
 
-        CreateReportAndCheckAssessmentCompletionNotification = 12,
+        CreateApprovementByEmployeeReminder = 12,
+
+        CreateReportAndCheckAssessmentCompletionNotification = 13,
     }
 }

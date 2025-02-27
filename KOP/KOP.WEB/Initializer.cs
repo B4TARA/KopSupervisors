@@ -6,6 +6,7 @@ using KOP.DAL.Interfaces.GradeInterfaces;
 using KOP.DAL.Repositories;
 using KOP.DAL.Repositories.AssessmentRepositories;
 using KOP.DAL.Repositories.GradeRepositories;
+using KOP.EmailService;
 
 namespace KOP.WEB
 {
@@ -13,6 +14,7 @@ namespace KOP.WEB
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IAssessmentInterpretationRepository, AssessmentInterpretationRepository>();
             services.AddScoped<IMailRepository, MailRepository>();

@@ -268,7 +268,7 @@ namespace KOP.WEB.Controllers
                 var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AllAssessmentResults, getAssessmentRes.Data.UserId);
                 var allCandidates = await _userService.GetCandidatesForJudges(getAssessmentRes.Data.UserId);
                 var choosedCandidateIds = choosedCandidates.Select(c => c.Id).ToList();
-                var remainingCandidates = allCandidates.Where(c => !choosedCandidateIds.Contains(c.Id)).ToList();
+                var remainingCandidates = allCandidates.Where(c => !choosedCandidateIds.Contains(c.Id)).OrderBy(x => x.FullName).ToList();
 
                 viewModel.ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, getAssessmentRes.Data);
                 viewModel.ChoosedCandidatesForJudges = choosedCandidates;
@@ -324,12 +324,11 @@ namespace KOP.WEB.Controllers
 
         [HttpDelete]
         [Authorize(Roles = "Supervisor, Urp")]
-        public async Task<IActionResult> DeleteJudge(DeleteJudgeRequestModel requestModel)
+        public async Task<IActionResult> DeleteJudge([FromBody] int assessmentResultId)
         {
             try
             {
-                var deleteJudgeRes = await _assessmentService.DeleteJudgeForAssessment(requestModel.judgeId, requestModel.assessmentId);
-
+                var deleteJudgeRes = await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);
                 if (!deleteJudgeRes.IsSuccess)
                 {
                     return BadRequest(new

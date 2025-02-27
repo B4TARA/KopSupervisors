@@ -1,8 +1,13 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FluentValidation;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
 
-namespace KOP.BLL.Validators
+namespace KOP.Import.Utils
 {
     public class UserValidator : AbstractValidator<User>
     {
@@ -14,7 +19,7 @@ namespace KOP.BLL.Validators
 
             RuleFor(e => e.ServiceNumber)
                 .NotEmpty().WithMessage("ServiceNumber поле является обязательным");
-                //.MustAsync(IsServiceNumberUniqueAsync).WithMessage("ServiceNumber поле является уникальным");
+            //.MustAsync(IsServiceNumberUniqueAsync).WithMessage("ServiceNumber поле является уникальным");
 
             RuleFor(e => e.FullName)
                 .NotEmpty().WithMessage("FullName поле является обязательным");

@@ -5,6 +5,8 @@ using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
+using KOP.EmailService;
+using Microsoft.Extensions.Configuration;
 
 namespace KOP.BLL.Services
 {
@@ -13,12 +15,17 @@ namespace KOP.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
         private readonly ISupervisorService _supervisorService;
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
 
-        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, ISupervisorService supervisorService)
+        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, ISupervisorService supervisorService, 
+            IEmailSender emailSender,  IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
             _supervisorService = supervisorService;
+            _emailSender = emailSender;
+            _configuration = configuration;
         }
 
         public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id)
@@ -470,17 +477,16 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<object>> DeleteJudgeForAssessment(int judgeId, int assessmentId)
+        public async Task<IBaseResponse<object>> DeleteJudgeForAssessment(int assessmentResultId)
         {
             try
             {
-                var assessmentResulToDelete = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
-
+                var assessmentResulToDelete = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessmentResultId);
                 if (assessmentResulToDelete == null)
                 {
                     return new BaseResponse<object>()
                     {
-                        Description = $"Результат оценки для оценщика с id = {judgeId} и качественной оценки с id = {assessmentId} не найден",
+                        Description = $"Результат оценки с id = {assessmentResultId}",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -488,7 +494,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<object>()
                     {
-                        Description = $"Результат оценки с id = {assessmentResulToDelete.Id} невозможно удалить, так как уже была выставлена оценка",
+                        Description = $"Результат оценки с id = {assessmentResultId} невозможно удалить, так как уже была выставлена оценка",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -517,8 +523,7 @@ namespace KOP.BLL.Services
             {
                 var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId);
                 var judge = await _unitOfWork.Users.GetAsync(x => x.Id == judgeId);
-                var assessmentResulToAdd = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId);
-
+                var assessmentResulToAdd = await _unitOfWork.AssessmentResults.GetAsync(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId && x.AssignedBy != null);
                 if (assessmentResulToAdd != null)
                 {
                     return new BaseResponse<object>()
@@ -538,6 +543,19 @@ namespace KOP.BLL.Services
 
                 await _unitOfWork.AssessmentResults.AddAsync(assessmentResulToAdd);
                 await _unitOfWork.CommitAsync();
+
+                var emailIconPath = _configuration["EmailIconPath"] ?? "";
+                var mail = await _unitOfWork.Mails.GetAsync(x => x.Code == MailCodes.CreateCorporateCompeteciesAssessmentNotification);
+                if (mail is null)
+                {
+                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                    var messageBody = "Не найдено сообщение для отправки оценщикам при назначении";
+                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                    await _emailSender.SendEmailAsync(errorMessage, emailIconPath);
+                }
+
+                var message = new Message(new string[] { judge.Email }, mail.Title, mail.Body, judge.FullName);
+                //await _emailSender.SendEmailAsync(message, emailIconPath);
 
                 return new BaseResponse<object>()
                 {

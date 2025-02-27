@@ -27,6 +27,7 @@ namespace KOP.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<Qualification> Qualifications { get; set; }
         public DbSet<Mark> Marks { get; set; }
+        public DbSet<Mail> Mails { get; set; }
         public DbSet<MarkType> MarkTypes { get; set; }
         public DbSet<Subdivision> Subdivisions { get; set; }
         public DbSet<StrategicTask> StrategicTasks { get; set; }
