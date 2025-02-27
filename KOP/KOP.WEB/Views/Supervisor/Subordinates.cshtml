@@ -5,10 +5,7 @@
 }
 
 @* <section class="tab_filter_search_container margin_container_bottom_small">
-	<div class="toggle-switch">
-		<input type="checkbox" id="employeeToggle"/>
-		<label for="employeeToggle" class="switch-label"></label>
-	</div>
+	
 </section> *@
 
 <section class="tab_filter_search_container margin_container_bottom_small">
@@ -16,6 +13,25 @@
 		<input type="text" class="searchbox" id="searchbox" placeholder="Введите ФИО" onkeyup="searchBoxKeyUp(this,'classicTable')">
 		<i class="fa-solid fa-magnifying-glass searchbox_icon"></i>
 	</div>
+	@* <div class="toggle-switch-wrapper">
+		<div class="toggle-switch">
+			<input class="toggle-input" id="togglerSwitchAdmin" type="checkbox">
+			<label class="toggle-label" for="togglerSwitchAdmin"></label>
+		</div>
+		Оценка
+	</div> *@
+
+	<div class="user-dropdown-wrapper">
+		<div class="dropdown">
+			<button class="dropdown-button" onclick="openUserDropdown()"> <span class="dropdown-button-text">Все</span> <i class="fa-solid fa-chevron-down"></i></button>
+			<div class="dropdown-content">
+				<div class="dropdown-item" data-value="all">Все</div>
+				<div class="dropdown-item" data-value="assessmentTrue">Идет оценка</div>
+				<div class="dropdown-item" data-value="assessmentFalse">Оценка не началась</div>
+			</div>
+		</div>
+	</div>
+	
 </section>
 
 <section class="list_division_users_main_wrapper">
@@ -26,3 +42,4 @@
 		}
 	}
 </section>
+

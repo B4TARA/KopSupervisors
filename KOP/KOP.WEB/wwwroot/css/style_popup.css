@@ -74,8 +74,8 @@
     border-right: 1px solid #808080;
 }
 
-    .leftside_info_popup_block ul{
-        list-style:none;
+    .leftside_info_popup_block ul {
+        list-style: none;
     }
 
 .leftside_info_popup_block_item {
@@ -83,19 +83,19 @@
     padding: 10px;
     cursor: pointer;
     display: flex;
-    align-items:center;
+    align-items: center;
 }
 
-.leftside_info_popup_block_item:hover {
-    background-color:#1b74fd30;
-    color:#1b74fd;
-    padding:10px;
-    border-radius:10px;
-}
-
-    .leftside_info_popup_block_item:hover .list_dot{
-        background-color: #1b74fd;
+    .leftside_info_popup_block_item:hover {
+        background-color: #1b74fd30;
+        color: #1b74fd;
+        padding: 10px;
+        border-radius: 10px;
     }
+
+        .leftside_info_popup_block_item:hover .list_dot {
+            background-color: #1b74fd;
+        }
 
     .leftside_info_popup_block_item.active {
         background-color: #1b74fd30;
@@ -116,9 +116,9 @@
 .list_dot {
     width: 5px;
     height: 5px;
-    border-radius:50%;
-    background-color:#191919;
-    margin-right:6px;
+    border-radius: 50%;
+    background-color: #191919;
+    margin-right: 6px;
 }
 
 .form_info_container {
@@ -142,8 +142,8 @@
     width: 500px;
     height: 500px;
     overflow-y: scroll;
-    background-color:#eee;
-    border-radius:10px;
+    background-color: #eee;
+    border-radius: 10px;
 }
 
     .select-box.admin_popup::-webkit-scrollbar {
@@ -179,25 +179,25 @@
         border-bottom: 1px solid #d3d3d3;
     }
 
-    .table_popup tbody tr:last-child {
-        border-bottom: none;
+        .table_popup tbody tr:last-child {
+            border-bottom: none;
+        }
+
+    .table_popup tr .table_value {
+        white-space: nowrap;
     }
-        .table_popup tr .table_value{
-            white-space: nowrap;
-        }
 
-        .table_popup tr.green, .table_popup tr.red, .table_popup tr.yellow {
-            color: #fff;
-        }
+    .table_popup tr.green, .table_popup tr.red, .table_popup tr.yellow {
+        color: #fff;
+    }
 
 
-        .table_popup tr td,
-        .table_popup tr th {
-            /*border: 1px solid #808080;*/
-            border: none;
-            padding: 8px;
-            
-        }
+    .table_popup tr td,
+    .table_popup tr th {
+        /*border: 1px solid #808080;*/
+        border: none;
+        padding: 8px;
+    }
 
     .table_popup tr th {
         font-weight: 600;
@@ -212,30 +212,30 @@
             border-right: none;
         }
 
-        .table_popup tr td {
-            border-right: 1px solid #d3d3d3;
-            padding:15px;
+    .table_popup tr td {
+        border-right: 1px solid #d3d3d3;
+        padding: 15px;
+    }
+
+        .table_popup tr td:last-child {
+            border-right: none;
         }
 
-            .table_popup tr td:last-child {
-                border-right: none;
-            }
+    .table_popup tr:first-child th:first-child {
+        border-top-left-radius: 12px; /* Закругление верхнего левого угла */
+    }
 
-            .table_popup tr:first-child th:first-child {
-                border-top-left-radius: 12px; /* Закругление верхнего левого угла */
-            }
+    .table_popup tr:first-child th:last-child {
+        border-top-right-radius: 12px; /* Закругление верхнего правого угла */
+    }
 
-        .table_popup tr:first-child th:last-child {
-            border-top-right-radius: 12px; /* Закругление верхнего правого угла */
-        }
+    .table_popup tr:last-child td:first-child {
+        border-bottom-left-radius: 12px; /* Закругление нижнего левого угла */
+    }
 
-        .table_popup tr:last-child td:first-child {
-            border-bottom-left-radius: 12px; /* Закругление нижнего левого угла */
-        }
-
-        .table_popup tr:last-child td:last-child {
-            border-bottom-right-radius: 12px; /* Закругление нижнего правого угла */
-        }
+    .table_popup tr:last-child td:last-child {
+        border-bottom-right-radius: 12px; /* Закругление нижнего правого угла */
+    }
 
     .table_popup tr textarea {
         width: 100%;
@@ -251,11 +251,11 @@
         border: 1px solid #d3d3d3;
         border-radius: 12px;
         padding-left: 10px;
-        height:40px;
+        height: 40px;
     }
 
 .popup_content div input {
-    width: 150px;
+    width: 190px;
     resize: none;
     outline: none;
     border: 1px solid #d3d3d3;
@@ -274,8 +274,8 @@
     padding-left: 10px;
 }
 
-.popup_content_header div input{
-    width:100%;
+.popup_content_header div input {
+    width: 100%;
 }
 
 .table_popup thead {
@@ -283,34 +283,42 @@
     background-color: #f5f5f5;
 }
 
-.delete_row{
-    cursor:pointer;
+.delete_row {
+    cursor: pointer;
 }
 
-.table_w_info_wrapper{
-    display:flex;
-    align-items:flex-start;
-    gap:20px;
-    width:100%;
-    margin-bottom:20px;
+.table_w_info_wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
     .table_w_info_wrapper:last-child {
         margin-bottom: 0px;
     }
 
-    .table_w_info_content {
-        display: flex;
-        flex-direction: column;
-        min-width: 30%;
-    }
-
-.result_popup #popupText{
-    width:100%;
+.table_w_info_content {
+    display: flex;
+    flex-direction: column;
+    min-width: 30%;
 }
 
-.project_info_content{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+.result_popup #popupText {
+    width: 100%;
+}
+
+.project_info_content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom:30px;
+}
+
+
+.project_info_content-item.column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }

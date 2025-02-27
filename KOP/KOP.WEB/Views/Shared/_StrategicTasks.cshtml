@@ -69,7 +69,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <textarea type="text" asp-for="StrategicTasks[i].Name" required>@strategicTask.Name</textarea>
+                                    <textarea type="text" asp-for="StrategicTasks[i].Name">@strategicTask.Name</textarea>
                                 }
                                 else
                                 {
@@ -79,7 +79,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <textarea type="text" asp-for="StrategicTasks[i].Purpose" required>@strategicTask.Purpose</textarea>
+                                    <textarea type="text" asp-for="StrategicTasks[i].Purpose" >@strategicTask.Purpose</textarea>
                                 }
                                 else
                                 {

@@ -159,7 +159,7 @@ function addRow(elem, type, id) {
                             <td>
                                 <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required />
                             </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -168,10 +168,10 @@ function addRow(elem, type, id) {
         const row = document.createElement('tr');
         row.innerHTML = `
               <td>
-                            <input type="text" name="StrategicTasks[${newIndex}].Name" placeholder="Название" required />
+                            <textarea type="text" name="StrategicTasks[${newIndex}].Name" placeholder="Название"></textarea>
                         </td>
                         <td>
-                            <input type="text" name="StrategicTasks[${newIndex}].Purpose" placeholder="Цель" required />
+                            <textarea type="text" name="StrategicTasks[${newIndex}].Purpose" placeholder="Цель"></textarea>
                         </td>
                         <td>
                             <input type="date" name="StrategicTasks[${newIndex}].PlanDateTime" required />
@@ -186,9 +186,9 @@ function addRow(elem, type, id) {
                             <input type="text" name="StrategicTasks[${newIndex}].FactResult" placeholder="Факт" required />
                         </td>
                         <td>
-                            <input type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание" />
+                            <textarea type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание"></textarea>
                         </td>
-                <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tablePopup.appendChild(row)
     }
@@ -226,7 +226,7 @@ function addRow(elem, type, id) {
                 Коэффициент реализации проекта: 
                 <input type="number"  name="Projects[${newIndex}].SPn" required /> %
             </div>
-            <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
+            <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>
                 `
         projectsInfoList.appendChild(row)
@@ -248,7 +248,7 @@ function addRow(elem, type, id) {
                     ;
                        
                 </div>
-                <i class="fa-solid fa-trash" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>      
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>      
                 `
 
         rowContainer.appendChild(row)
@@ -266,7 +266,7 @@ function addRow(elem, type, id) {
                         <td><input type="text" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].Period" placeholder="Период" required /></td>
                         <td><input type="number" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" required/></td>
                     </tr>
-                    <i class="fa-solid fa-trash" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                    <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tableBody.appendChild(row)
     }
@@ -1064,3 +1064,67 @@ async function getTrainingEventsPopup(gradeId) {
         alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
+
+// Открытие/закрытие дропдауна
+function openUserDropdown() {
+    const dropdownContent = document.querySelector('.dropdown-content');
+    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+
+    // Обработчик клика для выбора элемента
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+        item.onclick = function () {
+            const dropdownButtonText = document.querySelector('.dropdown-button-text');
+            dropdownButtonText.textContent = this.textContent; // Устанавливаем текст кнопки
+            dropdownContent.style.display = 'none'; // Закрываем дропдаун
+
+            // Фильтрация таблицы
+            filterTable(this.dataset.value);
+        };
+    });
+}
+
+// Функция для фильтрации таблицы
+function filterTable(filterValue) {
+    const userWrappers = document.querySelectorAll('.list_division_users_wrapper.users.open');
+
+    userWrappers.forEach(wrapper => {
+        const rows = wrapper.querySelectorAll('.user_row');
+        let hasVisibleRows = false; // Флаг для отслеживания наличия видимых строк
+
+        rows.forEach(row => {
+            const assessmentFlag = row.getAttribute('data-assessment-flag');
+
+            if (filterValue === 'all') {
+                // Если выбрано "Все", показываем все строки
+                row.style.display = '';
+            } else if (filterValue === 'assessmentTrue') {
+                // Если выбрано "Идет оценка", показываем только строки с TRUE
+                row.style.display = (assessmentFlag === 'True') ? '' : 'none';
+            } else if (filterValue === 'assessmentFalse') {
+                // Если выбрано "Не идет оценка", показываем только строки с FALSE
+                row.style.display = (assessmentFlag === 'False') ? '' : 'none';
+            }
+
+            // Проверяем, есть ли видимые строки
+            if (row.style.display !== 'none') {
+                hasVisibleRows = true;
+            }
+        });
+
+        // Скрываем или показываем блок в зависимости от наличия видимых строк
+        if (hasVisibleRows) {
+            wrapper.style.display = ''; // Показываем блок, если есть видимые строки
+        } else {
+            wrapper.style.display = 'none'; // Скрываем блок, если нет видимых строк
+        }
+    });
+}
+
+// Закрытие дропдауна при клике вне его
+window.onclick = function (event) {
+    const dropdownContent = document.querySelector('.dropdown-content');
+    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
+        dropdownContent.style.display = 'none';
+    }
+};

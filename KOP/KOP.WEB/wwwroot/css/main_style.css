@@ -2878,6 +2878,7 @@ button.show-modal,
 .tab_filter_search_container {
     /* height: 40px; */
     width: 100%;
+    gap: 20px;
     display: flex;
     /* justify-content: space-between; */
 }
@@ -2903,7 +2904,7 @@ button.show-modal,
         border: none;
         height: 50px;
         width: 100%;
-        padding: 15px 40px;
+        padding: 15px 20px 15px 45px;
         outline: 0;
         cursor: pointer;
     }
@@ -2915,14 +2916,14 @@ button.show-modal,
 
     .searchbox_main_wrapper .searchbox_icon {
         position: absolute;
-        right: 15px;
+        left: 15px;
         color: #1b74fd;
         /* cursor: pointer; */
     }
 
     .searchbox_main_wrapper.boss {
         margin-right: 0px;
-        width: 100%;
+        width: 70%;
     }
 
 .result_assessment_user_wrapper {
@@ -3461,10 +3462,44 @@ button.show-modal,
     align-items: center;
     gap: 8px;
     font-size: 16px;
+    position: relative;
 }
 
 .list-items .table_users tbody .fullname {
-    width: 30%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.fullname-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.td-status {
+    padding: 5px 8px;
+    border-radius: 6px;
+    /*position: absolute;*/
+    top: 5px;
+    left: 15px;
+    font-size: 12px;
+}
+
+    .td-status.blue {
+        background-color: #1b74fd30;
+        color: #1b74fd;
+    }
+
+.list-items .table_users tbody .fullname .user_image {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 50%;
 }
 
 .list-items .table_users tbody .position {
@@ -3916,4 +3951,165 @@ button.show-modal,
 
 .fa-trash {
     cursor: pointer;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+    margin: 10px;
+}
+
+
+    .toggle-switch .toggle-input {
+        display: none;
+    }
+
+
+    .toggle-switch .toggle-label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40px;
+        height: 24px;
+        background-color: #2196F3;
+        border-radius: 34px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+
+        .toggle-switch .toggle-label::before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            background-color: #fff;
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+
+    .toggle-switch .toggle-input:checked + .toggle-label {
+        background-color: #4CAF50;
+    }
+
+        .toggle-switch .toggle-input:checked + .toggle-label::before {
+            transform: translateX(16px);
+        }
+
+
+    .toggle-switch.light .toggle-label {
+        background-color: #BEBEBE;
+    }
+
+    .toggle-switch.light .toggle-input:checked + .toggle-label {
+        background-color: #9B9B9B;
+    }
+
+        .toggle-switch.light .toggle-input:checked + .toggle-label::before {
+            transform: translateX(6px);
+        }
+
+
+    .toggle-switch.dark .toggle-label {
+        background-color: #4B4B4B;
+    }
+
+    .toggle-switch.dark .toggle-input:checked + .toggle-label {
+        background-color: #717171;
+    }
+
+        .toggle-switch.dark .toggle-input:checked + .toggle-label::before {
+            transform: translateX(16px);
+        }
+
+.switch input:checked + .slider {
+    background: var(--switch-checked-bg);
+}
+
+    .switch input:checked + .slider .checkmark {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+    }
+
+    .switch input:checked + .slider .cross {
+        -webkit-transform: scale(0);
+        -ms-transform: scale(0);
+        transform: scale(0);
+    }
+
+    .switch input:checked + .slider::before {
+        left: calc(100% - var(--effect-width) - (var(--effect-width) / 2) - var(--switch-offset));
+    }
+
+    .switch input:checked + .slider .circle {
+        left: calc(100% - var(--circle-diameter) - var(--switch-offset));
+        -webkit-box-shadow: var(--circle-checked-shadow);
+        box-shadow: var(--circle-checked-shadow);
+    }
+
+.toggle-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.user-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown {
+    /* border: 1px solid #ccc; */
+    border-radius: 4px;
+    width: 100%;
+}
+
+.dropdown-button {
+    background-color: #fff;
+    color: #19191e;
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    height: 50px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-content {
+    display: none; /* Скрываем дропдаун по умолчанию */
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    z-index: 2;
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+    .dropdown-item:hover {
+        background-color: #1b74fd30;
+        color: #1b74fd;
+    }
+
+.dropdown-button-text {
+    white-space: none;
+}
+
+.user-dropdown-wrapper {
+    width: 28%;
 }
