@@ -7,13 +7,13 @@ namespace KOP.EmailService
 {
     public class EmailSender : IEmailSender
     {
-        private readonly EmailConfiguration _emailConfig;
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        public EmailSender(EmailConfiguration emailConfig)
+        private readonly EmailConfiguration _emailConfig = new EmailConfiguration
         {
-            _emailConfig = emailConfig;
-        }
+            From = "KOP Sender",
+            SmtpServer = "LDGate.mtb.minsk.by",
+            Port = 25,
+        };
 
         public async Task SendEmailAsync(Message message, string emailIconPath)
         {

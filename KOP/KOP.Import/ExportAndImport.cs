@@ -1,8 +1,6 @@
 ﻿using System.Data;
 using System.Xml;
-using DocumentFormat.OpenXml.Bibliography;
 using ExcelDataReader;
-using KOP.BLL.Validators;
 using KOP.Common.Enums;
 using KOP.DAL;
 using KOP.DAL.Entities;
@@ -39,16 +37,9 @@ namespace KOP.Import
 
         public ExportAndImport(DbContextOptions<ApplicationDbContext> options, IConfigurationRoot config)
         {
-            var emailConfiguration = new EmailConfiguration
-            {
-                From = "KOP Sender",
-                SmtpServer = "LDGate.mtb.minsk.by",
-                Port = 25,
-            };
-
             _options = options;
             _config = config;
-            _emailSender = new EmailSender(emailConfiguration);
+            _emailSender = new EmailSender();
 
             _additionalUsersServiceNumbersPath = _config["FilePaths:AdditionalUsersServiceNumbersPath"] ?? "";
             _usersInfosPath = _config["FilePaths:UsersInfosPath"] ?? "";
@@ -75,7 +66,10 @@ namespace KOP.Import
             }
             catch (Exception ex)
             {
-                // Отправлять E-mail себе на почту
+                var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                var messageBody = ex.Message;
+                var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
                 _logger.Error(ex.Message);
             }
         }
@@ -124,7 +118,8 @@ namespace KOP.Import
             {
                 var obj = JObject.Parse(userNode1.InnerText);
 
-                var email = (string)obj["email"];
+                //var email = (string)obj["email"];
+                var email = "ebaturel@mtb.minsk.by";
                 var base64Image = (string)obj["pict_url"];
                 var fileName = userFromExcel.FullName.Replace(" ", "");
                 var imagePath = ImageUtilities.SaveBase64Image(base64Image, fileName, _usersImgDownloadPath);
@@ -253,114 +248,313 @@ namespace KOP.Import
             using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
             {
                 var today = TermManager.GetDate();
-                var users = await uow.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee));
+                var users = await uow.Users.GetAllAsync(includeProperties: "Grades");
                 var mails = await uow.Mails.GetAllAsync();
-                var pendingAssessmentResults = await uow.AssessmentResults.GetAllAsync(x => x.SystemStatus == SystemStatuses.PENDING);
+                //var pendingAssessmentResults = await uow.AssessmentResults.GetAllAsync(x => x.SystemStatus == SystemStatuses.PENDING);
 
                 foreach (var user in users)
                 {
                     try
                     {
-                        if (today.Day != 1 && today.Day != 15)
+                        // Руководителям 1 и 10 числа месяца оценки
+                        // Оценить КК, УК и Назначить группу оценки КК
+                        if ((today.Day == 1 || today.Day == 10) && user.SystemRoles.Contains(SystemRoles.Supervisor))
                         {
-                            continue;
-                        }
+                            var subordinateUsers = await GetSubordinateUsers(user.Id);
+                            var subordinateUsersWithThisMonthPendingGrade = subordinateUsers
+                                .Where(x => x.Grades
+                                    .Any(x =>
+                                        x.DateOfCreation.Month == today.Month &&
+                                        x.DateOfCreation.Year == today.Year &&
+                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                        if (user.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 1)
-                        {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
-
-                            if (mail is null)
+                            // Есть подчиненные с назначенными оценками в текущем месяце
+                            if (subordinateUsersWithThisMonthPendingGrade.Any())
                             {
-                                throw new Exception("Не найдено сообщение для отправки непосредственному руковолителю 1 числа");
-                            }
+                                Mail? mail = null;
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                if (today.Day == 1)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
+                                }
+                                else if (today.Day == 10)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
+                                }
+
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки непосредственным руковолителям 1 или 10 числа месяца оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
+
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-                        else if (user.SystemRoles.Contains(SystemRoles.Supervisor) && today.Day == 15)
+                        // Оцениваемым сотрудникам 1 и 15 числа месяца оценки
+                        // Провести самооценку КК, УК и заполнить результаты деятельности
+                        if ((today.Day == 1 || today.Day == 15) && user.SystemRoles.Contains(SystemRoles.Employee))
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
+                            var thisMonthPendingGrade = user.Grades
+                                .FirstOrDefault(x =>
+                                    x.DateOfCreation.Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING);
 
-                            if (mail is null)
+                            // Есть назначенные оценки в текущем месяце
+                            if (thisMonthPendingGrade != null)
                             {
-                                throw new Exception("Не найдено сообщение для отправки непосредственному руковолителю 15 числа");
-                            }
+                                Mail? mail = null;
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                if (today.Day == 1)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentNotification);
+                                }
+                                else if (today.Day == 15)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentReminder);
+                                }
+
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки оцениваемым сотрудникам 1 или 15 числа месяца оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
+
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-
-                        if (user.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 1)
+                        // Ответственным за заполнение показателей (УМСТ, ЦУП, УРП) 1 и 15 числа месяца оценки
+                        // Заполнить критерии
+                        if (today.Day == 1 || today.Day == 15)
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreatePerformanceResultsAndSelfAssessmentNotification);
+                            var isInRole = user.SystemRoles.Contains(SystemRoles.Umst) ||
+                                user.SystemRoles.Contains(SystemRoles.Cup) ||
+                                user.SystemRoles.Contains(SystemRoles.Urp);
 
-                            if (mail is null)
+                            if (isInRole)
                             {
-                                throw new Exception("Не найдено сообщение для отправки оцениваемому сотруднику 1 числа");
-                            }
+                                var usersWithThisMonthPendingGrade = users
+                                   .Where(x => x.Grades
+                                       .Any(x =>
+                                           x.DateOfCreation.Month == today.Month &&
+                                           x.DateOfCreation.Year == today.Year &&
+                                           x.SystemStatus == SystemStatuses.PENDING));
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                // Есть сотрудники с назначенными оценками в текущем месяце
+                                if (usersWithThisMonthPendingGrade.Any())
+                                {
+                                    Mail? mail = null;
+
+                                    if (today.Day == 1)
+                                    {
+                                        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaNotification);
+                                    }
+                                    else if (today.Day == 10)
+                                    {
+                                        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaReminder);
+                                    }
+
+                                    if (mail is null)
+                                    {
+                                        var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                        var messageBody = "Не найдено сообщение для отправки ответственным за заполнение критериев 1 или 15 числа месяца оценки";
+                                        var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                        await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                        _logger.Error(messageBody);
+                                    }
+
+                                    var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                    //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                }
+                            }
                         }
-                        else if (user.SystemRoles.Intersect(new List<SystemRoles> { SystemRoles.Umst, SystemRoles.Cup, SystemRoles.Urp }).Any() && today.Day == 15)
+                        // Группе оценки КК + HR (Отдел развития УРП) 15 числа месяца оценки
+                        // Оценить КК
+                        if (today.Day == 15)
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreatePerformanceResultsAndSelfAssessmentReminder);
+                            var appointedThisMonthCorporateAssessmentResults = await uow.AssessmentResults
+                                .GetAllAsync(x =>
+                                    x.JudgeId == user.Id && // Пользователь является оценщиком
+                                    x.Assessment.UserId != user.Id && // Не самооценка
+                                    x.DateOfCreation.Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING &&
+                                    x.Assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies, includeProperties: "Assessment");
 
-                            if (mail is null)
+                            foreach (var assessmentResult in appointedThisMonthCorporateAssessmentResults)
                             {
-                                throw new Exception("Не найдено сообщение для отправки оцениваемому сотруднику 15 числа");
-                            }
+                                var userId = assessmentResult.Assessment.UserId;
+                                var supervisorForUser = GetSupervisorForUser(userId);
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                // Если пользователь является непосредственным руководителем оцениваемого
+                                if (supervisorForUser != null && supervisorForUser.Id == user.Id)
+                                {
+                                    continue;
+                                }
+
+                                var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCorporateCompeteciesAssessmentNotification);
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки оценщикам 15 числа месяца оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
+
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-
-                        if (user.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 1)
+                        // УРП 1 числа месяца, следующего за месяцем оценки
+                        // Оставить выводы по криетриям: результаты деятельности, КПЭ, квалификация
+                        if (today.Day == 1 && user.SystemRoles.Contains(SystemRoles.Urp))
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCriteriaNotification);
+                            var usersWithPreviousMonthPendingGrade = users
+                                .Where(x => x.Grades
+                                    .Any(x =>
+                                        x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                        x.DateOfCreation.Year == today.Year &&
+                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            if (mail is null)
+                            // Есть сотрудники с назначенными оценками в прошлом месяце
+                            if (usersWithPreviousMonthPendingGrade.Any())
                             {
-                                throw new Exception("Не найдено сообщение для отправки ответственным за заполнение показателей 1 числа");
-                            }
+                                var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateConclusionsAndCheckGradeNotification);
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки УРП 1 числа месяца, следующего за месяцем оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-                        else if (user.SystemRoles.Contains(SystemRoles.Employee) && today.Day == 15)
+                        // Непосредственным руководителям 5 и 8 числа месяца, следующего за месяцем оценки
+                        // Оставить ОС от руководителя и ознакомиться с результатами оценки
+                        if ((today.Day == 5 || today.Day == 8) && user.SystemRoles.Contains(SystemRoles.Supervisor))
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCriteriaReminder);
+                            var subordinateUsers = await GetSubordinateUsers(user.Id);
+                            var subordinateUsersWithPreviousMonthPendingGrade = subordinateUsers
+                                .Where(x => x.Grades
+                                    .Any(x =>
+                                        x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                        x.DateOfCreation.Year == today.Year &&
+                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            if (mail is null)
+                            // Есть сотрудники с назначенными оценками в прошлом месяце
+                            if (subordinateUsersWithPreviousMonthPendingGrade.Any())
                             {
-                                throw new Exception("Не найдено сообщение для отправки ответственным за заполнение показателей 15 числа");
-                            }
+                                Mail? mail = null;
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                if (today.Day == 5)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateValueJudgmentAndApproveEmployeeNotification);
+                                }
+                                else if (today.Day == 8)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateValueJudgmentAndApproveEmployeeReminder);
+                                }
+
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки непосредственным руковолителям 5 или 8 числа месяца, следующего за месяцем оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
+
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-
-                        if (pendingAssessmentResults.Any(x => x.JudgeId == user.Id) && today.Day == 10)
+                        // Оцениваемым сотрудникам 10 и 13 числа месяца, следующего за месяцем оценки
+                        // Ознакомиться с результатами оценки
+                        if ((today.Day == 10 || today.Day == 13) && user.SystemRoles.Contains(SystemRoles.Employee))
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentNotification);
+                            var thisMonthPendingGrade = user.Grades
+                                .FirstOrDefault(x =>
+                                    x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING);
 
-                            if (mail is null)
+                            // Есть назначенные оценки в прошлом месяце
+                            if (thisMonthPendingGrade != null)
                             {
-                                throw new Exception("Не найдено сообщение для отправки группе оценки КК 1 числа");
-                            }
+                                Mail? mail = null;
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                if (today.Day == 10)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateApprovementByEmployeeNotification);
+                                }
+                                else if (today.Day == 13)
+                                {
+                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateApprovementByEmployeeReminder);
+                                }
+
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки оцениваемым сотрудникам 10 или 13 числа месяца, следующего за месяцем оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
+
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
-                        else if (pendingAssessmentResults.Any(x => x.JudgeId == user.Id) && today.Day == 20)
+                        // УРП 15 числа месяца, следующего за месяцем оценки
+                        // Выгрузить результаты оценки
+                        if (today.Day == 15 && user.SystemRoles.Contains(SystemRoles.Urp))
                         {
-                            var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentReminder);
+                            var usersWithPreviousMonthPendingGrade = users
+                                .Where(x => x.Grades
+                                    .Any(x =>
+                                        x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                        x.DateOfCreation.Year == today.Year &&
+                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            if (mail is null)
+                            // Есть сотрудники с назначенными оценками в прошлом месяце
+                            if (usersWithPreviousMonthPendingGrade.Any())
                             {
-                                throw new Exception("Не найдено сообщение для отправки группе оценки КК 15 числа");
-                            }
+                                var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateReportAndCheckAssessmentCompletionNotification);
+                                if (mail is null)
+                                {
+                                    var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                                    var messageBody = "Не найдено сообщение для отправки УРП 15 числа месяца, следующего за месяцем оценки";
+                                    var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    _logger.Error(messageBody);
+                                }
 
-                            await _emailSender.SendEmailAsync(new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName), _emailIconPath);
+                                var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
+                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Произошла ошибка во время работы с уведомлением пользователя {user.FullName} : {ex.Message}");
+                        var addressee = new string[] { "ebaturel@mtb.minsk.by" };
+                        var messageBody = ex.Message;
+                        var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                        await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                        _logger.Error(messageBody);
                     }
                 }
             }
@@ -428,7 +622,6 @@ namespace KOP.Import
                         {
                             Number = gradeNumber,
                             StartDate = new DateOnly(TermManager.GetDate().Year - 1, 1, 1),
-                            EndDate = new DateOnly(TermManager.GetDate().Year, 12, 31),
                             SystemStatus = SystemStatuses.PENDING,
                             GradeStatus = GradeStatuses.PENDING,
                             UserId = employee.Id,
@@ -437,10 +630,13 @@ namespace KOP.Import
                             QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         };
 
+                        var firstDayOfCurrentMonth = new DateOnly(TermManager.GetDate().Year, TermManager.GetDate().Month, 1);
+                        var lastDayOfPreviousMonth = firstDayOfCurrentMonth.AddDays(-1);
+                        newGrade.EndDate = lastDayOfPreviousMonth;
+
                         await uow.Grades.AddAsync(newGrade);
 
                         var assessmentTypes = await uow.AssessmentTypes.GetAllAsync();
-
                         foreach (var assessmentType in assessmentTypes)
                         {
                             var newAssessment = new Assessment
@@ -519,7 +715,7 @@ namespace KOP.Import
 
         public bool ReadyForSupervisorEmployeeApproval(User user, Grade lastGrade)
         {
-            if (TermManager.GetDate().Day != 11 
+            if (TermManager.GetDate().Day != 11
                 || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
             {
                 return false;
@@ -871,6 +1067,91 @@ namespace KOP.Import
 
                     excelDataReader.Close();
                 }
+            }
+        }
+
+        private async Task<List<User>> GetSubordinateUsers(int supervisorId)
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var supervisor = await uow.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
+                {
+                    "SubordinateSubdivisions.Users.Grades",
+                    "SubordinateSubdivisions.Children.Users.Grades",
+                });
+
+                if (supervisor == null)
+                {
+                    // Обработка случая, когда руководитель не найден
+                    return new List<User>(); // или выбросьте исключение
+                }
+
+                var allSubordinateUsers = new List<User>();
+
+                foreach (var subdivision in supervisor.SubordinateSubdivisions)
+                {
+                    var subordinateUsersFromSubdivision = await GetSubordinateUsers(subdivision);
+                    allSubordinateUsers.AddRange(subordinateUsersFromSubdivision);
+                }
+
+                return allSubordinateUsers;
+            }
+        }
+
+        private async Task<List<User>> GetSubordinateUsers(Subdivision subdivision)
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var subordinateUsers = new List<User>();
+
+                // Получаем пользователей с ролью "Сотрудник"
+                subordinateUsers.AddRange(subdivision.Users
+                    .Where(x => x.SystemRoles.Contains(SystemRoles.Employee)));
+
+                // Рекурсивно получаем пользователей из дочерних подразделений
+                foreach (var childSubdivision in subdivision.Children)
+                {
+                    var subordinateUsersFromChildSubdivision = await GetSubordinateUsers(childSubdivision);
+                    subordinateUsers.AddRange(subordinateUsersFromChildSubdivision);
+                }
+
+                return subordinateUsers;
+            }
+        }
+
+        private async Task<User?> GetSupervisorForUser(int userId)
+        {
+            using (var uow = new UnitOfWork(new ApplicationDbContext(_options)))
+            {
+                var user = await uow.Users.GetAsync(x => x.Id == userId);
+                var parentSubdivision = await uow.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
+
+                if (parentSubdivision == null)
+                {
+                    return null;
+                }
+
+                var supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
+                if (supervisor != null)
+                {
+                    return supervisor;
+                }
+
+                var rootSubdivision = parentSubdivision.Parent;
+
+                while (rootSubdivision != null)
+                {
+                    supervisor = await uow.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
+
+                    if (supervisor != null)
+                    {
+                        return supervisor;
+                    }
+
+                    rootSubdivision = rootSubdivision.Parent;
+                }
+
+                return null;
             }
         }
     }

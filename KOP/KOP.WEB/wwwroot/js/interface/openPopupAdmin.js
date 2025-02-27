@@ -1,5 +1,4 @@
 ﻿
-
 function selectedContainerOpen(elem) {
     let optionsContainer = elem.previousElementSibling;
     console.log(elem.parentElement.parentElement.nextElementSibling)
@@ -9,7 +8,6 @@ function selectedContainerOpen(elem) {
 
     elem.classList.toggle("active_border");
 }
-
 
 function optionClick(elem) {
 
@@ -35,7 +33,6 @@ function optionClick(elem) {
     //console.log(resultAssessmentId)
     inputResultAdminRole.setAttribute('value', resultAssessmentId);
 }
-
 
 async function openPopup(serviceNumber) {
 
@@ -66,12 +63,10 @@ async function openPopup(serviceNumber) {
         })
 }
 
-
 function closeCard(elem) {
     const elemTodelete = elem.parentElement.parentElement.parentElement;
     elemTodelete.remove()
 }
-
 
 async function showMatrixContent(structureType, elem) {
 

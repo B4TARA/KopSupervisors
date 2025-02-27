@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KOP.BLL\KOP.BLL.csproj" />
     <ProjectReference Include="..\KOP.DAL\KOP.DAL.csproj" />
     <ProjectReference Include="..\KOP.EmailService\KOP.EmailService.csproj" />
   </ItemGroup>

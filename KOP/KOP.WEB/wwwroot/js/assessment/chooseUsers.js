@@ -155,17 +155,16 @@ function addJudges() {
         });
 }
 
-function deleteJudge(assessmentId, judgeId, employeeId) {
-
-    const formData = new FormData();
-    formData.append('assessmentId', assessmentId);
-    formData.append('judgeId', judgeId);
+function deleteJudge(assessmentId, employeeId, assessmentResultId) {
 
     let htmlContentMessage;
 
     fetch(`/Supervisor/DeleteJudge`, {
         method: 'DELETE',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: assessmentResultId
     })
         .then(response => {
             if (!response.ok) {

@@ -39,7 +39,7 @@
 									</div>
 									@if (!choosedCandidate.HasJudged)
 									{
-										<i class="fa-solid fa-trash delete_item" onclick="deleteJudge(@Model.Assessment.Id, @choosedCandidate.Id, @Model.Assessment.UserId)"></i>
+										<i class="fa-solid fa-trash delete_item" onclick="deleteJudge(@Model.Assessment.Id, @Model.Assessment.UserId, @choosedCandidate.AssessmentResultId)"></i>
 									}
 								</div>
 							}
@@ -361,5 +361,4 @@
 	</div>
 }
 
-
-<script src="~/js/assessment/chooseUsers.js"></script>
+<script src="/js/assessment/chooseUsers.js"></script>

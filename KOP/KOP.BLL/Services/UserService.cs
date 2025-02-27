@@ -520,6 +520,7 @@ namespace KOP.BLL.Services
                 choosedCandidatesForJudges.Add(new CandidateForJudgeDto
                 {
                     Id = result.Judge.Id,
+                    AssessmentResultId = result.Id,
                     FullName = result.Judge.FullName,
                     HasJudged = result.SystemStatus == SystemStatuses.COMPLETED
                 });
