@@ -225,7 +225,7 @@
 		<div class="questions_main_wrapper">
 			<div class="question_wrapper">
 
-				@if (Model.SupervisorAssessmentResult.ElementsByRow.Count() == 0)
+				@if (!Model.SupervisorAssessmentResult.ElementsByRow.Any())
 				{
 					<div class="container_description">
 						<div class="mid_title">
@@ -290,10 +290,6 @@
 												<table class="table_info_assessment ">
 													<thead class="table_header">
 														<tr>
-															<th class="table_header_elem">
-																#
-															</th>
-
 															@foreach (var assessmentMatrixHeaderElement in Model.SupervisorAssessmentResult.ElementsByRow[0])
 															{
 																<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>

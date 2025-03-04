@@ -121,7 +121,7 @@
 																<i class="fa-solid fa-info"></i>
 															</div>
 														</span>
-														<section class="section_popup">
+														<section class="section_popup result_popup">
 															<div class="modal-box">
 																<div class="close_btn close-btn">
 																	<i class="fa-solid fa-xmark"></i>
@@ -129,10 +129,6 @@
 																<table class="table_info_assessment ">
 																	<thead class="table_header">
 																		<tr>
-																			<th class="table_header_elem">
-																				#
-																			</th>
-
 																			@foreach (var assessmentMatrixHeaderElement in colleagueAssessmentResult.ElementsByRow[0])
 																			{
 																				<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>

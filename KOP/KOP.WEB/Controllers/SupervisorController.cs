@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using KOP.BLL.Interfaces;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -17,12 +16,15 @@ namespace KOP.WEB.Controllers
         private readonly ISupervisorService _supervisorService;
         private readonly IAssessmentService _assessmentService;
         private readonly IUserService _userService;
+        private readonly ICommonService _commonService;
 
-        public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService, IUserService userService)
+        public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService,
+            IUserService userService, ICommonService commonService)
         {
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
             _userService = userService;
+            _commonService = commonService;
         }
 
         [HttpGet]
@@ -172,21 +174,21 @@ namespace KOP.WEB.Controllers
                     {
                         viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
                     }
-                }         
+                }
 
-                if(user.LastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
+                if (user.LastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
                 {
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
-                var supervisor = await _supervisorService.GetSupervisorForUser(employeeId);
+                var supervisor = await _commonService.GetSupervisorForUser(employeeId);
                 if (supervisor == null)
                 {
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-                viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");         
+                viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
 
                 return View("EmployeeGradeLayout", viewModel);
             }
@@ -207,10 +209,9 @@ namespace KOP.WEB.Controllers
             try
             {
                 var id = Convert.ToInt32(User.FindFirstValue("Id"));
-
                 var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, id);
 
-                if (response.StatusCode != StatusCodes.OK || response.Data == null)
+                if (!response.HasData)
                 {
                     return View("Error", new ErrorViewModel
                     {

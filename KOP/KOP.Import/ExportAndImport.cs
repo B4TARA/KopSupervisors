@@ -57,12 +57,12 @@ namespace KOP.Import
             {
                 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-                var usersFromExcel = ProcessUsers();
-                await PutUsersInDatabase(usersFromExcel);
-                await BlockNonActiveUsers(usersFromExcel);
-                await CheckUsersForGradeProcess();
-                //await CheckForNotifications();
-                await ProcessTrainingEvents(_trainingEventsPath);
+                //var usersFromExcel = ProcessUsers();
+                //await PutUsersInDatabase(usersFromExcel);
+                //await BlockNonActiveUsers(usersFromExcel);
+                //await CheckUsersForGradeProcess();
+                await CheckForNotifications();
+                //await ProcessTrainingEvents(_trainingEventsPath);
             }
             catch (Exception ex)
             {
@@ -252,7 +252,19 @@ namespace KOP.Import
                 var mails = await uow.Mails.GetAllAsync();
                 //var pendingAssessmentResults = await uow.AssessmentResults.GetAllAsync(x => x.SystemStatus == SystemStatuses.PENDING);
 
-                foreach (var user in users)
+                foreach (var user in users.Where(x => 
+                    //x.Id == 123 || // Полякова
+                    x.Id == 176 || // Затковская
+                    x.Id == 156 //|| // Цедрик
+                    //x.Id == 157 || // Глушко
+                    //x.Id == 198 || // Корочкина
+                    //x.Id == 195 || // Соломыкина
+                    //x.Id == 178 || // Шастиловская
+                    //x.Id == 180 || // Гришкина
+                    //x.Id == 182 || // Чернышова
+                    //x.Id == 188 || // Сакирина
+                    //x.Id == 142    // Сурдо
+                    ))
                 {
                     try
                     {
@@ -292,7 +304,7 @@ namespace KOP.Import
                                 }
 
                                 var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                await _emailSender.SendEmailAsync(message, _emailIconPath);
                             }
                         }
                         // Оцениваемым сотрудникам 1 и 15 числа месяца оценки
@@ -329,7 +341,7 @@ namespace KOP.Import
                                 }
 
                                 var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                await _emailSender.SendEmailAsync(message, _emailIconPath);
                             }
                         }
                         // Ответственным за заполнение показателей (УМСТ, ЦУП, УРП) 1 и 15 числа месяца оценки
@@ -373,7 +385,7 @@ namespace KOP.Import
                                     }
 
                                     var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                    //await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(message, _emailIconPath);
                                 }
                             }
                         }

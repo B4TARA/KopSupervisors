@@ -31,6 +31,7 @@ namespace KOP.DAL.Entities
         public List<Grade> Grades { get; set; } = new();
         public List<Assessment> Assessments { get; set; } = new();
 
+        public DateTime? LastLogin { get; set; }
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
         public string GetWorkPeriod

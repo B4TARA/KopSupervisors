@@ -10,7 +10,7 @@ namespace KOP.EmailService
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly EmailConfiguration _emailConfig = new EmailConfiguration
         {
-            From = "KOP Sender",
+            From = "KOPSender",
             SmtpServer = "LDGate.mtb.minsk.by",
             Port = 25,
         };
@@ -27,6 +27,13 @@ namespace KOP.EmailService
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress(_emailConfig.From, _emailConfig.From));
             emailMessage.To.AddRange((IEnumerable<InternetAddress>)message.To);
+
+            // TEST CASE //
+            //var stringList = new string[] { "ebaturel@mtb.minsk.by", "nsakirina@mtb.minsk.by" };
+            //List<MailboxAddress> mailboxAddressesList = stringList.Select(x => new MailboxAddress(x, x)).ToList();
+            //emailMessage.To.AddRange((IEnumerable<InternetAddress>)mailboxAddressesList);
+            //    //    // 
+
             emailMessage.Subject = message.Subject;
 
             var bodyBuilder = new BodyBuilder();
@@ -45,7 +52,7 @@ namespace KOP.EmailService
                         <center>			
                             <div style='text-align: left; padding: 0px 10px 10px 10px; color: #1B74FD;'>
                                 <h3><b>Уважаемый(ая)</b></h3>
-                                <h2><b>{message.AddresseeName}</b></h2>
+                                <h2><b>{message.AddresseeName}</b></h2>                              
                                 <div style='color:#333;'>
                                     <br>
                                     <div class='MAIN_BLOCKMESSAGE'>

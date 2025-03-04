@@ -11,44 +11,13 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
+        private readonly IAssessmentService _assessmentService;
 
-        public SupervisorService(IUnitOfWork unitOfWork, IMappingService mappingService)
+        public SupervisorService(IUnitOfWork unitOfWork, IMappingService mappingService, IAssessmentService assessmentService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
-        }
-        public async Task<User?> GetSupervisorForUser(int userId)
-        {
-            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId);
-            var parentSubdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == user.ParentSubdivisionId, includeProperties: "Parent");
-
-            if (parentSubdivision == null)
-            {
-                return null;
-            }
-
-            var supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(parentSubdivision));
-
-            if (supervisor != null)
-            {
-                return supervisor;
-            }
-
-            var rootSubdivision = parentSubdivision.Parent;
-
-            while (rootSubdivision != null)
-            {
-                supervisor = await _unitOfWork.Users.GetAsync(x => x.SystemRoles.Contains(SystemRoles.Supervisor) && x.SubordinateSubdivisions.Contains(rootSubdivision));
-
-                if (supervisor != null)
-                {
-                    return supervisor;
-                }
-
-                rootSubdivision = rootSubdivision.Parent;
-            }
-
-            return null;
+            _assessmentService = assessmentService;
         }
 
         public async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(int supervisorId)
@@ -215,7 +184,7 @@ namespace KOP.BLL.Services
                 {
                     return new BaseResponse<IEnumerable<SubdivisionDto>>()
                     {
-                        Description = $"[SupervisorService.GetUserSubordinateSubdivisions] : Пользователь с id = {supervisorId} не найден",
+                        Description = $"Пользователь с id = {supervisorId} не найден",
                         StatusCode = StatusCodes.EntityNotFound,
                     };
                 }
@@ -264,10 +233,35 @@ namespace KOP.BLL.Services
 
             foreach (var user in subdivision.Users)
             {
-                var userDto = _mappingService.CreateUserDto(user);
-                if (userDto.HasData)
+                var createUserDtoRes = _mappingService.CreateUserDto(user);
+                if (createUserDtoRes.HasData)
                 {
-                    subdivisionDto.Users.Add(userDto.Data);
+                    var userDto = createUserDtoRes.Data;
+                    subdivisionDto.Users.Add(userDto);
+
+                    if(userDto.LastGrade == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var dto in userDto.LastGrade.AssessmentDtos)
+                    {
+                        var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
+                        if (!getAssessmentSummaryRes.HasData)
+                        {
+                            continue;
+                        }
+
+                        var assessmentSummary = getAssessmentSummaryRes.Data;
+                        if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                        {
+                            userDto.LastGrade.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
+                        }
+                        else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                        {
+                            userDto.LastGrade.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
+                        }
+                    }
                 }
             }
 
