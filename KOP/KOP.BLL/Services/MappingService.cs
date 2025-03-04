@@ -710,7 +710,7 @@ namespace KOP.BLL.Services
                     dto.Elements.Add(elementDto.Data);
                 }
 
-                dto.ElementsByRow = dto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                dto.ElementsByRow = dto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
                 dto.MaxValue = type.AssessmentMatrix.MaxAssessmentMatrixResultValue;
                 dto.MinValue = type.AssessmentMatrix.MinAssessmentMatrixResultValue;
 

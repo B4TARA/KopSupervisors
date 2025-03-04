@@ -1,98 +1,100 @@
 ﻿@model KOP.Common.Dtos.SubdivisionDto
 
 @{
-    Layout = null;
+	Layout = null;
 }
 
 <div class="list_division_users_wrapper users open">
 
-    <div class="list-items">
+	<div class="list-items">
 
-        @if (Model.IsRoot)
-        {
-            <div class="select-btn open" onclick="toggleSelectButton(this)">
-                <span class="btn-text">@Model.Name</span>
-                <div class="indicators_wrapper" id="indicators_wrapper">
-                </div>
-                <span class="arrow-dwn">
-                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-                </span>
-            </div>
-        }
-        else
-        {
-            <div class="description"> <i class="fa-regular fa-folder"></i> @Model.Name</div>
-        }
+		@if (Model.IsRoot)
+		{
+			<div class="select-btn open" onclick="toggleSelectButton(this)">
+				<span class="btn-text">@Model.Name</span>
+				<div class="indicators_wrapper" id="indicators_wrapper">
+				</div>
+				<span class="arrow-dwn">
+					<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+				</span>
+			</div>
+		}
+		else
+		{
+			<div class="description"> <i class="fa-regular fa-folder"></i> @Model.Name</div>
+		}
 
-        @if (Model.Users.Any())
-        {
-            <table class="table_users">
-                <thead class="table_header">
-                    <tr>
-                        <th class="table_header_elem">ФИО</th>
-                        <th class="table_header_elem">Должность</th>
-                        <th class="table_header_elem date">Дата оценки</th>
-                        <th class="table_header_elem">Прогресс оценки</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var employee in Model.Users)
-                    {
-                        if (employee.PendingGradeStatus)
-                        {
-                            // Вычисляем количество завершенных оценок
-                            int completedGradeParts = 1;
-                            if (employee.LastGrade.IsProjectsFinalized) completedGradeParts++;
-                            if (employee.LastGrade.IsStrategicTasksFinalized) completedGradeParts++;
-                            if (employee.LastGrade.IsKpisFinalized) completedGradeParts++;
-                            if (employee.LastGrade.IsMarksFinalized) completedGradeParts++;
-                            if (employee.LastGrade.IsQualificationFinalized) completedGradeParts++;
-                            if (employee.LastGrade.IsValueJudgmentFinalized) completedGradeParts++;
+		@if (Model.Users.Any())
+		{
+			<table class="table_users">
+				<thead class="table_header">
+					<tr>
+						<th class="table_header_elem">ФИО</th>
+						<th class="table_header_elem">Должность</th>
+						<th class="table_header_elem date">Дата оценки</th>
+						<th class="table_header_elem" style="width: 20%;">Прогресс оценки</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var employee in Model.Users)
+					{
+						if (employee.PendingGradeStatus)
+						{
+							// Вычисляем количество завершенных оценок
+							int completedGradeParts = 1;
+							if (employee.LastGrade.IsProjectsFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsStrategicTasksFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsKpisFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsMarksFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsQualificationFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsValueJudgmentFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsCorporateCompetenciesFinalized) completedGradeParts++;
+							if (employee.LastGrade.IsManagmentCompetenciesFinalized) completedGradeParts++;
 
-                            // Вычисляем процент завершения
-                            double completionPercentage = (completedGradeParts / 7.0) * 100;
+							// Вычисляем процент завершения
+							double completionPercentage = (completedGradeParts / 9.0) * 100;
 
-                            <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" class="user_row">
-                                <td class="fullname">
-                                    @employee.FullName
-                                </td>
-                                <td class="position">
-                                    @employee.Position
-                                </td>
-                                <td class="assessment_date">
-                                    @employee.NextGradeStartDate
-                                </td>
-                                <td class="grade_status">
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: @(completedGradeParts * 100 / 7)%;"
-                                             aria-valuenow="@completionPercentage" aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            // Если LastGrade == null или SystemStatus не PENDING, отображаем пустую ячейку или сообщение
-                            <tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" class="user_row">
-                                <td class="fullname">
-                                    @employee.FullName
-                                </td>
-                                <td class="position">
-                                    @employee.Position
-                                </td>
-                                <td class="assessment_date">
-                                    @employee.NextGradeStartDate
-                                </td>
-                                <td class="grade_status">
-                                    -
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        }
+							<tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row" data-assessment-flag="@employee.PendingGradeStatus">
+								<td class="fullname">
+									@employee.FullName
+								</td>
+								<td class="position">
+									@employee.Position
+								</td>
+								<td class="assessment_date">
+									@employee.NextGradeStartDate
+								</td>
+								<td class="grade_status">
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" style="width: @(completedGradeParts * 100 / 9)%;"
+											 aria-valuenow="@completionPercentage" aria-valuemin="0" aria-valuemax="100">
+										</div>
+									</div>
+								</td>
+							</tr>
+						}
+						else
+						{
+							// Если LastGrade == null или SystemStatus не PENDING, отображаем пустую ячейку или сообщение
+							<tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row" data-assessment-flag="@employee.PendingGradeStatus">
+								<td class="fullname">
+									@employee.FullName
+								</td>
+								<td class="position">
+									@employee.Position
+								</td>
+								<td class="assessment_date">
+									@employee.NextGradeStartDate
+								</td>
+								<td class="grade_status">
+									-
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		}
 		@foreach (var child in Model.Children)
 		{
 			await Html.RenderPartialAsync("_Subordinate", child);
@@ -100,20 +102,21 @@
 	</div>
 </div>
 
-                                         <style>
-    .progress {
-        background-color: #d3d3d3;
-        border-radius: 5px;
-        height: 20px;
-        width: 100%;
-    }
+<style>
+	.progress {
+		-webkit-mask: linear-gradient(90deg,#000 70%,#0000 0) 0/11.11%;
+		background: linear-gradient(#000 0 0) 0/0% no-repeat #ddd;
+		border-radius: 5px;
+		height: 20px;
+		width: 100%;
+	}
 
-    .progress-bar {
-        background-color: #4caf50; /* Зеленый цвет для завершенных задач */
-        height: 100%;
-        text-align: center;
-        color: white;
-        line-height: 20px; /* Центрируем текст по вертикали */
-        border-radius: 5px;
-    }
-                                         </style>
+	.progress-bar {
+		background-color: #4caf50; /* Зеленый цвет для завершенных задач */
+		height: 100%;
+		text-align: center;
+		color: white;
+		line-height: 20px; /* Центрируем текст по вертикали */
+		border-radius: 5px;
+	}
+</style>

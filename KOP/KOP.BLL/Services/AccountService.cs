@@ -23,7 +23,6 @@ namespace KOP.BLL.Services
             try
             {
                 var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
-
                 if (user is null)
                 {
                     return new BaseResponse<ClaimsIdentity>()
@@ -48,6 +47,10 @@ namespace KOP.BLL.Services
                         Description = "Учетная запись заблокирована"
                     };
                 }
+
+                user.LastLogin = DateTime.UtcNow;
+                _unitOfWork.Users.Update(user);
+                await _unitOfWork.CommitAsync();
 
                 var authenticationResult = Authenticate(user);
 

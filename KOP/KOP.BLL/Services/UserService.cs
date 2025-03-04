@@ -12,15 +12,15 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
-        private readonly ISupervisorService _supervisorService;
         private readonly IMappingService _mappingService;
+        private readonly ICommonService _commonService;
 
-        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService, ISupervisorService supervisorService)
+        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService, ICommonService commonService)
         {
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
             _mappingService = mappingService;
-            _supervisorService = supervisorService;
+            _commonService = commonService;
         }
 
         public async Task<IBaseResponse<UserDto>> GetUser(int id)
@@ -242,7 +242,7 @@ namespace KOP.BLL.Services
                 }
 
                 selfAssessmentResultDto.Elements = assessmentMatrixElementsDtos;
-                selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                 return new BaseResponse<AssessmentResultDto>()
                 {
@@ -320,7 +320,7 @@ namespace KOP.BLL.Services
                         });
                     }
 
-                    assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                    assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                     dtos.Add(assessmentResultDto);
                 }
@@ -375,7 +375,8 @@ namespace KOP.BLL.Services
                     var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
                         x.AssessmentId == assessmentResult.AssessmentId &&
                         x.Judge.SystemRoles.Contains(SystemRoles.Urp) &&
-                        x.Id != assessmentResult.Id);
+                        x.Id != assessmentResult.Id &&
+                        !x.AssignedBy.HasValue);
 
                     foreach (var urpAssessmentResult in otherUrpAssessmentResults)
                     {
@@ -475,7 +476,7 @@ namespace KOP.BLL.Services
         public async Task<List<CandidateForJudgeDto>> GetCandidatesForJudges(int userId)
         {
             var candidatesForJudgesDtos = new List<CandidateForJudgeDto>();
-            var userSupervisor = await _supervisorService.GetSupervisorForUser(userId);
+            var userSupervisor = await _commonService.GetSupervisorForUser(userId);
             var supervisorId = userSupervisor.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
@@ -501,7 +502,7 @@ namespace KOP.BLL.Services
         public async Task<List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId)
         {
             var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
-            var userSupervisor = await _supervisorService.GetSupervisorForUser(userId);
+            var userSupervisor = await _commonService.GetSupervisorForUser(userId);
             var supervisorId = userSupervisor.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
@@ -513,7 +514,7 @@ namespace KOP.BLL.Services
                 x.Judge.Id != supervisorId &&
                 x.Judge.Id != currentUserId &&
                 x.AssignedBy.HasValue);
-                
+
 
             foreach (var result in filteredAssessmentResults)
             {
@@ -533,7 +534,7 @@ namespace KOP.BLL.Services
             bool isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
             bool isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
             bool isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
-            int completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.Judge.Id != x.Judged.Id);
+            int completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
 
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }

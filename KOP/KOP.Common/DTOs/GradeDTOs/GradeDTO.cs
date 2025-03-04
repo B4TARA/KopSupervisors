@@ -16,6 +16,9 @@ namespace KOP.Common.Dtos.GradeDtos
         public bool IsMarksFinalized { get; set; }
         public bool IsQualificationFinalized { get; set; }
         public bool IsValueJudgmentFinalized { get; set; }
+        public bool IsCorporateCompetenciesFinalized { get; set; }
+        public bool IsManagmentCompetenciesFinalized { get; set; }
+
 
         public string? StrategicTasksConclusion { get; set; }
         public string? KPIsConclusion { get; set; }

@@ -14,18 +14,18 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
-        private readonly ISupervisorService _supervisorService;
         private readonly IEmailSender _emailSender;
         private readonly IConfiguration _configuration;
+        private readonly ICommonService _commonService;
 
-        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, ISupervisorService supervisorService, 
-            IEmailSender emailSender,  IConfiguration configuration)
+        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, IEmailSender emailSender,
+            IConfiguration configuration, ICommonService commonService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
-            _supervisorService = supervisorService;
             _emailSender = emailSender;
             _configuration = configuration;
+            _commonService = commonService;
         }
 
         public async Task<IBaseResponse<AssessmentDto>> GetAssessment(int id)
@@ -213,7 +213,7 @@ namespace KOP.BLL.Services
                             });
                         }
 
-                        assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                        assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
 
                         assessmentDto.CompletedAssessmentResults.Add(assessmentResultDto);
                     }
@@ -258,7 +258,7 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                var supervisor = await _supervisorService.GetSupervisorForUser(assessment.UserId);
+                var supervisor = await _commonService.GetSupervisorForUser(assessment.UserId);
                 var assessmentSummaryDto = new AssessmentSummaryDto
                 {
                     RowsWithElements = assessment.AssessmentType.AssessmentMatrix.Elements
@@ -389,39 +389,36 @@ namespace KOP.BLL.Services
 
         private void ProcessCompletedResults(List<AssessmentResult> completedResults, AssessmentSummaryDto assessmentSummaryDto)
         {
-            if (completedResults.Any())
+            foreach (var result in completedResults)
             {
-                foreach (var result in completedResults)
+                foreach (var value in result.AssessmentResultValues)
                 {
-                    foreach (var value in result.AssessmentResultValues)
-                    {
-                        var avgResult = assessmentSummaryDto.AverageValuesByRow
-                            .FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
+                    var avgResult = assessmentSummaryDto.AverageValuesByRow
+                        .FirstOrDefault(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow);
 
-                        if (avgResult != null)
+                    if (avgResult != null)
+                    {
+                        avgResult.Value += value.Value;
+                        assessmentSummaryDto.SumResult += value.Value;
+                    }
+                    else
+                    {
+                        assessmentSummaryDto.AverageValuesByRow.Add(new AssessmentResultValueDto
                         {
-                            avgResult.Value += value.Value;
-                            assessmentSummaryDto.SumResult += value.Value;
-                        }
-                        else
-                        {
-                            assessmentSummaryDto.AverageValuesByRow.Add(new AssessmentResultValueDto
-                            {
-                                Value = value.Value,
-                                AssessmentMatrixRow = value.AssessmentMatrixRow
-                            });
-                            assessmentSummaryDto.SumResult += value.Value;
-                        }
+                            Value = value.Value,
+                            AssessmentMatrixRow = value.AssessmentMatrixRow
+                        });
+                        assessmentSummaryDto.SumResult += value.Value;
                     }
                 }
+            }
 
-                // Вычисление среднего значения для завершенных оценок
-                foreach (var value in assessmentSummaryDto.AverageValuesByRow)
-                {
-                    var average = Math.Round(value.Value / completedResults.Count, 1);
-                    value.Value = average;
-                    assessmentSummaryDto.GeneralAverageResult += average;
-                }
+            // Вычисление среднего значения для завершенных оценок
+            foreach (var value in assessmentSummaryDto.AverageValuesByRow)
+            {
+                var average = Math.Round(value.Value / completedResults.Count, 1);
+                value.Value = average;
+                assessmentSummaryDto.GeneralAverageResult += average;
             }
         }
 
@@ -555,7 +552,7 @@ namespace KOP.BLL.Services
                 }
 
                 var message = new Message(new string[] { judge.Email }, mail.Title, mail.Body, judge.FullName);
-                //await _emailSender.SendEmailAsync(message, emailIconPath);
+                await _emailSender.SendEmailAsync(message, emailIconPath);
 
                 return new BaseResponse<object>()
                 {
