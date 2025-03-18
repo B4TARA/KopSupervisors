@@ -188,9 +188,6 @@ namespace KOP.BLL.Services
 
             _unitOfWork.AssessmentResults.Update(assessmentResult);
 
-            var hasUrpRole = assessmentResult.Judge.SystemRoles.Contains(SystemRoles.Urp);
-            var isSelfAssessment = assessmentResult.Judge.Id == assessmentResult.Assessment.UserId;
-            var hasAssignedBy = assessmentResult.AssignedBy.HasValue;
             if (assessmentResult.Type == AssessmentResultTypes.UrpAssessment)
             {
                 var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
