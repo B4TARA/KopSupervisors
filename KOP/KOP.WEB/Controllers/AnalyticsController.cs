@@ -29,20 +29,11 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> GetAnalyticsLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-            var getSubordinateUsersRes = await _reportService.GetSubordinateUsersWithGrade(currentUserId);
-            if (!getSubordinateUsersRes.HasData)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = getSubordinateUsersRes.StatusCode,
-                    Message = getSubordinateUsersRes.Description,
-                });
-            }
+            var subordinateUsers = await _reportService.GetSubordinateUsersWithGrade(currentUserId);
 
-            var subordinateUsers = getSubordinateUsersRes.Data;
             var viewModel = new AnalyticsLayoutViewModel
             {
-                SubordinateUsers = subordinateUsers,
+                SubordinateUsers = subordinateUsers.ToList(),
             };
 
             return View("AnalyticsLayout", viewModel);
@@ -67,26 +58,21 @@ namespace KOP.WEB.Controllers
             var assessmentTypesAnalyticsList = new List<AssessmentTypeAnalyticsDto>();
             foreach (var assessment in lastGrade.Assessments)
             {
-                var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(assessment.Id);
-                if (!getAssessmentSummaryRes.HasData)
-                {
-                    return StatusCode((int)getAssessmentSummaryRes.StatusCode, new { Message = getAssessmentSummaryRes.Description });
-                }
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(assessment.Id);
 
-                var assessmentSummary = getAssessmentSummaryRes.Data;
                 var assessmentTypeAnalyticsDto = new AssessmentTypeAnalyticsDto
                 {
                     TypeName = assessment.AssessmentType.Name,
-                    GeneralAvgValue = assessmentSummary.GetGeneralAverageValue(),
-                    SelfAvgValue = assessmentSummary.AverageSelfValue,
-                    SupervisorAvgValue = assessmentSummary.AverageSupervisorValue,
-                    ColleaguesAvgValue = assessmentSummary.GetGeneralColleaguesValue(),
+                    GeneralAvgValue = assessmentSummaryDto.GetGeneralAverageValue(),
+                    SelfAvgValue = assessmentSummaryDto.AverageSelfValue,
+                    SupervisorAvgValue = assessmentSummaryDto.AverageSupervisorValue,
+                    ColleaguesAvgValue = assessmentSummaryDto.GetGeneralColleaguesValue(),
 
                 };
-                var rowsWithElements = assessmentSummary.RowsWithElements.OrderBy(x => x.Key);
-                var selfAssessmentValues = assessmentSummary.SelfAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
-                var supervisorAssessmentValues = assessmentSummary.SupervisorAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
-                var colleaguesAssessmentValues = assessmentSummary.ColleaguesAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
+                var rowsWithElements = assessmentSummaryDto.RowsWithElements.OrderBy(x => x.Key);
+                var selfAssessmentValues = assessmentSummaryDto.SelfAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
+                var supervisorAssessmentValues = assessmentSummaryDto.SupervisorAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
+                var colleaguesAssessmentValues = assessmentSummaryDto.ColleaguesAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
 
                 foreach (var rowElementsGroup in rowsWithElements.Skip(1))
                 {
@@ -147,17 +133,11 @@ namespace KOP.WEB.Controllers
 
             foreach (var assessment in lastGrade.Assessments)
             {
-                var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(assessment.Id);
-                if (!getAssessmentSummaryRes.HasData)
-                {
-                    return StatusCode((int)getAssessmentSummaryRes.StatusCode, new { Message = getAssessmentSummaryRes.Description });
-                }
-
-                var assessmentSummary = getAssessmentSummaryRes.Data;
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(assessment.Id);
 
                 // Сортируем строки и средние значения один раз
-                var rowsWithElements = assessmentSummary.RowsWithElements.OrderBy(x => x.Key).ToList();
-                var averageValuesByRow = assessmentSummary.AverageValuesByRow.OrderBy(x => x.AssessmentMatrixRow).ToList();
+                var rowsWithElements = assessmentSummaryDto.RowsWithElements.OrderBy(x => x.Key).ToList();
+                var averageValuesByRow = assessmentSummaryDto.AverageValuesByRow.OrderBy(x => x.AssessmentMatrixRow).ToList();
 
                 foreach (var value in averageValuesByRow)
                 {

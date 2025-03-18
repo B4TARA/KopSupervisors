@@ -24,27 +24,18 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
 
                 var userId = Convert.ToInt32(User.FindFirstValue("Id"));
                 var conclusionEditAccess = User.IsInRole("Urp");
-                var editAccess = (gradeRes.Data.UserId == userId && User.IsInRole("Employee") && !gradeRes.Data.IsStrategicTasksFinalized) || User.IsInRole("Urp");
-                var viewAccess = gradeRes.Data.IsStrategicTasksFinalized || editAccess;
+                var editAccess = (gradeDto.UserId == userId && User.IsInRole("Employee") && !gradeDto.IsStrategicTasksFinalized) || User.IsInRole("Urp");
+                var viewAccess = gradeDto.IsStrategicTasksFinalized || editAccess;
 
                 var viewModel = new StrategicTasksViewModel
                 {
                     GradeId = gradeId,
-                    Conclusion = gradeRes.Data.StrategicTasksConclusion,
-                    StrategicTasks = gradeRes.Data.StrategicTasks,
+                    Conclusion = gradeDto.StrategicTasksConclusion,
+                    StrategicTasks = gradeDto.StrategicTasks,
                     EditAccess = editAccess,
                     ConclusionEditAccess = conclusionEditAccess,
                     ViewAccess = viewAccess,
@@ -68,31 +59,13 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
+                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
 
-                if (!getGradeRes.HasData)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                gradeDto.StrategicTasks = viewModel.StrategicTasks;
+                gradeDto.StrategicTasksConclusion = viewModel.Conclusion;
+                gradeDto.IsStrategicTasksFinalized = viewModel.IsFinalized;
 
-                getGradeRes.Data.StrategicTasks = viewModel.StrategicTasks;
-                getGradeRes.Data.StrategicTasksConclusion = viewModel.Conclusion;
-                getGradeRes.Data.IsStrategicTasksFinalized = viewModel.IsFinalized;
-
-                var editGradeRes = await _gradeService.EditGrade(getGradeRes.Data);
-
-                if (!editGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                await _gradeService.EditGrade(gradeDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }
@@ -112,16 +85,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var deleteStrategicTaskRes = await _gradeService.DeleteStrategicTask(id);
-
-                if (!deleteStrategicTaskRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при удалении.",
-                        details = deleteStrategicTaskRes.Description,
-                    });
-                }
+                await _gradeService.DeleteStrategicTask(id);
 
                 return Ok("Удаление прошло успешно");
             }

@@ -10,20 +10,21 @@ namespace KOP.BLL.Interfaces
 {
     public interface IMappingService
     {
-        IBaseResponse<UserDto> CreateUserDto(User user);
-        IBaseResponse<GradeDto> CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes);
-        IBaseResponse<QualificationDto> CreateQualificationDto(Qualification qualification);
-        IBaseResponse<MarkDto> CreateMarkDto(Mark mark);
-        IBaseResponse<KpiDto> CreateKpiDto(Kpi kpi);
-        IBaseResponse<ProjectDto> CreateProjectDto(Project project);
-        IBaseResponse<StrategicTaskDto> CreateStrategicTaskDto(StrategicTask strategicTask);
-        IBaseResponse<ValueJudgmentDto> CreateValueJudgmentDto(ValueJudgment valueJudgment);
-        IBaseResponse<PreviousJobDto> CreatePreviousJobDto(PreviousJob previousJob);
-        IBaseResponse<TrainingEventDto> CreateTrainingEventDto(TrainingEvent trainingEvent);
-        IBaseResponse<AssessmentDto> CreateAssessmentDto(Assessment assessment);
-        IBaseResponse<AssessmentResultDto> CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);
-        IBaseResponse<AssessmentResultValueDto> CreateAssessmentResultValueDto(AssessmentResultValue value);
-        IBaseResponse<AssessmentMatrixElementDto> CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
-        IBaseResponse<AssessmentInterpretationDto> CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);        
+        UserDto CreateUserDto(User user);
+        GradeDto CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes);
+        QualificationDto CreateQualificationDto(Qualification qualification);
+        MarkDto CreateMarkDto(Mark mark);
+        KpiDto CreateKpiDto(Kpi kpi);
+        ProjectDto CreateProjectDto(Project project);
+        StrategicTaskDto CreateStrategicTaskDto(StrategicTask strategicTask);
+        ValueJudgmentDto CreateValueJudgmentDto(ValueJudgment valueJudgment);
+        PreviousJobDto CreatePreviousJobDto(PreviousJob previousJob);
+        HigherEducationDto CreateHigherEducationDto(HigherEducation higherEducation);
+        TrainingEventDto CreateTrainingEventDto(TrainingEvent trainingEvent);
+        AssessmentDto CreateAssessmentDto(Assessment assessment);
+        AssessmentResultDto CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);
+        AssessmentResultValueDto CreateAssessmentResultValueDto(AssessmentResultValue value);
+        AssessmentMatrixElementDto CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
+        AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);        
     }
 }

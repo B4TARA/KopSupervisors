@@ -88,29 +88,22 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var id = Convert.ToInt32(User.FindFirstValue("Id"));
-
-                var response = await _assessmentService.IsActiveAssessment(id, employeeId);
-
-                if (response.StatusCode != StatusCodes.OK)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = response.StatusCode,
-                        Message = response.Description,
-                    });
-                }
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var isActiveAssessment = await _assessmentService.IsActiveAssessment(currentUserId, employeeId);
 
                 var viewModel = new EmployeeViewModel
                 {
                     EmployeeId = employeeId,
-                    IsActiveAssessment = response.Data,
+                    IsActiveAssessment = isActiveAssessment,
                 };
 
                 return View("EmployeeLayout", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                // Логирование ошибки
+                //_logger.LogError(ex, "An error occurred while getting the employee layout for employee ID {EmployeeId}.", employeeId);
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -125,17 +118,8 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getUserRes = await _userService.GetUser(employeeId);
-                if (!getUserRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = getUserRes.StatusCode,
-                        Message = getUserRes.Description,
-                    });
-                }
+                var user = await _userService.GetUser(employeeId);
 
-                var user = getUserRes.Data;
                 var viewModel = new EmployeeGradeLayoutViewModel
                 {
                     Id = user.Id,
@@ -149,9 +133,12 @@ namespace KOP.WEB.Controllers
                     LastGrade = user.LastGrade,
                 };
 
-                if (user.LastGrade is null)
+                HttpContext.Session.SetString("SelectedUserFullName", viewModel.FullName);
+
+                if (user.LastGrade == null)
                 {
                     viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
+
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
@@ -159,20 +146,15 @@ namespace KOP.WEB.Controllers
 
                 foreach (var dto in user.LastGrade.AssessmentDtos)
                 {
-                    var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
-                    if (!getAssessmentSummaryRes.HasData)
-                    {
-                        continue;
-                    }
+                    var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
-                    var assessmentSummary = getAssessmentSummaryRes.Data;
                     if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
                     {
-                        viewModel.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
+                        viewModel.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                     }
                     else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
                     {
-                        viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
+                        viewModel.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                     }
                 }
 
@@ -208,21 +190,13 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var id = Convert.ToInt32(User.FindFirstValue("Id"));
-                var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, id);
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                if (!response.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = response.StatusCode,
-                        Message = response.Description,
-                    });
-                }
+                var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, currentUserId);
 
                 var viewModel = new EmployeeAssessmentLayoutViewModel
                 {
-                    LastAssessments = response.Data,
+                    LastAssessments = lastAssessmentOfEachType,
                 };
 
                 return View("EmployeeAssessmentLayout", viewModel);
@@ -243,42 +217,38 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getAssessmentRes = await _assessmentService.GetAssessment(assessmentId);
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var assessment = await _assessmentService.GetAssessment(assessmentId);
+                var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
 
-                if (!getAssessmentRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = getAssessmentRes.StatusCode,
-                        Message = getAssessmentRes.Description,
-                    });
-                }
+                var userRoles = User.Claims
+                    .Where(c => c.Type == ClaimTypes.Role)
+                    .Select(c => c.Value);
+
+                var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(assessment.AllAssessmentResults, assessment.UserId);
+                var allCandidates = await _userService.GetCandidatesForJudges(assessment.UserId);
+
+                var remainingCandidates = allCandidates
+                    .Where(c => !choosedCandidates.Select(c => c.Id).Contains(c.Id))
+                    .OrderBy(x => x.FullName)
+                    .ToList();
 
                 var viewModel = new EmployeeAssessmentViewModel
                 {
-                    Assessment = getAssessmentRes.Data
+                    Assessment = assessment,
+                    ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, assessment),
+                    ChoosedCandidatesForJudges = choosedCandidates.ToList(),
+                    CandidatesForJudges = remainingCandidates,
+                    SupervisorAssessmentResult = assessmentResult,
                 };
-
-                var getAssessmentResultRes = await _assessmentService.GetAssessmentResult(Convert.ToInt32(User.FindFirstValue("Id")), assessmentId);
-                if (getAssessmentResultRes.HasData)
-                {
-                    viewModel.SupervisorAssessmentResult = getAssessmentResultRes.Data;
-                }
-
-                var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
-                var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(getAssessmentRes.Data.AllAssessmentResults, getAssessmentRes.Data.UserId);
-                var allCandidates = await _userService.GetCandidatesForJudges(getAssessmentRes.Data.UserId);
-                var choosedCandidateIds = choosedCandidates.Select(c => c.Id).ToList();
-                var remainingCandidates = allCandidates.Where(c => !choosedCandidateIds.Contains(c.Id)).OrderBy(x => x.FullName).ToList();
-
-                viewModel.ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, getAssessmentRes.Data);
-                viewModel.ChoosedCandidatesForJudges = choosedCandidates;
-                viewModel.CandidatesForJudges = remainingCandidates;
 
                 return View("EmployeeAssessment", viewModel);
             }
             catch
             {
+                // Логирование ошибки
+                // _logger.LogError(ex, "An error occurred while processing the assessment.");
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -329,24 +299,18 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var deleteJudgeRes = await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);
-                if (!deleteJudgeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при удалении.",
-                        details = deleteJudgeRes.Description,
-                    });
-                }
-
+                await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);       
+                
                 return Ok("Удаление прошло успешно");
             }
-            catch (Exception ex)
+            catch
             {
+                // Логирование ошибки
+                // _logger.LogError(ex, "An error occurred while processing the assessment.");
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",
-                    details = ex.Message
                 });
             }
         }
@@ -369,12 +333,11 @@ namespace KOP.WEB.Controllers
 
                 return Ok("Оценка успешно завершена");
             }
-            catch (Exception ex)
+            catch
             {
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при завершении оценки.",
-                    details = ex.Message
                 });
             }
         }

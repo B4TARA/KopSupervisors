@@ -60,7 +60,7 @@ else
 							<td>
 								@if (Model.EditAccess)
 								{
-									<input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="date" asp-for="Kpis[i].PeriodStartDateTime" value="@periodStartDateTime" disabled="@(Model.EditAccess ? null : "disabled")" min="1994-01-01" />
 								}else{
 									@periodStartDateTime
 								}
@@ -69,7 +69,7 @@ else
 							<td>
 								@if (Model.EditAccess)
 								{
-									<input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="date" asp-for="Kpis[i].PeriodEndDateTime" value="@periodEndDateTime" disabled="@(Model.EditAccess ? null : "disabled")" min="1994-01-01" />
 								}
 								else
 								{
@@ -91,7 +91,7 @@ else
 							<td>
 								@if (Model.EditAccess)
 								{
-									<input type="number" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="text" asp-for="Kpis[i].CompletionPercentage" value="@kpi.CompletionPercentage" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{

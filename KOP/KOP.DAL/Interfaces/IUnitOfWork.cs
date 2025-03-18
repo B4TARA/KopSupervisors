@@ -15,6 +15,7 @@ namespace KOP.DAL.Interfaces
         IGradeRepository Grades { get; }
         IKpiRepository Kpis { get; }
         IPreviousJobRepository PreviousJobs { get; }
+        IHigherEducationRepository HigherEducations { get; }
         IProjectRepository Projects { get; }
         IUserRepository Users { get; }
         IQualificationRepository Qualifications { get; }

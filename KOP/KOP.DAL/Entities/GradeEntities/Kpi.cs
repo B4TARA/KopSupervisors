@@ -6,7 +6,7 @@
         public string Name { get; set; }
         public DateOnly PeriodStartDate { get; set; }
         public DateOnly PeriodEndDate { get; set; }
-        public int CompletionPercentage { get; set; }
+        public string CompletionPercentage { get; set; }
         public string CalculationMethod { get; set; }
         public Grade Grade { get; set; }
         public int GradeId { get; set; }

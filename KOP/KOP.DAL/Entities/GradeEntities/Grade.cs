@@ -25,6 +25,8 @@ namespace KOP.DAL.Entities.GradeEntities
         public string? ManagmentCompetenciesConclusion { get; set; }
         public string? CorporateCompetenciesConclusion { get; set; }
 
+        public double Qn2 { get; set; }
+
         public User User { get; set; }
         public int UserId { get; set; }
 

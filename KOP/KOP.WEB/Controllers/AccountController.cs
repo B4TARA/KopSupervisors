@@ -19,7 +19,7 @@ namespace KOP.WEB.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -36,9 +36,36 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> LoginNow(LoginDto dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await _accountService.LoginNow(dto);
+
+                if (response.HasData)
+                {
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(response.Data),
+                        new AuthenticationProperties { IsPersistent = true });
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError("", response.Description);
+            }
+
+            return View("Login", dto);
+        }
+
+        [HttpPost]
         public async Task<JsonResult> Login([FromBody] LoginDto dto)
         {
             var response = await _accountService.Login(dto);
+
+            if (response.StatusCode == Common.Enums.StatusCodes.Redirect)
+            {
+                return Json(new { statusCode = (int)response.StatusCode });
+            }
 
             if (!response.HasData)
             {

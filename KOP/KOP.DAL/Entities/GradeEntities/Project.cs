@@ -1,45 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace KOP.DAL.Entities.GradeEntities
+﻿namespace KOP.DAL.Entities.GradeEntities
 {
     public class Project
     {
-        [Key]
-        public int Id { get; set; } // id стратегического проекта
+        public int Id { get; set; }
+        public string UserRole { get; set; }
+        public string Name { get; set; }
+        public string Stage { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public int SuccessRate { get; set; }
+        public int AverageKpi { get; set; }
+        public double SP { get; set; }
 
-        [Required]
-        public string Name { get; set; } // Наименование проекта
-
-        [Required]
-        public string SupervisorSspName { get; set; } // ФИО руководителя ССП
-
-        [Required]
-        public string Stage { get; set; } // Этап проекта
-
-        [Required]
-        public DateOnly StartDate { get; set; } // Дата открытия проекта
-
-        [Required]
-        public DateOnly EndDate { get; set; } // Срок реализации проекта
-
-        [Required]
-        public DateOnly CurrentStatusDate { get; set; } // Дата текущего состояния
-
-        [Required]
-        public int PlanStages { get; set; } // План этапов
-
-        [Required]
-        public int FactStages { get; set; } // Факт этапов
-
-        [Required]
-        public int SPn { get; set; } // Оценка реализации проекта
-
-
-
-        public Grade Grade { get; set; } // Оценка, к которой относится данный стратегический проекта
+        public Grade Grade { get; set; }
         public int GradeId { get; set; }
-
-
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }

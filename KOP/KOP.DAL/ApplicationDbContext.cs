@@ -49,6 +49,11 @@ namespace KOP.DAL
                 .WithOne(a => a.Qualification)
                 .HasForeignKey<Grade>(c => c.QualificationId);
 
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.Qualification)
+                .WithOne(q => q.Grade)
+                .HasForeignKey<Grade>(g => g.QualificationId);
+
             modelBuilder.Entity<ValueJudgment>()
                 .HasOne(a => a.Grade)
                 .WithOne(a => a.ValueJudgment)

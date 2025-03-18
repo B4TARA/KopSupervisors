@@ -1,4 +1,4 @@
-﻿namespace KOP.Common.Dtos
+﻿namespace KOP.Common.Dtos.GradeDtos
 {
     public class MarkTypeDto
     {

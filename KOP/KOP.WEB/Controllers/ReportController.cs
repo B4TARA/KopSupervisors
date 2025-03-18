@@ -26,19 +26,10 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var supervisorId = Convert.ToInt32(User.FindFirstValue("Id"));
-                var getSubordinateEmployeesRes = await _reportService.GetSubordinateUsersWithGrade(supervisorId);
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var subordinateEmployees = await _reportService.GetSubordinateUsersWithGrade(currentUserId);
 
-                if (!getSubordinateEmployeesRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = getSubordinateEmployeesRes.StatusCode,
-                        Message = getSubordinateEmployeesRes.Description
-                    });
-                }
-
-                return View("SubordinateEmployees", getSubordinateEmployeesRes.Data);
+                return View("SubordinateEmployees", subordinateEmployees);
             }
             catch
             {
@@ -56,18 +47,9 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getEmployeeGradesRes = await _reportService.GetEmployeeGrades(employeeId);
+                var employeeGradeDto = await _reportService.GetEmployeeGrades(employeeId);
 
-                if (!getEmployeeGradesRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = getEmployeeGradesRes.StatusCode,
-                        Message = getEmployeeGradesRes.Description
-                    });
-                }
-
-                return View("EmployeeGrades", getEmployeeGradesRes.Data);
+                return View("EmployeeGrades", employeeGradeDto);
             }
             catch
             {
@@ -85,18 +67,10 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var generateGradeWordDocumentRes = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
-
-                if (!generateGradeWordDocumentRes.HasData)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Ошибка при создании документа Word.",
-                        details = generateGradeWordDocumentRes.Description,
-                    });
-                }
+                var document = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
                 var fileName = $"Report_Grade_{requestModel.gradeId}.docx";
-                return File(generateGradeWordDocumentRes.Data, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+
+                return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
             }
             catch (Exception ex)
             {
