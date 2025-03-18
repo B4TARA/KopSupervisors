@@ -4,7 +4,9 @@ namespace KOP.WEB.Models.ViewModels.Shared
 {
     public class ProjectsViewModel
     {
+        public string SelectedUserFullName { get; set; }
         public int GradeId { get; set; }
+        public double Qn2 { get; set; }
         public List<ProjectDto> Projects { get; set; } = new();
         public bool IsFinalized { get; set; }
 

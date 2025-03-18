@@ -23,24 +23,15 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Marks });
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Marks });
 
                 var editAccess = User.IsInRole("Urp");
-                var viewAccess = gradeRes.Data.IsMarksFinalized || editAccess;
+                var viewAccess = gradeDto.IsMarksFinalized || editAccess;
 
                 var viewModel = new MarksViewModel
                 {
                     GradeId = gradeId,
-                    MarkTypes = gradeRes.Data.MarkTypes,
+                    MarkTypes = gradeDto.MarkTypes,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                 };
@@ -63,30 +54,12 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
+                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
 
-                if (!getGradeRes.HasData)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                gradeDto.MarkTypes = viewModel.MarkTypes;
+                gradeDto.IsMarksFinalized = viewModel.IsFinalized;
 
-                getGradeRes.Data.MarkTypes = viewModel.MarkTypes;
-                getGradeRes.Data.IsMarksFinalized = viewModel.IsFinalized;
-
-                var editGradeRes = await _gradeService.EditGrade(getGradeRes.Data);
-
-                if (!editGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                await _gradeService.EditGrade(gradeDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }
@@ -106,16 +79,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var deleteMarkRes = await _gradeService.DeleteMark(id);
-
-                if (!deleteMarkRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при удалении.",
-                        details = deleteMarkRes.Description,
-                    });
-                }
+                await _gradeService.DeleteMark(id);
 
                 return Ok("Удаление прошло успешно");
             }

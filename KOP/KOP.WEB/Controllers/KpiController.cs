@@ -23,26 +23,16 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Kpis });
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
-
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Kpis });
                 var conclusionEditAccess = User.IsInRole("Urp");
-                var editAccess = (User.IsInRole("Umst") && !gradeRes.Data.IsKpisFinalized) || User.IsInRole("Urp");
-                var viewAccess = gradeRes.Data.IsKpisFinalized || editAccess;
+                var editAccess = (User.IsInRole("Umst") && !gradeDto.IsKpisFinalized) || User.IsInRole("Urp");
+                var viewAccess = gradeDto.IsKpisFinalized || editAccess;
 
                 var viewModel = new KpisViewModel
                 {
                     GradeId = gradeId,
-                    Conclusion = gradeRes.Data.KPIsConclusion,
-                    Kpis = gradeRes.Data.Kpis,
+                    Conclusion = gradeDto.KPIsConclusion,
+                    Kpis = gradeDto.Kpis,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                     ConclusionEditAccess = conclusionEditAccess,
@@ -66,31 +56,13 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Kpis });
+                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Kpis });
 
-                if (!getGradeRes.HasData)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                gradeDto.Kpis = viewModel.Kpis;
+                gradeDto.KPIsConclusion = viewModel.Conclusion;
+                gradeDto.IsKpisFinalized = viewModel.IsFinalized;
 
-                getGradeRes.Data.Kpis = viewModel.Kpis;
-                getGradeRes.Data.KPIsConclusion = viewModel.Conclusion;
-                getGradeRes.Data.IsKpisFinalized = viewModel.IsFinalized;
-
-                var editGradeRes = await _gradeService.EditGrade(getGradeRes.Data);
-
-                if (!editGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                await _gradeService.EditGrade(gradeDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }
@@ -110,16 +82,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var deleteKpiRes = await _gradeService.DeleteKpi(id);
-
-                if (!deleteKpiRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при удалении.",
-                        details = deleteKpiRes.Description,
-                    });
-                }
+                await _gradeService.DeleteKpi(id);
 
                 return Ok("Удаление прошло успешно");
             }

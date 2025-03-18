@@ -27,21 +27,12 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.TrainingEvents });
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.TrainingEvents });
 
                 var viewModel = new TrainingEventsViewModel
                 {
                     GradeId = gradeId,
-                    TrainingEvents = gradeRes.Data.TrainingEvents,
+                    TrainingEvents = gradeDto.TrainingEvents,
                 };
 
                 return View("_TrainingEvents", viewModel);
@@ -73,32 +64,13 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
-
-                if (!assessmentSummaryRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = assessmentSummaryRes.StatusCode,
-                        Message = assessmentSummaryRes.Description,
-                    });
-                }
-
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
 
                 var viewModel = new CorporateCompetenciesViewModel
                 {
-                    Conclusion = gradeRes.Data.CorporateCompetenciesConclusion,
-                    AssessmentSummaryDto = assessmentSummaryRes.Data,
+                    Conclusion = gradeDto.CorporateCompetenciesConclusion,
+                    AssessmentSummaryDto = assessmentSummaryDto,
                 };
 
                 return View("_CorporateCompetencies", viewModel);
@@ -130,32 +102,13 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var assessmentSummaryRes = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
-
-                if (!assessmentSummaryRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = assessmentSummaryRes.StatusCode,
-                        Message = assessmentSummaryRes.Description,
-                    });
-                }
-
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
 
                 var viewModel = new ManagmentCompetenciesViewModel
                 {
-                    Conclusion = gradeRes.Data.ManagmentCompetenciesConclusion,
-                    AssessmentSummaryDto = assessmentSummaryRes.Data,
+                    Conclusion = gradeDto.ManagmentCompetenciesConclusion,
+                    AssessmentSummaryDto = assessmentSummaryDto,
                 };
 
                 return View("_ManagmentCompetencies", viewModel);

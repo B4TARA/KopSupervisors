@@ -12,7 +12,7 @@
             {
                 var assessment = Model.LastAssessments[i];
                 <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
-                    <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getAssessment(@assessment.UserId, @assessment.Id)">
+                    <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getAssessment(@assessment.Id)">
                         @assessment.AssessmentTypeName
                     </button>
                     <span class="indicator_assessment">

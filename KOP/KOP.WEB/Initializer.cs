@@ -27,6 +27,7 @@ namespace KOP.WEB
             services.AddScoped<IGradeRepository, GradeRepository>();
             services.AddScoped<IKpiRepository, KpiRepository>();
             services.AddScoped<IPreviousJobRepository, PreviousJobRepository>();
+            services.AddScoped<IHigherEducationRepository, HigherEducationRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IQualificationRepository, QualificationRepository>();

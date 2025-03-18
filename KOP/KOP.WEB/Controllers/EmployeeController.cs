@@ -7,7 +7,6 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
@@ -35,21 +34,12 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetAssessmentLayout(int userId)
         {
-            var response = await _assessmentService.IsActiveAssessment(userId, userId);
-
-            if (response.StatusCode != StatusCodes.OK)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
-                });
-            }
+            var isActive = await _assessmentService.IsActiveAssessment(userId, userId);
 
             var viewModel = new AssessmentLayoutViewModel
             {
                 EmployeeId = userId,
-                IsActiveSelfAssessment = response.Data
+                IsActiveSelfAssessment = isActive
             };
 
             return View("AssessmentLayout", viewModel);
@@ -59,55 +49,40 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetGradeLayout(int employeeId)
         {
-            var getUserRes = await _userService.GetUser(employeeId);
+            var userDto = await _userService.GetUser(employeeId);
 
-            if (!getUserRes.HasData)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = getUserRes.StatusCode,
-                    Message = getUserRes.Description,
-                });
-            }
-
-            var user = getUserRes.Data;
             var viewModel = new GradeLayoutViewModel
             {
-                Id = user.Id,
-                FullName = user.FullName,
-                Position = user.Position,
-                SubdivisionFromFile = user.SubdivisionFromFile,
-                GradeGroup = user.GradeGroup,
-                WorkPeriod = user.WorkPeriod,
-                ContractEndDate = user.ContractEndDate,
-                ImagePath = user.ImagePath,
-                LastGrade = user.LastGrade,
+                Id = userDto.Id,
+                FullName = userDto.FullName,
+                Position = userDto.Position,
+                SubdivisionFromFile = userDto.SubdivisionFromFile,
+                GradeGroup = userDto.GradeGroup,
+                WorkPeriod = userDto.WorkPeriod,
+                ContractEndDate = userDto.ContractEndDate,
+                ImagePath = userDto.ImagePath,
+                LastGrade = userDto.LastGrade,
             };
 
-            if (user.LastGrade is null)
+            if (userDto.LastGrade == null)
             {
                 viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
                 return View("GradeLayout", viewModel);
             }
 
-            viewModel.GradeStatus = user.LastGrade.GradeStatus;
+            viewModel.GradeStatus = userDto.LastGrade.GradeStatus;
 
-            foreach (var dto in user.LastGrade.AssessmentDtos)
+            foreach (var dto in userDto.LastGrade.AssessmentDtos)
             {
-                var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
-                if (!getAssessmentSummaryRes.HasData)
-                {
-                    continue;
-                }
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
-                var assessmentSummary = getAssessmentSummaryRes.Data;
                 if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
                 {
-                    viewModel.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
+                    viewModel.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                 }
                 else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
                 {
-                    viewModel.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
+                    viewModel.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                 }
             }
 
@@ -139,45 +114,36 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetSelfAssessment(int employeeId, int assessmentId)
+        public async Task<IActionResult> GetSelfAssessment(int assessmentId)
         {
-            var response = await _userService.GetUserSelfAssessmentResultByAssessment(employeeId, assessmentId);
-
-            if (!response.HasData)
+            try
             {
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(assessmentId);
+
+                return View("SelfAssessment", assessmentSummaryDto);
+            }
+            catch
+            {
+                // LOG!!!
                 return View("Error", new ErrorViewModel
                 {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
+                    StatusCode = Common.Enums.StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
                 });
             }
-
-            var viewModel = new SelfAssessmentViewModel
-            {
-                SelfAssessmentResult = response.Data,
-            };
-
-            return View("SelfAssessment", viewModel);
         }
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetSelfAssessmentLayout(int employeeId)
+        public async Task<IActionResult> GetSelfAssessmentLayout()
         {
-            var response = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, employeeId);
+            var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-            if (!response.HasData)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
-                });
-            }
+            var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(currentUserId, currentUserId);
 
             var viewModel = new SelfAssessmentLayoutViewModel
             {
-                LastAssessments = response.Data,
+                LastAssessments = lastAssessmentOfEachType,
             };
 
             return View("SelfAssessmentLayout", viewModel);
@@ -192,15 +158,7 @@ namespace KOP.WEB.Controllers
                 AssessmentResultId = requestModel.assessmentResultId,
             };
 
-            var response = await _userService.AssessUser(assessEmployeeDTO);
-
-            if (!response.IsSuccess)
-            {
-                return StatusCode(Convert.ToInt32(response.StatusCode), new
-                {
-                    message = response.Description
-                });
-            }
+            await _userService.AssessUser(assessEmployeeDTO);
 
             return StatusCode(200);
         }
@@ -211,15 +169,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var approveGradeRes = await _userService.ApproveGrade(gradeId);
-                if (!approveGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при завершении оценки.",
-                        details = approveGradeRes.Description,
-                    });
-                }
+                await _userService.ApproveGrade(gradeId);
 
                 return Ok("Оценка успешно завершена");
             }

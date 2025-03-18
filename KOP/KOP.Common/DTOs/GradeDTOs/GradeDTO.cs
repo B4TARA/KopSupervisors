@@ -19,12 +19,13 @@ namespace KOP.Common.Dtos.GradeDtos
         public bool IsCorporateCompetenciesFinalized { get; set; }
         public bool IsManagmentCompetenciesFinalized { get; set; }
 
-
         public string? StrategicTasksConclusion { get; set; }
         public string? KPIsConclusion { get; set; }
         public string? QualificationConclusion { get; set; }
         public string? ManagmentCompetenciesConclusion { get; set; }
         public string? CorporateCompetenciesConclusion { get; set; }
+
+        public double Qn2 { get; set; }
 
         public QualificationDto? Qualification { get; set; }
         public ValueJudgmentDto? ValueJudgment { get; set; }

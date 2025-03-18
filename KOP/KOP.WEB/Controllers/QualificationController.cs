@@ -23,26 +23,18 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Qualification });
-
-                if (!gradeRes.HasData)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = gradeRes.StatusCode,
-                        Message = gradeRes.Description,
-                    });
-                }
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Qualification });
 
                 var conclusionEditAccess = User.IsInRole("Urp");
                 var editAccess = User.IsInRole("Urp");
-                var viewAccess = gradeRes.Data.IsQualificationFinalized || editAccess;
+                var viewAccess = gradeDto.IsQualificationFinalized || editAccess;
 
                 var viewModel = new QualificationViewModel
                 {
                     GradeId = gradeId,
-                    Conclusion = gradeRes.Data.QualificationConclusion,
-                    Qualification = gradeRes.Data.Qualification,
+                    SelectedUserFullName = HttpContext.Session.GetString("SelectedUserFullName") ?? "-",
+                    Conclusion = gradeDto.QualificationConclusion,
+                    Qualification = gradeDto.Qualification,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                     ConclusionEditAccess = conclusionEditAccess,
@@ -77,31 +69,13 @@ namespace KOP.WEB.Controllers
                     });
                 }
 
-                var getGradeRes = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Qualification });
+                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Qualification });
 
-                if (!getGradeRes.HasData)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                gradeDto.Qualification = viewModel.Qualification;
+                gradeDto.QualificationConclusion = viewModel.Conclusion;
+                gradeDto.IsQualificationFinalized = viewModel.IsFinalized;
 
-                getGradeRes.Data.Qualification = viewModel.Qualification;
-                getGradeRes.Data.QualificationConclusion = viewModel.Conclusion;
-                getGradeRes.Data.IsQualificationFinalized = viewModel.IsFinalized;
-
-                var editGradeRes = await _gradeService.EditGrade(getGradeRes.Data);
-
-                if (!editGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = getGradeRes.Description,
-                    });
-                }
+                await _gradeService.EditGrade(gradeDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }
@@ -121,16 +95,27 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var deletePreviousJobRes = await _gradeService.DeletePreviousJob(id);
+                await _gradeService.DeletePreviousJob(id);
 
-                if (!deletePreviousJobRes.IsSuccess)
+                return Ok("Удаление прошло успешно");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
                 {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при удалении.",
-                        details = deletePreviousJobRes.Description,
-                    });
-                }
+                    error = "Произошла ошибка при удалении.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteHigherEducation(int id)
+        {
+            try
+            {
+                await _gradeService.DeleteHigherEducation(id);
 
                 return Ok("Удаление прошло успешно");
             }

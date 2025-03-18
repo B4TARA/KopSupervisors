@@ -49,7 +49,7 @@
 	<div class="assessment_user_tab_container popup_assessment_table">
 		<div class="choose_assessment_user_container margin_container_bottom">
 
-			@if (!Model.AssessmentSummaryDto.SelfAssessmentResultValues.Any())
+			@if (Model.AssessmentSummaryDto.SelfAssessmentResultSystemStatus == SystemStatuses.PENDING)
 			{
 				<div class="undefined_page_wrapper">
 					<div class="title">
@@ -60,7 +60,7 @@
 					</div>
 				</div>
 			}
-			else if (!Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.Any())
+			else if (Model.AssessmentSummaryDto.SupervisorAssessmentResultSystemStatus == SystemStatuses.PENDING)
 			{
 				<div class="undefined_page_wrapper">
 					<div class="title">
@@ -97,7 +97,7 @@
 							}
 
 							<th class="table_header_elem">
-								Моя оценка
+								Самооценка
 							</th>
 							<th class="table_header_elem">
 								Оценка непосредственного руководителя
@@ -109,45 +109,6 @@
 						@for (int i = 1; i < Model.AssessmentSummaryDto.RowsWithElements.Count; i++)
 						{
 							<tr>
-								<td>
-									@*
-									@i
-									<span class="info_btn" id="info_btn">
-										<div class="show-modal-btn">
-											<i class="fa-solid fa-info"></i>
-										</div>
-									</span>
-									 <section class="section_popup">
-										<div class="modal-box">
-											<div class="close_btn close-btn">
-												<i class="fa-solid fa-xmark"></i>
-											</div>
-											<table class="table_info_assessment ">
-												<thead class="table_header">
-													<tr>
-														<th class="table_header_elem">
-															#
-														</th>
-
-														@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.ElementsByRow[0])
-														{
-															<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>
-														}
-													</tr>
-												</thead>
-												<tbody>
-													<tr>
-														@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.ElementsByRow[i])
-														{
-															<td class="mid_description">@assessmentMatrixElement.Value</td>
-														}
-													</tr>
-												</tbody>
-											</table>
-										</div>
-									</section> *@
-								</td>
-
 								@{
 									count = 0;
 									maxElementsToShow = 2;

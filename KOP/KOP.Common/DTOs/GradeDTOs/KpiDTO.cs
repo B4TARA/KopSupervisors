@@ -8,7 +8,7 @@
         public DateOnly PeriodStartDate => DateOnly.FromDateTime(PeriodStartDateTime);
         public DateTime PeriodEndDateTime { get; set; } = DateTime.Today;
         public DateOnly PeriodEndDate => DateOnly.FromDateTime(PeriodEndDateTime);
-        public int CompletionPercentage { get; set; }
+        public string CompletionPercentage { get; set; }
         public string CalculationMethod { get; set; }
     }
 }

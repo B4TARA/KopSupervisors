@@ -4,7 +4,6 @@
 	Layout = null;
 }
 
-
 @if (!Model.ViewAccess)
 {
 	<div class="undefined_page_wrapper">
@@ -14,7 +13,6 @@
 		<div class="empty_state_image_wrapper_middle">
 			<img src="/image/EmptyState.png" alt="default_page">
 		</div>
-
 	</div>
 }
 else
@@ -29,15 +27,32 @@ else
 				<div class="title">
 					Результаты выполнения стратегических проектов и задач
 				</div>
+				@if (Model.Projects.Any())
+				{
+					@if (Model.EditAccess)
+					{
+						<div class="description">
+							Выполнение стратегических проектов за отчетный период, Qn2 <input type="number" asp-for="Qn2" value="@Model.Qn2" disabled="@(Model.EditAccess ? null : "disabled")"> %
+						</div>
+					}
+					else
+					{
+						<b>Выполнение стратегических проектов за отчетный период, Qn2 @Model.Qn2 %</b>
+					}
+				}
+				else
+				{
+					<div class="description">
+						За оцениваемый период @Model.SelectedUserFullName не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта
+					</div>
+				}
 			</div>
 			<div class="project_info_list" id="rowContainer">
-
 				@for (int i = 0; i < Model.Projects.Count; i++)
 				{
 					var project = Model.Projects[i];
 					var startDateTime = project.StartDateTime.ToString("yyyy-MM-dd");
 					var endDateTime = project.EndDateTime.ToString("yyyy-MM-dd");
-					var currentStatusDateTime = project.CurrentStatusDateTime.ToString("yyyy-MM-dd");
 					<div>
 						<div class="mid_title">
 							Проект @(i + 1)
@@ -45,16 +60,20 @@ else
 
 						<div class="project_info_content">
 							<div>
+
+								<b>@Model.SelectedUserFullName</b>
+
+								является
 								@if (Model.EditAccess)
 								{
-									<input type="text" asp-for="Projects[i].SupervisorSspName" value="@project.SupervisorSspName" disabled="@(Model.EditAccess ? null : "disabled")" />
-								}else{
-									<b>@project.SupervisorSspName</b>
-
-									
+									<input type="text" asp-for="Projects[i].UserRole" value="@project.UserRole" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
-								
-								является заказчиком стратегического проекта
+								else
+								{
+									<b>@project.UserRole</b>
+								}
+
+								стратегического проекта
 								@if (Model.EditAccess)
 								{
 									<input type="text" asp-for="Projects[i].Name" value="@project.Name" disabled="@(Model.EditAccess ? null : "disabled")" />
@@ -62,13 +81,11 @@ else
 								else
 								{
 									<b>@project.Name</b>
-
-									
 								}
-								
+
 							</div>
 							<div>
-								Проект находится на этапе
+								Проект
 								@if (Model.EditAccess)
 								{
 									<input type="text" asp-for="Projects[i].Stage" value="@project.Stage" disabled="@(Model.EditAccess ? null : "disabled")" />
@@ -76,82 +93,68 @@ else
 								else
 								{
 									<b>@project.Stage</b>
-
-									
 								}
-								
+
 							</div>
 							<div>
-								Дата открытия проекта -
+								Дата открытия проекта
 								@if (Model.EditAccess)
 								{
-									<input type="date" asp-for="Projects[i].StartDateTime" value="@startDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="date" asp-for="Projects[i].StartDateTime" value="@startDateTime" disabled="@(Model.EditAccess ? null : "disabled")" min="1994-01-01" />
 								}
 								else
 								{
 									<b>@startDateTime</b>
-
-									
 								}
-								
+
 							</div>
 							<div>
-								Срок реализации проекта -
+								Дата окончания проекта(план)
 								@if (Model.EditAccess)
 								{
-									<input type="date" asp-for="Projects[i].EndDateTime" value="@endDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="date" asp-for="Projects[i].EndDateTime" value="@endDateTime" disabled="@(Model.EditAccess ? null : "disabled")" min="1994-01-01" />
 								}
 								else
 								{
 									<b>@endDateTime</b>
-
-									
 								}
-								
+
 							</div>
 							<div>
-								На число
+								Коэффициент успешности проекта
 								@if (Model.EditAccess)
 								{
-									<input type="date" asp-for="Projects[i].CurrentStatusDateTime" value="@currentStatusDateTime" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="number" asp-for="Projects[i].SuccessRate" value="@project.SuccessRate" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{
-									<b>@currentStatusDateTime</b>
-
-									
+									<b>@project.SuccessRate</b>
 								}
-								 по проекту выполнены
-								@if (Model.EditAccess)
-								{
-									<input type="number" asp-for="Projects[i].FactStages" value="@project.FactStages" disabled="@(Model.EditAccess ? null : "disabled")" />
-								}
-								else
-								{
-									<b>@project.FactStages</b>
-								}
-								 из
-								@if (Model.EditAccess)
-								{
-									<input type="number" asp-for="Projects[i].PlanStages" value="@project.PlanStages" disabled="@(Model.EditAccess ? null : "disabled")" />
-								}
-								else
-								{
-									<b>@project.PlanStages</b>
-								}
-								 этапов
+								%
 							</div>
 							<div>
-								Коэффициент реализации проекта -
+								Средний KPI проекта
 								@if (Model.EditAccess)
 								{
-									<input type="number" asp-for="Projects[i].SPn" value="@project.SPn" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="number" asp-for="Projects[i].AverageKpi" value="@project.AverageKpi" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{
-									<b>@project.SPn</b>
+									<b>@project.AverageKpi</b>
 								}
-								 %
+								%
+							</div>
+							<div>
+								Оценка реализации проекта SP
+								@if (Model.EditAccess)
+								{
+									<input type="number" asp-for="Projects[i].SP" value="@project.SP" disabled="@(Model.EditAccess ? null : "disabled")" />
+								}
+								else
+								{
+									<b>@project.SP</b>
+								}
+								%
 							</div>
 							@if (Model.EditAccess)
 							{
@@ -160,7 +163,7 @@ else
 								</div>
 							}
 						</div>
-						
+
 					</div>
 				}
 			</div>

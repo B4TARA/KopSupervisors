@@ -89,7 +89,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" required />
+                                    <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" required min="1994-01-01" />
                                 }
                                 else
                                 {
@@ -99,7 +99,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" required />
+                                    <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" required min="1994-01-01" />
                                 }
                                 else
                                 {

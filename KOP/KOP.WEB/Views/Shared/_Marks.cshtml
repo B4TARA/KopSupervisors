@@ -9,7 +9,7 @@
 {
 	<div class="undefined_page_wrapper">
 		<div class="title">
-			Управление персоналом не заполнено окончательно
+			Управление персоналом не заполнено
 		</div>
 		<div class="empty_state_image_wrapper_middle">
 			<img src="/image/EmptyState.png" alt="default_page">
@@ -68,7 +68,7 @@ else
 									<td>
 										@if (Model.EditAccess)
 										{
-											<input type="text" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
+											<input type="number" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" step="0.01" lang="en" disabled="@(Model.EditAccess ? null : "disabled")" />
 										}
 										else
 										{

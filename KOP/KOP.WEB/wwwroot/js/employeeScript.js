@@ -102,47 +102,36 @@ async function getSelfAssessment(employeeId, assessmentId) {
     selfAssessmentLinkItem.classList.add("active");
     colleaguesAssessmentLinkItem.classList.remove("active");
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Employee/GetSelfAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
+        let response = await fetch(`/Employee/GetSelfAssessmentLayout`);
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в элемент с id 'infoblock_main_container'
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        // Получаем типы количественных оценок
         let response2 = await fetch(`/Assessment/GetLastAssessments?employeeId=${encodeURIComponent(employeeId)}`);
-
-        // Получаем JSON-ответ
         let jsonResponse = await response2.json();
 
-        // Проверка на результат ответа
         if (!jsonResponse.success) {
-            //alert(jsonResponse.message);
+            console.error('Произошла ошибка:', jsonResponse.message);
             return;
         }
 
-        // Извлекаем данные из ответа
         const lastAssessments = jsonResponse.data;
 
-        // Если есть типы оценок, то подгружаем самый первый
         if (lastAssessments && lastAssessments.length > 0) {
 
             if (assessmentId !== undefined) {
-                await getAssessment(employeeId, assessmentId);
+                await getAssessment(assessmentId);
             }
             else {
-                await getAssessment(employeeId, lastAssessments[0].id);
+                await getAssessment(lastAssessments[0].id);
             }
         }        
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
-async function getAssessment(employeeId, assessmentId) {
+async function getAssessment(assessmentId) {
     try {
 
         const buttons = document.querySelectorAll('.self_assesment .link_menu');
@@ -157,7 +146,7 @@ async function getAssessment(employeeId, assessmentId) {
         });
 
         // Формируем URL для запроса
-        const url = `/Employee/GetSelfAssessment?employeeId=${encodeURIComponent(employeeId)}&assessmentId=${encodeURIComponent(assessmentId)}`;
+        const url = `/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`;
 
         // Выполняем fetch запрос
         let response = await fetch(url);

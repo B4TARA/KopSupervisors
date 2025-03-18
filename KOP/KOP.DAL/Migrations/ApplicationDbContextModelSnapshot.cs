@@ -293,6 +293,9 @@ namespace KOP.DAL.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
+                    b.Property<double>("Qn2")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("QualificationConclusion")
                         .HasColumnType("text");
 
@@ -327,6 +330,45 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Grades");
                 });
 
+            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.HigherEducation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Education")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("QualificationId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("QualificationName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Speciality")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QualificationId");
+
+                    b.ToTable("HigherEducation");
+                });
+
             modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Kpi", b =>
                 {
                     b.Property<int>("Id")
@@ -339,8 +381,9 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("CompletionPercentage")
-                        .HasColumnType("integer");
+                    b.Property<string>("CompletionPercentage")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
@@ -382,8 +425,8 @@ namespace KOP.DAL.Migrations
                     b.Property<int>("MarkTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PercentageValue")
-                        .HasColumnType("integer");
+                    b.Property<double>("PercentageValue")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Period")
                         .IsRequired()
@@ -465,17 +508,14 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("CurrentStatusDate")
-                        .HasColumnType("date");
+                    b.Property<int>("AverageKpi")
+                        .HasColumnType("integer");
 
                     b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
-
-                    b.Property<int>("FactStages")
-                        .HasColumnType("integer");
 
                     b.Property<int>("GradeId")
                         .HasColumnType("integer");
@@ -484,11 +524,8 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("PlanStages")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SPn")
-                        .HasColumnType("integer");
+                    b.Property<double>("SP")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -497,7 +534,10 @@ namespace KOP.DAL.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("SupervisorSspName")
+                    b.Property<int>("SuccessRate")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserRole")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -515,10 +555,6 @@ namespace KOP.DAL.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AdditionalEducation")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("CurrentExperienceMonths")
                         .HasColumnType("integer");
@@ -543,32 +579,10 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
-
                     b.Property<int>("GradeId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("HigherEducation")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Link")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("QualificationResult")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Speciality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("SupervisorSspName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -959,6 +973,17 @@ namespace KOP.DAL.Migrations
                     b.Navigation("ValueJudgment");
                 });
 
+            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.HigherEducation", b =>
+                {
+                    b.HasOne("KOP.DAL.Entities.GradeEntities.Qualification", "Qualification")
+                        .WithMany("HigherEducations")
+                        .HasForeignKey("QualificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Qualification");
+                });
+
             modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Kpi", b =>
                 {
                     b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
@@ -1114,6 +1139,8 @@ namespace KOP.DAL.Migrations
                 {
                     b.Navigation("Grade")
                         .IsRequired();
+
+                    b.Navigation("HigherEducations");
 
                     b.Navigation("PreviousJobs");
                 });

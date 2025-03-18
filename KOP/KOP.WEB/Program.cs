@@ -6,16 +6,6 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var connection = builder.Configuration.GetConnectionString("WebApiDatabase");
 
-// Чтение настроек из файла конфигурации
-//builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-// Регистрация настроек в сервисном контейнере
-//var fileSettings = builder.Configuration.GetSection("FileSettings").Get<FileSettings>();
-//builder.Services.AddSingleton(fileSettings);
-
-//var imageSettings = builder.Configuration.GetSection("ImageSettings").Get<ImageSettings>();
-//builder.Services.AddSingleton(imageSettings);
-
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -26,11 +16,21 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = new PathString("");
         options.AccessDeniedPath = new PathString("/Account/Logout");
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.SlidingExpiration = true;
     });
 builder.Services.AddAuthorization();
 
 builder.Services.InitializeRepositories();
 builder.Services.InitializeServices();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -54,6 +54,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

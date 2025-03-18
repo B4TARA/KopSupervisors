@@ -23,241 +23,66 @@ namespace KOP.BLL.Services
             _commonService = commonService;
         }
 
-        public async Task<IBaseResponse<UserDto>> GetUser(int id)
+        public async Task<UserDto> GetUser(int id)
         {
-            try
+
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == id, includeProperties: new string[]
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == id, includeProperties: new string[]
-                {
-                    "Grades.Qualification",
-                    "Grades.ValueJudgment",
-                    "Grades.Marks",
-                    "Grades.Kpis",
-                    "Grades.Projects",
-                    "Grades.StrategicTasks",
-                    "Grades.TrainingEvents",
-                    "Grades.Assessments.AssessmentType.AssessmentMatrix",
-                });
+                "Grades.Qualification",
+                "Grades.ValueJudgment",
+                "Grades.Marks",
+                "Grades.Kpis",
+                "Grades.Projects",
+                "Grades.StrategicTasks",
+                "Grades.TrainingEvents",
+                "Grades.Assessments.AssessmentType.AssessmentMatrix",
+            });
 
-                if (user == null)
-                {
-                    return new BaseResponse<UserDto>()
-                    {
-                        Description = $"Пользователь с id = {id} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                var userDto = _mappingService.CreateUserDto(user);
-
-                if (!userDto.HasData)
-                {
-                    return new BaseResponse<UserDto>()
-                    {
-                        Description = userDto.Description,
-                        StatusCode = userDto.StatusCode,
-                    };
-                }
-
-                return new BaseResponse<UserDto>()
-                {
-                    Data = userDto.Data,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
+            if (user == null)
             {
-                return new BaseResponse<UserDto>()
-                {
-                    Description = $"[UserService.GetUser] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                throw new Exception($"User with ID {id} not found.");
             }
+
+            var userDto = _mappingService.CreateUserDto(user);
+
+            return userDto;
         }
 
-        public async Task<IBaseResponse<List<AssessmentDto>>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
+        public async Task<List<AssessmentDto>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
         {
-            try
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: new string[]
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: new string[]
-                {
                     "Assessments.AssessmentType"
-                });
+            });
 
-                if (user == null)
-                {
-                    return new BaseResponse<List<AssessmentDto>>()
-                    {
-                        Description = $"[UserService.GetUserLastAssessmentsOfEachType] : Пользователь с id = {userId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                var userAssessmentTypes = user.Assessments.GroupBy(x => x.AssessmentType);
-                var userLastAssessmentsOfEachType = new List<AssessmentDto>();
-
-                foreach (var assessmentType in userAssessmentTypes)
-                {
-                    var lastAssessment = assessmentType.OrderByDescending(x => x.DateOfCreation).First();
-
-                    var lastAssessmentDto = new AssessmentDto
-                    {
-                        Id = lastAssessment.Id,
-                        UserId = userId,
-                        Number = lastAssessment.Number,
-                        AssessmentTypeName = assessmentType.Key.Name,
-                    };
-
-                    var isActiveAssessmentRes = await _assessmentService.IsActiveAssessment(supervisorId, userId, lastAssessment.Id);
-
-                    if (isActiveAssessmentRes.StatusCode != StatusCodes.OK)
-                    {
-                        return new BaseResponse<List<AssessmentDto>>()
-                        {
-                            Description = isActiveAssessmentRes.Description,
-                            StatusCode = isActiveAssessmentRes.StatusCode,
-                        };
-                    }
-
-                    lastAssessmentDto.IsActiveAssessment = isActiveAssessmentRes.Data;
-
-                    userLastAssessmentsOfEachType.Add(lastAssessmentDto);
-                }
-
-                return new BaseResponse<List<AssessmentDto>>()
-                {
-                    Data = userLastAssessmentsOfEachType,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
+            if (user == null)
             {
-                return new BaseResponse<List<AssessmentDto>>()
-                {
-                    Description = $"[UserService.GetUserLastAssessmentsOfEachType] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                throw new Exception($"User with ID {userId} not found.");
             }
-        }
 
-        public async Task<IBaseResponse<AssessmentResultDto>> GetUserSelfAssessmentResultByAssessment(int userId, int assessmentId)
-        {
-            try
+            var userAssessmentTypes = user.Assessments.GroupBy(x => x.AssessmentType);
+            var userLastAssessmentsOfEachType = new List<AssessmentDto>();
+
+            foreach (var assessmentType in userAssessmentTypes)
             {
-                var selfAssessmentResultDto = new AssessmentResultDto();
-                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId);
-                var assessmentType = await _unitOfWork.AssessmentTypes.GetAsync(x => x.Id == assessment.AssessmentTypeId);
+                var lastAssessment = assessmentType.OrderByDescending(x => x.DateOfCreation).First();
 
-                var userSelfAssessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.JudgeId == userId && x.AssessmentId == assessmentId, includeProperties: new string[]
+                var lastAssessmentDto = new AssessmentDto
                 {
-                    "AssessmentResultValues"
-                });
-
-                if (userSelfAssessmentResult == null)
-                {
-                    selfAssessmentResultDto.SystemStatus = SystemStatuses.NOT_EXIST;
-
-                    return new BaseResponse<AssessmentResultDto>()
-                    {
-                        Data = selfAssessmentResultDto,
-                        StatusCode = StatusCodes.OK
-                    };
-                }
-                else if (userSelfAssessmentResult.SystemStatus == SystemStatuses.COMPLETED)
-                {
-                    var userSelfAssessmentResultValues = userSelfAssessmentResult.AssessmentResultValues;
-
-                    foreach (var value in userSelfAssessmentResultValues)
-                    {
-                        selfAssessmentResultDto.Values.Add(new AssessmentResultValueDto
-                        {
-                            Value = value.Value,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-
-                        selfAssessmentResultDto.AverageValues.Add(new AssessmentResultValueDto
-                        {
-                            Value = 0,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-                    }
-
-                    var completedAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
-                        x.AssessmentId == assessmentId &&
-                        x.SystemStatus == SystemStatuses.COMPLETED, includeProperties: "AssessmentResultValues");
-
-                    foreach (var assessmentResult in completedAssessmentResults)
-                    {
-                        var assessmentResultValues = assessmentResult.AssessmentResultValues;
-
-                        foreach (var value in assessmentResultValues)
-                        {
-                            selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == value.AssessmentMatrixRow).Value += value.Value;
-                        }
-                    }
-
-                    foreach (var averageValue in selfAssessmentResultDto.AverageValues)
-                    {
-                        var sum = selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value;
-                        var average = sum / completedAssessmentResults.Count();
-
-                        selfAssessmentResultDto.AverageValues.First(x => x.AssessmentMatrixRow == averageValue.AssessmentMatrixRow).Value = average;
-                        selfAssessmentResultDto.AverageResult += average;
-                    }
-                }
-
-                selfAssessmentResultDto.Judge = new UserDto
-                {
-                    Id = userId,
+                    Id = lastAssessment.Id,
+                    UserId = userId,
+                    Number = lastAssessment.Number,
+                    AssessmentTypeName = assessmentType.Key.Name,
                 };
 
-                selfAssessmentResultDto.Judged = new UserDto
-                {
-                    Id = userId,
-                };
+                var isActiveAssessment = await _assessmentService.IsActiveAssessment(supervisorId, userId, lastAssessment.Id);
 
-                selfAssessmentResultDto.Id = userSelfAssessmentResult.Id;
-                selfAssessmentResultDto.AssessmentId = userSelfAssessmentResult.AssessmentId;
-                selfAssessmentResultDto.SystemStatus = userSelfAssessmentResult.SystemStatus;
+                lastAssessmentDto.IsActiveAssessment = isActiveAssessment;
 
-                var assessmentMatrix = await _unitOfWork.AssessmentMatrices.GetAsync(x => x.Id == assessmentType.AssessmentMatrixId, includeProperties: new string[]
-                {
-                    "Elements"
-                });
-
-                selfAssessmentResultDto.MinValue = assessmentMatrix.MinAssessmentMatrixResultValue;
-                selfAssessmentResultDto.MaxValue = assessmentMatrix.MaxAssessmentMatrixResultValue;
-
-                var assessmentMatrixElementsDtos = new List<AssessmentMatrixElementDto>();
-
-                foreach (var element in assessmentMatrix.Elements)
-                {
-                    assessmentMatrixElementsDtos.Add(new AssessmentMatrixElementDto
-                    {
-                        Column = element.Column,
-                        Row = element.Row,
-                        Value = element.Value,
-                        HtmlClassName = element.HtmlClassName,
-                    });
-                }
-
-                selfAssessmentResultDto.Elements = assessmentMatrixElementsDtos;
-                selfAssessmentResultDto.ElementsByRow = selfAssessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
-
-                return new BaseResponse<AssessmentResultDto>()
-                {
-                    Data = selfAssessmentResultDto,
-                    StatusCode = StatusCodes.OK
-                };
+                userLastAssessmentsOfEachType.Add(lastAssessmentDto);
             }
-            catch (Exception ex)
-            {
-                return new BaseResponse<AssessmentResultDto>()
-                {
-                    Description = $"[UserService.GetUserSelfAssessmentResultByAssessment] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
+
+            return userLastAssessmentsOfEachType;
         }
 
         public async Task<IBaseResponse<List<AssessmentResultDto>>> GetColleaguesAssessmentResultsForAssessment(int userId)
@@ -341,64 +166,45 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<object>> AssessUser(AssessUserDto assessUserDto)
+        public async Task AssessUser(AssessUserDto assessUserDto)
         {
-            try
+            var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId, includeProperties: new string[] { "Judge", "Assessment" });
+            if (assessmentResult == null)
             {
-                var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId, includeProperties: "Judge");
-
-                if (assessmentResult == null)
-                {
-                    return new BaseResponse<object>()
-                    {
-                        Description = $"[UserService.AssessUser] : Результат оценки с id = {assessUserDto.AssessmentResultId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                assessmentResult.ResultDate = DateOnly.FromDateTime(DateTime.Today);
-                assessmentResult.SystemStatus = SystemStatuses.COMPLETED;
-
-                for (int i = 0; i < assessUserDto.ResultValues.Count(); i++)
-                {
-                    assessmentResult.AssessmentResultValues.Add(new AssessmentResultValue
-                    {
-                        Value = Convert.ToInt32(assessUserDto.ResultValues[i]),
-                        AssessmentMatrixRow = (i + 1),
-                    });
-                }
-
-                _unitOfWork.AssessmentResults.Update(assessmentResult);
-
-                if (assessmentResult.Judge.SystemRoles.Contains(SystemRoles.Urp))
-                {
-                    var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
-                        x.AssessmentId == assessmentResult.AssessmentId &&
-                        x.Judge.SystemRoles.Contains(SystemRoles.Urp) &&
-                        x.Id != assessmentResult.Id &&
-                        !x.AssignedBy.HasValue);
-
-                    foreach (var urpAssessmentResult in otherUrpAssessmentResults)
-                    {
-                        _unitOfWork.AssessmentResults.Remove(urpAssessmentResult);
-                    }
-                }
-
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK
-                };
+                throw new Exception($"AssessmentResult with ID {assessUserDto.AssessmentResultId} not found.");
             }
-            catch (Exception ex)
+
+            assessmentResult.ResultDate = DateOnly.FromDateTime(DateTime.Today);
+            assessmentResult.SystemStatus = SystemStatuses.COMPLETED;
+
+            for (int i = 0; i < assessUserDto.ResultValues.Count; i++)
             {
-                return new BaseResponse<object>()
+                assessmentResult.AssessmentResultValues.Add(new AssessmentResultValue
                 {
-                    Description = $"[UserService.AssessUser] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                    Value = Convert.ToInt32(assessUserDto.ResultValues[i]),
+                    AssessmentMatrixRow = (i + 1),
+                });
             }
+
+            _unitOfWork.AssessmentResults.Update(assessmentResult);
+
+            var hasUrpRole = assessmentResult.Judge.SystemRoles.Contains(SystemRoles.Urp);
+            var isSelfAssessment = assessmentResult.Judge.Id == assessmentResult.Assessment.UserId;
+            var hasAssignedBy = assessmentResult.AssignedBy.HasValue;
+            if (assessmentResult.Type == AssessmentResultTypes.UrpAssessment)
+            {
+                var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
+                    x.AssessmentId == assessmentResult.AssessmentId &&
+                    x.Id != assessmentResult.Id &&
+                    x.Type == AssessmentResultTypes.UrpAssessment);
+
+                foreach (var urpAssessmentResult in otherUrpAssessmentResults)
+                {
+                    _unitOfWork.AssessmentResults.Remove(urpAssessmentResult);
+                }
+            }
+
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<IBaseResponse<int>> GetLastAssessmentIdForUserAndType(int userId, SystemAssessmentTypes assessmentType)
@@ -433,51 +239,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        public async Task<IBaseResponse<List<AssessmentTypeDto>>> GetAssessmentTypesForUser(int userId)
-        {
-            try
-            {
-                var userAssessments = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == userId, includeProperties: new string[]
-                {
-                    "AssessmentType",
-                });
-
-                var assessmentTypes = userAssessments.GroupBy(x => x.AssessmentType);
-                var assessmentTypesDtos = new List<AssessmentTypeDto>();
-
-                foreach (var assessmentType in assessmentTypes)
-                {
-                    var assessmentTypeDto = new AssessmentTypeDto
-                    {
-                        Id = assessmentType.Key.Id,
-                        Name = assessmentType.Key.Name,
-                        UserId = userId,
-                    };
-
-                    assessmentTypesDtos.Add(assessmentTypeDto);
-                }
-
-                return new BaseResponse<List<AssessmentTypeDto>>()
-                {
-                    Data = assessmentTypesDtos,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<List<AssessmentTypeDto>>()
-                {
-                    Description = $"[AssessmentService.GetAssessmentTypes] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        public async Task<List<CandidateForJudgeDto>> GetCandidatesForJudges(int userId)
+        public async Task<IEnumerable<CandidateForJudgeDto>> GetCandidatesForJudges(int userId)
         {
             var candidatesForJudgesDtos = new List<CandidateForJudgeDto>();
-            var userSupervisor = await _commonService.GetSupervisorForUser(userId);
-            var supervisorId = userSupervisor.Id;
+            var supervisorForUser = await _commonService.GetSupervisorForUser(userId);
+            var supervisorId = supervisorForUser?.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
             var excludedRole = SystemRoles.Curator;
@@ -499,11 +265,11 @@ namespace KOP.BLL.Services
             return candidatesForJudgesDtos;
         }
 
-        public async Task<List<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(List<AssessmentResultDto> assessmentResults, int userId)
+        public async Task<IEnumerable<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(IEnumerable<AssessmentResultDto> assessmentResults, int userId)
         {
             var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
-            var userSupervisor = await _commonService.GetSupervisorForUser(userId);
-            var supervisorId = userSupervisor.Id;
+            var supervisorForUser = await _commonService.GetSupervisorForUser(userId);
+            var supervisorId = supervisorForUser?.Id;
             var currentUserId = userId;
             var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
             var excludedRole = SystemRoles.Curator;
@@ -539,39 +305,18 @@ namespace KOP.BLL.Services
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }
 
-        public async Task<IBaseResponse<object>> ApproveGrade(int gradeId)
+        public async Task ApproveGrade(int gradeId)
         {
-            try
+            var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
+            if (grade is null)
             {
-                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
-                if (grade is null)
-                {
-                    return new BaseResponse<object>()
-                    {
-                        Description = $"Оценка с ID = {gradeId} не найдена",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                grade.GradeStatus = GradeStatuses.APPROVED_BY_EMPLOYEE;
-
-                _unitOfWork.Grades.Update(grade);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK,
-                };
+                throw new Exception($"Grade with ID {gradeId} not found.");
             }
-            catch (Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                return new BaseResponse<object>()
-                {
-                    Description = $"[SupervisorService.ApproveEmployeeGrade] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
+
+            grade.GradeStatus = GradeStatuses.APPROVED_BY_EMPLOYEE;
+            _unitOfWork.Grades.Update(grade);
+
+            await _unitOfWork.CommitAsync();
         }
     }
 }

@@ -130,12 +130,7 @@ namespace KOP.BLL.Services
                 {
                     var userDto = _mappingService.CreateUserDto(user);
 
-                    if (!userDto.HasData)
-                    {
-                        continue;
-                    }
-
-                    subordinateUsers.Add(userDto.Data);
+                    subordinateUsers.Add(userDto);
                 }
 
                 foreach (var childSubdivision in subdivision.Children)
@@ -233,34 +228,26 @@ namespace KOP.BLL.Services
 
             foreach (var user in subdivision.Users)
             {
-                var createUserDtoRes = _mappingService.CreateUserDto(user);
-                if (createUserDtoRes.HasData)
+                var userDto = _mappingService.CreateUserDto(user);
+
+                subdivisionDto.Users.Add(userDto);
+
+                if (userDto.LastGrade == null)
                 {
-                    var userDto = createUserDtoRes.Data;
-                    subdivisionDto.Users.Add(userDto);
+                    continue;
+                }
 
-                    if(userDto.LastGrade == null)
+                foreach (var dto in userDto.LastGrade.AssessmentDtos)
+                {
+                    var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
+
+                    if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
                     {
-                        continue;
+                        userDto.LastGrade.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                     }
-
-                    foreach (var dto in userDto.LastGrade.AssessmentDtos)
+                    else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
                     {
-                        var getAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(dto.Id);
-                        if (!getAssessmentSummaryRes.HasData)
-                        {
-                            continue;
-                        }
-
-                        var assessmentSummary = getAssessmentSummaryRes.Data;
-                        if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                        {
-                            userDto.LastGrade.IsCorporateCompetenciesFinalized = assessmentSummary.IsFinalized;
-                        }
-                        else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                        {
-                            userDto.LastGrade.IsManagmentCompetenciesFinalized = assessmentSummary.IsFinalized;
-                        }
+                        userDto.LastGrade.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
                     }
                 }
             }

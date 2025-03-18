@@ -1,5 +1,4 @@
-﻿
-using KOP.Common.Enums;
+﻿using KOP.Common.Enums;
 
 namespace KOP.Common.Interfaces
 {

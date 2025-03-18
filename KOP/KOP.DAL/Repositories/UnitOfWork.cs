@@ -21,6 +21,7 @@ namespace KOP.DAL.Repositories
         private IPreviousJobRepository? previousJobRepository;
         private IKpiRepository? kpiRepository;
         private IProjectRepository? projectRepository;
+        private IHigherEducationRepository? higherEducationRepository;
         private IUserRepository? userRepository;
         private IQualificationRepository? qualificationRepository;
         private IMarkRepository? markRepository;
@@ -133,6 +134,16 @@ namespace KOP.DAL.Repositories
                 if (previousJobRepository == null)
                     previousJobRepository = new PreviousJobRepository(_dbContext);
                 return previousJobRepository;
+            }
+        }
+
+        public IHigherEducationRepository HigherEducations
+        {
+            get
+            {
+                if (higherEducationRepository == null)
+                    higherEducationRepository = new HigherEducationRepository(_dbContext);
+                return higherEducationRepository;
             }
         }
 

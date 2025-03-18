@@ -1,12 +1,27 @@
-﻿namespace KOP.Common.Dtos.AssessmentDtos
+﻿using KOP.Common.Enums;
+
+namespace KOP.Common.Dtos.AssessmentDtos
 {
     public class AssessmentSummaryDto
     {
+        public int AssessmentId { get; set; }
+        public int UserId { get; set; }
+        public SystemAssessmentTypes SystemAssessmentType { get; set; }
+
+        public int MinValue { get; set; }
+        public int MaxValue { get; set; }
+
         public List<AssessmentInterpretationDto> AssessmentTypeInterpretations { get; set; } = new();
         public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
         public List<AssessmentResultValueDto> AverageValuesByRow { get; set; } = new();
+
+        public int SelfAssessmentResultId { get; set; }
         public List<AssessmentResultValueDto> SelfAssessmentResultValues { get; set; } = new();
+        public SystemStatuses SelfAssessmentResultSystemStatus { get; set; }
+
         public List<AssessmentResultValueDto> SupervisorAssessmentResultValues { get; set; } = new();
+        public SystemStatuses SupervisorAssessmentResultSystemStatus { get; set; }
+
         public List<AssessmentResultValueDto> ColleaguesAssessmentResultValues { get; set; } = new();
         public List<IGrouping<int, AssessmentMatrixElementDto>> RowsWithElements { get; set; } = new();
         public int SumResult { get; set; }

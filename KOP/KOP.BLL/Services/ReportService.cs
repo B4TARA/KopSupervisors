@@ -1,11 +1,11 @@
-﻿using System.Globalization;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
 using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
-using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
+using KOP.DAL.Entities.GradeEntities;
 using KOP.DAL.Interfaces;
 using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.XWPF.UserModel;
@@ -25,294 +25,193 @@ namespace KOP.BLL.Services
             _assessmentService = assessmentService;
         }
 
-        public async Task<IBaseResponse<List<GradeSummaryDto>>> GetEmployeeGrades(int employeeId)
+        public async Task<IEnumerable<GradeSummaryDto>> GetEmployeeGrades(int employeeId)
         {
-            try
-            {
-                var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
-                var gradeSummaryDtoList = new List<GradeSummaryDto>();
 
-                foreach (var grade in grades)
-                {
-                    gradeSummaryDtoList.Add(new GradeSummaryDto
-                    {
-                        Id = grade.Id,
-                        Number = grade.Number,
-                        StartDate = grade.StartDate,
-                        EndDate = grade.EndDate,
-                        DateOfCreation = grade.DateOfCreation,
-                    });
-                }
+            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
+            var gradeSummaryDtoList = new List<GradeSummaryDto>();
 
-                return new BaseResponse<List<GradeSummaryDto>>()
-                {
-                    Data = gradeSummaryDtoList,
-                    StatusCode = StatusCodes.OK,
-                };
-            }
-            catch (Exception ex)
+            foreach (var grade in grades)
             {
-                return new BaseResponse<List<GradeSummaryDto>>()
+                gradeSummaryDtoList.Add(new GradeSummaryDto
                 {
-                    Description = $"[ReportService.GetEmployeeGrades] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                    Id = grade.Id,
+                    Number = grade.Number,
+                    StartDate = grade.StartDate,
+                    EndDate = grade.EndDate,
+                    DateOfCreation = grade.DateOfCreation,
+                });
             }
+
+            return gradeSummaryDtoList;
         }
 
-        public async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsersWithGrade(int supervisorId)
+        public async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersWithGrade(int supervisorId)
         {
-            try
-            {
-                var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
+            var supervisor = await _unitOfWork.Users.GetAsync(
+                x => x.Id == supervisorId,
+                includeProperties: new string[]
                 {
                     "SubordinateSubdivisions.Users.Grades",
                     "SubordinateSubdivisions.Children.Users.Grades",
-                });
-
-                if (supervisor == null)
-                {
-                    return new BaseResponse<List<UserSummaryDto>>()
-                    {
-                        Description = $"Пользователь с id = {supervisorId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
                 }
+            );
 
-                var allSubordinateUsers = new List<UserSummaryDto>();
-
-                foreach (var subdivision in supervisor.SubordinateSubdivisions)
-                {
-                    var getSubordinateUsersRes = await GetSubordinateUsersWithGrade(subdivision);
-
-                    if (!getSubordinateUsersRes.HasData)
-                    {
-                        return new BaseResponse<List<UserSummaryDto>>()
-                        {
-                            Description = getSubordinateUsersRes.Description,
-                            StatusCode = getSubordinateUsersRes.StatusCode,
-                        };
-                    }
-
-                    allSubordinateUsers.AddRange(getSubordinateUsersRes.Data);
-                }
-
-                return new BaseResponse<List<UserSummaryDto>>()
-                {
-                    Data = allSubordinateUsers,
-                    StatusCode = StatusCodes.OK,
-                };
-            }
-            catch (Exception ex)
+            if (supervisor == null)
             {
-                return new BaseResponse<List<UserSummaryDto>>()
-                {
-                    Description = $"[ReportService.GetSubordinateUsers] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                throw new Exception($"User with ID {supervisorId} not found.");
             }
+
+            var allSubordinateUsers = new List<UserSummaryDto>();
+
+            foreach (var subdivision in supervisor.SubordinateSubdivisions)
+            {
+                var subordinateUsers = await GetSubordinateUsersWithGrade(subdivision);
+
+                allSubordinateUsers.AddRange(subordinateUsers);
+            }
+
+            return allSubordinateUsers;
         }
 
-        private async Task<IBaseResponse<List<UserSummaryDto>>> GetSubordinateUsersWithGrade(Subdivision subdivision)
+        private async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersWithGrade(Subdivision subdivision)
         {
-            try
+            var subordinateUsers = new List<UserSummaryDto>();
+
+            foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee) && x.Grades.Any()))
             {
-                var subordinateUsers = new List<UserSummaryDto>();
-
-                foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee) && x.Grades.Any()))
+                subordinateUsers.Add(new UserSummaryDto
                 {
-                    subordinateUsers.Add(new UserSummaryDto
-                    {
-                        Id = user.Id,
-                        FullName = user.FullName,
-                        Position = user.Position,
-                        SubdivisionFromFile = user.SubdivisionFromFile,
-                    });
-                }
-
-                foreach (var childSubdivision in subdivision.Children)
-                {
-                    var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsersWithGrade(childSubdivision);
-
-                    if (!subordinateUsersFromChildSubdivisionRes.HasData)
-                    {
-                        return new BaseResponse<List<UserSummaryDto>>()
-                        {
-                            Description = subordinateUsersFromChildSubdivisionRes.Description,
-                            StatusCode = subordinateUsersFromChildSubdivisionRes.StatusCode,
-                        };
-                    }
-
-                    subordinateUsers.AddRange(subordinateUsersFromChildSubdivisionRes.Data);
-                }
-
-                return new BaseResponse<List<UserSummaryDto>>()
-                {
-                    Data = subordinateUsers,
-                    StatusCode = StatusCodes.OK
-                };
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Position = user.Position,
+                    SubdivisionFromFile = user.SubdivisionFromFile,
+                });
             }
-            catch (Exception ex)
+
+            foreach (var childSubdivision in subdivision.Children)
             {
-                return new BaseResponse<List<UserSummaryDto>>()
-                {
-                    Description = $"[ReportService.GetSubordinateUsers] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                var subordinateUsersFromChildSubdivision = await GetSubordinateUsersWithGrade(childSubdivision);
+
+                subordinateUsers.AddRange(subordinateUsersFromChildSubdivision);
             }
+
+            return subordinateUsers;
         }
 
-        public async Task<IBaseResponse<byte[]>> GenerateGradeWordDocument(int gradeId)
+        public async Task<byte[]> GenerateGradeWordDocument(int gradeId)
         {
-            try
+            var gradeDto = await _gradeService.GetGradeDto(gradeId,
+                new List<GradeEntities>
+                {
+                        GradeEntities.Marks,
+                        GradeEntities.Qualification,
+                        GradeEntities.StrategicTasks,
+                        GradeEntities.Kpis,
+                        GradeEntities.TrainingEvents,
+                        GradeEntities.Projects,
+                        GradeEntities.ValueJudgment,
+                        GradeEntities.Assessments,
+                }
+            );
+
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == gradeDto.UserId);
+            if (user is null)
             {
-                var getGradeDtoRes = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>
-                {
-                    GradeEntities.Marks,
-                    GradeEntities.Qualification,
-                    GradeEntities.StrategicTasks,
-                    GradeEntities.Kpis,
-                    GradeEntities.TrainingEvents,
-                    GradeEntities.Projects,
-                    GradeEntities.ValueJudgment,
-                    GradeEntities.Assessments,
-                });
-                if (!getGradeDtoRes.HasData)
-                {
-                    return new BaseResponse<byte[]>
-                    {
-                        StatusCode = getGradeDtoRes.StatusCode,
-                        Description = getGradeDtoRes.Description,
-                    };
-                }
-                var gradeDto = getGradeDtoRes.Data;
-
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == gradeDto.UserId);
-                if (user is null)
-                {
-                    return new BaseResponse<byte[]>
-                    {
-                        StatusCode = StatusCodes.EntityNotFound,
-                        Description = $"Пользователь с ID = {gradeDto.UserId} не найден",
-                    };
-                }
-
-                var managmentAssessment = gradeDto.AssessmentDtos.FirstOrDefault(x => x.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
-                if (managmentAssessment is null)
-                {
-                    return new BaseResponse<byte[]>
-                    {
-                        StatusCode = StatusCodes.EntityNotFound,
-                        Description = $"Оценка управленческих компетенций для пользователя с ID = {gradeDto.UserId} не найдена",
-                    };
-                }
-
-                var getManagmentAssessmentSummaryRes = await _assessmentService.GetAssessmentSummary(managmentAssessment.Id);
-                if (!getManagmentAssessmentSummaryRes.HasData)
-                {
-                    return new BaseResponse<byte[]>
-                    {
-                        StatusCode = getManagmentAssessmentSummaryRes.StatusCode,
-                        Description = getManagmentAssessmentSummaryRes.Description,
-                    };
-                }
-                var managmentAssessmentSummary = getManagmentAssessmentSummaryRes.Data;
-
-                using var memoryStream = new MemoryStream();
-                using var document = new XWPFDocument();
-
-                // Устанавливаем альбомную ориентацию документа
-                SetLandscapeOrientation(document);
-
-                // Добавляем заголовок документа
-                AddParagraph(document, "Материал для оценки деятельности Руководителя ЗАО «МТБанк»", true, "Cambria", 11, ParagraphAlignment.CENTER);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем главную таблицу «Общие сведения об оцениваемом Руководителе» (11 строк, 3 столбца)
-                var generalInfoTable = document.CreateTable(11, 3);
-                FillGeneralInfoTable(generalInfoTable, user, gradeDto);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем заголовок пункта 2.1
-                AddParagraph(document, "2.1. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей (позадачник)", true, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, $"Данные предоставил {user.FullName}, {user.Position}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, "Таблица 1.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
-
-                // Добавляем таблицу для пункта 2.1 "Подзадачник"
-                var strategicTasksTable = document.CreateTable(2 + gradeDto.StrategicTasks.Count, 7);
-                FillStrategicTasksTable(strategicTasksTable, gradeDto);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем заголовок пункта 2.2
-                AddParagraph(document, "2.2. Результаты выполнения стратегических проектов и задач.", true, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                //// Добавляем "Проекты"
-                //foreach (var project in gradeDto.Projects)
-                //{
-                //    AddParagraph(document, $"{project.SupervisorSspName} является заказчиком стратегического проекта \"{project.Name}\". Проект находится на этапе {project.Stage}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                //    AddParagraph(document, $"Дата открытия проекта - {project.StartDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                //    AddParagraph(document, $"Плановая дата завершения проекта - {project.EndDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                //    AddParagraph(document, $"По состоянию на {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов, запланированных к реализации до {project.EndDate}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                //    AddParagraph(document, $"Коэффициент реализации проекта – {project.SPn}%.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                //}
-                //AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем заголовок пункта 2.3
-                AddParagraph(document, "2.3. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей.", true, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, $"Исполнение ключевых показателей эффективности деятельности (KPI по ТС за {gradeDto.StartDate} по {gradeDto.EndDate}).", false, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, "Таблица 2.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
-
-                // Добавляем таблицу для пункта 2.3 "KPI"
-                var kpiPeriods = gradeDto.Kpis
-                    .GroupBy(kpi => $"{kpi.PeriodStartDate.ToShortDateString()} - {kpi.PeriodEndDate.ToShortDateString()}")
-                    .Select(group => new KpiPeriod
-                    {
-                        Period = group.Key,
-                        Kpis = group.ToList()
-                    }).ToList();
-                var kpiTable = document.CreateTable(2 + gradeDto.Kpis.Count + kpiPeriods.Count(), 7);
-                FillKpiTable(kpiTable, gradeDto, kpiPeriods);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем заголовок пункта 2.4
-                AddParagraph(document, "2.4. Управленческие компетенции руководителя.", true, "Cambria", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, "Таблица 3.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
-
-                // Добавляем таблицу для пункта 2.4 "УК" (9 строк, 6 столбцов)
-                var competenciesTable = document.CreateTable(9, 6);
-                FillCompetenciesTable(competenciesTable, managmentAssessmentSummary);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем заголовок пункта 2.5
-                AddParagraph(document, "Таблица 4.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
-
-                // Добавляем таблицу для пункта 2.5 "Квалификация руководителя" (1 строка, 3 столбца)
-                var qualificationTable = document.CreateTable(1, 3);
-                FillQualificationTable(qualificationTable, user, gradeDto);
-                AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
-
-                // Добавляем таблицу «Общий вывод по оценке Руководителя» (2 строки, 1 столбец)
-                var conclusionTable = document.CreateTable(2, 1);
-                FillConclusionTable(conclusionTable, managmentAssessmentSummary, user);
-
-                // Сохраняем документ в MemoryStream
-                document.Write(memoryStream);
-
-                return new BaseResponse<byte[]>
-                {
-                    Data = memoryStream.ToArray(),
-                    StatusCode = StatusCodes.OK
-                };
+                throw new Exception($"User with ID {gradeDto.UserId} not found.");
             }
-            catch (Exception ex)
+
+            var managmentAssessment = gradeDto.AssessmentDtos.FirstOrDefault(x => x.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
+            if (managmentAssessment is null)
             {
-                return new BaseResponse<byte[]>
-                {
-                    Description = $"[ReportService.GenerateGradeWordDocumentAsync] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                throw new Exception($"ManagmentAssessment with GradeId {gradeDto.Id} not found.");
             }
+
+            var managmentSummaryDto = await _assessmentService.GetAssessmentSummary(managmentAssessment.Id);
+
+            using var memoryStream = new MemoryStream();
+            using var document = new XWPFDocument();
+
+            // Устанавливаем альбомную ориентацию документа
+            SetLandscapeOrientation(document);
+
+            // Добавляем заголовок документа
+            AddParagraph(document, "Материал для оценки деятельности Руководителя ЗАО «МТБанк»", true, "Cambria", 11, ParagraphAlignment.CENTER);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем главную таблицу «Общие сведения об оцениваемом Руководителе» (11 строк, 3 столбца)
+            var generalInfoTable = document.CreateTable(11, 3);
+            FillGeneralInfoTable(generalInfoTable, user, gradeDto);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем заголовок пункта 2.1
+            AddParagraph(document, "2.1. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей (позадачник)", true, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, $"Данные предоставил {user.FullName}, {user.Position}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, "Таблица 1.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
+
+            // Добавляем таблицу для пункта 2.1 "Подзадачник"
+            var strategicTasksTable = document.CreateTable(2 + gradeDto.StrategicTasks.Count, 7);
+            FillStrategicTasksTable(strategicTasksTable, gradeDto);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем заголовок пункта 2.2
+            AddParagraph(document, "2.2. Результаты выполнения стратегических проектов и задач.", true, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            //// Добавляем "Проекты"
+            //foreach (var project in gradeDto.Projects)
+            //{
+            //    AddParagraph(document, $"{project.SupervisorSspName} является заказчиком стратегического проекта \"{project.Name}\". Проект находится на этапе {project.Stage}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            //    AddParagraph(document, $"Дата открытия проекта - {project.StartDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            //    AddParagraph(document, $"Плановая дата завершения проекта - {project.EndDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            //    AddParagraph(document, $"По состоянию на {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов, запланированных к реализации до {project.EndDate}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            //    AddParagraph(document, $"Коэффициент реализации проекта – {project.SP}%.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+            //}
+            //AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем заголовок пункта 2.3
+            AddParagraph(document, "2.3. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей.", true, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, $"Исполнение ключевых показателей эффективности деятельности (KPI по ТС за {gradeDto.StartDate} по {gradeDto.EndDate}).", false, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, "Таблица 2.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
+
+            // Добавляем таблицу для пункта 2.3 "KPI"
+            var kpiPeriods = gradeDto.Kpis
+                .GroupBy(kpi => $"{kpi.PeriodStartDate.ToShortDateString()} - {kpi.PeriodEndDate.ToShortDateString()}")
+                .Select(group => new KpiPeriod
+                {
+                    Period = group.Key,
+                    Kpis = group.ToList()
+                }).ToList();
+            var kpiTable = document.CreateTable(2 + gradeDto.Kpis.Count + kpiPeriods.Count(), 7);
+            FillKpiTable(kpiTable, gradeDto, kpiPeriods);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем заголовок пункта 2.4
+            AddParagraph(document, "2.4. Управленческие компетенции руководителя.", true, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, "Таблица 3.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
+
+            // Добавляем таблицу для пункта 2.4 "УК" (9 строк, 6 столбцов)
+            var competenciesTable = document.CreateTable(9, 6);
+            FillCompetenciesTable(competenciesTable, managmentSummaryDto);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем заголовок пункта 2.5
+            AddParagraph(document, "Таблица 4.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
+
+            // Добавляем таблицу для пункта 2.5 "Квалификация руководителя" (1 строка, 3 столбца)
+            var qualificationTable = document.CreateTable(1, 3);
+            FillQualificationTable(qualificationTable, user, gradeDto);
+            AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
+
+            // Добавляем таблицу «Общий вывод по оценке Руководителя» (2 строки, 1 столбец)
+            var conclusionTable = document.CreateTable(2, 1);
+            FillConclusionTable(conclusionTable, managmentSummaryDto, user);
+
+            // Сохраняем документ в MemoryStream
+            document.Write(memoryStream);
+
+            return memoryStream.ToArray();
+
         }
 
         private void SetLandscapeOrientation(XWPFDocument document)
@@ -377,14 +276,23 @@ namespace KOP.BLL.Services
             // Строка 7: Стратегические проекты
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов и задач.", true, ParagraphAlignment.LEFT);
+            if (gradeDto.Projects.Any())
+            {
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Выполнение стратегических проектов за отчетный период, Qn2 {gradeDto.Qn2} %", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+            }
+            else
+            {
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"За оцениваемый период {user.FullName} не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+            }
             foreach (var project in gradeDto.Projects)
             {
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"{project.SupervisorSspName} является заказчиком стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Проект находится на этапе {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата открытия проекта - {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Срок реализации проекта - {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"На число {project.CurrentStatusDate} по проекту выполнены {project.FactStages} из {project.PlanStages} этапов.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Коэффициент реализации проекта - {project.SPn}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Дата открытия проекта {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Дата окончания проекта (план) {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Коэффициент успешности проекта {project.SuccessRate}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Средний KPI проекта - {project.AverageKpi}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Оценка реализации проекта {project.SP}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
 
             // Строка 8: Вывод по KPI
@@ -430,7 +338,7 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row1.GetCell(4), "План", true, ParagraphAlignment.CENTER, "#F2F4F0");
             AddTextToCellWithFormatting(row1.GetCell(5), "Факт", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
-            var rowCounter = 2;
+            //var rowCounter = 2;
             //foreach (var strategicTask in gradeDto.StrategicTasks)
             //{
             //    var row = table.GetRow(rowCounter);
@@ -469,8 +377,8 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row1.GetCell(4), "Факт", true, ParagraphAlignment.CENTER, "#F2F4F0");
             AddTextToCellWithFormatting(row1.GetCell(5), "% выполнения", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
-            var rowIndex = 2;
-            var kpiIndex = 1;
+            //var rowIndex = 2;
+            //var kpiIndex = 1;
             //foreach (var date in kpiPeriods)
             //{
             //    // Строка с названием месяца и года (объединённая на всю ширину)
@@ -565,10 +473,12 @@ namespace KOP.BLL.Services
 
             AddTextToCellWithFormatting(row.GetCell(0), "2.5.", true, ParagraphAlignment.CENTER);
             AddTextToCellWithFormatting(row.GetCell(1), "Квалификация Руководителя", true, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(cell3, $"Соответствие {user.FullName} квалификационным требованиям {qualification.Link}:", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(cell3, "1. Образование:", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(cell3, $"Высшее образование: {qualification.HigherEducation}, специальность {qualification.Speciality}, квалификация {qualification.QualificationResult}, период обучения с {qualification.StartDate} по {qualification.EndDate}).", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(cell3, $"Дополнительное образование (повышение квалификации): {qualification.AdditionalEducation}", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(cell3, $"Соответствие {user.FullName} квалификационным требованиям:", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(cell3, "1. Высшее образование:", removePreviousParagraph: false);
+            foreach (var higherEducation in qualification.HigherEducations)
+            {
+                AddTextToCellWithFormatting(cell3, $"{higherEducation.Education}, специальность {higherEducation.Speciality}, квалификация {higherEducation.QualificationName}, период обучения с {higherEducation.StartDate} по {higherEducation.EndDate};.", removePreviousParagraph: false);
+            }
             AddTextToCellWithFormatting(cell3, "", removePreviousParagraph: false);
             AddTextToCellWithFormatting(cell3, $"2. Стаж работы в банковской системе по состоянию на {qualification.CurrentStatusDate} – {qualification.CurrentExperienceYears} лет {qualification.CurrentExperienceMonths} мес., в т.ч.", removePreviousParagraph: false);
             foreach (var previousJob in qualification.PreviousJobs)
@@ -608,7 +518,7 @@ namespace KOP.BLL.Services
 
             var run = paragraph.CreateRun();
             run.IsBold = bold;
-            if(underline)
+            if (underline)
             {
                 run.Underline = UnderlinePatterns.Single;
             }
@@ -638,7 +548,7 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row1.GetCell(0), $"- Оценка руководителя – {supervisorAssessmentSum} балл.", removePreviousParagraph: false);
             AddTextToCellWithFormatting(row1.GetCell(0), "Интерпретация результатов:", removePreviousParagraph: false, underline: true);
             AddTextToCellWithFormatting(row1.GetCell(0), $"Уровень управленческих компетенций – {interpretationLevel} {interpretationCompetence}", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(row1.GetCell(0), $"По итогам самооценки и оценки руководителя все управленческие компетенции { user.FullName } находятся на ___ уровне развития.", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"По итогам самооценки и оценки руководителя все управленческие компетенции {user.FullName} находятся на ___ уровне развития.", removePreviousParagraph: false);
 
             // Компетенции, которые стоит поддерживать
             AddTextToCellWithFormatting(row1.GetCell(0), "Вместе с тем, следует поддерживать на должном лидерском уровне следующие компетенции:", removePreviousParagraph: false);
@@ -654,7 +564,7 @@ namespace KOP.BLL.Services
             }
 
             AddTextToCellWithFormatting(row1.GetCell(0), string.Empty, removePreviousParagraph: false); // Отступ
-            AddTextToCellWithFormatting(row1.GetCell(0), "Для поддержания лидерского уровня развития компетенций рекомендовано на выбор:", removePreviousParagraph: false, underline: true);         
+            AddTextToCellWithFormatting(row1.GetCell(0), "Для поддержания лидерского уровня развития компетенций рекомендовано на выбор:", removePreviousParagraph: false, underline: true);
 
             // Рекомендации: бизнес-литература
             AddTextToCellWithFormatting(row1.GetCell(0), "Изучение бизнес-литературы:", true, removePreviousParagraph: false);
@@ -693,7 +603,7 @@ namespace KOP.BLL.Services
             }
 
             AddTextToCellWithFormatting(row1.GetCell(0), "2. Продление трудовых отношений:", removePreviousParagraph: false, underline: true);
-            AddTextToCellWithFormatting(row1.GetCell(0), $"В связи с вышеизложенным, требованием законодательства и предоставленным { user.FullName } заявлением предлагаем продлить трудовые отношения с { user.FullName } в должности { user.Position } сроком на ___ года.", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"В связи с вышеизложенным, требованием законодательства и предоставленным {user.FullName} заявлением предлагаем продлить трудовые отношения с {user.FullName} в должности {user.Position} сроком на ___ года.", removePreviousParagraph: false);
         }
 
         private void SetVerticalMerge(XWPFTable table, int startRow, int columnIndex, int rowCount)

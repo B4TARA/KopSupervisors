@@ -23,8 +23,8 @@ const navItems = document.querySelectorAll(".nav-links > li");
 
 navItems.forEach(item => {
     item.addEventListener("click", (e) => {
-            item.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
-        
+        item.classList.toggle("showMenu"); // Переключаем класс для отображения подменю
+
     });
 });
 
@@ -69,7 +69,7 @@ function closeBtnPopup(item, isReload) {
     popupSection.remove();
 
     const overlay = document.querySelector('.overlay');
-    overlay.classList.remove('active') 
+    overlay.classList.remove('active')
     //if (isCompareBox != undefined || isSelectedWrapper != undefined) {
     //    console.log(isCompareBox)
     //} else {
@@ -104,7 +104,7 @@ function popupResult(text, isReload) {
 
     bodyTag.style.overflow = 'hidden';
     const overlay = document.querySelector('.overlay');
-    overlay.classList.add('active') 
+    overlay.classList.add('active')
 
     const sectionPopup = document.querySelector('.section_popup');
     if (sectionPopup) {
@@ -145,10 +145,10 @@ function addRow(elem, type, id) {
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>
-                                <input type="date" name="Kpis[${newIndex}].PeriodStartDateTime" required />
+                                <input type="date" name="Kpis[${newIndex}].PeriodStartDateTime" required min="1994-01-01"/>
                             </td>
                             <td>
-                                <input type="date" name="Kpis[${newIndex}].PeriodEndDateTime" required />
+                                <input type="date" name="Kpis[${newIndex}].PeriodEndDateTime" required min="1994-01-01"/>
                             </td>
                             <td>
                                 <input type="text" name="Kpis[${newIndex}].Name" placeholder="КПЭ" required />
@@ -174,10 +174,10 @@ function addRow(elem, type, id) {
                             <textarea type="text" name="StrategicTasks[${newIndex}].Purpose" placeholder="Цель"></textarea>
                         </td>
                         <td>
-                            <input type="date" name="StrategicTasks[${newIndex}].PlanDateTime" required />
+                            <input type="date" name="StrategicTasks[${newIndex}].PlanDateTime" required min="1994-01-01"/>
                         </td>
                         <td>
-                            <input type="date" name="StrategicTasks[${newIndex}].FactDateTime" required />
+                            <input type="date" name="StrategicTasks[${newIndex}].FactDateTime" required min="1994-01-01"/>
                         </td>
                         <td>
                             <input type="text" name="StrategicTasks[${newIndex}].PlanResult" placeholder="План" required />
@@ -201,30 +201,34 @@ function addRow(elem, type, id) {
                 Проект ${newIndex + 1}
             </div>
             <div>
-                <input type="text" name="Projects[${newIndex}].SupervisorSspName" placeholder="ФИО руководителя ССП" required /> является заказчиком стратегического проекта 
+                ФИО является 
+                <input type="text" name="Projects[${newIndex}].UserRole" placeholder="руководителем/заказчиком/со-заказчиком" required />
+                стратегического проекта 
                 <input type="text" name="Projects[${newIndex}].Name" placeholder="Наименование проекта" required />
             </div>
             <div>
-                Проект находится на этапе
-                <input type="text" name="Projects[${newIndex}].Stage" placeholder="Этап проекта" required />
+                Проект
+                <input type="text" name="Projects[${newIndex}].Stage" placeholder="в реализации/завершен." required />
             </div>
             <div>
-                Дата открытия проекта:
-                <input type="date" name="Projects[${newIndex}].StartDateTime" required />
+                Дата открытия проекта
+                <input type="date" name="Projects[${newIndex}].StartDateTime" required min="1994-01-01"/>
             </div>
             <div>
-                Срок реализации проекта: 
-                <input type="date" name="Projects[${newIndex}].EndDateTime" required />
+                Дата окончания проекта (план)
+                <input type="date" name="Projects[${newIndex}].EndDateTime" required min="1994-01-01"/>
+            </div>      
+            <div>
+                Коэффициент успешности проекта
+                <input type="number"  name="Projects[${newIndex}].SuccessRate" required /> %
             </div>
             <div>
-                На число 
-                <input type="date" name="Projects[${newIndex}].CurrentStatusDateTime" required /> по проекту выполнены 
-                <input type="number" name="Projects[${newIndex}].FactStages" required /> из 
-                <input type="number" name="Projects[${newIndex}].PlanStages" required /> этапов
+                Cредний KPI проекта
+                <input type="number"  name="Projects[${newIndex}].AverageKpi" required /> %
             </div>
             <div>
-                Коэффициент реализации проекта: 
-                <input type="number"  name="Projects[${newIndex}].SPn" required /> %
+                Коэффициент реализации проекта
+                <input type="number"  name="Projects[${newIndex}].SP" required /> %
             </div>
             <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>
@@ -232,15 +236,14 @@ function addRow(elem, type, id) {
         projectsInfoList.appendChild(row)
     }
     else if (type === 'experience') {
-        const experienceList = document.querySelector('.experience_list');
         const row = document.createElement('div');
         row.classList.add('experience_item')
         row.innerHTML = `
            <div>
                     c
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].StartDateTime" required />
+                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].StartDateTime" required min="1970-01-01"/>
                     по
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" required />
+                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
                     -
                     <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" required />
                     -
@@ -271,6 +274,7 @@ function addRow(elem, type, id) {
         tableBody.appendChild(row)
     }
 }
+
 function deleteRow(elem, type) {
     // Удаляем строку
     elem.parentElement.remove();
@@ -381,9 +385,9 @@ function updateIndices(type) {
                 planStagesInput.name = `Projects[${index}].PlanStages`;
             }
 
-            const spnInput = row.querySelector('input[name^="Projects"][name$=".SPn"]');
+            const spnInput = row.querySelector('input[name^="Projects"][name$=".SP"]');
             if (spnInput) {
-                spnInput.name = `Projects[${index}].SPn`;
+                spnInput.name = `Projects[${index}].SP`;
             }
         });
     }
@@ -432,6 +436,7 @@ function updateIndices(type) {
 
 
 }
+
 // StrategicTasks
 async function getStrategicTasksPopup(gradeId) {
     try {
@@ -847,12 +852,67 @@ async function getQualificationPopup(gradeId) {
         alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
+function addEducationRow() {
+
+    const rowContainerEducation = document.getElementById("rowContainerEducation");
+    let newIndex;
+
+    if (rowContainerEducation) {
+        newIndex = rowContainerEducation.children.length;
+    }
+
+    const row = document.createElement('div');
+    row.classList.add('experience_item')
+    row.innerHTML = `
+           <div>
+                    <input type="text" name="Qualification.HigherEducations[${newIndex}].Education" required />
+                    , специальность
+                    <input type="text" name="Qualification.HigherEducations[${newIndex}].Speciality" required />
+                    , квалификация
+                    <input type="text" name="Qualification.HigherEducations[${newIndex}].QualificationName" required />
+                    , период обучения c
+                    <input type="date" name="Qualification.HigherEducations[${newIndex}].StartDateTime" required min="1970-01-01"/>
+                    по
+                    <input type="date" name="Qualification.HigherEducations[${newIndex}].EndDateTime" required min="1970-01-01"/>
+                    ;
+                       
+                </div>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'education')"></i>      
+                `
+
+    rowContainer.appendChild(row)
+}
 function deletePreviousJob(id, gradeId) {
     if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
         return;
     }
 
     fetch(`/Qualification/DeletePreviousJob/${id}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Неизвестная ошибка');
+                });
+            }
+            return response.text();
+        })
+        .then(successMessage => {
+            popupResult(successMessage, false);
+            getQualificationPopup(gradeId);
+        })
+        .catch(error => {
+            console.error('Произошла ошибка:', error);
+            popupResult('Ошибка: ' + error.message, false);
+        });
+}
+function deleteHigherEducation(id, gradeId) {
+    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
+        return;
+    }
+
+    fetch(`/Qualification/DeleteHigherEducation/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -1013,7 +1073,7 @@ function saveValueJudgmentAsFinal(gradeId) {
         });
 }
 
-// CorporateCompetencies
+// ManagmentCompetencies
 async function getManagmentCompetenciesPopup(employeeId, gradeId) {
     try {
         // Выполняем fetch запрос

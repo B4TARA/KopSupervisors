@@ -637,7 +637,18 @@ namespace KOP.Import
                             SystemStatus = SystemStatuses.PENDING,
                             GradeStatus = GradeStatuses.PENDING,
                             UserId = employee.Id,
-                            Qualification = new Qualification { SupervisorSspName = employee.FullName },
+                            Qualification = new Qualification 
+                            { 
+                                CurrentJobPositionName = employee.Position,
+                                EmploymentContarctTerminations = "Отсутствуют",
+                                QualificationResult = $"{employee.FullName} прошел (ла) оценку соответствия (аттестацию) в Национальном Банке РБ и признана " +
+                                "соответствующей квалификационным требованиям и требованиям к деловой репутации:\r\n- к должности члена коллегиального исполнительного " +
+                                "органа банка, небанковской кредитно-финансовой организации от _______дата № ______ (приложение __ к пояснительной записке) действительно " +
+                                "до ________г.;\r\n- к должностному лицу, выполняющему ключевые функции в банке, небанковской кредитно-финансовой организации " +
+                                "от _______дата № ______ (приложение __ к пояснительной записке) действительно до ________г.;       " +
+                                "дать возможность выбрать фразу \r\n\r\nНе является должностным лицом, " +
+                                "выполняющим ключевые функции в ЗАО «МТБанк».\r\n"
+                            },
                             ValueJudgment = new ValueJudgment(),
                             QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         };
@@ -668,6 +679,7 @@ namespace KOP.Import
                                 {
                                     SystemStatus = SystemStatuses.PENDING,
                                     JudgeId = supervisor.Id,
+                                    Type = AssessmentResultTypes.SupervisorAssessment,
                                 };
 
                                 newAssessment.AssessmentResults.Add(newSupervisorAssessmentResult);
@@ -677,6 +689,7 @@ namespace KOP.Import
                             {
                                 SystemStatus = SystemStatuses.PENDING,
                                 JudgeId = employee.Id,
+                                Type = AssessmentResultTypes.SelfAssessment,
                             };
 
                             newAssessment.AssessmentResults.Add(newSelfAssessmentResult);
@@ -691,6 +704,7 @@ namespace KOP.Import
                                     {
                                         SystemStatus = SystemStatuses.PENDING,
                                         JudgeId = urp.Id,
+                                        Type = AssessmentResultTypes.UrpAssessment,
                                     };
 
                                     newAssessment.AssessmentResults.Add(newUrpAssessmentResult);
