@@ -1,10 +1,6 @@
-﻿using System.Security.Claims;
-using System.Security.Cryptography.Xml;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AnalyticsDtos;
 using KOP.DAL.Interfaces;
-using KOP.WEB.Models.ViewModels;
-using KOP.WEB.Models.ViewModels.Analytics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,28 +11,11 @@ namespace KOP.WEB.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
-        private readonly IReportService _reportService;
 
-        public AnalyticsController(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IReportService reportService)
+        public AnalyticsController(IUnitOfWork unitOfWork, IAssessmentService assessmentService)
         {
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
-            _reportService = reportService;
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAnalyticsLayout()
-        {
-            var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-            var subordinateUsers = await _reportService.GetSubordinateUsersWithGrade(currentUserId);
-
-            var viewModel = new AnalyticsLayoutViewModel
-            {
-                SubordinateUsers = subordinateUsers.ToList(),
-            };
-
-            return View("AnalyticsLayout", viewModel);
         }
 
         [HttpGet]

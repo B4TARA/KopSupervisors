@@ -60,9 +60,9 @@ else
 					</tr>
 				</thead>
 				<tbody id="rowContainer">
-					@for (int i = 0; i < Model.StrategicTasks.Count; i++)
+					@for (int i = 0; i < Model.StrategicTaskDtoList.Count; i++)
 					{
-						var strategicTask = Model.StrategicTasks[i];
+                        var strategicTask = Model.StrategicTaskDtoList[i];
 						var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
 						var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
 
@@ -70,7 +70,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <textarea type="text" asp-for="StrategicTasks[i].Name">@strategicTask.Name</textarea>
+                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Name">@strategicTask.Name</textarea>
                                 }
                                 else
                                 {
@@ -80,7 +80,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <textarea type="text" asp-for="StrategicTasks[i].Purpose" >@strategicTask.Purpose</textarea>
+                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Purpose">@strategicTask.Purpose</textarea>
                                 }
                                 else
                                 {
@@ -90,7 +90,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="date" asp-for="StrategicTasks[i].PlanDateTime" value="@planDateTime" required min="1994-01-01" />
+                                    <input type="date" asp-for="StrategicTaskDtoList[i].PlanDateTime" value="@planDateTime" required min="1994-01-01" />
                                 }
                                 else
                                 {
@@ -100,7 +100,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="date" asp-for="StrategicTasks[i].FactDateTime" value="@factDateTime" required min="1994-01-01" />
+                                    <input type="date" asp-for="StrategicTaskDtoList[i].FactDateTime" value="@factDateTime" required min="1994-01-01" />
                                 }
                                 else
                                 {
@@ -110,7 +110,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="text" asp-for="StrategicTasks[i].PlanResult" value="@strategicTask.PlanResult" required />
+                                    <input type="text" asp-for="StrategicTaskDtoList[i].PlanResult" value="@strategicTask.PlanResult" required />
                                 }
                                 else
                                 {
@@ -120,7 +120,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <input type="text" asp-for="StrategicTasks[i].FactResult" value="@strategicTask.FactResult" required />
+                                    <input type="text" asp-for="StrategicTaskDtoList[i].FactResult" value="@strategicTask.FactResult" required />
                                 }
                                 else
                                 {
@@ -130,7 +130,7 @@ else
                             <td>
                                 @if (Model.EditAccess)
                                 {
-                                    <textarea type="text" asp-for="StrategicTasks[i].Remark">@strategicTask.Remark</textarea>
+                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Remark">@strategicTask.Remark</textarea>
                                 }
                                 else
                                 {
@@ -140,7 +140,7 @@ else
                             @if (Model.EditAccess)
                             {
                                 <td>
-                                    <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTasks[i].Id, @Model.GradeId)"></i>
+                                    <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTaskDtoList[i].Id, @Model.GradeId)"></i>
                                 </td>
                             }
                         </tr>

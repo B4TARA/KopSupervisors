@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using KOP.BLL.Interfaces;
+using KOP.BLL.Services;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -7,6 +8,7 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.OpenXmlFormats.Wordprocessing;
 
 namespace KOP.WEB.Controllers
 {
@@ -61,7 +63,7 @@ namespace KOP.WEB.Controllers
                 WorkPeriod = userDto.WorkPeriod,
                 ContractEndDate = userDto.ContractEndDate,
                 ImagePath = userDto.ImagePath,
-                LastGrade = userDto.LastGrade,
+                LastGradeDto = userDto.LastGrade,
             };
 
             if (userDto.LastGrade == null)
@@ -72,7 +74,7 @@ namespace KOP.WEB.Controllers
 
             viewModel.GradeStatus = userDto.LastGrade.GradeStatus;
 
-            foreach (var dto in userDto.LastGrade.AssessmentDtos)
+            foreach (var dto in userDto.LastGrade.AssessmentDtoList)
             {
                 var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
@@ -106,7 +108,7 @@ namespace KOP.WEB.Controllers
 
             var viewModel = new ColleagueAssessmentViewModel
             {
-                ColleagueAssessmentResults = response.Data,
+                ColleagueAssessmentResultDtoList = response.Data,
             };
 
             return View("ColleaguesAssessment", viewModel);
@@ -143,7 +145,7 @@ namespace KOP.WEB.Controllers
 
             var viewModel = new SelfAssessmentLayoutViewModel
             {
-                LastAssessments = lastAssessmentOfEachType,
+                LastAssessmentDtoList = lastAssessmentOfEachType,
             };
 
             return View("SelfAssessmentLayout", viewModel);
@@ -179,6 +181,26 @@ namespace KOP.WEB.Controllers
                 {
                     error = "Произошла ошибка при завершении оценки.",
                     details = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetGrades(int employeeId)
+        {
+            try
+            {
+                var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(employeeId);
+
+                return View("EmployeeGrades", gradeSummaryDtoList);
+            }
+            catch
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = Common.Enums.StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
                 });
             }
         }

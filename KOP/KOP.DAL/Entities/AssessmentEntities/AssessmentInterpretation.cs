@@ -11,7 +11,5 @@
 
         public int AssessmentTypeId { get; set; }
         public AssessmentType AssessmentType { get; set; }
-
-        public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
@@ -46,6 +47,27 @@ namespace KOP.BLL.Services
             var userDto = _mappingService.CreateUserDto(user);
 
             return userDto;
+        }
+
+        public async Task<IEnumerable<GradeSummaryDto>> GetUserGradesSummaries(int employeeId)
+        {
+
+            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
+            var gradeSummaryDtoList = new List<GradeSummaryDto>();
+
+            foreach (var grade in grades)
+            {
+                gradeSummaryDtoList.Add(new GradeSummaryDto
+                {
+                    Id = grade.Id,
+                    Number = grade.Number,
+                    StartDate = grade.StartDate,
+                    EndDate = grade.EndDate,
+                    DateOfCreation = grade.DateOfCreation,
+                });
+            }
+
+            return gradeSummaryDtoList;
         }
 
         public async Task<List<AssessmentDto>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)

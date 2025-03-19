@@ -14,6 +14,7 @@ namespace KOP.DAL
         }
 
         public DbSet<AssessmentInterpretation> AssessmentInterpretations { get; set; }
+        public DbSet<AssessmentRange> AssessmentRanges { get; set; }
         public DbSet<AssessmentMatrixElement> AssessmentMatrixElements { get; set; }
         public DbSet<AssessmentMatrix> AssessmentMatrices { get; set; }
         public DbSet<Assessment> Assessments { get; set; }

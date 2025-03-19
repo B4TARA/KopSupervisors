@@ -17,63 +17,55 @@ namespace KOP.WEB.Controllers
         private readonly IAssessmentService _assessmentService;
         private readonly IUserService _userService;
         private readonly ICommonService _commonService;
+        private readonly ILogger<SupervisorController> _logger;
 
         public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService,
-            IUserService userService, ICommonService commonService)
+            IUserService userService, ICommonService commonService, ILogger<SupervisorController> logger)
         {
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
             _userService = userService;
             _commonService = commonService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public IActionResult GetSupervisorLayout()
         {
-            try
-            {
-                var id = Convert.ToInt32(User.FindFirstValue("Id"));
+            var id = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                return View("SupervisorLayout", id);
-            }
-            catch
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = StatusCodes.InternalServerError,
-                    Message = "An unexpected error occurred. Please try again later."
-                });
-            }
+            return View("SupervisorLayout", id);
         }
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
+            if (supervisorId <= 0)
+            {
+                _logger.LogWarning("Invalid supervisorId: {supervisorId}", supervisorId);
+
+                return BadRequest("Invalid supervisor ID.");
+            }
+
             try
             {
-                var response = await _supervisorService.GetUserSubordinateSubdivisions(supervisorId);
-
-                if (response.StatusCode != StatusCodes.OK || response.Data == null)
-                {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = response.StatusCode,
-                        Message = response.Description,
-                    });
-                }
+                var subordinateSubdivisionDtos = await _supervisorService.GetSubordinateSubdivisions(supervisorId);
+                var subordinateSubdivisionDtoList = subordinateSubdivisionDtos.ToList();
 
                 var viewModel = new SubordinatesViewModel
                 {
                     SupervisorId = supervisorId,
-                    Subdivisions = response.Data.ToList(),
+                    Subdivisions = subordinateSubdivisionDtoList,
                 };
 
                 return View("Subordinates", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[SupervisorController.GetSubordinates({supervisorId})] : ", supervisorId);
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -86,9 +78,17 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeLayout(int employeeId)
         {
+            if (employeeId <= 0)
+            {
+                _logger.LogWarning("Invalid employeeId: {employeeId}", employeeId);
+
+                return BadRequest("Invalid employee ID.");
+            }
+
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
                 var isActiveAssessment = await _assessmentService.IsActiveAssessment(currentUserId, employeeId);
 
                 var viewModel = new EmployeeViewModel
@@ -101,8 +101,7 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
-                // Логирование ошибки
-                //_logger.LogError(ex, "An error occurred while getting the employee layout for employee ID {EmployeeId}.", employeeId);
+                _logger.LogError(ex, "[SupervisorController.GetEmployeeLayout({employeeId})] : ", employeeId);
 
                 return View("Error", new ErrorViewModel
                 {
@@ -116,6 +115,13 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeGradeLayout(int employeeId)
         {
+            if (employeeId <= 0)
+            {
+                _logger.LogWarning("Invalid employeeId: {employeeId}", employeeId);
+
+                return BadRequest("Invalid employee ID.");
+            }
+
             try
             {
                 var user = await _userService.GetUser(employeeId);
@@ -144,7 +150,7 @@ namespace KOP.WEB.Controllers
 
                 viewModel.GradeStatus = user.LastGrade.GradeStatus;
 
-                foreach (var dto in user.LastGrade.AssessmentDtos)
+                foreach (var dto in user.LastGrade.AssessmentDtoList)
                 {
                     var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
@@ -174,8 +180,10 @@ namespace KOP.WEB.Controllers
 
                 return View("EmployeeGradeLayout", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[SupervisorController.GetEmployeeGradeLayout({employeeId})] : ", employeeId);
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -188,6 +196,13 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
+            if (employeeId <= 0)
+            {
+                _logger.LogWarning("Invalid employeeId: {employeeId}", employeeId);
+
+                return BadRequest("Invalid employee ID.");
+            }
+
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -201,8 +216,10 @@ namespace KOP.WEB.Controllers
 
                 return View("EmployeeAssessmentLayout", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[SupervisorController.GetEmployeeAssessmentLayout({employeeId})] : ", employeeId);
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -215,21 +232,32 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
         public async Task<IActionResult> GetEmployeeAssessment(int assessmentId)
         {
+            if (assessmentId <= 0)
+            {
+                _logger.LogWarning("Invalid assessmentId: {assessmentId}", assessmentId);
+
+                return BadRequest("Invalid assessment ID.");
+            }
+
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
                 var assessment = await _assessmentService.GetAssessment(assessmentId);
                 var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
 
                 var userRoles = User.Claims
                     .Where(c => c.Type == ClaimTypes.Role)
-                    .Select(c => c.Value);
+                    .Select(c => c.Value)
+                    .ToList();
 
                 var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(assessment.AllAssessmentResults, assessment.UserId);
                 var allCandidates = await _userService.GetCandidatesForJudges(assessment.UserId);
 
                 var remainingCandidates = allCandidates
-                    .Where(c => !choosedCandidates.Select(c => c.Id).Contains(c.Id))
+                    .Where(c => !choosedCandidates
+                    .Select(c => c.Id)
+                    .Contains(c.Id))
                     .OrderBy(x => x.FullName)
                     .ToList();
 
@@ -244,10 +272,57 @@ namespace KOP.WEB.Controllers
 
                 return View("EmployeeAssessment", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
-                // Логирование ошибки
-                // _logger.LogError(ex, "An error occurred while processing the assessment.");
+                _logger.LogError(ex, "[SupervisorController.GetEmployeeAssessment({assessmentId})] : ", assessmentId);
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAnalyticsLayout()
+        {
+            try
+            {
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
+
+                return View("AnalyticsLayout", subordinateUsersSummariesHasGrades);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SupervisorController.GetAnalyticsLayout] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetReportLayout()
+        {
+            try
+            {
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
+
+                return View("ReportLayout", subordinateUsersSummariesHasGrades);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SupervisorController.GetReportLayout] : ");
 
                 return View("Error", new ErrorViewModel
                 {
@@ -261,19 +336,23 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Urp")]
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
+            if (requestModel.assessmentId <= 0)
+            {
+                _logger.LogWarning("Invalid assessmentId: {assessmentId}", requestModel.assessmentId);
+
+                return BadRequest("Invalid assessment ID.");
+            }
+
             try
             {
-                var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
-                var assessmentId = requestModel.assessmentId;
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                if (judgesIds.Count() > 3)
+                var assessmentId = requestModel.assessmentId;
+                var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
+
+                if (judgesIds == null)
                 {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при сохранении.",
-                        details = "Число оценщиков должно быть меньше 3"
-                    });
+                    throw new Exception($"JudgesIds is null for Assessment with ID {requestModel.assessmentId}.");
                 }
 
                 foreach (var judgeId in judgesIds)
@@ -285,6 +364,8 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[SupervisorController.AddJudges({requestModel.assessmentId})] : ", requestModel.assessmentId);
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",
@@ -297,16 +378,22 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Urp")]
         public async Task<IActionResult> DeleteJudge([FromBody] int assessmentResultId)
         {
+            if (assessmentResultId <= 0)
+            {
+                _logger.LogWarning("Invalid assessmentResultId: {assessmentResultId}", assessmentResultId);
+
+                return BadRequest("Invalid assessmentResult ID.");
+            }
+
             try
             {
-                await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);       
-                
+                await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);
+
                 return Ok("Удаление прошло успешно");
             }
-            catch
+            catch (Exception ex)
             {
-                // Логирование ошибки
-                // _logger.LogError(ex, "An error occurred while processing the assessment.");
+                _logger.LogError(ex, "[SupervisorController.DeleteJudge({assessmentResultId})] : ", assessmentResultId);
 
                 return BadRequest(new
                 {
@@ -319,22 +406,23 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Urp")]
         public async Task<IActionResult> ApproveEmployeeGrade([FromBody] int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
-                var approveEmployeeGradeRes = await _supervisorService.ApproveEmployeeGrade(gradeId);
-                if (!approveEmployeeGradeRes.IsSuccess)
-                {
-                    return BadRequest(new
-                    {
-                        error = "Произошла ошибка при завершении оценки.",
-                        details = approveEmployeeGradeRes.Description,
-                    });
-                }
+                await _supervisorService.ApproveGrade(gradeId);
 
                 return Ok("Оценка успешно завершена");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[SupervisorController.ApproveEmployeeGrade({gradeId})] : ", gradeId);
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при завершении оценки.",

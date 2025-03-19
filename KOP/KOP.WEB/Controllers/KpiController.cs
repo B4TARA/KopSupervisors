@@ -32,13 +32,13 @@ namespace KOP.WEB.Controllers
                 {
                     GradeId = gradeId,
                     Conclusion = gradeDto.KPIsConclusion,
-                    Kpis = gradeDto.Kpis,
+                    Kpis = gradeDto.KpiDtoList,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                     ConclusionEditAccess = conclusionEditAccess,
                 };
 
-                return View("_Kpis", viewModel);
+                return View("_KpisPartial", viewModel);
             }
             catch
             {
@@ -58,7 +58,7 @@ namespace KOP.WEB.Controllers
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Kpis });
 
-                gradeDto.Kpis = viewModel.Kpis;
+                gradeDto.KpiDtoList = viewModel.Kpis;
                 gradeDto.KPIsConclusion = viewModel.Conclusion;
                 gradeDto.IsKpisFinalized = viewModel.IsFinalized;
 

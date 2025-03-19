@@ -32,10 +32,10 @@ namespace KOP.WEB.Controllers
                 var viewModel = new TrainingEventsViewModel
                 {
                     GradeId = gradeId,
-                    TrainingEvents = gradeDto.TrainingEvents,
+                    TrainingEvents = gradeDto.TrainingEventDtoList,
                 };
 
-                return View("_TrainingEvents", viewModel);
+                return View("_TrainingEventsPartial", viewModel);
             }
             catch
             {
@@ -73,7 +73,7 @@ namespace KOP.WEB.Controllers
                     AssessmentSummaryDto = assessmentSummaryDto,
                 };
 
-                return View("_CorporateCompetencies", viewModel);
+                return View("_CorporateCompetenciesPartial", viewModel);
             }
             catch
             {
@@ -111,7 +111,7 @@ namespace KOP.WEB.Controllers
                     AssessmentSummaryDto = assessmentSummaryDto,
                 };
 
-                return View("_ManagmentCompetencies", viewModel);
+                return View("_ManagmentCompetenciesPartial", viewModel);
             }
             catch
             {

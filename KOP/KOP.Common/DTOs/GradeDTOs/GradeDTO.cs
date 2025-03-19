@@ -6,6 +6,7 @@ namespace KOP.Common.Dtos.GradeDtos
     public class GradeDto
     {
         public int Id { get; set; }
+        public int UserId { get; set; }
         public int Number { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
@@ -27,17 +28,16 @@ namespace KOP.Common.Dtos.GradeDtos
 
         public double Qn2 { get; set; }
 
-        public QualificationDto? Qualification { get; set; }
-        public ValueJudgmentDto? ValueJudgment { get; set; }
-        public List<MarkTypeDto> MarkTypes { get; set; } = new();
-        public List<KpiDto> Kpis { get; set; } = new();
-        public List<ProjectDto> Projects { get; set; } = new();
-        public List<StrategicTaskDto> StrategicTasks { get; set; } = new();
-        public List<TrainingEventDto> TrainingEvents { get; set; } = new();
-        public List<AssessmentDto> AssessmentDtos { get; set; } = new();
+        public QualificationDto? QualificationDto { get; set; }
+        public ValueJudgmentDto? ValueJudgmentDto { get; set; }
+        public List<MarkTypeDto> MarkTypeDtoList { get; set; } = new();
+        public List<KpiDto> KpiDtoList { get; set; } = new();
+        public List<ProjectDto> ProjectDtoList { get; set; } = new();
+        public List<StrategicTaskDto> StrategicTaskDtoList { get; set; } = new();
+        public List<TrainingEventDto> TrainingEventDtoList { get; set; } = new();
+        public List<AssessmentDto> AssessmentDtoList { get; set; } = new();
 
         public SystemStatuses SystemStatus { get; set; }
         public GradeStatuses GradeStatus { get; set; }
-        public int UserId { get; set; }
     }
 }

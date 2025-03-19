@@ -64,10 +64,10 @@
 		</div>
 		<div class="description_wrapper">
 			<div class="description">Период оценки</div>
-			@if (Model.LastGrade != null)
+			@if (Model.LastGradeDto != null)
 			{
 				<div class="mid_title ">
-					@Model.LastGrade.StartDate -  @Model.LastGrade.EndDate
+					@Model.LastGradeDto.StartDate -  @Model.LastGradeDto.EndDate
 				</div>
 			}
 			else
@@ -83,7 +83,7 @@
 
 <div class="results_container margin_container_bottom">
 
-	@if (Model.LastGrade == null)
+	@if (Model.LastGradeDto == null)
 	{
 		<div class="undefined_page_wrapper">
 
@@ -112,7 +112,7 @@
 		<div class="result_user_list ">
 			<div class="margin_container_bottom_small">
 				<div class="result_item">
-					@if (Model.LastGrade.IsStrategicTasksFinalized)
+					@if (Model.LastGradeDto.IsStrategicTasksFinalized)
 					{
 						<span class="result_item_status green">
 							<i class="fa-solid fa-check"></i>
@@ -126,8 +126,9 @@
 						</span>
 					}
 					<div class="mid_title">Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей</div>
-					
-					<div class="result_item_popup_btn" onclick="getStrategicTasksPopup(@Model.LastGrade.Id)">
+
+					<div class="result_item_popup_btn" onclick="getStrategicTasksPopup(@Model.LastGradeDto.Id)">
+
 
 						Подробнее
 						<i class="fa-solid fa-circle-arrow-right"></i>
@@ -147,7 +148,7 @@
 
 			<div class="result_item margin_container_bottom_small">
 
-				@if (Model.LastGrade.IsProjectsFinalized)
+				@if (Model.LastGradeDto.IsProjectsFinalized)
 				{
 					<span class="result_item_status green">
 						<i class="fa-solid fa-check"></i>
@@ -161,7 +162,7 @@
 					</span>
 				}
 				<div class="mid_title">Результаты выполнения стратегических проектов и задач</div>
-				<div class="result_item_popup_btn" onclick="getProjectsPopup(@Model.LastGrade.Id)">
+				<div class="result_item_popup_btn" onclick="getProjectsPopup(@Model.LastGradeDto.Id)">
 
 					Подробнее
 					<i class="fa-solid fa-circle-arrow-right"></i>
@@ -173,7 +174,7 @@
 			<div class="margin_container_bottom_small">
 				<div class="result_item">
 
-					@if (Model.LastGrade.IsKpisFinalized)
+					@if (Model.LastGradeDto.IsKpisFinalized)
 					{
 						<span class="result_item_status green">
 							<i class="fa-solid fa-check"></i>
@@ -187,26 +188,13 @@
 						</span>
 					}
 					<div class="mid_title">Результаты выполнения ключевых показателей эффективности деятельности</div>
-					<div class="result_item_popup_btn" onclick="getKpisPopup(@Model.LastGrade.Id)">
+					<div class="result_item_popup_btn" onclick="getKpisPopup(@Model.LastGradeDto.Id)">
 
 						Подробнее
 						<i class="fa-solid fa-circle-arrow-right"></i>
 
 					</div>
 				</div>
-				@*@if (Model.LastGrade.KPIsConclusion != null)
-            {
-                <div>
-                        <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
-                    @Model.LastGrade.KPIsConclusion
-                </div>
-            }
-            else
-            {
-                <div>
-                    Пусто
-                </div>
-            }*@
 			</div>
 
 			<div class="margin_container_bottom_small">
@@ -224,24 +212,11 @@
 						</span>
 					}
 					<div class="mid_title">Оценка управленческих компетенций</div>
-					<div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
+					<div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.Id, @Model.LastGradeDto.Id)">
 						Подробнее
 						<i class="fa-solid fa-circle-arrow-right"></i>
 					</div>
 				</div>
-				@*@if (Model.LastGrade.ManagmentCompetenciesConclusion != null)
-            {
-                <div>
-                        <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
-                    @Model.LastGrade.ManagmentCompetenciesConclusion
-                </div>
-            }
-            else
-            {
-                <div>
-                    Пусто
-                </div>
-            }*@
 			</div>
 
 			<div class="margin_container_bottom_small">
@@ -260,30 +235,15 @@
 						</span>
 					}
 					<div class="mid_title">Оценка корпоративных компетенций</div>
-					<div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.Id, @Model.LastGrade.Id)">
+					<div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.Id, @Model.LastGradeDto.Id)">
 						Подробнее
 						<i class="fa-solid fa-circle-arrow-right"></i>
 					</div>
 				</div>
-				@*@if (Model.LastGrade.CorporateCompetenciesConclusion != null)
-            {
-                <div>
-                        <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
-                    @Model.LastGrade.CorporateCompetenciesConclusion
-                </div>
-            }
-            else
-            {
-                <div>
-                    Пусто
-                </div>
-            }*@
 			</div>
 
 			<div class="result_item margin_container_bottom_small">
-
-
-				@if (Model.LastGrade.IsMarksFinalized)
+				@if (Model.LastGradeDto.IsMarksFinalized)
 				{
 					<span class="result_item_status green">
 						<i class="fa-solid fa-check"></i>
@@ -297,12 +257,11 @@
 					</span>
 				}
 				<div class="mid_title">Управление персоналом</div>
-				<div class="result_item_popup_btn" onclick="getMarksPopup(@Model.LastGrade.Id)">
+				<div class="result_item_popup_btn" onclick="getMarksPopup(@Model.LastGradeDto.Id)">
 					Подробнее
 					<i class="fa-solid fa-circle-arrow-right"></i>
 
 				</div>
-
 			</div>
 
 			<div class="result_item margin_container_bottom_small">
@@ -311,23 +270,20 @@
 					<i class="fa-solid fa-check"></i>
 				</span>
 				<div class="mid_title">Обучающие мероприятия</div>
-				<div class="result_item_popup_btn" onclick="getTrainingEventsPopup(@Model.LastGrade.Id)">
-
+				<div class="result_item_popup_btn" onclick="getTrainingEventsPopup(@Model.LastGradeDto.Id)">
 					Подробнее
 					<i class="fa-solid fa-circle-arrow-right"></i>
-
 				</div>
 			</div>
 
 			<div class="margin_container_bottom_small">
 				<div class="result_item">
 
-					@if (Model.LastGrade.IsQualificationFinalized)
+					@if (Model.LastGradeDto.IsQualificationFinalized)
 					{
 						<span class="result_item_status green">
 							<i class="fa-solid fa-check"></i>
 						</span>
-
 					}
 					else
 					{
@@ -336,31 +292,17 @@
 						</span>
 					}
 					<div class="mid_title">Квалификация Руководителя</div>
-					<div class="result_item_popup_btn" onclick="getQualificationPopup(@Model.LastGrade.Id)">
+					<div class="result_item_popup_btn" onclick="getQualificationPopup(@Model.LastGradeDto.Id)">
 
 						Подробнее
 						<i class="fa-solid fa-circle-arrow-right"></i>
 
 					</div>
 				</div>
-				@*@if (Model.LastGrade.QualificationConclusion != null)
-            {
-                <div>
-                        <i class="fa-regular fa-comment" style="color: #1b74fd;"></i>
-                    @Model.LastGrade.QualificationConclusion
-                </div>
-            }
-            else
-            {
-                <div>
-                    Пусто
-                </div>
-            }*@
 			</div>
 
 			<div class="result_item margin_container_bottom_small">
-
-				@if (Model.LastGrade.IsValueJudgmentFinalized)
+				@if (Model.LastGradeDto.IsValueJudgmentFinalized)
 				{
 					<span class="result_item_status green">
 						<i class="fa-solid fa-check"></i>
@@ -374,8 +316,7 @@
 					</span>
 				}
 				<div class="mid_title">ОС от руководителя</div>
-				<div class="result_item_popup_btn" onclick="getValueJudgmentPopup(@Model.LastGrade.Id)">
-
+				<div class="result_item_popup_btn" onclick="getValueJudgmentPopup(@Model.LastGradeDto.Id)">
 					Подробнее
 					<i class="fa-solid fa-circle-arrow-right"></i>
 
@@ -389,7 +330,7 @@
 {
 	<div class="actions_container">
 		<div class="action_buttons_wrapper">
-			<div onclick="approveGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
+			<div onclick="approveGrade(@Model.LastGradeDto.Id, @Model.Id)" class="action_btn green_btn full_width">
 				Ознакомиться
 			</div>
 		</div>
