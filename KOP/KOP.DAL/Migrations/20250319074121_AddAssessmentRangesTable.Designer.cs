@@ -3,6 +3,7 @@ using System;
 using KOP.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KOP.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250319074121_AddAssessmentRangesTable")]
+    partial class AddAssessmentRangesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,6 +78,9 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
                     b.Property<string>("HtmlClassName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -104,6 +110,9 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
                     b.Property<int>("MaxAssessmentMatrixResultValue")
                         .HasColumnType("integer");
 
@@ -125,6 +134,9 @@ namespace KOP.DAL.Migrations
 
                     b.Property<int>("Column")
                         .HasColumnType("integer");
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
 
                     b.Property<string>("HtmlClassName")
                         .IsRequired()
@@ -244,6 +256,9 @@ namespace KOP.DAL.Migrations
 
                     b.Property<int>("AssessmentMatrixId")
                         .HasColumnType("integer");
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -735,6 +750,9 @@ namespace KOP.DAL.Migrations
                     b.Property<int>("Code")
                         .HasColumnType("integer");
 
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -751,6 +769,9 @@ namespace KOP.DAL.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -781,6 +802,9 @@ namespace KOP.DAL.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("ContractStartDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
 
                     b.Property<string>("Email")

@@ -1,6 +1,8 @@
+using System.Globalization;
 using KOP.DAL;
 using KOP.WEB;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +18,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = new PathString("");
         options.AccessDeniedPath = new PathString("/Account/Logout");
-        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.ExpireTimeSpan = TimeSpan.FromHours(48);
         options.SlidingExpiration = true;
     });
 builder.Services.AddAuthorization();
@@ -27,7 +29,7 @@ builder.Services.InitializeServices();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.IdleTimeout = TimeSpan.FromHours(48);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -35,6 +37,19 @@ builder.Services.AddSession(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+            new CultureInfo("en-US"),
+            new CultureInfo("ru-RU")
+        };
+
+    options.DefaultRequestCulture = new RequestCulture("ru-RU");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
 });
 
 var app = builder.Build();
@@ -55,6 +70,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+app.UseRequestLocalization();
 
 app.MapControllerRoute(
     name: "default",

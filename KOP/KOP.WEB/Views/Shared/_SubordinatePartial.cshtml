@@ -97,7 +97,7 @@
 		}
 		@foreach (var child in Model.Children)
 		{
-			await Html.RenderPartialAsync("_Subordinate", child);
+			await Html.RenderPartialAsync("_SubordinatePartial", child);
 		}
 	</div>
 </div>

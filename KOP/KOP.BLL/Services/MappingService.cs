@@ -77,14 +77,14 @@ namespace KOP.BLL.Services
             {
                 var qualificationDto = CreateQualificationDto(grade.Qualification);
 
-                dto.Qualification = qualificationDto;
+                dto.QualificationDto = qualificationDto;
             }
 
             if (grade.ValueJudgment != null)
             {
                 var valueJudgmentDto = CreateValueJudgmentDto(grade.ValueJudgment);
 
-                dto.ValueJudgment = valueJudgmentDto;
+                dto.ValueJudgmentDto = valueJudgmentDto;
             }
 
             foreach (var markType in allMarkTypes)
@@ -103,42 +103,42 @@ namespace KOP.BLL.Services
                     markTypeDto.Marks.Add(markDto);
                 }
 
-                dto.MarkTypes.Add(markTypeDto);
+                dto.MarkTypeDtoList.Add(markTypeDto);
             }
 
             foreach (var kpi in grade.Kpis)
             {
                 var kpiDto = CreateKpiDto(kpi);
 
-                dto.Kpis.Add(kpiDto);
+                dto.KpiDtoList.Add(kpiDto);
             }
 
             foreach (var project in grade.Projects)
             {
                 var projectDto = CreateProjectDto(project);
 
-                dto.Projects.Add(projectDto);
+                dto.ProjectDtoList.Add(projectDto);
             }
 
             foreach (var strategicTask in grade.StrategicTasks)
             {
                 var strategicTaskDto = CreateStrategicTaskDto(strategicTask);
 
-                dto.StrategicTasks.Add(strategicTaskDto);
+                dto.StrategicTaskDtoList.Add(strategicTaskDto);
             }
 
             foreach (var trainingEvent in grade.TrainingEvents)
             {
                 var trainingEventDto = CreateTrainingEventDto(trainingEvent);
 
-                dto.TrainingEvents.Add(trainingEventDto);
+                dto.TrainingEventDtoList.Add(trainingEventDto);
             }
 
             foreach (var assessment in grade.Assessments)
             {
                 var assessmentDto = CreateAssessmentDto(assessment);
 
-                dto.AssessmentDtos.Add(assessmentDto);
+                dto.AssessmentDtoList.Add(assessmentDto);
             }
 
             return dto;

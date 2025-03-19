@@ -4,6 +4,6 @@ namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class GradeTypeViewModel
     {
-        public List<GradeDto> Grades { get; set; } = new();
+        public List<GradeDto> GradeDtoList { get; set; } = new();
     }
 }

@@ -32,12 +32,12 @@ namespace KOP.WEB.Controllers
                     GradeId = gradeId,
                     Qn2 = gradeDto.Qn2,
                     SelectedUserFullName = HttpContext.Session.GetString("SelectedUserFullName") ?? "-",
-                    Projects = gradeDto.Projects,
+                    Projects = gradeDto.ProjectDtoList,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                 };
 
-                return View("_Projects", viewModel);
+                return View("_ProjectsPartial", viewModel);
             }
             catch
             {
@@ -58,7 +58,7 @@ namespace KOP.WEB.Controllers
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Projects });
 
-                gradeDto.Projects = viewModel.Projects;
+                gradeDto.ProjectDtoList = viewModel.Projects;
                 gradeDto.IsProjectsFinalized = viewModel.IsFinalized;
                 gradeDto.Qn2 = viewModel.Qn2;
 

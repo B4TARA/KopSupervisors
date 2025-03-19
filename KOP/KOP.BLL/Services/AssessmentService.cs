@@ -201,12 +201,21 @@ namespace KOP.BLL.Services
         {
             if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
             {
-                return completedResults.Count == 6;
+                var selfAssessment = completedResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SelfAssessment);
+                var supervisorAssessment = completedResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
+                var urpAssessment = completedResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.UrpAssessment);
+                var colleaguesAssessments = completedResults.Where(x => x.Type == AssessmentResultTypes.ColleagueAssessment).ToList();
+
+                return selfAssessment != null && supervisorAssessment != null && urpAssessment != null && colleaguesAssessments.Count >= 3;
             }
             else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
             {
-                return completedResults.Count == 2;
+                var selfAssessment = completedResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SelfAssessment);
+                var supervisorAssessment = completedResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
+
+                return selfAssessment != null && supervisorAssessment != null;
             }
+
             return false;
         }
 
@@ -373,7 +382,7 @@ namespace KOP.BLL.Services
             {
                 var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                 var messageBody = "Не найдено сообщение для отправки оценщикам при назначении";
-                var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
+                var errorMessage = new Message(addressee, "Ошибка веб-приложения", messageBody, "Батурель Евгений Дмитриевич");
                 await _emailSender.SendEmailAsync(errorMessage, emailIconPath);
             }
             else
@@ -383,32 +392,11 @@ namespace KOP.BLL.Services
             }
         }
 
-        // !!! КОСТЫЛЬ-МЕТОД ДЛЯ ВРЕМЕННОЙ ЗАГЛУШКИ !!!
-        // Добавить таблицу AssessmentColumns для указания соответствия между столбцом матрицы и диапазоном значений //
-        public int GetInterpretationColumnByAssessmentValue(int? value)
+        public async Task<int> GetMatrixColumnForAssessmentValue(int value)
         {
-            if (value is null)
-            {
-                return 0;
-            }
-            else if (1 <= value && value <= 5)
-            {
-                return 2;
-            }
-            else if (6 <= value && value <= 8)
-            {
-                return 3;
-            }
-            else if (9 <= value && value <= 11)
-            {
-                return 4;
-            }
-            else if (12 <= value && value <= 13)
-            {
-                return 5;
-            }
+            var assessmentRange = await _unitOfWork.AssessmentRanges.GetAsync(x => x.MinRangeValue <= value && value <= x.MaxRangeValue);         
 
-            return 0;
+            return assessmentRange.ColumnNumber;
         }
     }
 }

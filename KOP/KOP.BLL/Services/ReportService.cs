@@ -1,11 +1,8 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using KOP.BLL.Interfaces;
-using KOP.Common.Dtos;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.DAL.Entities;
-using KOP.DAL.Entities.GradeEntities;
 using KOP.DAL.Interfaces;
 using NPOI.OpenXmlFormats.Wordprocessing;
 using NPOI.XWPF.UserModel;
@@ -23,80 +20,6 @@ namespace KOP.BLL.Services
             _unitOfWork = unitOfWork;
             _gradeService = gradeService;
             _assessmentService = assessmentService;
-        }
-
-        public async Task<IEnumerable<GradeSummaryDto>> GetEmployeeGrades(int employeeId)
-        {
-
-            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
-            var gradeSummaryDtoList = new List<GradeSummaryDto>();
-
-            foreach (var grade in grades)
-            {
-                gradeSummaryDtoList.Add(new GradeSummaryDto
-                {
-                    Id = grade.Id,
-                    Number = grade.Number,
-                    StartDate = grade.StartDate,
-                    EndDate = grade.EndDate,
-                    DateOfCreation = grade.DateOfCreation,
-                });
-            }
-
-            return gradeSummaryDtoList;
-        }
-
-        public async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersWithGrade(int supervisorId)
-        {
-            var supervisor = await _unitOfWork.Users.GetAsync(
-                x => x.Id == supervisorId,
-                includeProperties: new string[]
-                {
-                    "SubordinateSubdivisions.Users.Grades",
-                    "SubordinateSubdivisions.Children.Users.Grades",
-                }
-            );
-
-            if (supervisor == null)
-            {
-                throw new Exception($"User with ID {supervisorId} not found.");
-            }
-
-            var allSubordinateUsers = new List<UserSummaryDto>();
-
-            foreach (var subdivision in supervisor.SubordinateSubdivisions)
-            {
-                var subordinateUsers = await GetSubordinateUsersWithGrade(subdivision);
-
-                allSubordinateUsers.AddRange(subordinateUsers);
-            }
-
-            return allSubordinateUsers;
-        }
-
-        private async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersWithGrade(Subdivision subdivision)
-        {
-            var subordinateUsers = new List<UserSummaryDto>();
-
-            foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee) && x.Grades.Any()))
-            {
-                subordinateUsers.Add(new UserSummaryDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Position = user.Position,
-                    SubdivisionFromFile = user.SubdivisionFromFile,
-                });
-            }
-
-            foreach (var childSubdivision in subdivision.Children)
-            {
-                var subordinateUsersFromChildSubdivision = await GetSubordinateUsersWithGrade(childSubdivision);
-
-                subordinateUsers.AddRange(subordinateUsersFromChildSubdivision);
-            }
-
-            return subordinateUsers;
         }
 
         public async Task<byte[]> GenerateGradeWordDocument(int gradeId)
@@ -121,7 +44,7 @@ namespace KOP.BLL.Services
                 throw new Exception($"User with ID {gradeDto.UserId} not found.");
             }
 
-            var managmentAssessment = gradeDto.AssessmentDtos.FirstOrDefault(x => x.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
+            var managmentAssessment = gradeDto.AssessmentDtoList.FirstOrDefault(x => x.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
             if (managmentAssessment is null)
             {
                 throw new Exception($"ManagmentAssessment with GradeId {gradeDto.Id} not found.");
@@ -150,7 +73,7 @@ namespace KOP.BLL.Services
             AddParagraph(document, "Таблица 1.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
             // Добавляем таблицу для пункта 2.1 "Подзадачник"
-            var strategicTasksTable = document.CreateTable(2 + gradeDto.StrategicTasks.Count, 7);
+            var strategicTasksTable = document.CreateTable(2 + gradeDto.StrategicTaskDtoList.Count, 7);
             FillStrategicTasksTable(strategicTasksTable, gradeDto);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
@@ -175,14 +98,14 @@ namespace KOP.BLL.Services
             AddParagraph(document, "Таблица 2.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
             // Добавляем таблицу для пункта 2.3 "KPI"
-            var kpiPeriods = gradeDto.Kpis
+            var kpiPeriods = gradeDto.KpiDtoList
                 .GroupBy(kpi => $"{kpi.PeriodStartDate.ToShortDateString()} - {kpi.PeriodEndDate.ToShortDateString()}")
                 .Select(group => new KpiPeriod
                 {
                     Period = group.Key,
-                    Kpis = group.ToList()
+                    KpiDtoList = group.ToList()
                 }).ToList();
-            var kpiTable = document.CreateTable(2 + gradeDto.Kpis.Count + kpiPeriods.Count(), 7);
+            var kpiTable = document.CreateTable(2 + gradeDto.KpiDtoList.Count + kpiPeriods.Count(), 7);
             FillKpiTable(kpiTable, gradeDto, kpiPeriods);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
@@ -276,7 +199,7 @@ namespace KOP.BLL.Services
             // Строка 7: Стратегические проекты
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов и задач.", true, ParagraphAlignment.LEFT);
-            if (gradeDto.Projects.Any())
+            if (gradeDto.ProjectDtoList.Any())
             {
                 AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Выполнение стратегических проектов за отчетный период, Qn2 {gradeDto.Qn2} %", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
@@ -284,7 +207,7 @@ namespace KOP.BLL.Services
             {
                 AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"За оцениваемый период {user.FullName} не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
-            foreach (var project in gradeDto.Projects)
+            foreach (var project in gradeDto.ProjectDtoList)
             {
                 AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
                 AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
@@ -467,7 +390,7 @@ namespace KOP.BLL.Services
 
         private void FillQualificationTable(XWPFTable table, User user, GradeDto gradeDto)
         {
-            var qualification = gradeDto.Qualification;
+            var qualification = gradeDto.QualificationDto;
             var row = table.GetRow(0);
             var cell3 = row.GetCell(2);
 
@@ -630,5 +553,5 @@ namespace KOP.BLL.Services
 public class KpiPeriod
 {
     public string Period { get; set; }
-    public List<KpiDto> Kpis { get; set; } = new();
+    public List<KpiDto> KpiDtoList { get; set; } = new();
 }

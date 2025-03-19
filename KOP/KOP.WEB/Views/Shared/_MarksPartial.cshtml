@@ -68,7 +68,7 @@ else
 									<td>
 										@if (Model.EditAccess)
 										{
-											<input type="number" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" step="0.01" lang="en" disabled="@(Model.EditAccess ? null : "disabled")" />
+											<input type="number" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" step="0.1" disabled="@(Model.EditAccess ? null : "disabled")" />
 										}
 										else
 										{

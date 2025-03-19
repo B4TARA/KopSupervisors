@@ -6,7 +6,7 @@ namespace KOP.WEB.Models.ViewModels.Shared
     {
         public int GradeId { get; set; }
         public string? Conclusion { get; set; }
-        public List<StrategicTaskDto> StrategicTasks { get; set; } = new();
+        public List<StrategicTaskDto> StrategicTaskDtoList { get; set; } = new();
         public bool IsFinalized { get; set; }
 
         public bool ViewAccess { get; set; }

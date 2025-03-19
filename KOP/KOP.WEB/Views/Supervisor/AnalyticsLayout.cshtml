@@ -1,4 +1,4 @@
-﻿@model KOP.WEB.Models.ViewModels.Analytics.AnalyticsLayoutViewModel
+﻿@model List<KOP.Common.Dtos.UserSummaryDto>
 
 @{
 	Layout = "/Views/Shared/_Layout.cshtml";
@@ -21,9 +21,9 @@
 <div class="main_container_content ">
 	<div class="custom-select-politics">
 		<div class="select-box-politics">
-			@if (Model.SubordinateUsers.Any())
+			@if (Model.Any())
 			{
-				<span class="select-label-politics">@Model.SubordinateUsers.First().FullName</span>
+				<span class="select-label-politics">@Model.First().FullName</span>
 			}
 			else
 			{
@@ -34,9 +34,9 @@
 			</span>
 		</div>
 		<div class="select-options-politics">
-			@if (Model.SubordinateUsers.Any())
+			@if (Model.Any())
 			{
-				foreach (var user in Model.SubordinateUsers)
+				foreach (var user in Model)
 				{
 					<div class="option-politics" data-id="@user.Id">
 						<span class="icon-politics">@user.FullName</span>
@@ -66,7 +66,6 @@
 				<div class="dashboard-results-list">
 					<div class="dashboard-result-item">
 						<div id="generalAvgValue" class="dashboard-result-value title"></div>
-						@* <div class="dashboard-result-text description">Общий балл</div> *@
 						<canvas id="chartJSContainer" width="200" height="75"></canvas>
 					</div>
 					<div class="dashboard-result-item">
@@ -145,11 +144,11 @@
 <script>
 
 	// Проверка наличия пользователей и вызов функции с ID первого пользователя
-	@if (Model.SubordinateUsers.Any())
+	@if (Model.Any())
 	{
 		<text>
-			loadAssessmentAnalytics('@Model.SubordinateUsers.First().Id');
-			loadCompetenciesAnalytics('@Model.SubordinateUsers.First().Id');
+				loadAssessmentAnalytics('@Model.First().Id');
+				loadCompetenciesAnalytics('@Model.First().Id');
 
 		
 

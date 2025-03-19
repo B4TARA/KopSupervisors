@@ -4,13 +4,13 @@
     Layout = null;
 }
 
-@if (Model.LastAssessments.Any())
+@if (Model.LastAssessmentDtoList.Any())
 {
     <div class="list_menu_container self_assesment header">
         <ul class="list_menu_wrapper nav">
-            @for (int i = 0; i < Model.LastAssessments.Count(); i++)
+            @for (int i = 0; i < Model.LastAssessmentDtoList.Count; i++)
             {
-                var assessment = Model.LastAssessments[i];
+                var assessment = Model.LastAssessmentDtoList[i];
                 <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
                     <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getAssessment(@assessment.Id)">
                         @assessment.AssessmentTypeName

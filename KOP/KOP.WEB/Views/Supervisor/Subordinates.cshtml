@@ -25,7 +25,7 @@
 	@{
 		foreach (var subdivision in Model.Subdivisions)
 		{
-			await Html.RenderPartialAsync("_Subordinate", subdivision);
+			await Html.RenderPartialAsync("_SubordinatePartial", subdivision);
 		}
 	}
 </section>
