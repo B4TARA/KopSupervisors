@@ -31,6 +31,8 @@ namespace KOP.WEB.Controllers
                 var viewModel = new KpisViewModel
                 {
                     GradeId = gradeId,
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     Conclusion = gradeDto.KPIsConclusion,
                     Kpis = gradeDto.KpiDtoList,
                     EditAccess = editAccess,

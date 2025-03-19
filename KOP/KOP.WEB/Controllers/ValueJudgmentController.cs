@@ -45,6 +45,8 @@ namespace KOP.WEB.Controllers
                 var viewModel = new ValueJudgmentViewModel
                 {
                     GradeId = gradeId,
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     ValueJudgmentDto = gradeDto.ValueJudgmentDto,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,

@@ -31,6 +31,8 @@ namespace KOP.WEB.Controllers
                 var viewModel = new MarksViewModel
                 {
                     GradeId = gradeId,
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     MarkTypes = gradeDto.MarkTypeDtoList,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
