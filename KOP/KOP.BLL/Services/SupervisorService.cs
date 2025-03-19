@@ -1,7 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Enums;
-using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
 
@@ -20,197 +19,52 @@ namespace KOP.BLL.Services
             _assessmentService = assessmentService;
         }
 
-        public async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(int supervisorId)
+        private async Task<IEnumerable<UserDto>> GetUsers(Subdivision subdivision)
         {
-            try
+            var subordinateUserDtoList = new List<UserDto>();
+
+            foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
             {
-                var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
-                {
+                var userDto = _mappingService.CreateUserDto(user);
+
+                subordinateUserDtoList.Add(userDto);
+            }
+
+            foreach (var childSubdivision in subdivision.Children)
+            {
+                var csubordinateUsersFromChild = await GetUsers(childSubdivision);
+
+                subordinateUserDtoList.AddRange(csubordinateUsersFromChild);
+            }
+
+            return subordinateUserDtoList;
+        }
+        public async Task<IEnumerable<SubdivisionDto>> GetSubordinateSubdivisions(int supervisorId)
+        {
+            var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId,
+                includeProperties: new string[]{
                     "SubordinateSubdivisions.Users.Grades",
                     "SubordinateSubdivisions.Children.Users.Grades",
-                });
+            });
 
-                if (supervisor == null)
-                {
-                    return new BaseResponse<List<UserDto>>()
-                    {
-                        Description = $"Пользователь с id = {supervisorId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                var allSubordinateUsers = new List<UserDto>();
-
-                foreach (var subdivision in supervisor.SubordinateSubdivisions)
-                {
-                    var getSubordinateUsersRes = await GetSubordinateUsers(subdivision);
-
-                    if (!getSubordinateUsersRes.HasData)
-                    {
-                        return new BaseResponse<List<UserDto>>()
-                        {
-                            Description = getSubordinateUsersRes.Description,
-                            StatusCode = getSubordinateUsersRes.StatusCode,
-                        };
-                    }
-
-                    allSubordinateUsers.AddRange(getSubordinateUsersRes.Data);
-                }
-
-                return new BaseResponse<List<UserDto>>()
-                {
-                    Data = allSubordinateUsers,
-                    StatusCode = StatusCodes.OK,
-                };
-            }
-            catch (Exception ex)
+            if (supervisor == null)
             {
-                return new BaseResponse<List<UserDto>>()
-                {
-                    Description = $"[SupervisorService.GetSubordinateUsers] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
+                throw new Exception($"Supervisor with ID {supervisorId} not found.");
             }
+
+            var subordinateSubdivisionDtoList = new List<SubdivisionDto>();
+
+            foreach (var subdivision in supervisor.SubordinateSubdivisions)
+            {
+                var subdivisionDto = await ProcessSubdivision(subdivision);
+                if (subdivisionDto != null)
+                {
+                    subordinateSubdivisionDtoList.Add(subdivisionDto);
+                }
+            }
+
+            return subordinateSubdivisionDtoList;
         }
-
-        public async Task<IBaseResponse<object>> ApproveEmployeeGrade(int gradeId)
-        {
-            try
-            {
-                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
-                if (grade is null)
-                {
-                    return new BaseResponse<object>()
-                    {
-                        Description = $"Оценка с ID = {gradeId} не найдена",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                grade.GradeStatus = GradeStatuses.COMPLETED;
-                grade.SystemStatus = SystemStatuses.COMPLETED;
-
-                foreach (var assessment in grade.Assessments)
-                {
-                    var pendingAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.PENDING);
-                    foreach (var result in pendingAssessmentResults)
-                    {
-                        _unitOfWork.AssessmentResults.Remove(result);
-                    }
-
-                    assessment.SystemStatus = SystemStatuses.COMPLETED;
-                }
-
-                _unitOfWork.Grades.Update(grade);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponse<object>()
-                {
-                    StatusCode = StatusCodes.OK,
-                };
-            }
-            catch (Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                return new BaseResponse<object>()
-                {
-                    Description = $"[SupervisorService.ApproveEmployeeGrade] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        private async Task<IBaseResponse<List<UserDto>>> GetSubordinateUsers(Subdivision subdivision)
-        {
-            try
-            {
-                var subordinateUsers = new List<UserDto>();
-
-                foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
-                {
-                    var userDto = _mappingService.CreateUserDto(user);
-
-                    subordinateUsers.Add(userDto);
-                }
-
-                foreach (var childSubdivision in subdivision.Children)
-                {
-                    var subordinateUsersFromChildSubdivisionRes = await GetSubordinateUsers(childSubdivision);
-
-                    if (!subordinateUsersFromChildSubdivisionRes.HasData)
-                    {
-                        return new BaseResponse<List<UserDto>>()
-                        {
-                            Description = subordinateUsersFromChildSubdivisionRes.Description,
-                            StatusCode = subordinateUsersFromChildSubdivisionRes.StatusCode,
-                        };
-                    }
-
-                    subordinateUsers.AddRange(subordinateUsersFromChildSubdivisionRes.Data);
-                }
-
-                return new BaseResponse<List<UserDto>>()
-                {
-                    Data = subordinateUsers,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<List<UserDto>>()
-                {
-                    Description = $"[SupervisorService.GetSubordinateUsers] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
-        public async Task<IBaseResponse<IEnumerable<SubdivisionDto>>> GetUserSubordinateSubdivisions(int supervisorId)
-        {
-            try
-            {
-                var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: new string[]
-                {
-                    "SubordinateSubdivisions.Users.Grades",
-                    "SubordinateSubdivisions.Children.Users.Grades",
-                });
-
-                if (supervisor == null)
-                {
-                    return new BaseResponse<IEnumerable<SubdivisionDto>>()
-                    {
-                        Description = $"Пользователь с id = {supervisorId} не найден",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                var subdivisionsDtos = new List<SubdivisionDto>();
-
-                foreach (var subdivision in supervisor.SubordinateSubdivisions)
-                {
-                    var subdivisionDto = await ProcessSubdivision(subdivision);
-                    if (subdivisionDto != null)
-                    {
-                        subdivisionsDtos.Add(subdivisionDto);
-                    }
-                }
-
-                return new BaseResponse<IEnumerable<SubdivisionDto>>()
-                {
-                    Data = subdivisionsDtos,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<IEnumerable<SubdivisionDto>>()
-                {
-                    Description = $"[SupervisorService.GetUserSubordinateSubdivisions] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
         private async Task<SubdivisionDto?> ProcessSubdivision(Subdivision subdivision)
         {
             var subdivisionDto = new SubdivisionDto
@@ -237,7 +91,7 @@ namespace KOP.BLL.Services
                     continue;
                 }
 
-                foreach (var dto in userDto.LastGrade.AssessmentDtos)
+                foreach (var dto in userDto.LastGrade.AssessmentDtoList)
                 {
                     var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
@@ -262,6 +116,86 @@ namespace KOP.BLL.Services
             }
 
             return subdivisionDto.Users.Count > 0 || subdivisionDto.Children.Count > 0 ? subdivisionDto : null;
+        }
+
+        public async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(int supervisorId)
+        {
+            var supervisor = await _unitOfWork.Users.GetAsync(
+                x => x.Id == supervisorId,
+                includeProperties: new string[]
+                {
+                    "SubordinateSubdivisions.Users.Grades",
+                    "SubordinateSubdivisions.Children.Users.Grades",
+                }
+            );
+
+            if (supervisor == null)
+            {
+                throw new Exception($"User with ID {supervisorId} not found.");
+            }
+
+            var allSubordinateUsers = new List<UserSummaryDto>();
+
+            foreach (var subdivision in supervisor.SubordinateSubdivisions)
+            {
+                var subordinateUsers = await GetSubordinateUsersSummariesHasGrade(subdivision);
+
+                allSubordinateUsers.AddRange(subordinateUsers);
+            }
+
+            return allSubordinateUsers;
+        }
+        private async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(Subdivision subdivision)
+        {
+            var subordinateUsers = new List<UserSummaryDto>();
+
+            foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee) && x.Grades.Any()))
+            {
+                subordinateUsers.Add(new UserSummaryDto
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Position = user.Position,
+                    SubdivisionFromFile = user.SubdivisionFromFile,
+                });
+            }
+
+            foreach (var childSubdivision in subdivision.Children)
+            {
+                var subordinateUsersFromChildSubdivision = await GetSubordinateUsersSummariesHasGrade(childSubdivision);
+
+                subordinateUsers.AddRange(subordinateUsersFromChildSubdivision);
+            }
+
+            return subordinateUsers;
+        }
+
+
+        public async Task ApproveGrade(int gradeId)
+        {
+            var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
+
+            if (grade == null)
+            {
+                throw new Exception($"Grade with ID {gradeId} not found.");
+            }
+
+            grade.GradeStatus = GradeStatuses.COMPLETED;
+            grade.SystemStatus = SystemStatuses.COMPLETED;
+
+            foreach (var assessment in grade.Assessments)
+            {
+                var pendingAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.PENDING);
+                foreach (var result in pendingAssessmentResults)
+                {
+                    _unitOfWork.AssessmentResults.Remove(result);
+                }
+
+                assessment.SystemStatus = SystemStatuses.COMPLETED;
+            }
+
+            _unitOfWork.Grades.Update(grade);
+            await _unitOfWork.CommitAsync();
         }
     }
 }

@@ -13,7 +13,5 @@ namespace KOP.DAL.Entities.AssessmentEntities
 
         public List<Assessment> Assessments { get; set; } = new();
         public List<AssessmentInterpretation> AssessmentInterpretations { get; set; } = new();
-
-        public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
 }

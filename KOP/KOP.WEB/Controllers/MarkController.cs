@@ -31,12 +31,12 @@ namespace KOP.WEB.Controllers
                 var viewModel = new MarksViewModel
                 {
                     GradeId = gradeId,
-                    MarkTypes = gradeDto.MarkTypes,
+                    MarkTypes = gradeDto.MarkTypeDtoList,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                 };
 
-                return View("_Marks", viewModel);
+                return View("_MarksPartial", viewModel);
             }
             catch
             {
@@ -50,13 +50,13 @@ namespace KOP.WEB.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> EditAll(MarksViewModel viewModel)
+        public async Task<IActionResult> EditAll([FromForm] MarksViewModel viewModel)
         {
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
 
-                gradeDto.MarkTypes = viewModel.MarkTypes;
+                gradeDto.MarkTypeDtoList = viewModel.MarkTypes;
                 gradeDto.IsMarksFinalized = viewModel.IsFinalized;
 
                 await _gradeService.EditGrade(gradeDto);

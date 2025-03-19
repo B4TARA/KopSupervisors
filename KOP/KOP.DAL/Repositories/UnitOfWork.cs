@@ -11,6 +11,7 @@ namespace KOP.DAL.Repositories
         private readonly ApplicationDbContext _dbContext;
 
         private IAssessmentInterpretationRepository? assessmentInterpretationRepository;
+        private IAssessmentRangeRepository? assessmentRangeRepository;
         private IAssessmentMatrixElementRepository? assessmentMatrixElementRepository;
         private IAssessmentMatrixRepository? assessmentMatrixRepository;
         private IAssessmentRepository? assessmentRepository;
@@ -44,6 +45,16 @@ namespace KOP.DAL.Repositories
                 if (assessmentInterpretationRepository == null)
                     assessmentInterpretationRepository = new AssessmentInterpretationRepository(_dbContext);
                 return assessmentInterpretationRepository;
+            }
+        }
+
+        public IAssessmentRangeRepository AssessmentRanges
+        {
+            get
+            {
+                if (assessmentRangeRepository == null)
+                    assessmentRangeRepository = new AssessmentRangeRepository(_dbContext);
+                return assessmentRangeRepository;
             }
         }
 

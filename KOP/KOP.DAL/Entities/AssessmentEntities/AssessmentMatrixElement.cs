@@ -10,7 +10,5 @@
 
         public int MatrixId { get; set; }
         public AssessmentMatrix Matrix { get; set; }
-
-        public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
 }

@@ -783,6 +783,9 @@ function saveMarksAsDraft(gradeId) {
 
     const formData = new FormData(form);
     formData.append('IsFinalized', false);
+    formData.forEach((value, key) => {
+        console.log(`Key: ${key}, Value: ${value}, Type: ${typeof value}`);
+    });
 
     fetch(`/Mark/EditAll`, {
         method: 'POST',

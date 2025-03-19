@@ -3,9 +3,9 @@
 @{
 	Layout = null;
 
-	var strengths = Model.ValueJudgment.Strengths;
-	var behaviorToCorrect = Model.ValueJudgment.BehaviorToCorrect;
-	var recommendations = Model.ValueJudgment.RecommendationsForDevelopment;
+	var strengths = Model.ValueJudgmentDto.Strengths;
+	var behaviorToCorrect = Model.ValueJudgmentDto.BehaviorToCorrect;
+	var recommendations = Model.ValueJudgmentDto.RecommendationsForDevelopment;
 }
 
 @if (!Model.ViewAccess)
@@ -23,7 +23,7 @@ else
 {
 		<form id="popupForm">
 			<input type="hidden" asp-for="GradeId">
-			<input type="hidden" asp-for="ValueJudgment.Id">
+		<input type="hidden" asp-for="ValueJudgmentDto.Id">
 			<div asp-validation-summary="All">
 				<!-- Ошибки валидации будут отображаться тут-->
 			</div>
@@ -39,7 +39,7 @@ else
 						Сильные стороны работника:
 					@if (Model.EditAccess)
 					{
-						<textarea asp-for="ValueJudgment.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+						<textarea asp-for="ValueJudgmentDto.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
 					}else{
 						<b>@strengths</b>
 					}
@@ -48,7 +48,7 @@ else
 						Зоны деятельности / поведение работника, требующие корректировки:
 					@if (Model.EditAccess)
 					{
-						<textarea asp-for="ValueJudgment.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+						<textarea asp-for="ValueJudgmentDto.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
 					}
 					else
 					{
@@ -60,7 +60,7 @@ else
 						Рекомендации по развитию работника:
 					@if (Model.EditAccess)
 					{
-						<textarea asp-for="ValueJudgment.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+						<textarea asp-for="ValueJudgmentDto.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
 					}
 					else
 					{

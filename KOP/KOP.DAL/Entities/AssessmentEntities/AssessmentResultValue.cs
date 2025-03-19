@@ -1,24 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace KOP.DAL.Entities.AssessmentEntities
+﻿namespace KOP.DAL.Entities.AssessmentEntities
 {
     public class AssessmentResultValue
     {
-        [Key]
-        public int Id { get; set; } // id значения результата качественной оценки
+        public int Id { get; set; }
+        public int Value { get; set; }
+        public int AssessmentMatrixRow { get; set; }
 
-        [Required]
-        public int Value { get; set; } // значение результата качественной оценки
-
-        [Required]
-        public int AssessmentMatrixRow { get; set; } // строка матрицы, к которой относится данное значение
-
-
-
-        public AssessmentResult AssessmentResult { get; set; } // Результат качественной оценки, к которому относится данный результат
+        public AssessmentResult AssessmentResult { get; set; }
         public int AssessmentResultId { get; set; }
-
-
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }

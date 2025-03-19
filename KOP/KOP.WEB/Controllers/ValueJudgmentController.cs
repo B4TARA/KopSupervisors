@@ -11,19 +11,33 @@ namespace KOP.WEB.Controllers
     public class ValueJudgmentController : Controller
     {
         private readonly IGradeService _gradeService;
+        private readonly ILogger<ValueJudgmentController> _logger;
 
-        public ValueJudgmentController(IGradeService gradeService)
+        public ValueJudgmentController(IGradeService gradeService, ILogger<ValueJudgmentController> logger)
         {
             _gradeService = gradeService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.ValueJudgment });
+
+                if (gradeDto.ValueJudgmentDto == null)
+                {
+                    throw new Exception($"ValueJudgment is null for Grade with ID {gradeId}.");
+                }
 
                 var editAccess = (User.IsInRole("Supervisor") && !gradeDto.IsValueJudgmentFinalized) || User.IsInRole("Urp");
                 var viewAccess = gradeDto.IsValueJudgmentFinalized || editAccess;
@@ -31,15 +45,17 @@ namespace KOP.WEB.Controllers
                 var viewModel = new ValueJudgmentViewModel
                 {
                     GradeId = gradeId,
-                    ValueJudgment = gradeDto.ValueJudgment,
+                    ValueJudgmentDto = gradeDto.ValueJudgmentDto,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                 };
 
-                return View("_ValueJudgment", viewModel);
+                return View("_ValueJudgmentPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[ValueJudgmentController.GetPopup] : ");
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -52,11 +68,18 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(ValueJudgmentViewModel viewModel)
         {
+            if (viewModel.GradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
+
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.ValueJudgment });
 
-                gradeDto.ValueJudgment = viewModel.ValueJudgment;
+                gradeDto.ValueJudgmentDto = viewModel.ValueJudgmentDto;
                 gradeDto.IsValueJudgmentFinalized = viewModel.IsFinalized;
 
                 await _gradeService.EditGrade(gradeDto);
@@ -65,6 +88,8 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[ValueJudgmentController.Edit] : ");
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",

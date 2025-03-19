@@ -14,10 +14,8 @@ namespace KOP.WEB
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
-            services.AddScoped<ICommonService, CommonService>();
-            services.AddScoped<IEmailSender, EmailSender>();
-            services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IAssessmentInterpretationRepository, AssessmentInterpretationRepository>();
+            services.AddScoped<IAssessmentRangeRepository, AssessmentRangeRepository>();
             services.AddScoped<IMailRepository, MailRepository>();
             services.AddScoped<IAssessmentMatrixElementRepository, AssessmentMatrixElementRepository>();
             services.AddScoped<IAssessmentMatrixRepository, AssessmentMatrixRepository>();
@@ -43,6 +41,9 @@ namespace KOP.WEB
 
         public static void InitializeServices(this IServiceCollection services)
         {
+            services.AddScoped<ICommonService, CommonService>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IGradeService, GradeService>();
             services.AddScoped<IMappingService, MappingService>();
             services.AddScoped<IAccountService, AccountService>();

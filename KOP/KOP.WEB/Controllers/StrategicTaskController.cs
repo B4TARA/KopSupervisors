@@ -12,39 +12,50 @@ namespace KOP.WEB.Controllers
     public class StrategicTaskController : Controller
     {
         private readonly IGradeService _gradeService;
+        private readonly ILogger<StrategicTaskController> _logger;
 
-        public StrategicTaskController(IGradeService gradeService)
+        public StrategicTaskController(IGradeService gradeService, ILogger<StrategicTaskController> logger)
         {
             _gradeService = gradeService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                var userId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
                 var conclusionEditAccess = User.IsInRole("Urp");
-                var editAccess = (gradeDto.UserId == userId && User.IsInRole("Employee") && !gradeDto.IsStrategicTasksFinalized) || User.IsInRole("Urp");
+                var editAccess = (gradeDto.UserId == currentUserId && User.IsInRole("Employee") && !gradeDto.IsStrategicTasksFinalized) || User.IsInRole("Urp");
                 var viewAccess = gradeDto.IsStrategicTasksFinalized || editAccess;
 
                 var viewModel = new StrategicTasksViewModel
                 {
                     GradeId = gradeId,
                     Conclusion = gradeDto.StrategicTasksConclusion,
-                    StrategicTasks = gradeDto.StrategicTasks,
+                    StrategicTaskDtoList = gradeDto.StrategicTaskDtoList,
                     EditAccess = editAccess,
                     ConclusionEditAccess = conclusionEditAccess,
                     ViewAccess = viewAccess,
                 };
 
-                return View("_StrategicTasks", viewModel);
+                return View("_StrategicTasksPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[StrategicTaskController.GetPopup] : ");
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -57,11 +68,18 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> EditAll(StrategicTasksViewModel viewModel)
         {
+            if (viewModel.GradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
+
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
 
-                gradeDto.StrategicTasks = viewModel.StrategicTasks;
+                gradeDto.StrategicTaskDtoList = viewModel.StrategicTaskDtoList;
                 gradeDto.StrategicTasksConclusion = viewModel.Conclusion;
                 gradeDto.IsStrategicTasksFinalized = viewModel.IsFinalized;
 
@@ -71,6 +89,8 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[StrategicTaskController.EditAll] : ");
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",
@@ -83,6 +103,13 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid strategicTaskId: {id}", id);
+
+                return BadRequest("Invalid strategicTask ID.");
+            }
+
             try
             {
                 await _gradeService.DeleteStrategicTask(id);
@@ -91,6 +118,8 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[StrategicTaskController.Delete] : ");
+
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",

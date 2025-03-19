@@ -10,9 +10,6 @@ namespace KOP.BLL.Interfaces
         Task<bool> IsActiveAssessment(int judgeId, int judgedId, int? assessmentId = null);
         Task DeleteJudgeForAssessment(int assessmentResultId);
         Task AddJudgeForAssessment(int judgeId, int assessmentId, int assignerId);
-
-        // !!! КОСТЫЛЬ-МЕТОД ДЛЯ ВРЕМЕННОЙ ЗАГЛУШКИ !!!
-        // Добавить таблицу AssessmentColumns для указания соответствия между столбцом матрицы и диапазоном значений //
-        int GetInterpretationColumnByAssessmentValue(int? value);
+        Task<int> GetMatrixColumnForAssessmentValue(int value);
     }
 }

@@ -76,7 +76,7 @@ namespace KOP.BLL.Services
             var projects = new List<Project>();
             var marks = new List<Mark>();
 
-            foreach (var strategicTaskDto in dto.StrategicTasks)
+            foreach (var strategicTaskDto in dto.StrategicTaskDtoList)
             {
                 var strategicTask = new StrategicTask
                 {
@@ -92,7 +92,7 @@ namespace KOP.BLL.Services
                 strategicTasks.Add(strategicTask);
             }
 
-            foreach (var kpiDto in dto.Kpis)
+            foreach (var kpiDto in dto.KpiDtoList)
             {
                 var kpi = new Kpi
                 {
@@ -106,7 +106,7 @@ namespace KOP.BLL.Services
                 kpis.Add(kpi);
             }
 
-            foreach (var projectDto in dto.Projects)
+            foreach (var projectDto in dto.ProjectDtoList)
             {
                 var project = new Project
                 {
@@ -123,7 +123,7 @@ namespace KOP.BLL.Services
                 projects.Add(project);
             }
 
-            foreach (var markTypeDto in dto.MarkTypes)
+            foreach (var markTypeDto in dto.MarkTypeDtoList)
             {
                 foreach (var markDto in markTypeDto.Marks)
                 {
@@ -138,25 +138,24 @@ namespace KOP.BLL.Services
                 }
             }
 
-            if (dto.ValueJudgment != null)
+            if (dto.ValueJudgmentDto != null)
             {
-                grade.ValueJudgment.Strengths = dto.ValueJudgment.Strengths ?? "";
-                grade.ValueJudgment.BehaviorToCorrect = dto.ValueJudgment.BehaviorToCorrect ?? "";
-                grade.ValueJudgment.RecommendationsForDevelopment = dto.ValueJudgment.RecommendationsForDevelopment ?? "";
+                grade.ValueJudgment.Strengths = dto.ValueJudgmentDto.Strengths ?? "";
+                grade.ValueJudgment.BehaviorToCorrect = dto.ValueJudgmentDto.BehaviorToCorrect ?? "";
+                grade.ValueJudgment.RecommendationsForDevelopment = dto.ValueJudgmentDto.RecommendationsForDevelopment ?? "";
             }
 
-            if (dto.Qualification != null)
+            if (dto.QualificationDto != null)
             {
+                grade.Qualification.CurrentStatusDate = dto.QualificationDto.CurrentStatusDate;
+                grade.Qualification.CurrentExperienceYears = dto.QualificationDto.CurrentExperienceYears;
+                grade.Qualification.CurrentExperienceMonths = dto.QualificationDto.CurrentExperienceMonths;
+                grade.Qualification.CurrentJobStartDate = dto.QualificationDto.CurrentJobStartDate;
+                grade.Qualification.CurrentJobPositionName = dto.QualificationDto.CurrentJobPositionName ?? "";
+                grade.Qualification.EmploymentContarctTerminations = dto.QualificationDto.EmploymentContarctTerminations ?? "";
+                grade.Qualification.QualificationResult = dto.QualificationDto.QualificationResult ?? "";
 
-                grade.Qualification.CurrentStatusDate = dto.Qualification.CurrentStatusDate;
-                grade.Qualification.CurrentExperienceYears = dto.Qualification.CurrentExperienceYears;
-                grade.Qualification.CurrentExperienceMonths = dto.Qualification.CurrentExperienceMonths;
-                grade.Qualification.CurrentJobStartDate = dto.Qualification.CurrentJobStartDate;
-                grade.Qualification.CurrentJobPositionName = dto.Qualification.CurrentJobPositionName ?? "";
-                grade.Qualification.EmploymentContarctTerminations = dto.Qualification.EmploymentContarctTerminations ?? "";
-                grade.Qualification.QualificationResult = dto.Qualification.QualificationResult ?? "";
-
-                foreach (var previousJob in dto.Qualification.PreviousJobs)
+                foreach (var previousJob in dto.QualificationDto.PreviousJobs)
                 {
                     grade.Qualification.PreviousJobs.Add(new PreviousJob
                     {
@@ -167,7 +166,7 @@ namespace KOP.BLL.Services
                     });
                 }
 
-                foreach (var higherEducation in dto.Qualification.HigherEducations)
+                foreach (var higherEducation in dto.QualificationDto.HigherEducations)
                 {
                     grade.Qualification.HigherEducations.Add(new HigherEducation
                     {

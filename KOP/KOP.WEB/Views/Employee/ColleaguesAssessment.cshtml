@@ -5,17 +5,8 @@
 }
 
 <div class="user_assessment_main_wrapper">
-	@if (Model.ColleagueAssessmentResults.Count() == 0)
+	@if (!Model.ColleagueAssessmentResultDtoList.Any())
 	{
-		@* <div class="undefined_page_wrapper">
-			<div class="title">
-				Некого оценивать
-			</div>
-			<div class="empty_state_image_wrapper_middle">
-				<img src="/image/EmptyState.png" alt="default_page">
-			</div>
-		</div> *@
-
 		<div class="undefined_page_wrapper">
 
 			<div class="container_description">
@@ -33,20 +24,20 @@
 	}
 	else
 	{
-		@foreach (var colleagueAssessmentResult in Model.ColleagueAssessmentResults)
+		@foreach (var dto in Model.ColleagueAssessmentResultDtoList)
 		{
 			<div class="user_assessment_wrapper">
 				<div class="dropdown_assessment_wrapper" onclick="openDropdownList(this)">
 					<div class="user_info_container assessment">
 
-						<div class="user_image" style="background-image:url('@colleagueAssessmentResult.Judged.ImagePath');"></div>
+						<div class="user_image" style="background-image:url('@dto.Judged.ImagePath');"></div>
 
 						<div class="user_info">
 							<div class="mid_title">
-								@colleagueAssessmentResult.Judged.FullName
+								@dto.Judged.FullName
 							</div>
 							<div class="mid_description">
-								@colleagueAssessmentResult.TypeName
+								@dto.TypeName
 							</div>
 						</div>
 					</div>
@@ -61,14 +52,12 @@
 						<div class="questions_main_wrapper">
 							<div class="question_wrapper">
 
-								@if (colleagueAssessmentResult.ElementsByRow.Count() == 0)
+								@if (dto.ElementsByRow.Count() == 0)
 								{
 									<div class="container_description">
 										<div class="mid_title">
 											Заполните матрицу качественной оценки
 										</div>
-
-										@* <img src="/image/undefinedpage.svg" alt="default_page"> *@
 										<div class="empty_state_image_wrapper_middle">
 											<img src="/image/EmptyState.png" alt="default_page">
 										</div>
@@ -85,7 +74,7 @@
 										</div>
 									</div>
 
-									<table id="table_assessment" class="table_assessment" colleagueId="@colleagueAssessmentResult.Judged.Id">
+									<table id="table_assessment" class="table_assessment" colleagueId="@dto.Judged.Id">
 										<thead class="table_header">
 											<tr>
 												<th class="table_header_elem">
@@ -97,7 +86,7 @@
 													int maxElementsToShow = 2;
 												}
 
-												@foreach (var assessmentMatrixHeaderElement in colleagueAssessmentResult.ElementsByRow[0])
+												@foreach (var assessmentMatrixHeaderElement in dto.ElementsByRow[0])
 												{
 													if (count >= maxElementsToShow)
 													{
@@ -111,7 +100,7 @@
 										</thead>
 
 										<tbody>
-											@for (int i = 1; i < colleagueAssessmentResult.ElementsByRow.Count(); i++)
+											@for (int i = 1; i < dto.ElementsByRow.Count(); i++)
 											{
 												<tr>
 													<td class="competence_description">
@@ -129,7 +118,7 @@
 																<table class="table_info_assessment ">
 																	<thead class="table_header">
 																		<tr>
-																			@foreach (var assessmentMatrixHeaderElement in colleagueAssessmentResult.ElementsByRow[0])
+																			@foreach (var assessmentMatrixHeaderElement in dto.ElementsByRow[0])
 																			{
 																				<th class="@assessmentMatrixHeaderElement.HtmlClassName">@assessmentMatrixHeaderElement.Value</th>
 																			}
@@ -137,7 +126,7 @@
 																	</thead>
 																	<tbody>
 																		<tr>
-																			@foreach (var assessmentMatrixElement in colleagueAssessmentResult.ElementsByRow[i])
+																			@foreach (var assessmentMatrixElement in dto.ElementsByRow[i])
 																			{
 																				<td class="mid_description">@assessmentMatrixElement.Value</td>
 																			}
@@ -153,7 +142,7 @@
 														maxElementsToShow = 2;
 													}
 
-													@foreach (var assessmentMatrixElement in colleagueAssessmentResult.ElementsByRow[i])
+													@foreach (var assessmentMatrixElement in dto.ElementsByRow[i])
 													{
 														if (count >= maxElementsToShow)
 														{
@@ -171,7 +160,7 @@
 
 																	<button class="number-minus" type="button" onclick="this.nextElementSibling.stepDown();">-</button>
 
-																	<input required="required" type="number" min="@colleagueAssessmentResult.MinValue" max="@colleagueAssessmentResult.MaxValue" value="1" class="mid_description input_assessment_value">
+																	<input required="required" type="number" min="@dto.MinValue" max="@dto.MaxValue" value="1" class="mid_description input_assessment_value">
 
 																	<button class="number-plus" type="button" onclick="this.previousElementSibling.stepUp();">+</button>
 																</div>
@@ -187,7 +176,7 @@
 										</tbody>
 									</table>
 
-									<div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @colleagueAssessmentResult.AssessmentId, @colleagueAssessmentResult.Id, @colleagueAssessmentResult.Judge.Id, false)">
+									<div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @dto.AssessmentId, @dto.Id, @dto.Judge.Id, false)">
 										Сохранить
 									</div>
 								}
