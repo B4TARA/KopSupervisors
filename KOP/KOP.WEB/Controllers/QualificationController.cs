@@ -33,6 +33,8 @@ namespace KOP.WEB.Controllers
                 {
                     GradeId = gradeId,
                     SelectedUserFullName = HttpContext.Session.GetString("SelectedUserFullName") ?? "-",
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     Conclusion = gradeDto.QualificationConclusion,
                     Qualification = gradeDto.QualificationDto,
                     EditAccess = editAccess,

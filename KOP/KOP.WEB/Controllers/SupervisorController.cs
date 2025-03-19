@@ -140,6 +140,7 @@ namespace KOP.WEB.Controllers
                 };
 
                 HttpContext.Session.SetString("SelectedUserFullName", viewModel.FullName);
+                HttpContext.Session.SetInt32("SelectedUserId", viewModel.Id);
 
                 if (user.LastGrade == null)
                 {

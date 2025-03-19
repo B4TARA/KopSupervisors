@@ -30,6 +30,8 @@ namespace KOP.WEB.Controllers
                 var viewModel = new ProjectsViewModel
                 {
                     GradeId = gradeId,
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     Qn2 = gradeDto.Qn2,
                     SelectedUserFullName = HttpContext.Session.GetString("SelectedUserFullName") ?? "-",
                     Projects = gradeDto.ProjectDtoList,

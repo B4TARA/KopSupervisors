@@ -43,6 +43,8 @@ namespace KOP.WEB.Controllers
                 var viewModel = new StrategicTasksViewModel
                 {
                     GradeId = gradeId,
+                    // CHTCK THIS !!!
+                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
                     Conclusion = gradeDto.StrategicTasksConclusion,
                     StrategicTaskDtoList = gradeDto.StrategicTaskDtoList,
                     EditAccess = editAccess,
