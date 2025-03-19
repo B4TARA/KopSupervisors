@@ -122,11 +122,11 @@
 					else
 					{
 						<span class="result_item_status yellow">
-							ГЛАЗ
 							<i class="fa-regular fa-clock"></i>
 						</span>
 					}
 					<div class="mid_title">Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей</div>
+					
 					<div class="result_item_popup_btn" onclick="getStrategicTasksPopup(@Model.LastGrade.Id)">
 
 						Подробнее
@@ -134,6 +134,13 @@
 
 					</div>
 
+					@if (!Model.LastGrade.IsStrategicTasksFinalized)
+					{
+						<span class="indicator_assessment">
+							<i class="fa-regular fa-eye" style="color: #ffffff;"></i>
+						</span>
+					}
+					
 
 				</div>
 			</div>

@@ -1788,24 +1788,27 @@ nav.close ~ .dashboard .top {
     }
 
 .list_division_users_wrapper {
-    margin-bottom: 30px;
+    /*margin-bottom: 30px;*/
 }
 
-/*.list_division_users_wrapper .list-items {
+    .list_division_users_wrapper .list-items {
+        margin-bottom:10px;
+    }
+    /*.list_division_users_wrapper .list-items {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
 */
-.list-items .list_division_users_wrapper {
-    transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
-    max-height: 0; /* Начальная высота */
-    overflow: hidden; /* Скрываем переполнение */
-    opacity: 0; /* Начальная непрозрачность */
-}
+    .list-items .list_division_users_wrapper {
+        transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
+        max-height: 0; /* Начальная высота */
+        overflow: hidden; /* Скрываем переполнение */
+        opacity: 0; /* Начальная непрозрачность */
+    }
 
     .list-items .list_division_users_wrapper.open {
-        max-height: 500px; /* Установите максимальную высоту, которая будет достаточной для вашего контента */
+        max-height: 1000px; /* Установите максимальную высоту, которая будет достаточной для вашего контента */
         opacity: 1; /* Полная непрозрачность */
     }
 
@@ -2201,6 +2204,7 @@ nav.close ~ .dashboard .top {
     .competence_description .mid_description {
         color: #000;
         font-weight: 500;
+        text-align:left;
     }
 
 /* .info_btn{
@@ -2286,6 +2290,7 @@ nav.close ~ .dashboard .top {
 /*****TABLE INFO ASSESSMENT****/
 .table_info_assessment thead th {
     font-size: 12px;
+    text-align:left;
 }
 
 .table_info_assessment tbody td {
@@ -2370,13 +2375,14 @@ button.show-modal,
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #1b74fd30;
+    background-color: #d4e5ff;
     position: sticky;
     top: 0;
     padding: 10px;
     border-radius: 50%;
     margin-left: auto;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
     .section_popup.result_popup .modal-box .close_btn:hover {
@@ -3762,6 +3768,14 @@ button.show-modal,
     background: #1B74FD;
     border-radius: 0px 15px 15px 0px;
 }*/
+
+.result_item span.indicator_assessment {
+    background: #FF280C;
+    border-radius:50%;
+    left:auto;
+    right:0;
+    top:-20px;
+}
 
 .result_item span {
     min-width: 39px;

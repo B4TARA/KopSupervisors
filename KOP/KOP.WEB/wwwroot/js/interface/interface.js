@@ -131,37 +131,55 @@ function popupResult(text, isReload) {
 function addRow(elem, type, id) {
 
     const rowContainer = document.getElementById("rowContainer");
+    const rowContainerEducation = document.getElementById("rowContainerEducation");
     let newIndex;
 
     if (rowContainer) {
         newIndex = rowContainer.children.length;
     }
 
+    let newIndexEducation;
+
+    if (rowContainerEducation) {
+        newIndexEducation = rowContainerEducation.children.length;
+    }
+
     const tablePopup = document.querySelector(' table tbody');
     const projectsInfoList = document.querySelector('.project_info_list');
 
     if (type === 'kpi') {
-
         const row = document.createElement('tr');
+
+        // Если это не первая строка, копируем значения из предыдущей строки
+        let previousRowValues = {};
+        if (newIndex > 0) {
+            const previousRow = tablePopup.children[newIndex - 1];
+            previousRowValues.startDate = previousRow.querySelector('input[name^="Kpis["][name$="PeriodStartDateTime"]').value;
+            previousRowValues.endDate = previousRow.querySelector('input[name^="Kpis["][name$="PeriodEndDateTime"]').value;
+            previousRowValues.name = previousRow.querySelector('input[name^="Kpis["][name$="Name"]').value;
+            previousRowValues.completionPercentage = previousRow.querySelector('input[name^="Kpis["][name$="CompletionPercentage"]').value;
+            previousRowValues.calculationMethod = previousRow.querySelector('input[name^="Kpis["][name$="CalculationMethod"]').value;
+        }
+
         row.innerHTML = `
-                <td>
-                                <input type="date" name="Kpis[${newIndex}].PeriodStartDateTime" required min="1994-01-01"/>
-                            </td>
-                            <td>
-                                <input type="date" name="Kpis[${newIndex}].PeriodEndDateTime" required min="1994-01-01"/>
-                            </td>
-                            <td>
-                                <input type="text" name="Kpis[${newIndex}].Name" placeholder="КПЭ" required />
-                            </td>
-                            <td>
-                                <input type="number" name="Kpis[${newIndex}].CompletionPercentage" placeholder="% выполнения" required />
-                            </td>
-                            <td>
-                                <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required />
-                            </td>
-                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
-                `
-        tablePopup.appendChild(row)
+            <td>
+                <input type="date" name="Kpis[${newIndex}].PeriodStartDateTime" required min="1994-01-01" value="${previousRowValues.startDate || ''}"/>
+            </td>
+            <td>
+                <input type="date" name="Kpis[${newIndex}].PeriodEndDateTime" required min="1994-01-01" value="${previousRowValues.endDate || ''}"/>
+            </td>
+            <td>
+                <input type="text" name="Kpis[${newIndex}].Name" placeholder="КПЭ" required value="${previousRowValues.name || ''}" />
+            </td>
+            <td>
+                <input type="number" name="Kpis[${newIndex}].CompletionPercentage" placeholder="% выполнения" required value="${previousRowValues.completionPercentage || ''}" />
+            </td>
+            <td>
+                <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required value="${previousRowValues.calculationMethod || ''}" />
+            </td>
+            <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+        `;
+        tablePopup.appendChild(row);
     }
     else if (type === 'strategy') {
 
@@ -245,9 +263,9 @@ function addRow(elem, type, id) {
                     по
                     <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" required />
+                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" required placeholder="Организация" />
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" required />
+                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" required placeholder="Должность"/>
                     ;
                        
                 </div>
@@ -267,11 +285,33 @@ function addRow(elem, type, id) {
             
         <tr>
                         <td><input type="text" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].Period" placeholder="Период" required /></td>
-                        <td><input type="number" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" required/></td>
+                        <td><input type="number" step="0.01" name="MarkTypes[${id}].Marks[${tableBodyRowsLength}].PercentageValue" required/></td>
                     </tr>
                     <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `
         tableBody.appendChild(row)
+    }
+    else if (type === 'education') {
+        const row = document.createElement('div');
+        row.classList.add('experience_item')
+        row.innerHTML = `
+           <div>
+                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Education" required />
+                    , специальность
+                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Speciality" required />
+                    , квалификация
+                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].QualificationName" required />
+                    , период обучения c
+                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].StartDateTime" required min="1970-01-01"/>
+                    по
+                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].EndDateTime" required min="1970-01-01"/>
+                    ;
+                       
+                </div>
+                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'education')"></i>      
+                `
+
+        rowContainerEducation.appendChild(row)
     }
 }
 
@@ -286,6 +326,7 @@ function deleteRow(elem, type) {
 function updateIndices(type) {
     const tablePopup = document.querySelector('table tbody');
     const rowContainer = document.getElementById("rowContainer");
+    const rowContainerEducation = document.getElementById("rowContainerEducation");
     const markTableBody = document.querySelector('.table_popup tbody');
 
     // Обновляем индексы для KPI
@@ -298,6 +339,8 @@ function updateIndices(type) {
             row.querySelector('input[name^="Kpis["][name$=".CompletionPercentage"]').name = `Kpis[${index}].CompletionPercentage`;
             row.querySelector('input[name^="Kpis["][name$=".CalculationMethod"]').name = `Kpis[${index}].CalculationMethod`;
         });
+
+        
     }
 
     // Обновляем индексы для стратегий
@@ -434,6 +477,18 @@ function updateIndices(type) {
         });
     }
 
+
+    // Обновляем индексы для образования
+     if (type === 'education') {
+        const educationRows = rowContainerEducation.querySelectorAll('.experience_item');
+        educationRows.forEach((row, index) => {
+            row.querySelector('input[name^="Qualification.HigherEducations["][name$=".Education"]').name = `Qualification.HigherEducations[${index}].Education`;
+            row.querySelector('input[name^="Qualification.HigherEducations["][name$=".Speciality"]').name = `Qualification.HigherEducations[${index}].Speciality`;
+            row.querySelector('input[name^="Qualification.HigherEducations["][name$=".QualificationName"]').name = `Qualification.HigherEducations[${index}].QualificationName`;
+            row.querySelector('input[name^="Qualification.HigherEducations["][name$=".StartDateTime"]').name = `Qualification.HigherEducations[${index}].StartDateTime`;
+            row.querySelector('input[name^="Qualification.HigherEducations["][name$=".EndDateTime"]').name = `Qualification.HigherEducations[${index}].EndDateTime`;
+        });
+    }
 
 }
 
@@ -1146,6 +1201,7 @@ function openUserDropdown() {
 
 // Функция для фильтрации таблицы
 function filterTable(filterValue) {
+
     const userWrappers = document.querySelectorAll('.list_division_users_wrapper.users.open');
 
     userWrappers.forEach(wrapper => {
@@ -1188,3 +1244,5 @@ window.onclick = function (event) {
         dropdownContent.style.display = 'none';
     }
 };
+
+filterTable('assessmentFalse')

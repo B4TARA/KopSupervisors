@@ -79,7 +79,8 @@ window.addEventListener('click', function (event) {
 });
 
 // Отрисовать график
-function drawAssessmentAnalytics(item,typeRender) {
+function drawAssessmentAnalytics(item, typeRender) {
+    const colleaguesAvgValueContainer = document.getElementById('colleaguesAvgValueContainer');
     // Удаляем предыдущий график, если он существует
     if (window.radarChart) {
         window.radarChart.destroy();
@@ -89,6 +90,13 @@ function drawAssessmentAnalytics(item,typeRender) {
         window.gaugeChart.destroy();
     }
 
+    if (item.typeName == 'Управленческие') {
+        colleaguesAvgValueContainer.style.display = 'none'
+    } else {
+        colleaguesAvgValueContainer.style.display = 'flex'
+    }
+
+    console.log(item)
     if (typeRender) {
         // Проверяем наличие данных
         if (!hasData(item)) {
@@ -97,6 +105,7 @@ function drawAssessmentAnalytics(item,typeRender) {
         }
 
         clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+
     }
     
 
@@ -215,7 +224,6 @@ function displayNoDataMessage() {
     `;
 
 }
-
 
 // Создаем наборы данных для графика
 function createDatasets(item) {
