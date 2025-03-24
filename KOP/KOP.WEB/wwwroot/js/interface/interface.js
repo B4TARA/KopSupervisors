@@ -562,7 +562,7 @@ function saveStrategicTasksAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveStrategicTasksAsFinal(gradeId) {
+function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -585,7 +585,9 @@ function saveStrategicTasksAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getStrategicTasksPopup(gradeId);
+            
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
@@ -663,7 +665,7 @@ function saveProjectsAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveProjectsAsFinal(gradeId) {
+function saveProjectsAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -686,6 +688,7 @@ function saveProjectsAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
             getProjectsPopup(gradeId);
         })
         .catch(error => {
@@ -763,7 +766,7 @@ function saveKpisAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveKpisAsFinal(gradeId) {
+function saveKpisAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -786,6 +789,7 @@ function saveKpisAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getKpisPopup(gradeId);
         })
         .catch(error => {
@@ -866,7 +870,7 @@ function saveMarksAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveMarksAsFinal(gradeId) {
+function saveMarksAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -889,6 +893,7 @@ function saveMarksAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
             getMarksPopup(gradeId);
         })
         .catch(error => {
@@ -1025,7 +1030,7 @@ function saveQualificationAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveQualificationAsFinal(gradeId) {
+function saveQualificationAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -1048,6 +1053,7 @@ function saveQualificationAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getQualificationPopup(gradeId);
         })
         .catch(error => {
@@ -1100,7 +1106,7 @@ function saveValueJudgmentAsDraft(gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveValueJudgmentAsFinal(gradeId) {
+function saveValueJudgmentAsFinal(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
@@ -1123,6 +1129,7 @@ function saveValueJudgmentAsFinal(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getValueJudgmentPopup(gradeId);
         })
         .catch(error => {
@@ -1247,5 +1254,3 @@ window.onclick = function (event) {
         dropdownContent.style.display = 'none';
     }
 };
-
-filterTable('assessmentFalse')

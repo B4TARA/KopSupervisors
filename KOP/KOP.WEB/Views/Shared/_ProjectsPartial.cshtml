@@ -175,7 +175,7 @@ else
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveProjectsAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId)">Сохранить</button>
+			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
 		}
 	</form>
 }

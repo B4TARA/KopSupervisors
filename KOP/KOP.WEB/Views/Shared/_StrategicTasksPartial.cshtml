@@ -23,7 +23,7 @@ else
 			<!-- Ошибки валидации будут отображаться тут-->
 		</div>
 		<div class="popup_content">
-			<div class="popup_content_header margin_container_bottom_middle">
+			<div class="popup_content_header margin_container_bottom_middle" >
 				<div class="title">
 					Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
 				</div>
@@ -155,7 +155,7 @@ else
 		@if (Model.EditAccess)
 		{
 			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId)">Сохранить</button>
+			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
 		}
 	</form>
 }

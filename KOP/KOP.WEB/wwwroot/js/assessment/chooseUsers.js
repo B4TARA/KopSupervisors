@@ -23,11 +23,11 @@ function optionClick(elem) {
     let idCol = elem.querySelector("label").getAttribute('idcol');
 
     // Проверка на максимальное количество пользователей
-    if (arrUsersForAssessment.length >= 3) {
-        let alertText = "Нельзя добавить больше трех сотрудников";
-        popupAlert(alertText, false);
-        return; // Выходим из функции, если достигнут лимит
-    }
+    //if (arrUsersForAssessment.length >= 3) {
+    //    let alertText = "Нельзя добавить больше трех сотрудников";
+    //    popupAlert(alertText, false);
+    //    return; // Выходим из функции, если достигнут лимит
+    //}
 
     // Проверка на уникальность добавляемого пользователя
     if (!arrUsersForAssessment.includes(idCol)) {
@@ -56,9 +56,9 @@ function optionClick(elem) {
         choose_user_container.appendChild(divBtnSubmit);
     }
     //Если добавлено 3 сотрудника, то закрываем
-    if (arrUsersForAssessment.length === 3) {
-        optionsContainer.classList.remove("active");
-    }
+    //if (arrUsersForAssessment.length === 3) {
+    //    optionsContainer.classList.remove("active");
+    //}
 
     const deleteItemBtn = document.querySelectorAll('.delete_item');
     deleteItemBtn.forEach(elem => {
