@@ -20,6 +20,12 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> GenerateGradeWordDocument([FromBody] GenerateGradeWordDocumentRequestModel requestModel)
         {
+            if (requestModel.gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {id}", requestModel.gradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var document = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
@@ -27,11 +33,15 @@ namespace KOP.WEB.Controllers
 
                 return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
             }
-            catch
+            catch(Exception ex)
             {
-                return StatusCode(500, "Ошибка при создании документа Word.");
+                _logger.LogError(ex, "[ReportController.GenerateGradeWordDocument] : ");
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при генерации документа.",
+                    details = ex.Message
+                });
             }
         }
-
     }
 }

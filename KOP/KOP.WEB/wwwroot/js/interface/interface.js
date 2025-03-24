@@ -1080,7 +1080,7 @@ function saveValueJudgmentAsFinal(gradeId) {
 async function getManagmentCompetenciesPopup(employeeId, gradeId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/Assessment/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -1099,7 +1099,7 @@ async function getManagmentCompetenciesPopup(employeeId, gradeId) {
 async function getCorporateCompetenciesPopup(employeeId, gradeId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Grade/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/Assessment/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -1117,7 +1117,7 @@ async function getCorporateCompetenciesPopup(employeeId, gradeId) {
 // TrainingEvents
 async function getTrainingEventsPopup(gradeId) {
     try {
-        let response = await fetch(`/Grade/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/TrainingEvent/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -1184,10 +1184,10 @@ function filterTable(filterValue) {
     });
 }
 
-// Закрытие дропдауна при клике вне его
-window.onclick = function (event) {
-    const dropdownContent = document.querySelector('.dropdown-content');
-    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
-        dropdownContent.style.display = 'none';
-    }
-};
+//// Закрытие дропдауна при клике вне его
+//window.onclick = function (event) {
+//    const dropdownContent = document.querySelector('.dropdown-content');
+//    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
+//        dropdownContent.style.display = 'none';
+//    }
+//};

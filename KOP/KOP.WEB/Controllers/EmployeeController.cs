@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using KOP.BLL.Interfaces;
-using KOP.BLL.Services;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -8,7 +7,6 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.OpenXmlFormats.Wordprocessing;
 
 namespace KOP.WEB.Controllers
 {
@@ -34,13 +32,14 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetAssessmentLayout(int userId)
+        public async Task<IActionResult> GetAssessmentLayout()
         {
-            var isActive = await _assessmentService.IsActiveAssessment(userId, userId);
+            var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+            var isActive = await _assessmentService.IsActiveAssessment(currentUserId, currentUserId);
 
             var viewModel = new AssessmentLayoutViewModel
             {
-                EmployeeId = userId,
                 IsActiveSelfAssessment = isActive
             };
 
@@ -49,9 +48,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetGradeLayout(int employeeId)
+        public async Task<IActionResult> GetGradeLayout()
         {
-            var userDto = await _userService.GetUser(employeeId);
+            var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+            var userDto = await _userService.GetUser(currentUserId);
 
             var viewModel = new GradeLayoutViewModel
             {
@@ -93,9 +94,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetColleaguesAssessment(int employeeId)
+        public async Task<IActionResult> GetColleaguesAssessment()
         {
-            var response = await _userService.GetColleaguesAssessmentResultsForAssessment(employeeId);
+            var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+            var response = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
 
             if (!response.HasData)
             {
@@ -187,11 +190,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetGrades(int employeeId)
+        public async Task<IActionResult> GetGrades(int userId)
         {
             try
             {
-                var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(employeeId);
+                var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(userId);
 
                 return View("EmployeeGrades", gradeSummaryDtoList);
             }

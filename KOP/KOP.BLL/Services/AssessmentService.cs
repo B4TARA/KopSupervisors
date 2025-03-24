@@ -146,7 +146,7 @@ namespace KOP.BLL.Services
                 .ToList();
 
             
-            assessmentSummaryDto.IsFinalized = IsAssessmentFinalized(assessmentType, completedAssessmentResults, assessment.UserId);
+            assessmentSummaryDto.IsFinalized = IsAssessmentFinalized(assessmentType, completedAssessmentResults);
 
             ProcessColleaguesResults(colleaguesAssessmentResults, assessmentSummaryDto);
             ProcessCompletedResults(completedAssessmentResults, assessmentSummaryDto);
@@ -197,7 +197,7 @@ namespace KOP.BLL.Services
             return values.Count > 0 ? values.Average(x => x.Value) : 0;
         }
 
-        private bool IsAssessmentFinalized(SystemAssessmentTypes? assessmentType, List<AssessmentResult> completedResults, int userId)
+        public bool IsAssessmentFinalized(SystemAssessmentTypes? assessmentType, List<AssessmentResult> completedResults)
         {
             if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
             {

@@ -11,18 +11,34 @@ namespace KOP.WEB.Controllers
     public class KpiController : Controller
     {
         private readonly IGradeService _gradeService;
+        private readonly ILogger<KpiController> _logger;
 
-        public KpiController(IGradeService gradeService)
+        public KpiController(IGradeService gradeService, ILogger<KpiController> logger)
         {
             _gradeService = gradeService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
+                var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
+
+                if (!selectedUserId.HasValue || selectedUserId <= 0)
+                {
+                    _logger.LogWarning("SelectedUserId is incorrect or not found in session.");
+                    return BadRequest("Selected user ID is not valid.");
+                }
+
                 var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Kpis });
                 var conclusionEditAccess = User.IsInRole("Urp");
                 var editAccess = (User.IsInRole("Umst") && !gradeDto.IsKpisFinalized) || User.IsInRole("Urp");
@@ -31,8 +47,7 @@ namespace KOP.WEB.Controllers
                 var viewModel = new KpisViewModel
                 {
                     GradeId = gradeId,
-                    // CHTCK THIS !!!
-                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
+                    SelectedUserId = selectedUserId.Value,
                     Conclusion = gradeDto.KPIsConclusion,
                     Kpis = gradeDto.KpiDtoList,
                     EditAccess = editAccess,
@@ -42,8 +57,9 @@ namespace KOP.WEB.Controllers
 
                 return View("_KpisPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[KpiController.GetPopup] : ");
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -56,6 +72,12 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> EditAll(KpisViewModel viewModel)
         {
+            if (viewModel.GradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Kpis });
@@ -70,6 +92,7 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[KpiController.EditAll] : ");
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",
@@ -82,6 +105,12 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid kpiId: {id}", id);
+                return BadRequest("Invalid kpi ID.");
+            }
+
             try
             {
                 await _gradeService.DeleteKpi(id);
@@ -90,6 +119,7 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[KpiController.Delete] : ");
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",

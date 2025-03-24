@@ -1,0 +1,65 @@
+﻿@using KOP.Common.Enums
+@model KOP.WEB.Models.ViewModels.Admin.AssessmentMatrixViewModel
+
+@if(Model.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+{
+    <h2>Матрица КК</h2>
+}
+else{
+    <h2>Матрица УК</h2>
+}
+
+<form id="matrixForm">
+    <div id="matrix-container">
+        <table class="table" id="matrixTable">
+            <tbody>
+                @for (int row = 1; row <= Model.Elements.Max(e => e.Row); row++)
+                {
+                    <tr>
+                        @for (int column = 1; column <= Model.Elements.Max(e => e.Column); column++)
+                        {
+                            var element = Model.Elements.FirstOrDefault(e => e.Row == row && e.Column == column);
+                            if (element != null)
+                            {
+                                var index = Model.Elements.IndexOf(element);
+                                <td data-id="@element.Id" draggable="true">
+                                    <input type="hidden" asp-for="Elements[@index].Id" class="form-control" />
+                                    <input type="hidden" asp-for="Elements[@index].Column" class="form-control" />
+                                    <input type="hidden" asp-for="Elements[@index].Row" class="form-control" />
+                                    <input type="text" asp-for="Elements[@index].Value" class="form-control" />
+                                </td>
+                            }
+                            else
+                            {
+                                <td draggable="true">
+                                    <input type="hidden" asp-for="Elements[0].Id" class="form-control" />
+                                    <input type="hidden" asp-for="Elements[0].Column" class="form-control" />
+                                    <input type="hidden" asp-for="Elements[0].Row" class="form-control" />
+                                    <input type="text" asp-for="Elements[0].Value" class="form-control" />
+                                </td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <button type="button" id="save-button">Сохранить изменения</button>
+</form>
+
+<style>
+    td {
+        width: 100px;
+        height: 50px;
+        border: 1px solid #ccc;
+        text-align: center;
+        cursor: move; /* Указатель для перетаскивания */
+    }
+
+    .highlight {
+        background-color: #e0f7fa; /* Цвет подсветки */
+        border: 2px dashed #00796b; /* Дашированная рамка */
+    }
+</style>
+
+<script src="/js/adminScript.js"></script>
