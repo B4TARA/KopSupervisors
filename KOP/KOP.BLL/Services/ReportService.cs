@@ -209,13 +209,13 @@ namespace KOP.BLL.Services
             }
             foreach (var project in gradeDto.ProjectDtoList)
             {
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Дата открытия проекта {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Дата окончания проекта (план) {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Коэффициент успешности проекта {project.SuccessRate}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Средний KPI проекта - {project.AverageKpi}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(3), $"Оценка реализации проекта {project.SP}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата открытия проекта {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата окончания проекта (план) {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Коэффициент успешности проекта {project.SuccessRate}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Средний KPI проекта - {project.AverageKpi}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Оценка реализации проекта {project.SP}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
 
             // Строка 8: Вывод по KPI

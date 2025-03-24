@@ -38,9 +38,8 @@
 				<tbody>
 					@foreach (var employee in Model.Users)
 					{
-						if (employee.PendingGradeStatus)
+						if (employee.LastGrade?.GradeStatus == KOP.Common.Enums.GradeStatuses.PENDING)
 						{
-							// Вычисляем количество завершенных оценок
 							int completedGradeParts = 1;
 							if (employee.LastGrade.IsProjectsFinalized) completedGradeParts++;
 							if (employee.LastGrade.IsStrategicTasksFinalized) completedGradeParts++;
@@ -51,7 +50,6 @@
 							if (employee.LastGrade.IsCorporateCompetenciesFinalized) completedGradeParts++;
 							if (employee.LastGrade.IsManagmentCompetenciesFinalized) completedGradeParts++;
 
-							// Вычисляем процент завершения
 							double completionPercentage = (completedGradeParts / 9.0) * 100;
 
 							<tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row" data-assessment-flag="@employee.PendingGradeStatus">
@@ -75,7 +73,6 @@
 						}
 						else
 						{
-							// Если LastGrade == null или SystemStatus не PENDING, отображаем пустую ячейку или сообщение
 							<tr Id="@employee.Id" onclick="getEmployeeLayout(@employee.Id, this)" flagHide="" class="user_row" data-assessment-flag="@employee.PendingGradeStatus">
 								<td class="fullname">
 									@employee.FullName

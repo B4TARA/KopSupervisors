@@ -27,13 +27,26 @@ namespace KOP.WEB.Controllers
             if (gradeId <= 0)
             {
                 _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
-
                 return BadRequest("Invalid grade ID.");
             }
 
             try
             {
+                var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
+
+                if (!selectedUserId.HasValue || selectedUserId <= 0)
+                {
+                    _logger.LogWarning("SelectedUserId is incorrect or not found in session.");
+                    return BadRequest("Selected user ID is not valid.");
+                }
+
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
 
                 var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.StrategicTasks });
                 var conclusionEditAccess = User.IsInRole("Urp");
@@ -43,8 +56,7 @@ namespace KOP.WEB.Controllers
                 var viewModel = new StrategicTasksViewModel
                 {
                     GradeId = gradeId,
-                    // CHTCK THIS !!!
-                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
+                    SelectedUserId = selectedUserId.Value,
                     Conclusion = gradeDto.StrategicTasksConclusion,
                     StrategicTaskDtoList = gradeDto.StrategicTaskDtoList,
                     EditAccess = editAccess,
@@ -57,7 +69,6 @@ namespace KOP.WEB.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[StrategicTaskController.GetPopup] : ");
-
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -73,7 +84,6 @@ namespace KOP.WEB.Controllers
             if (viewModel.GradeId <= 0)
             {
                 _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
-
                 return BadRequest("Invalid grade ID.");
             }
 
@@ -92,7 +102,6 @@ namespace KOP.WEB.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[StrategicTaskController.EditAll] : ");
-
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",
@@ -108,7 +117,6 @@ namespace KOP.WEB.Controllers
             if (id <= 0)
             {
                 _logger.LogWarning("Invalid strategicTaskId: {id}", id);
-
                 return BadRequest("Invalid strategicTask ID.");
             }
 
@@ -121,7 +129,6 @@ namespace KOP.WEB.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[StrategicTaskController.Delete] : ");
-
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",

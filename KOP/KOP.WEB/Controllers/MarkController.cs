@@ -11,28 +11,41 @@ namespace KOP.WEB.Controllers
     public class MarkController : Controller
     {
         private readonly IGradeService _gradeService;
-
-        public MarkController(IGradeService gradeService)
+        private readonly ILogger<MarkController> _logger;
+        public MarkController(IGradeService gradeService, ILogger<MarkController> logger)
         {
             _gradeService = gradeService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Marks });
+                var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
 
+                if (!selectedUserId.HasValue || selectedUserId <= 0)
+                {
+                    _logger.LogWarning("SelectedUserId is incorrect or not found in session.");
+                    return BadRequest("Selected user ID is not valid.");
+                }
+
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Marks });
                 var editAccess = User.IsInRole("Urp");
                 var viewAccess = gradeDto.IsMarksFinalized || editAccess;
 
                 var viewModel = new MarksViewModel
                 {
                     GradeId = gradeId,
-                    // CHTCK THIS !!!
-                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
+                    SelectedUserId = selectedUserId.Value,
                     MarkTypes = gradeDto.MarkTypeDtoList,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
@@ -40,8 +53,9 @@ namespace KOP.WEB.Controllers
 
                 return View("_MarksPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[MarkController.GetPopup] : ");
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -52,8 +66,14 @@ namespace KOP.WEB.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> EditAll([FromForm] MarksViewModel viewModel)
+        public async Task<IActionResult> EditAll(MarksViewModel viewModel)
         {
+            if (viewModel.GradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Marks });
@@ -67,6 +87,7 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[MarkController.EditAll] : ");
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при сохранении.",
@@ -79,6 +100,12 @@ namespace KOP.WEB.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid markId: {id}", id);
+                return BadRequest("Invalid mark ID.");
+            }
+
             try
             {
                 await _gradeService.DeleteMark(id);
@@ -87,6 +114,7 @@ namespace KOP.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[MarkController.Delete] : ");
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при удалении.",

@@ -7,7 +7,7 @@
 <div class="list_menu_container">
     <ul class="list_menu_wrapper nav">
         <li class="item_menu">
-            <button class="link_menu description" id="colleagues_assessment_link_item" onclick="getColleaguesAssessment(@Model.EmployeeId)">
+            <button class="link_menu description" id="colleagues_assessment_link_item" onclick="getColleaguesAssessment()">
                 Оценить
             </button>
             <span class="indicator_assessment">
@@ -16,7 +16,7 @@
         @if (Model.IsActiveSelfAssessment)
         {
             <li class="item_menu active">
-                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(@Model.EmployeeId)">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment()">
                     Самооценка
                 </button>
                 <span class="indicator_assessment">
@@ -27,7 +27,7 @@
         else
         {
             <li class="item_menu">
-                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(@Model.EmployeeId)">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment()">
                     Самооценка
                 </button>
                 <span class="indicator_assessment">
@@ -42,5 +42,5 @@
 </div>
 
 <script>
-    getColleaguesAssessment(@Model.EmployeeId);
+    getColleaguesAssessment();
 </script>

@@ -2,6 +2,7 @@
 {
     public class AssessmentMatrixElementDto
     {
+        public int Id { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
         public string Value { get; set; }

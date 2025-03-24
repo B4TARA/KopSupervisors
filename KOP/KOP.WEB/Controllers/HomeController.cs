@@ -1,7 +1,5 @@
-﻿using KOP.WEB.Models.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
@@ -22,24 +20,6 @@ namespace KOP.WEB.Controllers
             {
                 return RedirectToAction("GetSupervisorLayout", "Supervisor");
             }
-        }
-
-        [HttpGet]
-        public IActionResult Error(StatusCodes statusCode, string message)
-        {
-            var viewModel = new ErrorViewModel
-            {
-                StatusCode = statusCode,
-                Message = message,
-            };
-
-            return View(viewModel);
-        }
-
-        public IActionResult AccessDenied()
-        {
-            // Здесь можно добавить логику обработки ошибки, например, запись в лог или отображение пользователю сообщения об ошибке
-            return View();
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using System.Security.Claims;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using KOP.BLL.Interfaces;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
+using KOP.DAL.Interfaces;
 using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Supervisor;
@@ -13,15 +16,19 @@ namespace KOP.WEB.Controllers
 {
     public class SupervisorController : Controller
     {
+        private readonly IUnitOfWork _unitOfWork;
+
         private readonly ISupervisorService _supervisorService;
         private readonly IAssessmentService _assessmentService;
         private readonly IUserService _userService;
         private readonly ICommonService _commonService;
         private readonly ILogger<SupervisorController> _logger;
 
-        public SupervisorController(ISupervisorService supervisorService, IAssessmentService assessmentService,
+        public SupervisorController(IUnitOfWork unitOfWork,ISupervisorService supervisorService, IAssessmentService assessmentService,
             IUserService userService, ICommonService commonService, ILogger<SupervisorController> logger)
         {
+            _unitOfWork = unitOfWork;
+
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
             _userService = userService;
@@ -33,9 +40,28 @@ namespace KOP.WEB.Controllers
         [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
         public IActionResult GetSupervisorLayout()
         {
-            var id = Convert.ToInt32(User.FindFirstValue("Id"));
+            try
+            {
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-            return View("SupervisorLayout", id);
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
+                return View("SupervisorLayout", currentUserId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SupervisorController.GetSupervisorLayout] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
         }
 
         [HttpGet]
@@ -89,6 +115,12 @@ namespace KOP.WEB.Controllers
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
                 var isActiveAssessment = await _assessmentService.IsActiveAssessment(currentUserId, employeeId);
 
                 var viewModel = new EmployeeViewModel
@@ -124,48 +156,61 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var user = await _userService.GetUser(employeeId);
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
+                var employee = await _unitOfWork.Users.GetAsync(x => x.Id == employeeId, includeProperties: "Grades");
+
+                if (employee == null)
+                {
+                    _logger.LogWarning($"User with ID {employeeId} not found.");
+                    return BadRequest($"User with ID {employeeId} not found.");
+                }
+
+                HttpContext.Session.SetString("SelectedUserFullName", employee.FullName);
+                HttpContext.Session.SetInt32("SelectedUserId", employee.Id);
 
                 var viewModel = new EmployeeGradeLayoutViewModel
                 {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Position = user.Position,
-                    SubdivisionFromFile = user.SubdivisionFromFile,
-                    GradeGroup = user.GradeGroup,
-                    WorkPeriod = user.WorkPeriod,
-                    ContractEndDate = user.ContractEndDate,
-                    ImagePath = user.ImagePath,
-                    LastGrade = user.LastGrade,
+                    Id = employee.Id,
+                    FullName = employee.FullName,
+                    Position = employee.Position,
+                    SubdivisionFromFile = employee.SubdivisionFromFile,
+                    GradeGroup = employee.GradeGroup,
+                    WorkPeriod = employee.GetWorkPeriod,
+                    ContractEndDate = employee.ContractEndDate,
+                    ImagePath = employee.ImagePath,
                 };
 
-                HttpContext.Session.SetString("SelectedUserFullName", viewModel.FullName);
-                HttpContext.Session.SetInt32("SelectedUserId", viewModel.Id);
+                var lastGrade = employee.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
 
-                if (user.LastGrade == null)
+                if (lastGrade == null)
                 {
-                    viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
-
                     return View("EmployeeGradeLayout", viewModel);
                 }
 
-                viewModel.GradeStatus = user.LastGrade.GradeStatus;
-
-                foreach (var dto in user.LastGrade.AssessmentDtoList)
+                viewModel.LastGrade = new GradeDto
                 {
-                    var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
+                    Id = lastGrade.Id,
+                    StartDate = lastGrade.StartDate,
+                    EndDate = lastGrade.EndDate,
+                    IsCorporateCompetenciesFinalized = lastGrade.IsCorporateCompetenciesFinalized,
+                    IsManagmentCompetenciesFinalized = lastGrade.IsManagmentCompetenciesFinalized,
+                    IsStrategicTasksFinalized = lastGrade.IsStrategicTasksFinalized,
+                    IsProjectsFinalized = lastGrade.IsProjectsFinalized,
+                    IsKpisFinalized = lastGrade.IsKpisFinalized,
+                    IsMarksFinalized = lastGrade.IsMarksFinalized,
+                    IsQualificationFinalized = lastGrade.IsQualificationFinalized,
+                    IsValueJudgmentFinalized = lastGrade.IsValueJudgmentFinalized,
+                    GradeStatus = lastGrade.GradeStatus,
+                };
 
-                    if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                    {
-                        viewModel.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                    }
-                    else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                    {
-                        viewModel.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                    }
-                }
-
-                if (user.LastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
+                if (lastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
                 {
                     return View("EmployeeGradeLayout", viewModel);
                 }
@@ -173,10 +218,10 @@ namespace KOP.WEB.Controllers
                 var supervisor = await _commonService.GetSupervisorForUser(employeeId);
                 if (supervisor == null)
                 {
-                    return View("EmployeeGradeLayout", viewModel);
+                    _logger.LogWarning($"Supervisor for user with ID {employeeId} not found.");
+                    return BadRequest($"Supervisor for user with ID {employeeId} not found.");
                 }
 
-                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
                 viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
 
                 return View("EmployeeGradeLayout", viewModel);
@@ -207,6 +252,12 @@ namespace KOP.WEB.Controllers
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
 
                 var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, currentUserId);
 
@@ -243,6 +294,12 @@ namespace KOP.WEB.Controllers
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
 
                 var assessment = await _assessmentService.GetAssessment(assessmentId);
                 var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
@@ -293,6 +350,12 @@ namespace KOP.WEB.Controllers
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
                 var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
 
                 return View("AnalyticsLayout", subordinateUsersSummariesHasGrades);
@@ -316,6 +379,12 @@ namespace KOP.WEB.Controllers
             try
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
 
                 var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
 
@@ -348,7 +417,12 @@ namespace KOP.WEB.Controllers
             {
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-                var assessmentId = requestModel.assessmentId;
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
                 var judgesIds = JsonConvert.DeserializeObject<List<string>>(requestModel.judgesIds);
 
                 if (judgesIds == null)
@@ -358,7 +432,7 @@ namespace KOP.WEB.Controllers
 
                 foreach (var judgeId in judgesIds)
                 {
-                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), assessmentId, currentUserId);
+                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), requestModel.assessmentId, currentUserId);
                 }
 
                 return Ok("Сохранение прошло успешно");

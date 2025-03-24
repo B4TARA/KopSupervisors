@@ -190,7 +190,13 @@ namespace KOP.BLL.Services
 
         public async Task AssessUser(AssessUserDto assessUserDto)
         {
-            var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId, includeProperties: new string[] { "Judge", "Assessment" });
+            var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessUserDto.AssessmentResultId,
+                includeProperties: [
+                    "Judge",
+                    "Assessment.AssessmentResults",
+                    "Assessment.AssessmentType",
+            ]);
+
             if (assessmentResult == null)
             {
                 throw new Exception($"AssessmentResult with ID {assessUserDto.AssessmentResultId} not found.");
@@ -212,15 +218,41 @@ namespace KOP.BLL.Services
 
             if (assessmentResult.Type == AssessmentResultTypes.UrpAssessment)
             {
-                var otherUrpAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x =>
+                var otherUrpAssessmentResults = assessmentResult.Assessment.AssessmentResults.Where(x =>
                     x.AssessmentId == assessmentResult.AssessmentId &&
                     x.Id != assessmentResult.Id &&
-                    x.Type == AssessmentResultTypes.UrpAssessment);
+                    x.Type == AssessmentResultTypes.UrpAssessment)
+                    .ToList();
 
                 foreach (var urpAssessmentResult in otherUrpAssessmentResults)
                 {
                     _unitOfWork.AssessmentResults.Remove(urpAssessmentResult);
                 }
+            }
+
+            var assessmentType = assessmentResult.Assessment.AssessmentType.SystemAssessmentType;
+            var completedAssessmentResults = assessmentResult.Assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED).ToList();
+
+            var IsFinalized = _assessmentService.IsAssessmentFinalized(assessmentType, completedAssessmentResults);
+
+            if(IsFinalized)
+            {
+                var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == assessmentResult.Assessment.GradeId);
+
+                if (grade == null)
+                {
+                    throw new Exception($"Grade with ID {assessmentResult.Assessment.GradeId} not found.");
+                }
+                else if(assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                {
+                    grade.IsManagmentCompetenciesFinalized = true;
+                }
+                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                {
+                    grade.IsCorporateCompetenciesFinalized = true;
+                }
+
+                _unitOfWork.Grades.Update(grade);
             }
 
             await _unitOfWork.CommitAsync();

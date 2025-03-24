@@ -1,4 +1,6 @@
 ﻿using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Enums;
+using KOP.DAL.Entities.AssessmentEntities;
 
 namespace KOP.BLL.Interfaces
 {
@@ -11,5 +13,6 @@ namespace KOP.BLL.Interfaces
         Task DeleteJudgeForAssessment(int assessmentResultId);
         Task AddJudgeForAssessment(int judgeId, int assessmentId, int assignerId);
         Task<int> GetMatrixColumnForAssessmentValue(int value);
+        bool IsAssessmentFinalized(SystemAssessmentTypes? assessmentType, List<AssessmentResult> completedResults);
     }
 }

@@ -12,6 +12,8 @@ namespace KOP.DAL.Entities.GradeEntities
         public SystemStatuses SystemStatus { get; set; }
         public GradeStatuses GradeStatus { get; set; }
 
+        public bool IsManagmentCompetenciesFinalized { get; set; }
+        public bool IsCorporateCompetenciesFinalized { get; set; }
         public bool IsProjectsFinalized { get; set; }
         public bool IsStrategicTasksFinalized { get; set; }
         public bool IsKpisFinalized { get; set; }

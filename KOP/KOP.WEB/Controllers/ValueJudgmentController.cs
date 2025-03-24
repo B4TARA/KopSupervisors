@@ -26,12 +26,19 @@ namespace KOP.WEB.Controllers
             if (gradeId <= 0)
             {
                 _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
-
                 return BadRequest("Invalid grade ID.");
             }
 
             try
             {
+                var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
+
+                if (!selectedUserId.HasValue || selectedUserId <= 0)
+                {
+                    _logger.LogWarning("SelectedUserId is incorrect or not found in session.");
+                    return BadRequest("Selected user ID is not valid.");
+                }
+
                 var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.ValueJudgment });
 
                 if (gradeDto.ValueJudgmentDto == null)
@@ -45,8 +52,7 @@ namespace KOP.WEB.Controllers
                 var viewModel = new ValueJudgmentViewModel
                 {
                     GradeId = gradeId,
-                    // CHTCK THIS !!!
-                    SelectedUserId = HttpContext.Session.GetInt32("SelectedUserId") ?? 0,
+                    SelectedUserId = selectedUserId.Value,
                     ValueJudgmentDto = gradeDto.ValueJudgmentDto,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,

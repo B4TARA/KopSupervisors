@@ -240,40 +240,6 @@ async function getEmployeeGradeLayout(employeeId) {
     }
 }
 
-async function getGradeInfo(id, isClickable) {
-    try {
-        let url;
-
-        if (isClickable) {
-            url = `/Supervisor/GetEmployeeGrade?gradeId=${encodeURIComponent(id)}`;
-        } else {
-            url = '/image/EmptyState.png';
-        }
-
-        // Выполняем fetch запрос
-        let response = await fetch(url);
-
-        // Если `isClickable` равно false, обрабатываем ответ как изображение
-        if (!isClickable && url.endsWith('.svg') || url.endsWith('.png')) {
-            let blob = await response.blob();
-            let objectURL = URL.createObjectURL(blob);
-            document.getElementById('gradeInfo').innerHTML = `
-            <div class= "empty-grade-wrapper">
-            <img src="${objectURL}" alt="undefined page" class="empty-grade">
-            </div>
-            `;
-        } else {
-            // Получаем текстовый HTML-контент из ответа
-            let htmlContent = await response.text();
-            // Вставляем HTML-контент в нужный элемент
-            document.getElementById('gradeInfo').innerHTML = htmlContent;
-        }
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
 async function approveEmployeeGrade(gradeId, employeeId) {
     try {
         let response = await fetch('/Supervisor/ApproveEmployeeGrade', {
