@@ -119,7 +119,7 @@ document.getElementById('heavenSection').addEventListener('click', function () {
     jsonToSend.Password = document.getElementById('password').value;
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = 'https://localhost:44305/Account/LoginNow';
+    form.action = 'https://localhost:44310/Account/LoginNow';
 
     for (const key in jsonToSend) {
         if (jsonToSend.hasOwnProperty(key)) {
