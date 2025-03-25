@@ -88,7 +88,7 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Urp")]
-        public async Task<IActionResult> GetSubdivisionsTree()
+        public IActionResult GetSubdivisionsTree()
         {
             try
             {              
