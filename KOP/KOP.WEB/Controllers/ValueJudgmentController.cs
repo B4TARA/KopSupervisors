@@ -11,7 +11,7 @@ namespace KOP.WEB.Controllers
     public class ValueJudgmentController : Controller
     {
         private readonly IGradeService _gradeService;
-        private readonly ILogger<ValueJudgmentController> _logger;
+        private readonly Serilog.ILogger<ValueJudgmentController> _logger;
 
         public ValueJudgmentController(IGradeService gradeService, ILogger<ValueJudgmentController> logger)
         {

@@ -1,22 +1,23 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Utils;
-using NLog;
 
 namespace KOP.EmailService
 {
     public class EmailSender : IEmailSender
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly EmailConfiguration _emailConfig = new EmailConfiguration
-        {
-            From = "KOPSender",
-            SmtpServer = "LDGate.mtb.minsk.by",
-            Port = 25,
-        };
+        private readonly EmailConfiguration _emailConfig;
+        //private readonly ILogger<EmailSender> _logger;
 
-        public async Task SendEmailAsync(Message message, string emailIconPath)
+        public EmailSender(IOptions<EmailConfiguration> emailConfig)
         {
+            _emailConfig = emailConfig.Value;
+        }
+
+        public async Task SendEmailAsync(Message message)
+        {
+            var emailIconPath = _emailConfig.EmailIconPath;
             var mailMessage = CreateEmailMessage(message, emailIconPath);
 
             await SendAsync(mailMessage, message);
@@ -79,16 +80,11 @@ namespace KOP.EmailService
                     await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port);
                     await client.SendAsync(mailMessage);
 
-                    _logger.Error($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
+                    //_logger.Error($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
-                }
-                finally
-                {
-                    await client.DisconnectAsync(true);
-                    client.Dispose();
+                    //_logger.Error($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
                 }
             }
         }
