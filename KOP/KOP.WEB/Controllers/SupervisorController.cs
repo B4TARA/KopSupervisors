@@ -1,6 +1,7 @@
-﻿using KOP.BLL.Interfaces;
+using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
+using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
@@ -295,12 +296,18 @@ namespace KOP.WEB.Controllers
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
                 if (currentUserId <= 0)
-                {
-                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+{
+                    _logger.LogWarning("CurrentUser Id is incorrect or not found in claims.");
                     return BadRequest("Current user ID is not valid.");
                 }
 
                 var assessment = await _assessmentService.GetAssessment(assessmentId);
+                if (assessment == null)
+                {
+                    _logger.LogWarning($"Assessment with ID {assessmentId} not found.");
+                    return NotFound("Assessment not found.");
+                }
+
                 var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
 
                 var userRoles = User.Claims
@@ -308,13 +315,49 @@ namespace KOP.WEB.Controllers
                     .Select(c => c.Value)
                     .ToList();
 
-                var choosedCandidates = await _userService.GetChoosedCandidatesForJudges(assessment.AllAssessmentResults, assessment.UserId);
-                var allCandidates = await _userService.GetCandidatesForJudges(assessment.UserId);
+                var choosedCandidates = assessment.AllAssessmentResults
+                    .Where(x => x.Type == AssessmentResultTypes.ColleagueAssessment)
+                    .Select(candidate => new CandidateForJudgeDto
+                    {
+                        Id = candidate.Judge.Id,
+                        AssessmentResultId = candidate.Id,
+                        FullName = candidate.Judge.FullName,
+                        HasJudged = candidate.SystemStatus == SystemStatuses.COMPLETED
+                    })
+                    .ToList();
+
+                var userId = currentUserId;
+                int? supervisorId;
+                var requiredRoles = new HashSet<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
+                var excludedRole = SystemRoles.Curator;
+
+                var supervisorResult = assessment.AllAssessmentResults
+                    .FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
+
+                if (supervisorResult == null)
+                {
+                    var supervisorForCurrentUser = await _commonService.GetSupervisorForUser(userId);
+                    supervisorId = supervisorForCurrentUser?.Id;
+                }
+                else
+                {
+                    supervisorId = supervisorResult.Judge.Id;
+                }
+
+                var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(x =>
+                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
+                    !x.SystemRoles.Contains(excludedRole) &&
+                    x.Id != supervisorId &&
+                    x.Id != userId);
+
+                var allCandidates = candidatesForJudges.Select(candidate => new CandidateForJudgeDto
+                {
+                    Id = candidate.Id,
+                    FullName = candidate.FullName,
+                }).ToList();
 
                 var remainingCandidates = allCandidates
-                    .Where(c => !choosedCandidates
-                    .Select(c => c.Id)
-                    .Contains(c.Id))
+                    .Where(c => !choosedCandidates.Select(c => c.Id).Contains(c.Id))
                     .OrderBy(x => x.FullName)
                     .ToList();
 
@@ -322,7 +365,7 @@ namespace KOP.WEB.Controllers
                 {
                     Assessment = assessment,
                     ChooseJudgesAccess = _userService.CanChooseJudges(userRoles, assessment),
-                    ChoosedCandidatesForJudges = choosedCandidates.ToList(),
+                    ChoosedCandidatesForJudges = choosedCandidates,
                     CandidatesForJudges = remainingCandidates,
                     SupervisorAssessmentResult = assessmentResult,
                 };

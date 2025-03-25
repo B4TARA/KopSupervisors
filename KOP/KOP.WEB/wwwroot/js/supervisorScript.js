@@ -10,10 +10,28 @@ async function getSubordinates(supervisorId) {
 
         // Вставляем HTML-контент в нужный элемент
         document.getElementById('subordinates').innerHTML = htmlContent;
+        filterTable('assessmentTrue')
     } catch (error) {
         console.error('Произошла ошибка:', error);
         //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
+}
+
+function findEmployeeRow(employeeId) {
+    // Находим все строки таблиц с классом 'table_users'
+    const rows = document.querySelectorAll('.table_users tbody tr');
+
+    // Перебираем все строки
+    for (let row of rows) {
+        // Проверяем, совпадает ли id строки с переданным employeeId
+        if (row.id === employeeId.toString()) {
+            // Если совпадает, возвращаем найденную строку
+            return row;
+        }
+    }
+
+    // Если строка не найдена, возвращаем null
+    return null;
 }
 
 async function getEmployeeLayout(employeeId, elem) {
@@ -24,7 +42,13 @@ async function getEmployeeLayout(employeeId, elem) {
             row.classList.remove('active')
         })
 
-        elem.classList.add('active')
+        const foundRow = findEmployeeRow(employeeId);
+        if (foundRow) {
+            foundRow.classList.add('active')
+        } else {
+            elem.classList.add('active')
+        }
+
 
         // Выполняем fetch запрос
         let response = await fetch(`/Supervisor/GetEmployeeLayout?employeeId=${encodeURIComponent(employeeId)}`);

@@ -13,6 +13,7 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public int MaxValue { get; set; }
         public int? AssignedBy { get; set; }
         public SystemStatuses SystemStatus { get; set; }
+        public AssessmentResultTypes Type { get; set; }
         public string HtmlClassName { get; set; } = string.Empty;
 
         public UserDto Judge { get; set; } = new();
