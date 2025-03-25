@@ -1,0 +1,118 @@
+﻿<aside class="sidebar close_sidebar">
+    <div class="sidebar_close_btn_wrapper">
+        <i class="fa-solid fa-angle-left sidebar_btn"></i>
+    </div>
+    <div class="logo-details">
+        <img src="/logo.svg" alt="logo">
+        <span class="logo_name">КОП</span>
+    </div>
+    <ul class="nav-links">
+        <li>
+            @if (User.IsInRole("Employee"))
+            {
+                <a asp-area="" asp-controller="Employee" asp-action="GetEmployeeLayout">
+                    <i class='bx bx-grid-alt box-icon'></i>
+                    <span class="link_name">Главная</span>
+                </a>
+            }
+        </li>
+        <li>
+            <div class="iocn-link">
+                <a href="#">
+                    <i class='bx bx-collection box-icon'></i>
+                    <span class="link_name">Кабинеты</span>
+                </a>
+                <i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+            <ul class="sub-menu">
+                <li><a class="link_name" href="#">Кабинеты</a></li>
+                @if (User.IsInRole("Employee"))
+                {
+                    <li>
+                        <a asp-controller="Employee" asp-action="GetEmployeeLayout">Личный кабинет</a>
+                    </li>
+                }
+                @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+                {
+                    <li>
+                        <a asp-controller="Supervisor" asp-action="GetSupervisorLayout">Мои сотрудники</a>
+                    </li>
+                }
+            </ul>
+        </li>
+        @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+        {
+            <li>
+                <a asp-area="" asp-controller="Supervisor" asp-action="GetAnalyticsLayout">
+                    <i class='bx bx-bar-chart-alt-2 box-icon'></i>
+                    <span class="link_name">Аналитика</span>
+                </a>
+            </li>
+            <li>
+                <div class="iocn-link">
+                    <a href="#">
+                        <i class='bx bx-chart box-icon'></i>
+                        <span class="link_name">Отчетность</span>
+                    </a>
+                    <i class="fa-solid fa-chevron-down arrow"></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Отчетность</a></li>
+                    <li><a asp-controller="Supervisor" asp-action="GetReportLayout">Сотрудники и оценки</a></li>
+                </ul>
+            </li>
+        }
+        @if (User.IsInRole("Urp"))
+        {
+            <li>
+                <div class="iocn-link">
+                    <a href="#">
+                        <i class="bx bx-cog"></i>
+                        <span class="link_name">Адм.</span>
+                    </a>
+                    <i class="fa-solid fa-chevron-down arrow"></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Адм.</a></li>
+                    <li>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetUsers">Сотрудники</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetCorporateMatrix">Матрица КК</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetSubdivisionsTree">Подразделения</a>
+                    </li>
+                </ul>
+            </li>
+        }
+        <li>
+            <div class="profile-details">
+                <div class="profile-content">
+                    <img src="@User.FindFirstValue("ImagePath")" alt="profileImg">
+                </div>
+
+                @{
+                    var fullName = User.FindFirstValue("FullName") ?? string.Empty;
+                    var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    string lastName = nameParts.FirstOrDefault() ?? string.Empty;
+                    string firstName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+                }
+
+                <div class="name-job">
+                    <div class="profile_name">
+                        <span>@lastName</span>
+                        <span>@firstName</span>
+                    </div>
+                </div>
+
+                <a asp-area="" asp-controller="Account" asp-action="Logout" class="logout-icon">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </div>
+        </li>
+    </ul>
+</aside>

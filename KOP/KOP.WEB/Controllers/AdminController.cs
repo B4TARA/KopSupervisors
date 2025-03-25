@@ -68,7 +68,8 @@ namespace KOP.WEB.Controllers
                 }).ToList();
                 var viewModel = new AssessmentMatrixViewModel
                 {
-                    Elements = allCorporateMatrixElementsDtos
+                    Elements = allCorporateMatrixElementsDtos,
+                    SystemAssessmentType = SystemAssessmentTypes.СorporateСompetencies,
                 };
 
                 return View("AssessmentMatrix", viewModel);
@@ -87,7 +88,7 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Urp")]
-        public async Task<IActionResult> GetSubdivisionsTree()
+        public IActionResult GetSubdivisionsTree()
         {
             try
             {              
@@ -111,7 +112,8 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var allManagmentMatrixElements = await _unitOfWork.AssessmentMatrixElements.GetAllAsync(x => x.Matrix.SystemType == SystemAssessmentTypes.ManagementCompetencies);
+                var allManagmentMatrixElements = await _unitOfWork.AssessmentMatrixElements
+                    .GetAllAsync(x => x.Matrix.SystemType == SystemAssessmentTypes.ManagementCompetencies);
                 var allManagmentMatrixElementsDtos = allManagmentMatrixElements.Select(element => new AssessmentMatrixElementDto
                 {
                     Id = element.Id,
@@ -122,7 +124,8 @@ namespace KOP.WEB.Controllers
                 }).ToList();
                 var viewModel = new AssessmentMatrixViewModel
                 {
-                    Elements = allManagmentMatrixElementsDtos
+                    Elements = allManagmentMatrixElementsDtos,
+                    SystemAssessmentType = SystemAssessmentTypes.ManagementCompetencies,
                 };
 
                 return View("AssessmentMatrix", viewModel);

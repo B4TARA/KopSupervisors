@@ -348,7 +348,6 @@ namespace KOP.BLL.Services
             await _unitOfWork.AssessmentResults.AddAsync(assessmentResultToAdd);
             await _unitOfWork.CommitAsync();
 
-            var emailIconPath = _configuration["EmailIconPath"] ?? "";
             var mail = await _unitOfWork.Mails.GetAsync(x => x.Code == MailCodes.CreateCorporateCompeteciesAssessmentNotification);
 
             if (mail == null)
@@ -356,12 +355,12 @@ namespace KOP.BLL.Services
                 var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                 var messageBody = "Не найдено сообщение для отправки оценщикам при назначении";
                 var errorMessage = new Message(addressee, "Ошибка веб-приложения", messageBody, "Батурель Евгений Дмитриевич");
-                await _emailSender.SendEmailAsync(errorMessage, emailIconPath);
+                await _emailSender.SendEmailAsync(errorMessage);
             }
             else
             {
                 var message = new Message(new string[] { judge.Email }, mail.Title, mail.Body, judge.FullName);
-                await _emailSender.SendEmailAsync(message, emailIconPath);
+                await _emailSender.SendEmailAsync(message);
             }
         }
 
