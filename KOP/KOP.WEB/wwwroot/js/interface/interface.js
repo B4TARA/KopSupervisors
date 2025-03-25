@@ -186,25 +186,25 @@ function addRow(elem, type, id) {
         const row = document.createElement('tr');
         row.innerHTML = `
               <td>
-                            <textarea type="text" name="StrategicTasks[${newIndex}].Name" placeholder="Название"></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Name" placeholder="Название"></textarea>
                         </td>
                         <td>
-                            <textarea type="text" name="StrategicTasks[${newIndex}].Purpose" placeholder="Цель"></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Purpose" placeholder="Цель"></textarea>
                         </td>
                         <td>
-                            <input type="date" name="StrategicTasks[${newIndex}].PlanDateTime" required min="1994-01-01"/>
+                            <input type="date" name="StrategicTaskDtoList[${newIndex}].PlanDateTime" required min="1994-01-01"/>
                         </td>
                         <td>
-                            <input type="date" name="StrategicTasks[${newIndex}].FactDateTime" required min="1994-01-01"/>
+                            <input type="date" name="StrategicTaskDtoList[${newIndex}].FactDateTime" required min="1994-01-01"/>
                         </td>
                         <td>
-                            <input type="text" name="StrategicTasks[${newIndex}].PlanResult" placeholder="План" required />
+                            <input type="text" name="StrategicTaskDtoList[${newIndex}].PlanResult" placeholder="План" required />
                         </td>
                         <td>
-                            <input type="text" name="StrategicTasks[${newIndex}].FactResult" placeholder="Факт" required />
+                            <input type="text" name="StrategicTaskDtoList[${newIndex}].FactResult" placeholder="Факт" required />
                         </td>
                         <td>
-                            <textarea type="text" name="StrategicTasks[${newIndex}].Remark" placeholder="Примечание"></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Remark" placeholder="Примечание"></textarea>
                         </td>
                 <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
                 `

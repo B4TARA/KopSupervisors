@@ -14,14 +14,12 @@ namespace KOP.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
         private readonly IMappingService _mappingService;
-        private readonly ICommonService _commonService;
 
-        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService, ICommonService commonService)
+        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService)
         {
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
             _mappingService = mappingService;
-            _commonService = commonService;
         }
 
         public async Task<UserDto> GetUser(int id)
@@ -129,6 +127,7 @@ namespace KOP.BLL.Services
                         Id = assessmentResult.Id,
                         AssessmentId = assessmentResult.AssessmentId,
                         SystemStatus = assessmentResult.SystemStatus,
+                        Type = assessmentResult.Type,
                         Sum = assessmentResult.AssessmentResultValues.Sum(x => x.Value),
                         TypeName = assessment.AssessmentType.Name,
                         MinValue = assessment.AssessmentType.AssessmentMatrix.MinAssessmentMatrixResultValue,
@@ -235,7 +234,7 @@ namespace KOP.BLL.Services
 
             var IsFinalized = _assessmentService.IsAssessmentFinalized(assessmentType, completedAssessmentResults);
 
-            if(IsFinalized)
+            if (IsFinalized)
             {
                 var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == assessmentResult.Assessment.GradeId);
 
@@ -243,7 +242,7 @@ namespace KOP.BLL.Services
                 {
                     throw new Exception($"Grade with ID {assessmentResult.Assessment.GradeId} not found.");
                 }
-                else if(assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
                 {
                     grade.IsManagmentCompetenciesFinalized = true;
                 }
@@ -288,62 +287,6 @@ namespace KOP.BLL.Services
                     StatusCode = StatusCodes.InternalServerError,
                 };
             }
-        }
-
-        public async Task<IEnumerable<CandidateForJudgeDto>> GetCandidatesForJudges(int userId)
-        {
-            var candidatesForJudgesDtos = new List<CandidateForJudgeDto>();
-            var supervisorForUser = await _commonService.GetSupervisorForUser(userId);
-            var supervisorId = supervisorForUser?.Id;
-            var currentUserId = userId;
-            var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
-            var excludedRole = SystemRoles.Curator;
-
-            var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(x =>
-                x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
-                !x.SystemRoles.Contains(excludedRole) &&
-                x.Id != supervisorId &&
-                x.Id != currentUserId);
-
-            foreach (var candidate in candidatesForJudges)
-            {
-                candidatesForJudgesDtos.Add(new CandidateForJudgeDto
-                {
-                    Id = candidate.Id,
-                    FullName = candidate.FullName,
-                });
-            }
-            return candidatesForJudgesDtos;
-        }
-
-        public async Task<IEnumerable<CandidateForJudgeDto>> GetChoosedCandidatesForJudges(IEnumerable<AssessmentResultDto> assessmentResults, int userId)
-        {
-            var choosedCandidatesForJudges = new List<CandidateForJudgeDto>();
-            var supervisorForUser = await _commonService.GetSupervisorForUser(userId);
-            var supervisorId = supervisorForUser?.Id;
-            var currentUserId = userId;
-            var requiredRoles = new List<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
-            var excludedRole = SystemRoles.Curator;
-
-            var filteredAssessmentResults = assessmentResults.Where(x =>
-                x.Judge.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
-                !x.Judge.SystemRoles.Contains(excludedRole) &&
-                x.Judge.Id != supervisorId &&
-                x.Judge.Id != currentUserId &&
-                x.AssignedBy.HasValue);
-
-
-            foreach (var result in filteredAssessmentResults)
-            {
-                choosedCandidatesForJudges.Add(new CandidateForJudgeDto
-                {
-                    Id = result.Judge.Id,
-                    AssessmentResultId = result.Id,
-                    FullName = result.Judge.FullName,
-                    HasJudged = result.SystemStatus == SystemStatuses.COMPLETED
-                });
-            }
-            return choosedCandidatesForJudges;
         }
 
         public bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto)

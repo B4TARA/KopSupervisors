@@ -76,13 +76,12 @@ namespace KOP.BLL.Services
         {
             var assessment = await _unitOfWork.Assessments.GetAsync(
                 x => x.Id == assessmentId,
-                includeProperties: new string[]
-                {
+                includeProperties: [
                     "AssessmentResults.AssessmentResultValues",
                     "AssessmentType.AssessmentMatrix.Elements",
                     "AssessmentType.AssessmentInterpretations",
                     "AssessmentResults.Judge",
-                }
+                ]
             );
 
             if (assessment == null)
@@ -90,62 +89,36 @@ namespace KOP.BLL.Services
                 throw new Exception($"Assessment with ID {assessmentId} not found.");
             }
 
-            var supervisor = await _commonService.GetSupervisorForUser(assessment.UserId);
             var assessmentSummaryDto = CreateAssessmentSummaryDto(assessment);
 
-            var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == assessment.UserId);
+            var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
             if (selfAssessmentResult != null)
             {
-                assessmentSummaryDto.SelfAssessmentResultId = selfAssessmentResult.Id;
-                assessmentSummaryDto.SelfAssessmentResultValues = GetAssessmentResultValues(selfAssessmentResult).ToList();
-                if(assessmentSummaryDto.SelfAssessmentResultValues.Any())
-                {
-                    assessmentSummaryDto.SelfAssessmentResultSystemStatus = SystemStatuses.COMPLETED;
-                }
-                else
-                {
-                    assessmentSummaryDto.SelfAssessmentResultSystemStatus = SystemStatuses.PENDING;
-                }
+                assessmentSummaryDto.SelfAssessmentResultSystemStatus = selfAssessmentResult.SystemStatus;
             }
             else
             {
                 assessmentSummaryDto.SelfAssessmentResultSystemStatus = SystemStatuses.NOT_EXIST;
             }
 
-            if (supervisor != null)
+            var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
+            if (supervisorAssessmentResult != null)
             {
-                var supervisorAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.JudgeId == supervisor.Id);
-                if (supervisorAssessmentResult != null)
-                {
-                    assessmentSummaryDto.SupervisorAssessmentResultValues = GetAssessmentResultValues(supervisorAssessmentResult).ToList();
-                    if (assessmentSummaryDto.SupervisorAssessmentResultValues.Any())
-                    {
-                        assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = SystemStatuses.COMPLETED;
-                    }
-                    else
-                    {
-                        assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = SystemStatuses.PENDING;
-                    }
-                }
-                else
-                {
-                    assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = SystemStatuses.NOT_EXIST;
-                }
+                assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = supervisorAssessmentResult.SystemStatus;
+            }
+            else
+            {
+                assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = SystemStatuses.NOT_EXIST;
             }
 
-            var colleaguesAssessmentResults = assessment.AssessmentResults
-                .Where(x => x.JudgeId != supervisor?.Id && x.JudgeId != assessment.UserId)
-                .ToList();
+            var colleaguesAssessmentResults = assessment.AssessmentResults.Where(x => x.Type == AssessmentResultTypes.ColleagueAssessment).ToList();
 
             assessmentSummaryDto.AverageSelfValue = CalculateAverage(assessmentSummaryDto.SelfAssessmentResultValues);
             assessmentSummaryDto.AverageSupervisorValue = CalculateAverage(assessmentSummaryDto.SupervisorAssessmentResultValues);
 
             var assessmentType = assessment.AssessmentType.SystemAssessmentType;
-            var completedAssessmentResults = assessment.AssessmentResults
-                .Where(x => x.SystemStatus == SystemStatuses.COMPLETED)
-                .ToList();
+            var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED).ToList();
 
-            
             assessmentSummaryDto.IsFinalized = IsAssessmentFinalized(assessmentType, completedAssessmentResults);
 
             ProcessColleaguesResults(colleaguesAssessmentResults, assessmentSummaryDto);
@@ -394,7 +367,7 @@ namespace KOP.BLL.Services
 
         public async Task<int> GetMatrixColumnForAssessmentValue(int value)
         {
-            var assessmentRange = await _unitOfWork.AssessmentRanges.GetAsync(x => x.MinRangeValue <= value && value <= x.MaxRangeValue);         
+            var assessmentRange = await _unitOfWork.AssessmentRanges.GetAsync(x => x.MinRangeValue <= value && value <= x.MaxRangeValue);
 
             return assessmentRange.ColumnNumber;
         }

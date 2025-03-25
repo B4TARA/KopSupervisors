@@ -95,7 +95,7 @@ namespace KOP.DAL.Entities
         {
             get
             {
-                if(ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
+                if (ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
                 {
                     return "Вероятно, контракт уже закончился";
                 }
@@ -108,7 +108,7 @@ namespace KOP.DAL.Entities
                     return "-";
                 }
 
-                return nextGradeStartDate.ToString();
+                return nextGradeStartDate.ToString("dd.MM.yyyy");
             }
         }
     }

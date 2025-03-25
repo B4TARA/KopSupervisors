@@ -350,6 +350,7 @@ namespace KOP.BLL.Services
             {
                 Id = result.Id,
                 SystemStatus = result.SystemStatus,
+                Type = result.Type,
                 Sum = result.AssessmentResultValues.Sum(x => x.Value),
                 AssignedBy = result.AssignedBy
             };
