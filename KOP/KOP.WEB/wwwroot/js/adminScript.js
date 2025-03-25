@@ -74,94 +74,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Пример данных для дерева
-    const subdivisions = [
-        { id: 1, name: "Главное подразделение", parentId: null },
-        { id: 2, name: "Подразделение 1", parentId: 1 },
-        { id: 3, name: "Подразделение 2", parentId: 1 },
-        { id: 4, name: "Подразделение 1.1", parentId: 2 },
-        { id: 5, name: "Подразделение 1.2", parentId: 2 }
-    ];
-
-    // Функция для создания дерева
-    function createTree(data, parentId = null) {
-        const ul = document.createElement('ul');
-        data.filter(item => item.parentId === parentId).forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item.name;
-            li.dataset.id = item.id;
-
-            // Рекурсивно добавляем дочерние элементы
-            const children = createTree(data, item.id);
-            if (children.childElementCount > 0) {
-                li.appendChild(children);
-            }
-
-            ul.appendChild(li);
-        });
-        return ul;
-    }
-
-    // Создаем дерево и добавляем его в DOM
-    const treeContainer = document.getElementById('subdivisionTree');
-    treeContainer.appendChild(createTree(subdivisions));
-
-    // Инициализация Sortable для drag-and-drop
-    const sortable = new Sortable(treeContainer, {
-        group: 'subdivisions',
-        animation: 150,
-        onEnd: function (evt) {
-            // Логика обработки перемещения
-            console.log('Перемещено:', evt.item.dataset.id);
-        }
-    });
-
-    // Сохранение изменений
-    document.getElementById('saveChanges').addEventListener('click', function () {
-        const updatedSubdivisions = [];
-
-        // Функция для обхода дерева и сбора данных
-        function collectData(ul, parentId) {
-            Array.from(ul.children).forEach(li => {
-                const id = li.dataset.id;
-                updatedSubdivisions.push({ id: parseInt(id), parentId: parentId });
-                const childrenUl = li.querySelector('ul');
-                if (childrenUl) {
-                    collectData(childrenUl, id);
-                }
-            });
-        }
-
-        collectData(treeContainer, null);
-
-        // Отправка данных на сервер
-        fetch('/api/subdivisions/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedSubdivisions)
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('Изменения сохранены!');
-                } else {
-                    alert('Ошибка при сохранении изменений.');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-            });
-    });
-
     document.getElementById('save-button').addEventListener('click', function () {
         const form = document.getElementById('matrixForm');
         const formData = new FormData(form);
-
-        // Выводим содержимое FormData в консоль
-        for (const [key, value] of formData.entries()) {
-            console.log(`${key}: ${value}`);
-        }
 
         fetch(`/Admin/UpdateMatrix`, {
             method: 'POST',

@@ -1,18 +1,18 @@
 ﻿@model List<KOP.Common.Dtos.UserSummaryDto>
 
 @{
-	Layout = "/Views/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_Layout.cshtml";
 }
 
 <div class="home-content">
-	<div class="home_content_info">
-		<div class="home_content_info_icon">
-			<i class="fa-solid fa-folder"></i>
-		</div>
-		<div class="mid_title">
-			Аналитика и витрина данных
-		</div>
-	</div>
+    <div class="home_content_info">
+        <div class="home_content_info_icon">
+            <i class="fa-solid fa-folder"></i>
+        </div>
+        <div class="mid_title">
+            Аналитика и витрина данных
+        </div>
+    </div>
 </div>
 
 <div id="assessmentAnalytics">
@@ -91,74 +91,80 @@
 		</div>
 		<div class="dashboard-item right-dashboard-item">
 
-			<div class="dashboard-item-content" id="dashboardItemContentRight">
-				<div class="dashboard-competences-list">
+            </div>
 
-					<div class="dashboard-competence-item">
-						<div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
+            <div id="emptyImage"></div>
+        </div>
+        <div class="dashboard-item right-dashboard-item">
 
-						<div id="topCompetencies" class="dashboard-competences-group">
-						</div>
-					</div>
+            <div class="dashboard-item-content" id="dashboardItemContentRight">
+                <div class="dashboard-competences-list">
 
-					<div class="dashboard-competence-item">
-						<div class="dashboard-competence-header mid_title">АНТИТОП-5 КОМПЕТЕНЦИЙ</div>
-						<div id="antiTopCompetencies" class="dashboard-competences-group">
-						</div>
-					</div>
+                    <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
 
-				</div>
+                        <div id="topCompetencies" class="dashboard-competences-group">
+                        </div>
+                    </div>
 
-				<div class="dashboard-description-list">
+                    <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">АНТИТОП-5 КОМПЕТЕНЦИЙ</div>
+                        <div id="antiTopCompetencies" class="dashboard-competences-group">
+                        </div>
+                    </div>
 
-					<div class="dashboard-description-item">
-						<div class="dashboard-description-header-btn mid_title"><span>ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
-						<ul id="topDescriptions" class="dashboard-description-content">
-						</ul>
-					</div>
+                </div>
 
-					<div class="dashboard-description-item">
-						<div class="dashboard-description-header-btn mid_title"><span>НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
-						<ul id="antiTopDescriptions" class="dashboard-description-content">
-						</ul>
-					</div>
+                <div class="dashboard-description-list">
 
-				</div>
-			</div>
+                    <div class="dashboard-description-item">
+                        <div class="dashboard-description-header-btn mid_title"><span>ПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+                        <ul id="topDescriptions" class="dashboard-description-content">
+                        </ul>
+                    </div>
 
-			<div id="emptyImageRight"></div>
+                    <div class="dashboard-description-item">
+                        <div class="dashboard-description-header-btn mid_title"><span>НЕПРОФЕССИОНАЛЬНОЕ ПОВЕДЕНИЕ</span> <i class="fa-solid fa-chevron-down"></i></div>
+                        <ul id="antiTopDescriptions" class="dashboard-description-content">
+                        </ul>
+                    </div>
 
-		</div>
-		<div id="chartModal" class="modal">
-			<span class="close"><i class="fa-solid fa-xmark" style="color: #ffffff;"></i></span>
-			<div class="modal-content">
-				<canvas id="modalChart"></canvas>
-			</div>
-		</div>
-	</div>
+                </div>
+            </div>
+
+            <div id="emptyImageRight"></div>
+
+        </div>
+        <div id="chartModal" class="modal">
+            <span class="close"><i class="fa-solid fa-xmark" style="color: #ffffff;"></i></span>
+            <div class="modal-content">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="/js/analyticsScript.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
-	// Проверка наличия пользователей и вызов функции с ID первого пользователя
-	@if (Model.Any())
-	{
-		<text>
-				loadAssessmentAnalytics('@Model.First().Id');
-				loadCompetenciesAnalytics('@Model.First().Id');
+    // Проверка наличия пользователей и вызов функции с ID первого пользователя
+    @if (Model.Any())
+    {
+        <text>
+                    loadAssessmentAnalytics('@Model.First().Id');
+                    loadCompetenciesAnalytics('@Model.First().Id');
 
-		
 
-		</text>
-	}
-	else
-	{
-		<text>
-							displayNoDataMessage()
-		</text>
-	}
+
+        </text>
+    }
+    else
+    {
+        <text>
+                                displayNoDataMessage()
+        </text>
+    }
 </script>
 
