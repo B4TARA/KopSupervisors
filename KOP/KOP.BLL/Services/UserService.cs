@@ -254,6 +254,7 @@ namespace KOP.BLL.Services
                 _unitOfWork.Grades.Update(grade);
             }
 
+            _unitOfWork.AssessmentResults.Update(assessmentResult);
             await _unitOfWork.CommitAsync();
         }
 

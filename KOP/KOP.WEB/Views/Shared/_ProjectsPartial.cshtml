@@ -19,15 +19,18 @@ else
 {
 	<form id="popupForm">
 		<input type="hidden" asp-for="GradeId">
-		<div asp-validation-summary="All">
-			<!-- Ошибки валидации будут отображаться тут-->
-		</div>
 		<div class="popup_content">
 			<div class="popup_content_header margin_container_bottom_middle">
 				<div class="title">
 					Результаты выполнения стратегических проектов и задач
 				</div>
-				@if (Model.Projects.Any())
+				@if (!Model.Projects.Any() && Model.IsFinalized)
+				{
+					<div class="description">
+						За оцениваемый период @Model.SelectedUserFullName не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта
+					</div>
+				}
+				else
 				{
 					@if (Model.EditAccess)
 					{
@@ -39,12 +42,6 @@ else
 					{
 						<b>Выполнение стратегических проектов за отчетный период, Qn2 @Model.Qn2 %</b>
 					}
-				}
-				else
-				{
-					<div class="description">
-						За оцениваемый период @Model.SelectedUserFullName не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта
-					</div>
 				}
 			</div>
 			<div class="project_info_list" id="rowContainer">
@@ -135,7 +132,7 @@ else
 								Средний KPI проекта
 								@if (Model.EditAccess)
 								{
-									<input type="number" asp-for="Projects[i].AverageKpi" value="@project.AverageKpi" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="number" asp-for="Projects[i].AverageKpi" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{
@@ -147,7 +144,7 @@ else
 								Оценка реализации проекта SP
 								@if (Model.EditAccess)
 								{
-									<input type="number" asp-for="Projects[i].SP" value="@project.SP" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="number" asp-for="Projects[i].SP" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{
@@ -173,8 +170,8 @@ else
 		</div>
 		@if (Model.EditAccess)
 		{
-			<button type="button" class="add_row_btn" onclick="saveProjectsAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
+			<button type="button" class="add_row_btn" onclick="saveProjectsAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveProjectsAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
 		}
 	</form>
 }

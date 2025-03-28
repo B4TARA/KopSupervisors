@@ -39,7 +39,7 @@ namespace KOP.Import
         {
             _options = options;
             _config = config;
-            _emailSender = new EmailSender();
+            //_emailSender = new EmailSender();
 
             _additionalUsersServiceNumbersPath = _config["FilePaths:AdditionalUsersServiceNumbersPath"] ?? "";
             _usersInfosPath = _config["FilePaths:UsersInfosPath"] ?? "";
@@ -69,7 +69,7 @@ namespace KOP.Import
                 var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                 var messageBody = ex.Message;
                 var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                await _emailSender.SendEmailAsync(errorMessage);
                 _logger.Error(ex.Message);
             }
         }
@@ -299,12 +299,12 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки непосредственным руковолителям 1 или 10 числа месяца оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
                                 var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                await _emailSender.SendEmailAsync(message);
                             }
                         }
                         // Оцениваемым сотрудникам 1 и 15 числа месяца оценки
@@ -336,12 +336,12 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки оцениваемым сотрудникам 1 или 15 числа месяца оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
                                 var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                await _emailSender.SendEmailAsync(message);
                             }
                         }
                         // Ответственным за заполнение показателей (УМСТ, ЦУП, УРП) 1 и 15 числа месяца оценки
@@ -380,12 +380,12 @@ namespace KOP.Import
                                         var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                         var messageBody = "Не найдено сообщение для отправки ответственным за заполнение критериев 1 или 15 числа месяца оценки";
                                         var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                        await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                        await _emailSender.SendEmailAsync(errorMessage);
                                         _logger.Error(messageBody);
                                     }
 
                                     var message = new Message(new string[] { user.Email }, mail.Title, mail.Body, user.FullName);
-                                    await _emailSender.SendEmailAsync(message, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(message);
                                 }
                             }
                         }
@@ -419,7 +419,7 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки оценщикам 15 числа месяца оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
@@ -447,7 +447,7 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки УРП 1 числа месяца, следующего за месяцем оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
@@ -486,7 +486,7 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки непосредственным руковолителям 5 или 8 числа месяца, следующего за месяцем оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
@@ -523,7 +523,7 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки оцениваемым сотрудникам 10 или 13 числа месяца, следующего за месяцем оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
@@ -551,7 +551,7 @@ namespace KOP.Import
                                     var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                                     var messageBody = "Не найдено сообщение для отправки УРП 15 числа месяца, следующего за месяцем оценки";
                                     var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                                    await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                                    await _emailSender.SendEmailAsync(errorMessage);
                                     _logger.Error(messageBody);
                                 }
 
@@ -565,7 +565,7 @@ namespace KOP.Import
                         var addressee = new string[] { "ebaturel@mtb.minsk.by" };
                         var messageBody = ex.Message;
                         var errorMessage = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
-                        await _emailSender.SendEmailAsync(errorMessage, _emailIconPath);
+                        await _emailSender.SendEmailAsync(errorMessage);
                         _logger.Error(messageBody);
                     }
                 }
@@ -639,14 +639,14 @@ namespace KOP.Import
                             UserId = employee.Id,
                             Qualification = new Qualification 
                             { 
-                                CurrentJobPositionName = employee.Position,
+                                CurrentJobPositionName = string.Empty,
                                 EmploymentContarctTerminations = "Отсутствуют",
                                 QualificationResult = $"{employee.FullName} прошел (ла) оценку соответствия (аттестацию) в Национальном Банке РБ и признана " +
                                 "соответствующей квалификационным требованиям и требованиям к деловой репутации:\r\n- к должности члена коллегиального исполнительного " +
                                 "органа банка, небанковской кредитно-финансовой организации от _______дата № ______ (приложение __ к пояснительной записке) действительно " +
                                 "до ________г.;\r\n- к должностному лицу, выполняющему ключевые функции в банке, небанковской кредитно-финансовой организации " +
                                 "от _______дата № ______ (приложение __ к пояснительной записке) действительно до ________г.;       " +
-                                "дать возможность выбрать фразу \r\n\r\nНе является должностным лицом, " +
+                                "*ИЛИ* \r\n\r\nНе является должностным лицом, " +
                                 "выполняющим ключевые функции в ЗАО «МТБанк».\r\n"
                             },
                             ValueJudgment = new ValueJudgment(),

@@ -1,0 +1,24 @@
+﻿@model KOP.WEB.Models.ViewModels.Admin.UserLayoutViewModel
+
+<div class="info_popup_card_wrapper">
+    <div class="info_popup_header margin_container_bottom_middle">
+        <div class="mid_title">@Model.FullName</div>
+    </div>
+    <div class="info_popup_block">
+        <div class="rightleft_info_popup_block">
+            <div class="leftside_info_popup_block">
+                <ul>
+                    <li class="leftside_info_popup_block_item" onclick="openUserSystemRoles(@Model.UserId)">
+                        <div class="list_dot"></div>
+                        <div class="description">Права доступа</div>
+                    </li>
+                    <li class="leftside_info_popup_block_item" onclick="openUserSubordinates(@Model.UserId)">
+                        <div class="list_dot"></div>
+                        <div class="description">Подразделения</div>
+                    </li>
+                </ul>
+            </div>
+            <section id="popupContent"></section>
+        </div>
+    </div>
+</div>

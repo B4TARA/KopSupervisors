@@ -3,136 +3,118 @@
 @using SystemStatuses = KOP.Common.Enums.SystemStatuses
 
 @{
-	Layout = null;
+    Layout = null;
 }
 
 <div class="popup_content">
 
-	<div class="popup_content_header margin_container_bottom_middle">
-		<div class="title">
-			Оценка управленческих компетенций
-		</div>
+    <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Оценка управленческих компетенций
+        </div>
 
-		<div class="description">
-			@Model.Conclusion
-		</div>
-	</div>
+        <div class="description">
+            @Model.Conclusion
+        </div>
+    </div>
 
-	<table class="table_popup">
-		<thead>
-			<tr>
-				<th>Балл</th>
-				<th>Уровень</th>
-				<th>Компетентность</th>
-			</tr>
-		</thead>
+    <table class="table_popup">
+        <thead>
+            <tr>
+                <th>Балл</th>
+                <th>Уровень</th>
+                <th>Компетентность</th>
+            </tr>
+        </thead>
 
-		@if (Model.AssessmentSummaryDto.AverageAssessmentInterpretation != null)
-		{
-			<!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
-			<tr class="@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.HtmlClassName">
-				<td class="table_value">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MinValue -@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MaxValue</td>
-				<td class="table_level">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Level</td>
-				<td class="table_text">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Competence</td>
-			</tr>
-		}
-		else
-		{
-			<tr>
-				<td>-</td>
-				<td>Не удалось определить интерпретацию</td>
-				<td>-</td>
-			</tr>
-		}
-	</table>
+        @if (Model.AssessmentSummaryDto.AverageAssessmentInterpretation != null)
+        {
+            <!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
+            <tr class="@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.HtmlClassName">
+                <td class="table_value">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MinValue -@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MaxValue</td>
+                <td class="table_level">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Level</td>
+                <td class="table_text">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Competence</td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td>-</td>
+                <td>Не удалось определить интерпретацию</td>
+                <td>-</td>
+            </tr>
+        }
+    </table>
 
-	<div class="assessment_user_tab_container popup_assessment_table">
-		<div class="choose_assessment_user_container margin_container_bottom">
+    <div class="assessment_user_tab_container popup_assessment_table">
+        <div class="choose_assessment_user_container margin_container_bottom">
+                <table class="table_assessment">
+                    <thead class="table_header">
+                        <tr>
+                            @{
+                                int count = 0;
+                                int maxElementsToShow = 2;
+                            }
 
-			@if (Model.AssessmentSummaryDto.SelfAssessmentResultSystemStatus == SystemStatuses.PENDING)
-			{
-				<div class="undefined_page_wrapper">
-					<div class="title">
-						Самооценка не произведена
-					</div>
-					<div class="empty_state_image_wrapper_middle">
-						<img src="/image/EmptyState.png" alt="default_page">
-					</div>
-				</div>
-			}
-			else if (Model.AssessmentSummaryDto.SupervisorAssessmentResultSystemStatus == SystemStatuses.PENDING)
-			{
-				<div class="undefined_page_wrapper">
-					<div class="title">
-						Оценка руководителя не произведена
-					</div>
-					<div class="empty_state_image_wrapper_middle">
-						<img src="/image/EmptyState.png" alt="default_page">
-					</div>
-				</div>
-			}
-			else
-			{
-				<table class="table_assessment">
-					<thead class="table_header">
-						<tr>
-							@{
-								int count = 0;
-								int maxElementsToShow = 2;
-							}
+                            @foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.RowsWithElements[0])
+                            {
+                                if (count >= maxElementsToShow)
+                                {
+                                    break;
+                                }
 
-							@foreach (var assessmentMatrixHeaderElement in Model.AssessmentSummaryDto.RowsWithElements[0])
-							{
-								if (count >= maxElementsToShow)
-								{
-									break;
-								}
+                                <th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
+                                count++;
+                            }
 
-								<th class="table_header_elem">@assessmentMatrixHeaderElement.Value</th>
-								count++;
-							}
+                            <th class="table_header_elem">
+                                Самооценка
+                            </th>
+                            <th class="table_header_elem">
+                                Оценка непосредственного руководителя
+                            </th>
+                        </tr>
+                    </thead>
 
-							<th class="table_header_elem">
-								Самооценка
-							</th>
-							<th class="table_header_elem">
-								Оценка непосредственного руководителя
-							</th>
-						</tr>
-					</thead>
+                    <tbody>
+                        @for (int i = 1; i < Model.AssessmentSummaryDto.RowsWithElements.Count; i++)
+                        {
+                            <tr>
+                                @{
+                                    count = 0;
+                                    maxElementsToShow = 2;
+                                }
 
-					<tbody>
-						@for (int i = 1; i < Model.AssessmentSummaryDto.RowsWithElements.Count; i++)
-						{
-							<tr>
-								@{
-									count = 0;
-									maxElementsToShow = 2;
-								}
+                                @foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.RowsWithElements[i])
+                                {
+                                    if (count >= maxElementsToShow)
+                                    {
+                                        break;
+                                    }
 
-								@foreach (var assessmentMatrixElement in Model.AssessmentSummaryDto.RowsWithElements[i])
-								{
-									if (count >= maxElementsToShow)
-									{
-										break;
-									}
+                                    <td class="mid_description">@assessmentMatrixElement.Value</td>
+                                    count++;
+                                }
 
-									<td class="mid_description">@assessmentMatrixElement.Value</td>
-									count++;
-								}
-								<td>
-									<div class="mid_description">
-										@Model.AssessmentSummaryDto.SelfAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value
-									</div>
-								</td>
-								<td>
-									<div class="mid_description">@Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.First(x => x.AssessmentMatrixRow == i).Value</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			}
-		</div>
-	</div>
+                                @{
+                                    var selfValue = Model.AssessmentSummaryDto.SelfAssessmentResultValues.FirstOrDefault(x => x.AssessmentMatrixRow == i);
+                                    var supervisorValue = Model.AssessmentSummaryDto.SupervisorAssessmentResultValues.FirstOrDefault(x => x.AssessmentMatrixRow == i);
+                                }
+
+                                <td>
+                                    <div class="mid_description">
+                                        @(selfValue != null ? selfValue.Value : "-")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="mid_description">
+                                        @(supervisorValue != null ? supervisorValue.Value : "-")
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+        </div>
+    </div>
 </div>

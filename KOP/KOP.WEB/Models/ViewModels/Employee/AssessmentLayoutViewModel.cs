@@ -2,6 +2,7 @@
 {
     public class AssessmentLayoutViewModel
     {
+        public int UserId { get; set; }
         public bool IsActiveSelfAssessment { get; set; }
     }
 }

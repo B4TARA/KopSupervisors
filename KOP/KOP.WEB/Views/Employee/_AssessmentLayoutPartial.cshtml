@@ -16,7 +16,7 @@
         @if (Model.IsActiveSelfAssessment)
         {
             <li class="item_menu active">
-                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment()">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(undefined, @Model.UserId)">
                     Самооценка
                 </button>
                 <span class="indicator_assessment">
@@ -27,7 +27,7 @@
         else
         {
             <li class="item_menu">
-                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment()">
+                <button class="link_menu description" id="self_assessment_link_item" onclick="getSelfAssessment(undefined, @Model.UserId)">
                     Самооценка
                 </button>
                 <span class="indicator_assessment">

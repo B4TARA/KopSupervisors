@@ -40,7 +40,7 @@
                 }
             </ul>
         </li>
-        @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+        @if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
         {
             <li>
                 <a asp-area="" asp-controller="Supervisor" asp-action="GetAnalyticsLayout">
@@ -82,9 +82,6 @@
                     </li>
                     <li>
                         <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetSubdivisionsTree">Подразделения</a>
                     </li>
                 </ul>
             </li>

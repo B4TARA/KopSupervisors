@@ -25,7 +25,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid gradeId: {id}", requestModel.gradeId);
                 return BadRequest("Invalid grade ID.");
             }
-
             try
             {
                 var document = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);

@@ -1,8 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.BLL.Services;
 using KOP.Common.Enums;
-using KOP.WEB.Models.ViewModels.Shared;
 using KOP.WEB.Models.ViewModels;
+using KOP.WEB.Models.ViewModels.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
@@ -102,11 +101,11 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetLastAssessments(int employeeId)
+        public async Task<IActionResult> GetLastAssessments(int userId)
         {
-            try 
+            try
             {
-                var lastAssessmentsOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, employeeId);
+                var lastAssessmentsOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(userId, userId);
 
                 return Json(new { success = true, data = lastAssessmentsOfEachType });
             }

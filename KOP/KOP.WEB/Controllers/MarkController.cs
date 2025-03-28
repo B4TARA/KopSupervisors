@@ -27,7 +27,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
                 return BadRequest("Invalid grade ID.");
             }
-
             try
             {
                 var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
@@ -105,7 +104,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid markId: {id}", id);
                 return BadRequest("Invalid mark ID.");
             }
-
             try
             {
                 await _gradeService.DeleteMark(id);

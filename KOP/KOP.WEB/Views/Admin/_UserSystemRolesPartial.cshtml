@@ -1,0 +1,31 @@
+﻿@model KOP.WEB.Models.ViewModels.Admin.UserSystemRolesViewModel
+@using KOP.Common.Enums
+@using KOP.Common.Extensions
+
+<form id="userSystemRolesForm">
+    <input type="hidden" asp-for="Id" class="form-control" /> <div id="roles-container">
+        @foreach (var systemRole in Enum.GetValues(typeof(SystemRoles)))
+        {
+            var systemRoleEnum = (SystemRoles)systemRole;
+            var checkboxRole = Model.CheckboxRoles.FirstOrDefault(x => x.Role == systemRoleEnum);
+            <div class="role-item">
+                @if (checkboxRole == null)
+                {
+                    <div>Произошла ошибка сопоставления данных</div>
+                }
+                else if (checkboxRole.Checked)
+                {
+                    <input type="hidden" asp-for="CheckboxRoles[(Array.IndexOf(Enum.GetValues(typeof(SystemRoles)), systemRole))].Role" />
+                    <input type="checkbox" asp-for="CheckboxRoles[(Array.IndexOf(Enum.GetValues(typeof(SystemRoles)), systemRole))].Checked" checked />
+                }
+                else
+                {
+                    <input type="hidden" asp-for="CheckboxRoles[(Array.IndexOf(Enum.GetValues(typeof(SystemRoles)), systemRole))].Role" />
+                    <input type="checkbox" asp-for="CheckboxRoles[(Array.IndexOf(Enum.GetValues(typeof(SystemRoles)), systemRole))].Checked" />
+                }
+                <label>@(EnumExtensions.GetDescription(systemRoleEnum))</label>
+            </div>
+        }
+    </div>
+    <button type="button" onclick="updateUserSystemRoles()">Сохранить изменения</button>
+</form>

@@ -245,7 +245,7 @@ function addRow(elem, type, id) {
                 <input type="number"  name="Projects[${newIndex}].AverageKpi" required /> %
             </div>
             <div>
-                Коэффициент реализации проекта
+                Оценка реализации проекта SP 
                 <input type="number"  name="Projects[${newIndex}].SP" required /> %
             </div>
             <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
@@ -530,7 +530,7 @@ function deleteStrategicTask(id, gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveStrategicTasksAsDraft(gradeId) {
+function saveStrategicTasksAsDraft(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
@@ -555,6 +555,7 @@ function saveStrategicTasksAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getStrategicTasksPopup(gradeId);
         })
         .catch(error => {
@@ -633,7 +634,7 @@ function deleteProject(id, gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveProjectsAsDraft(gradeId) {
+function saveProjectsAsDraft(gradeId, employeeId) {
 
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
@@ -658,6 +659,7 @@ function saveProjectsAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
             getProjectsPopup(gradeId);
         })
         .catch(error => {
@@ -666,7 +668,6 @@ function saveProjectsAsDraft(gradeId) {
         });
 }
 function saveProjectsAsFinal(gradeId, employeeId) {
-
     const form = document.getElementById('popupForm');
     const formData = new FormData(form);
     formData.append('IsFinalized', true);
@@ -735,7 +736,7 @@ function deleteKpi(id, gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveKpisAsDraft(gradeId) {
+function saveKpisAsDraft(gradeId, employeeId) {
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
 
@@ -759,6 +760,7 @@ function saveKpisAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getKpisPopup(gradeId);
         })
         .catch(error => {
@@ -836,7 +838,7 @@ function deleteMark(id, gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveMarksAsDraft(gradeId) {
+function saveMarksAsDraft(gradeId, employeeId) {
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
 
@@ -863,6 +865,7 @@ function saveMarksAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
             getMarksPopup(gradeId);
         })
         .catch(error => {
@@ -995,7 +998,7 @@ function deleteHigherEducation(id, gradeId) {
             popupResult('Ошибка: ' + error.message, false);
         });
 }
-function saveQualificationAsDraft(gradeId) {
+function saveQualificationAsDraft(gradeId, employeeId) {
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
 
@@ -1023,6 +1026,7 @@ function saveQualificationAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId);
             getQualificationPopup(gradeId);
         })
         .catch(error => {
@@ -1053,7 +1057,7 @@ function saveQualificationAsFinal(gradeId, employeeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
+            getEmployeeLayout(employeeId);
             getQualificationPopup(gradeId);
         })
         .catch(error => {
@@ -1075,7 +1079,7 @@ async function getValueJudgmentPopup(gradeId) {
         alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
-function saveValueJudgmentAsDraft(gradeId) {
+function saveValueJudgmentAsDraft(gradeId, employeeId) {
     const form = document.getElementById('popupForm');
     form.setAttribute('novalidate', 'true')
 
@@ -1099,6 +1103,7 @@ function saveValueJudgmentAsDraft(gradeId) {
         })
         .then(successMessage => {
             popupResult(successMessage, false);
+            getEmployeeLayout(employeeId)
             getValueJudgmentPopup(gradeId);
         })
         .catch(error => {
@@ -1247,10 +1252,10 @@ function filterTable(filterValue) {
     });
 }
 
-// Закрытие дропдауна при клике вне его
-window.onclick = function (event) {
-    const dropdownContent = document.querySelector('.dropdown-content');
-    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
-        dropdownContent.style.display = 'none';
-    }
-};
+//// Закрытие дропдауна при клике вне его
+//window.onclick = function (event) {
+//    const dropdownContent = document.querySelector('.dropdown-content');
+//    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
+//        dropdownContent.style.display = 'none';
+//    }
+//};

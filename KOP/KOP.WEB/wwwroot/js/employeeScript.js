@@ -10,6 +10,17 @@ async function getGradeLayout() {
     }
 }
 
+async function getEmployeeLayout() {
+    try {
+        let response = await fetch(`/Employee/GetGradeLayout`);
+        let htmlContent = await response.text();
+        document.getElementById('gradeLayout').innerHTML = htmlContent;
+    } catch (error) {
+        console.error('Произошла ошибка:', error);
+        alert('Не удалось выполнить действие. Попробуйте снова.');
+    }
+}
+
 async function getAssessmentLayout() {
     try {
         let response = await fetch(`/Employee/GetAssessmentLayout`);
@@ -40,7 +51,7 @@ async function getColleaguesAssessment() {
     }
 }
 
-async function getSelfAssessment(assessmentId) {   
+async function getSelfAssessment(assessmentId, userId) {   
     try {
         let colleaguesAssessmentLinkItem = document.getElementById('colleagues_assessment_link_item');
         let selfAssessmentLinkItem = document.getElementById('self_assessment_link_item');
@@ -52,7 +63,7 @@ async function getSelfAssessment(assessmentId) {
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/Assessment/GetLastAssessments`);
+        let response2 = await fetch(`/Assessment/GetLastAssessments?userId=${encodeURIComponent(userId)}`);
         let jsonResponse = await response2.json();
         if (!jsonResponse.success) {
             console.error('Произошла ошибка:', jsonResponse.message);
@@ -60,7 +71,6 @@ async function getSelfAssessment(assessmentId) {
         }
         const lastAssessments = jsonResponse.data;
         if (lastAssessments && lastAssessments.length > 0) {
-
             if (assessmentId !== undefined) {
                 await getAssessment(assessmentId);
             }
@@ -93,66 +103,7 @@ async function getAssessment(assessmentId) {
     }
 }
 
-async function assessEmployee(elem, assessmentId, assessmentResultId, isSelfAssessment) {
-    try {
-        let assessmentValues = elem.parentNode.querySelectorAll(".input_assessment_value");
-        const jsonToSend = {};
-        let isValid = true;
 
-        jsonToSend.resultValues = [];
-        jsonToSend.assessmentResultId = assessmentResultId;
-
-        assessmentValues.forEach((item) => {
-            let itemValue = item.value.trim();
-            let itemMax = +item.max;
-            let itemMin = +item.min;
-
-            const invalidCharacters = /[^\d]/;
-            if (invalidCharacters.test(itemValue)) {
-                isValid = false;
-                validationFormAssessment(item, 'errorInclude');
-                return;
-            }
-
-            let numericValue = +itemValue;
-            if (numericValue < itemMin || numericValue > itemMax) {
-                isValid = false;
-                validationFormAssessment(item, 'errorValidation');
-            } else {
-                validationFormAssessment(item, 'success');
-                jsonToSend.resultValues.push(numericValue + "");
-            }
-        });
-
-        if (!isValid) {
-            return;
-        }
-
-        const response = await fetch('/Employee/AssessEmployee', {
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            method: 'POST',
-            body: JSON.stringify(jsonToSend)
-        });
-
-        if (!response.ok) {
-            let errorData = await response.json();
-            return;
-        }
-
-        popupAlert('Оценка успешно принята!', false);
-
-        await getAssessmentLayout();
-
-        if (isSelfAssessment) {
-            await getSelfAssessment(assessmentId);
-        }
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
 
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";

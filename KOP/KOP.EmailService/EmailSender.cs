@@ -1,5 +1,5 @@
 ﻿using MailKit.Net.Smtp;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Utils;
 
@@ -8,11 +8,18 @@ namespace KOP.EmailService
     public class EmailSender : IEmailSender
     {
         private readonly EmailConfiguration _emailConfig;
-        //private readonly ILogger<EmailSender> _logger;
+        private readonly ILogger<EmailSender> _logger;
 
-        public EmailSender(IOptions<EmailConfiguration> emailConfig)
+        public EmailSender(ILogger<EmailSender> logger)
         {
-            _emailConfig = emailConfig.Value;
+            _logger = logger;
+            _emailConfig = new EmailConfiguration
+            {
+                From = "KOPSender",
+                SmtpServer = "LDGate.mtb.minsk.by",
+                Port = 25,
+                EmailIconPath = "C:\\PROJECTS\\KopSupervisors\\Import\\Attachments\\logo.png",
+            };
         }
 
         public async Task SendEmailAsync(Message message)
@@ -80,11 +87,11 @@ namespace KOP.EmailService
                     await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port);
                     await client.SendAsync(mailMessage);
 
-                    //_logger.Error($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
+                    _logger.LogWarning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
+                    _logger.LogWarning($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
                 }
             }
         }

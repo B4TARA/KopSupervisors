@@ -1,13 +1,4 @@
-﻿/*var selected = document.getElementById("selected_main_wrapper");*/
-/*var optionsContainer = document.getElementById("options-container");*/
-
-/*var assessmentBtnSubmit = document.getElementById('users_assessment_submit');*/
-/*var chooseUserContainer = document.getElementById('choose_user_container')*/
-
-/*var optionsList = document.querySelectorAll(".option");*/
-
-// В ASSESSMENT JS
-
+﻿
 var sections = document.querySelectorAll(".section_popup"),
     closeBtn = document.querySelectorAll(".close-btn");
 
@@ -32,22 +23,15 @@ document.addEventListener('click', (event) => {
         event.stopPropagation()
         const sectionPopup = event.target.closest('td').querySelector('.section_popup');
         sectionPopup.classList.toggle("active_popup");
-        bodyTag.style.overflow = 'hidden'
-        //const overlay = document.querySelector('.overlay');
-        //overlay.classList.add('active');
-        
+        bodyTag.style.overflow = 'hidden'     
     }
-
     if (event.target.closest('.close_btn')) {
         const sectionPopup = event.target.closest('.section_popup'); 
         if (sectionPopup) {
             sectionPopup.classList.remove('active_popup');
         }
-
         bodyTag.style.overflow = 'auto'
-    }
-
-    
+    }   
 });
 
 closeBtn.forEach(item => {
@@ -62,4 +46,3 @@ var selectAssessmentBtn = document.querySelectorAll(".dropdown_assessment_wrappe
 function openDropdownList(elem) {
     elem.classList.toggle("open");
 }
-

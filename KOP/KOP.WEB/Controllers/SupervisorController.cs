@@ -1,7 +1,7 @@
 using KOP.BLL.Interfaces;
+using KOP.Common.Dtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
-using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
@@ -37,7 +37,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize]
         public IActionResult GetSupervisorLayout()
         {
             try
@@ -65,7 +65,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize]
         public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
             if (supervisorId <= 0)
@@ -86,7 +86,7 @@ namespace KOP.WEB.Controllers
                     Subdivisions = subordinateSubdivisionDtoList,
                 };
 
-                return View("Subordinates", viewModel);
+                return PartialView("_SubordinatesPartial", viewModel);
             }
             catch (Exception ex)
             {
@@ -101,7 +101,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize]
         public async Task<IActionResult> GetEmployeeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -129,7 +129,7 @@ namespace KOP.WEB.Controllers
                     IsActiveAssessment = isActiveAssessment,
                 };
 
-                return View("EmployeeLayout", viewModel);
+                return PartialView("_EmployeeLayoutPartial", viewModel);
             }
             catch (Exception ex)
             {
@@ -144,7 +144,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Umst, Cup, Urp, Uop")]
+        [Authorize]
         public async Task<IActionResult> GetEmployeeGradeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -191,7 +191,7 @@ namespace KOP.WEB.Controllers
 
                 if (lastGrade == null)
                 {
-                    return View("EmployeeGradeLayout", viewModel);
+                    return PartialView("_EmployeeGradeLayoutPartial", viewModel);
                 }
 
                 viewModel.LastGrade = new GradeDto
@@ -212,7 +212,7 @@ namespace KOP.WEB.Controllers
 
                 if (lastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
                 {
-                    return View("EmployeeGradeLayout", viewModel);
+                    return PartialView("_EmployeeGradeLayoutPartial", viewModel);
                 }
 
                 var supervisor = await _commonService.GetSupervisorForUser(employeeId);
@@ -224,7 +224,7 @@ namespace KOP.WEB.Controllers
 
                 viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
 
-                return View("EmployeeGradeLayout", viewModel);
+                return PartialView("_EmployeeGradeLayoutPartial", viewModel);
             }
             catch (Exception ex)
             {
@@ -239,7 +239,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
+        [Authorize]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -266,7 +266,7 @@ namespace KOP.WEB.Controllers
                     LastAssessments = lastAssessmentOfEachType,
                 };
 
-                return View("EmployeeAssessmentLayout", viewModel);
+                return PartialView("_EmployeeAssessmentLayoutPartial", viewModel);
             }
             catch (Exception ex)
             {
@@ -281,7 +281,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Supervisor, Curator, Urp, Uop")]
+        [Authorize]
         public async Task<IActionResult> GetEmployeeAssessment(int assessmentId)
         {
             if (assessmentId <= 0)
@@ -296,7 +296,7 @@ namespace KOP.WEB.Controllers
                 var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
                 if (currentUserId <= 0)
-{
+                {
                     _logger.LogWarning("CurrentUser Id is incorrect or not found in claims.");
                     return BadRequest("Current user ID is not valid.");
                 }
@@ -370,7 +370,7 @@ namespace KOP.WEB.Controllers
                     SupervisorAssessmentResult = assessmentResult,
                 };
 
-                return View("EmployeeAssessment", viewModel);
+                return PartialView("_EmployeeAssessmentPartial", viewModel);
             }
             catch (Exception ex)
             {
@@ -445,7 +445,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Supervisor, Urp")]
+        [Authorize]
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
             if (requestModel.assessmentId <= 0)
@@ -492,7 +492,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "Supervisor, Urp")]
+        [Authorize]
         public async Task<IActionResult> DeleteJudge([FromBody] int assessmentResultId)
         {
             if (assessmentResultId <= 0)
@@ -520,7 +520,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Supervisor, Urp")]
+        [Authorize]
         public async Task<IActionResult> ApproveEmployeeGrade([FromBody] int gradeId)
         {
             if (gradeId <= 0)

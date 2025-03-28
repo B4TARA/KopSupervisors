@@ -1,0 +1,10 @@
+﻿@model KOP.WEB.Models.ViewModels.Admin.UserSubordinatesViewModel
+@using Newtonsoft.Json
+@using KOP.Common.Enums
+@using KOP.Common.Extensions
+
+Поиск:
+<input type="text" id="search" />
+<button id="clear">Очистить</button>
+<div id="subordinatesTree" data-user-id="@Model.UserId" data-subordinates='@Html.Raw(JsonConvert.SerializeObject(Model.Subdivisions))'></div>
+<button type="button" onclick="updateUserSubordinates()">Сохранить изменения</button>

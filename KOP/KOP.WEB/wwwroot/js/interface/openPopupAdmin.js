@@ -58,7 +58,7 @@ async function openPopup(serviceNumber) {
             div.innerHTML = data;
             mainContentContainer.appendChild(div)
 
-            const elem = document.getElementById('prava');
+            const elem = document.getElementById('results');
             openResults(serviceNumber, elem)
         })
 }

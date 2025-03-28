@@ -9,16 +9,20 @@ using System.Globalization;
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
+
+Log.Information("Starting up!");
+
 try
 {
-    Log.Information("starting server.");
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.AddSerilog((services, lc) => lc
+        .ReadFrom.Configuration(builder.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
+
     var connection = builder.Configuration.GetConnectionString("WebApiDatabase");
-    builder.Host.UseSerilog((context, loggerConfiguration) =>
-    {
-        loggerConfiguration.WriteTo.Console();
-        loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-    });
 
     builder.Services.AddControllersWithViews();
 
@@ -64,11 +68,19 @@ try
     });
 
     var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
     }
+
+    // Write streamlined request completion events, instead of the more verbose ones from the framework.
+    // To use the default framework request logging instead, remove this line and set the "Microsoft"
+    // level in appsettings.json to "Information".
+    app.UseSerilogRequestLogging();
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();
@@ -83,10 +95,12 @@ try
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.Run();
+
+    Log.Information("Stopped cleanly");
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "server terminated unexpectedly");
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
 finally
 {
