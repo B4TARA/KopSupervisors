@@ -1,280 +1,276 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.QualificationViewModel
 
 @{
-	Layout = null;
+    Layout = null;
 
-	var currentStatusDateTime = Model.Qualification.CurrentStatusDateTime.ToString("yyyy-MM-dd");
-	var currentJobStartDateTime = Model.Qualification.CurrentJobStartDateTime.ToString("yyyy-MM-dd");
+    var currentStatusDateTime = Model.Qualification.CurrentStatusDateTime.ToString("yyyy-MM-dd");
+    var currentJobStartDateTime = Model.Qualification.CurrentJobStartDateTime.ToString("yyyy-MM-dd");
 }
 
 @if (!Model.ViewAccess)
 {
-	<div class="undefined_page_wrapper">
-		<div class="title">
-			Квалификация Руководителя не заполнена
-		</div>
-		<div class="empty_state_image_wrapper_middle">
-			<img src="/image/EmptyState.png" alt="default_page">
-		</div>
-	</div>
+    <div class="undefined_page_wrapper">
+        <div class="title">
+            Квалификация Руководителя не заполнена
+        </div>
+        <div class="empty_state_image_wrapper_middle">
+            <img src="/image/EmptyState.png" alt="default_page">
+        </div>
+    </div>
 }
 else
 {
-	<form id="popupForm">
-		<input type="hidden" asp-for="GradeId">
-		<input type="hidden" asp-for="Qualification.Id">
-		<div asp-validation-summary="All" class="text-danger">
-			<!-- Ошибки валидации будут отображаться тут-->
-		</div>
-		<div class="popup_content">
-			<div class="popup_content_header margin_container_bottom_middle">
-				<div class="title">
-					Квалификация Руководителя
-				</div>
-				@if (!string.IsNullOrEmpty(Model.Conclusion))
-				{
-					<div class="description">
-						<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled") " required />
-					</div>
-				}
+    <form id="popupForm">
+        <input type="hidden" asp-for="GradeId">
+        <input type="hidden" asp-for="Qualification.Id">
+        <div class="popup_content">
+            <div class="popup_content_header margin_container_bottom_middle">
+                <div class="title">
+                    Квалификация Руководителя
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Conclusion))
+                {
+                    <div class="description">
+                        <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled") " required />
+                    </div>
+                }
+            </div>
+            <div>
+                Соответствие
 
-			</div>
-			<div>
-				Соответствие
+                <b>@Model.SelectedUserFullName</b>
 
-				<b>@Model.SelectedUserFullName</b>
+                квалификационным требованиям:
+            </div>
+            <div class="mid_title">
+                1. Высшее образование:
+            </div>
+            <div class="experience_list" id="rowContainerEducation">
+                @for (int i = 0; i < Model.Qualification.HigherEducations.Count; i++)
+                {
+                    var higherEducation = Model.Qualification.HigherEducations[i];
+                    var educationStartDateTime = higherEducation.StartDateTime.ToString("yyyy-MM-dd");
+                    var educationEndDateTime = higherEducation.EndDateTime.ToString("yyyy-MM-dd");
 
-				квалификационным требованиям:
-			</div>
-			<div class="mid_title">
-				1. Высшее образование:
-			</div>
-			<div class="experience_list" id="rowContainerEducation">
-				@for (int i = 0; i < Model.Qualification.HigherEducations.Count; i++)
-				{
-					var higherEducation = Model.Qualification.HigherEducations[i];
-					var educationStartDateTime = higherEducation.StartDateTime.ToString("yyyy-MM-dd");
-					var educationEndDateTime = higherEducation.EndDateTime.ToString("yyyy-MM-dd");
+                    <div class="experience_item">
 
-					<div class="experience_item">
+                        @if (Model.EditAccess)
+                        {
+                            <input type="text" asp-for="Qualification.HigherEducations[i].Education" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.HigherEducations[i].Education</b>
+                        }
+                        ,
 
-						@if (Model.EditAccess)
-						{
-							<input type="text" asp-for="Qualification.HigherEducations[i].Education" value="@Model.Qualification.HigherEducations[i].Education" />
-						}
-						else
-						{
-							<b>@Model.Qualification.HigherEducations[i].Education</b>
-						}
-						,
+                        специальность
+                        @if (Model.EditAccess)
+                        {
+                            <input type="text" asp-for="Qualification.HigherEducations[i].Speciality" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.HigherEducations[i].Speciality</b>
+                        }
+                        ,
 
-						специальность
-						@if (Model.EditAccess)
-						{
-							<input type="text" asp-for="Qualification.HigherEducations[i].Speciality" value="@Model.Qualification.HigherEducations[i].Speciality" />
-						}
-						else
-						{
-							<b>@Model.Qualification.HigherEducations[i].Speciality</b>
-						}
-						,
+                        квалификация
+                        @if (Model.EditAccess)
+                        {
+                            <input type="text" asp-for="Qualification.HigherEducations[i].QualificationName" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.HigherEducations[i].QualificationName</b>
+                        }
+                        ,
 
-						квалификация
-						@if (Model.EditAccess)
-						{
-							<input type="text" asp-for="Qualification.HigherEducations[i].QualificationName" value="@Model.Qualification.HigherEducations[i].QualificationName" />
-						}
-						else
-						{
-							<b>@Model.Qualification.HigherEducations[i].QualificationName</b>
-						}
-						,
+                        период обучения c
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" min="1970-01-01" />
+                        }
+                        else
+                        {
+                            <b>@educationStartDateTime</b>
+                        }
 
-						период обучения c
-						@if (Model.EditAccess)
-						{
-							<input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" value="@educationStartDateTime" min="1970-01-01" />
-						}
-						else
-						{
-							<b>@educationStartDateTime</b>
-						}
+                        по
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" min="1970-01-01" />
+                        }
+                        else
+                        {
+                            <b>@educationEndDateTime</b>
+                        }
+                        ;
 
-						по
-						@if (Model.EditAccess)
-						{
-							<input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" value="@educationEndDateTime" min="1970-01-01" />
-						}
-						else
-						{
-							<b>@educationEndDateTime</b>
-						}
-						;
+                    </div>
+                    @if (Model.EditAccess)
+                    {
+                        <div>
+                            <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.Qualification.HigherEducations[i].Id, @Model.GradeId)"></i>
+                        </div>
+                    }
+                }
+            </div>
+            @if (Model.EditAccess)
+            {
+                <div class="add_row_btn add_project" onclick="addRow(this,'education')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
+            }
+            <div class="mid_title">
+                2. Стаж работы в банковской системе по состоянию на
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.CurrentStatusDateTime" min="1970-01-01" />
+                }
+                else
+                {
+                    <b>@currentStatusDateTime</b>
+                }
 
-					</div>
-					@if (Model.EditAccess)
-					{
-						<div>
-							<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.Qualification.HigherEducations[i].Id, @Model.GradeId)"></i>
-						</div>
-					}
-				}
-			</div>
-			@if (Model.EditAccess)
-			{
-				<div class="add_row_btn add_project" onclick="addRow(this,'education')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
-			}
-			<div class="mid_title">
-				2. Стаж работы в банковской системе по состоянию на
-				@if (Model.EditAccess)
-				{
-					<input type="date" asp-for="Qualification.CurrentStatusDateTime" value="@currentStatusDateTime" min="1970-01-01" />
-				}
-				else
-				{
-					<b>@currentStatusDateTime</b>
-				}
+                -
+                @if (Model.EditAccess)
+                {
+                    <input type="number" asp-for="Qualification.CurrentExperienceYears" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentExperienceYears</b>
+                }
 
-				-
-				@if (Model.EditAccess)
-				{
-					<input type="number" asp-for="Qualification.CurrentExperienceYears" value="@Model.Qualification.CurrentExperienceYears" />
-				}
-				else
-				{
-					<b>@Model.Qualification.CurrentExperienceYears</b>
-				}
+                лет
+                @if (Model.EditAccess)
+                {
+                    <input type="number" asp-for="Qualification.CurrentExperienceMonths" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentExperienceMonths</b>
+                }
 
-				лет
-				@if (Model.EditAccess)
-				{
-					<input type="number" asp-for="Qualification.CurrentExperienceMonths" value="@Model.Qualification.CurrentExperienceMonths" />
-				}
-				else
-				{
-					<b>@Model.Qualification.CurrentExperienceMonths</b>
-				}
+                мес., в т.ч.:
+            </div>
+            <div class="experience_list" id="rowContainer">
+                @for (int i = 0; i < Model.Qualification.PreviousJobs.Count; i++)
+                {
+                    var previousJob = Model.Qualification.PreviousJobs[i];
+                    var jobStartDateTime = previousJob.StartDateTime.ToString("yyyy-MM-dd");
+                    var jobEndDateTime = previousJob.EndDateTime.ToString("yyyy-MM-dd");
 
-				мес., в т.ч.:
-			</div>
-			<div class="experience_list" id="rowContainer">
-				@for (int i = 0; i < Model.Qualification.PreviousJobs.Count; i++)
-				{
-					var previousJob = Model.Qualification.PreviousJobs[i];
-					var jobStartDateTime = previousJob.StartDateTime.ToString("yyyy-MM-dd");
-					var jobEndDateTime = previousJob.EndDateTime.ToString("yyyy-MM-dd");
+                    <div class="experience_item">
+                        c
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" min="1970-01-01" />
+                        }
+                        else
+                        {
+                            <b>@jobStartDateTime</b>
+                        }
 
-					<div class="experience_item">
-						c
-						@if (Model.EditAccess)
-						{
-							<input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" value="@jobStartDateTime" min="1970-01-01" />
-						}
-						else
-						{
-							<b>@jobStartDateTime</b>
-						}
+                        по
+                        @if (Model.EditAccess)
+                        {
+                            <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" min="1970-01-01" />
+                        }
+                        else
+                        {
+                            <b>@jobEndDateTime</b>
+                        }
 
-						по
-						@if (Model.EditAccess)
-						{
-							<input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" value="@jobEndDateTime" min="1970-01-01" />
-						}
-						else
-						{
-							<b>@jobEndDateTime</b>
-						}
+                        -
+                        @if (Model.EditAccess)
+                        {
 
-						-
-						@if (Model.EditAccess)
-						{
+                            <input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.PreviousJobs[i].OrganizationName</b>
+                        }
 
-							<input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" value="@Model.Qualification.PreviousJobs[i].OrganizationName" />
-						}
-						else
-						{
-							<b>@Model.Qualification.PreviousJobs[i].OrganizationName</b>
-						}
+                        -
+                        @if (Model.EditAccess)
+                        {
+                            <input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" />
+                        }
+                        else
+                        {
+                            <b>@Model.Qualification.PreviousJobs[i].PositionName</b>
+                        }
 
-						-
-						@if (Model.EditAccess)
-						{
-							<input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" value="@Model.Qualification.PreviousJobs[i].PositionName" />
-						}
-						else
-						{
-							<b>@Model.Qualification.PreviousJobs[i].PositionName</b>
-						}
+                        ;
+                    </div>
+                    @if (Model.EditAccess)
+                    {
+                        <div>
+                            <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.Qualification.PreviousJobs[i].Id, @Model.GradeId)"></i>
+                        </div>
+                    }
+                }
+            </div>
+            @if (Model.EditAccess)
+            {
+                <div class="add_row_btn add_project" onclick="addRow(this,'experience')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
+            }
+            <div>
+                ЗАО "МТБанк":
+            </div>
+            <div>
+                с
+                @if (Model.EditAccess)
+                {
+                    <input type="date" asp-for="Qualification.CurrentJobStartDateTime" min="1994-01-01" />
+                }
+                else
+                {
+                    <b>@currentJobStartDateTime</b>
+                }
 
-						;
-					</div>
-					@if (Model.EditAccess)
-					{
-						<div>
-							<i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.Qualification.PreviousJobs[i].Id, @Model.GradeId)"></i>
-						</div>
-					}
-				}
-			</div>
-			@if (Model.EditAccess)
-			{
-				<div class="add_row_btn add_project" onclick="addRow(this,'experience')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
-			}
-			<div>
-				ЗАО "МТБанк":
-			</div>
-			<div>
-				с
-				@if (Model.EditAccess)
-				{
-					<input type="date" asp-for="Qualification.CurrentJobStartDateTime" value="@currentJobStartDateTime" min="1994-01-01" />
-				}
-				else
-				{
-					<b>@currentJobStartDateTime</b>
-				}
+                по настоящее время -
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.CurrentJobPositionName" placeholder="наименование текущей должности" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.CurrentJobPositionName</b>
+                }
+            </div>
+            <div>
+                3.
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.EmploymentContarctTerminations" placeholder="Отсутствуют" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.EmploymentContarctTerminations</b>
+                }
 
-				по настоящее время -
-				@if (Model.EditAccess)
-				{
-					<input type="text" asp-for="Qualification.CurrentJobPositionName" value="@Model.Qualification.CurrentJobPositionName" />
-				}
-				else
-				{
-					<b>@Model.Qualification.CurrentJobPositionName</b>
-				}
-			</div>
-			<div>
-				3.
-				@if (Model.EditAccess)
-				{
-					<input type="text" asp-for="Qualification.EmploymentContarctTerminations" value="@Model.Qualification.EmploymentContarctTerminations" />
-				}
-				else
-				{
-					<b>@Model.Qualification.EmploymentContarctTerminations</b>
-				}
-
-				в течение последних двух лет факты расторжения трудового договора (контракта) по
-				инициативе нанимателя в случае совершения лицом виновных действий,
-				являющихся основаниями для утраты доверия к нему со стороны нанимателя.
-			</div>
-			<div>
-				4.
-				@if (Model.EditAccess)
-				{
-					<input type="text" asp-for="Qualification.QualificationResult" value="@Model.Qualification.QualificationResult" />
-				}
-				else
-				{
-					<b>@Model.Qualification.QualificationResult</b>
-				}
-			</div>
-		</div>
-		@if (Model.EditAccess)
-		{
-			<button type="button" class="add_row_btn" onclick="saveQualificationAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveQualificationAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
-		}
-	</form>
+                в течение последних двух лет факты расторжения трудового договора (контракта) по
+                инициативе нанимателя в случае совершения лицом виновных действий,
+                являющихся основаниями для утраты доверия к нему со стороны нанимателя.
+            </div>
+            <div>
+                4.
+                @if (Model.EditAccess)
+                {
+                    <input type="text" asp-for="Qualification.QualificationResult" />
+                }
+                else
+                {
+                    <b>@Model.Qualification.QualificationResult</b>
+                }
+            </div>
+        </div>
+        @if (Model.EditAccess)
+        {
+            <button type="button" class="add_row_btn" onclick="saveQualificationAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
+            <button type="button" class="add_row_btn" onclick="saveQualificationAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
+        }
+    </form>
 }

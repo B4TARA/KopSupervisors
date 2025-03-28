@@ -28,7 +28,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
                 return BadRequest("Invalid grade ID.");
             }
-
             try
             {
                 var selectedUserId = HttpContext.Session.GetInt32("SelectedUserId");
@@ -77,7 +76,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid gradeId: {gradeId}", viewModel.GradeId);
                 return BadRequest("Invalid grade ID.");
             }
-
             try
             {
                 var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Kpis });
@@ -110,7 +108,6 @@ namespace KOP.WEB.Controllers
                 _logger.LogWarning("Invalid kpiId: {id}", id);
                 return BadRequest("Invalid kpi ID.");
             }
-
             try
             {
                 await _gradeService.DeleteKpi(id);

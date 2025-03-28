@@ -1,81 +1,82 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.ValueJudgmentViewModel
 
 @{
-	Layout = null;
+    Layout = null;
 
-	var strengths = Model.ValueJudgmentDto.Strengths;
-	var behaviorToCorrect = Model.ValueJudgmentDto.BehaviorToCorrect;
-	var recommendations = Model.ValueJudgmentDto.RecommendationsForDevelopment;
+    var strengths = Model.ValueJudgmentDto.Strengths;
+    var behaviorToCorrect = Model.ValueJudgmentDto.BehaviorToCorrect;
+    var recommendations = Model.ValueJudgmentDto.RecommendationsForDevelopment;
 }
 
 @if (!Model.ViewAccess)
 {
-	<div class="undefined_page_wrapper">
-		<div class="title">
-			ОС от руководителя не заполнена
-		</div>
-		<div class="empty_state_image_wrapper_middle">
-			<img src="/image/EmptyState.png" alt="default_page">
-		</div>
-	</div>
+    <div class="undefined_page_wrapper">
+        <div class="title">
+            ОС от руководителя не заполнена
+        </div>
+        <div class="empty_state_image_wrapper_middle">
+            <img src="/image/EmptyState.png" alt="default_page">
+        </div>
+    </div>
 }
 else
 {
-		<form id="popupForm">
-			<input type="hidden" asp-for="GradeId">
-		<input type="hidden" asp-for="ValueJudgmentDto.Id">
-			<div asp-validation-summary="All">
-				<!-- Ошибки валидации будут отображаться тут-->
-			</div>
-			
-			<div class="popup_content">
-				<div class="popup_content_header margin_container_bottom_middle">
-					<div class="title">
-						ОС от руководителя
-					</div>
-				</div>
-				<div class="project_info_content">
-				<div class="project_info_content-item column">
-						Сильные стороны работника:
-					@if (Model.EditAccess)
-					{
-						<textarea asp-for="ValueJudgmentDto.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
-					}else{
-						<b>@strengths</b>
-					}
-					</div>
-				<div class="project_info_content-item column">
-						Зоны деятельности / поведение работника, требующие корректировки:
-					@if (Model.EditAccess)
-					{
-						<textarea asp-for="ValueJudgmentDto.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
-					}
-					else
-					{
-						<b>@behaviorToCorrect</b>
-					}
-						
-					</div>
-				<div class="project_info_content-item column">
-						Рекомендации по развитию работника:
-					@if (Model.EditAccess)
-					{
-						<textarea asp-for="ValueJudgmentDto.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
-					}
-					else
-					{
-						<b>@recommendations</b>
-					}
-						
-					</div>
-				</div>
+    <form id="popupForm">
+        <input type="hidden" asp-for="GradeId">
+        <input type="hidden" asp-for="ValueJudgmentDto.Id">
+        <div asp-validation-summary="All">
+            <!-- Ошибки валидации будут отображаться тут-->
+        </div>
 
-			</div>
-		@if (Model.EditAccess)
-		{
-				<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveValueJudgmentAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
-		}
-		</form>
-	
+        <div class="popup_content">
+            <div class="popup_content_header margin_container_bottom_middle">
+                <div class="title">
+                    ОС от руководителя
+                </div>
+            </div>
+            <div class="project_info_content">
+                <div class="project_info_content-item column">
+                    Сильные стороны работника:
+                    @if (Model.EditAccess)
+                    {
+                        <textarea asp-for="ValueJudgmentDto.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+                    }
+                    else
+                    {
+                        <b>@strengths</b>
+                    }
+                </div>
+                <div class="project_info_content-item column">
+                    Зоны деятельности / поведение работника, требующие корректировки:
+                    @if (Model.EditAccess)
+                    {
+                        <textarea asp-for="ValueJudgmentDto.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+                    }
+                    else
+                    {
+                        <b>@behaviorToCorrect</b>
+                    }
+
+                </div>
+                <div class="project_info_content-item column">
+                    Рекомендации по развитию работника:
+                    @if (Model.EditAccess)
+                    {
+                        <textarea asp-for="ValueJudgmentDto.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+                    }
+                    else
+                    {
+                        <b>@recommendations</b>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+        @if (Model.EditAccess)
+        {
+            <button type="button" class="add_row_btn" onclick="saveValueJudgmentAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
+            <button type="button" class="add_row_btn" onclick="saveValueJudgmentAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
+        }
+    </form>
 }

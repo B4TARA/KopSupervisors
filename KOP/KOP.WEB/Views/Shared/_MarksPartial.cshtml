@@ -68,7 +68,7 @@ else
 									<td>
 										@if (Model.EditAccess)
 										{
-											<input type="number" asp-for="MarkTypes[i].Marks[j].PercentageValue" value="@percentageValue" step="0.1" disabled="@(Model.EditAccess ? null : "disabled")" />
+											<input type="number" asp-for="MarkTypes[i].Marks[j].PercentageValue" disabled="@(Model.EditAccess ? null : "disabled")" />
 										}
 										else
 										{
@@ -95,8 +95,8 @@ else
 		</div>
 		@if (Model.EditAccess)
 		{
-			<button type="button" class="add_row_btn" onclick="saveMarksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
+			<button type="button" class="add_row_btn" onclick="saveMarksAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveMarksAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
 		}
 	</form>
 }

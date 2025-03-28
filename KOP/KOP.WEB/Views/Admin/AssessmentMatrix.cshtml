@@ -22,7 +22,7 @@ else{
                             if (element != null)
                             {
                                 var index = Model.Elements.IndexOf(element);
-                                <td data-id="@element.Id" draggable="true">
+                                <td data-id="@element.Id" draggable="false">
                                     <input type="hidden" asp-for="Elements[@index].Id" class="form-control" />
                                     <input type="hidden" asp-for="Elements[@index].Column" class="form-control" />
                                     <input type="hidden" asp-for="Elements[@index].Row" class="form-control" />
@@ -44,22 +44,7 @@ else{
             </tbody>
         </table>
     </div>
-    <button type="button" id="save-button">Сохранить изменения</button>
+    <button type="button" onclick="updateMatrix()">Сохранить изменения</button>
 </form>
-
-<style>
-    td {
-        width: 100px;
-        height: 50px;
-        border: 1px solid #ccc;
-        text-align: center;
-        cursor: move; /* Указатель для перетаскивания */
-    }
-
-    .highlight {
-        background-color: #e0f7fa; /* Цвет подсветки */
-        border: 2px dashed #00796b; /* Дашированная рамка */
-    }
-</style>
 
 <script src="/js/adminScript.js"></script>

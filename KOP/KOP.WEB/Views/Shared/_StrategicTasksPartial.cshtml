@@ -154,8 +154,8 @@ else
 		</div>
 		@if (Model.EditAccess)
 		{
-			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId,@Model.SelectedUserId)">Сохранить</button>
+            <button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
+			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
 		}
 	</form>
 }

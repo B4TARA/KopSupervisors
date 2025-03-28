@@ -91,10 +91,12 @@ namespace KOP.BLL.Services
 
             var assessmentSummaryDto = CreateAssessmentSummaryDto(assessment);
 
-            var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
+            var selfAssessmentResult = assessment.AssessmentResults.FirstOrDefault(x => x.Type == AssessmentResultTypes.SelfAssessment);
             if (selfAssessmentResult != null)
             {
+                assessmentSummaryDto.SelfAssessmentResultId = selfAssessmentResult.Id;
                 assessmentSummaryDto.SelfAssessmentResultSystemStatus = selfAssessmentResult.SystemStatus;
+                assessmentSummaryDto.SelfAssessmentResultValues = GetAssessmentResultValues(selfAssessmentResult).ToList();
             }
             else
             {
@@ -105,6 +107,7 @@ namespace KOP.BLL.Services
             if (supervisorAssessmentResult != null)
             {
                 assessmentSummaryDto.SupervisorAssessmentResultSystemStatus = supervisorAssessmentResult.SystemStatus;
+                assessmentSummaryDto.SupervisorAssessmentResultValues = GetAssessmentResultValues(supervisorAssessmentResult).ToList();
             }
             else
             {
@@ -359,7 +362,7 @@ namespace KOP.BLL.Services
             }
             else
             {
-                var message = new Message(new string[] { judge.Email }, mail.Title, mail.Body, judge.FullName);
+                var message = new Message([judge.Email], mail.Title, mail.Body, judge.FullName);
                 await _emailSender.SendEmailAsync(message);
             }
         }

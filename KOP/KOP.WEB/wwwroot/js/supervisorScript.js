@@ -1,5 +1,4 @@
 ﻿
-// // // // // // SUPERVISOR SCRIPT // // // // //
 async function getSubordinates(supervisorId) {
     try {
         // Выполняем fetch запрос
@@ -67,48 +66,44 @@ async function getEmployeeLayout(employeeId, elem) {
     }
 }
 
-// // // // // ASSESSMENTs SCRIPT // // // // //
 async function getEmployeeAssessmentLayout(employeeId) {
     try {
-        // Устанавливаем активный элемент меню
         let linkMenuItemGrade = document.getElementById('grade_link_item');
         let linkMenuItemAssessment = document.getElementById('assessment_link_item');
         linkMenuItemGrade.classList.remove("active");
         linkMenuItemAssessment.classList.add("active");
 
-        // Выполняем fetch запрос
         let response = await fetch(`/Supervisor/GetEmployeeAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`, {
             method: 'GET'
         });
 
-        // Получаем HTML-контент
-        let htmlContent = await response.text();
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке оценки сотрудника');
+        }
 
-        // Вставляем HTML-контент в нужный элемент
+        let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        /// Получаем типы количественных оценок
-        let response2 = await fetch(`/Assessment/GetLastAssessments?employeeId=${encodeURIComponent(employeeId)}`);
+        let response2 = await fetch(`/Assessment/GetLastAssessments?userId=${encodeURIComponent(employeeId)}`);
 
-        // Получаем JSON-ответ
+        if (!response2.ok) {
+            throw new Error('Ошибка при загрузке последних оценок');
+        }
+
         let jsonResponse = await response2.json();
 
-        // Проверка на результат ответа
         if (!jsonResponse.success) {
-            //alert(jsonResponse.message);
+            console.warn('Не удалось получить последние оценки:', jsonResponse.message);
             return;
         }
 
-        // Извлекаем данные из ответа
         const lastAssessments = jsonResponse.data;
 
-        // Если есть типы оценок, то подгружаем самый первый
         if (lastAssessments && lastAssessments.length > 0) {
             await getEmployeeAssessment(lastAssessments[0].id);
         }
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -143,83 +138,7 @@ async function getEmployeeAssessment(assessmentId) {
     }
 }
 
-async function assessEmployee(elem, assessmentId, assessmentResultId, employeeId) {
-    try {
-        let assessmentValues = elem.parentNode.querySelectorAll(".input_assessment_value");
-        let assessmentContainer = document.getElementById('assessment_container');
 
-        const jsonToSend = {};
-        jsonToSend.resultValues = [];
-        jsonToSend.assessmentResultId = assessmentResultId;
-
-        let isValid = true; // Флаг для проверки валидности
-
-        assessmentValues.forEach((item) => {
-            let itemValue = item.value.trim(); // Убираем пробелы по краям
-            let itemMax = +item.max;
-            let itemMin = +item.min;
-
-            // Проверка на наличие недопустимых символов
-            const invalidCharacters = /[^\d]/; // Регулярное выражение для проверки на недопустимые символы (все, кроме цифр)
-
-            if (invalidCharacters.test(itemValue)) {
-                isValid = false; // Устанавливаем флаг в false
-                validationFormAssessment(item, 'errorInclude'); // Вызов функции валидации
-                return; // Прерываем выполнение текущей итерации
-            }
-
-            // Преобразуем значение в число
-            let numericValue = +itemValue;
-
-            // Проверка на валидность
-            if (numericValue < itemMin || numericValue > itemMax) {
-                isValid = false; // Устанавливаем флаг в false
-                validationFormAssessment(item, 'errorValidation'); // Вызов функции валидации
-            } else {
-                validationFormAssessment(item, 'success'); // Успешная валидация
-                jsonToSend.resultValues.push(numericValue + ""); // Добавляем значение в массив
-            }
-        });
-
-        // Если есть ошибки валидации, не отправляем данные
-        if (!isValid) {
-            //alert('Пожалуйста, убедитесь, что все значения находятся в допустимом диапазоне.');
-            return;
-        }
-
-        console.log(JSON.stringify(jsonToSend))
-        
-        let url = '/Employee/AssessEmployee';
-
-        const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            method: 'POST',
-            body: JSON.stringify(jsonToSend)
-        });
-
-        if (!response.ok) {
-            let errorData = await response.json();
-            alert(`Ошибка ${response.status}: ${errorData.message}`);
-            return;
-        }
-
-        popupAlert('Оценка успешно принята!', false)
-
-        await getEmployeeLayout(employeeId);
-
-        await getEmployeeAssessmentLayout(employeeId);
-
-        await getEmployeeAssessment(assessmentId);
-
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
-}
-
-// Пример функции валидации
 
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";
@@ -239,7 +158,6 @@ function validationFormAssessment(item, type) {
     }
 }
 
-// // // // // GRADEs SCRIPT // // // // //
 async function getEmployeeGradeLayout(employeeId) {
     try {
         // Устанавливаем активный класс на ссылку Grade и убираем с Assessment

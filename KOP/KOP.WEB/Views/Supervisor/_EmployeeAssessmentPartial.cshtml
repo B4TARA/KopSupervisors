@@ -69,7 +69,7 @@
 				
 				<thead>
 					<tr>
-						<th colspan="3" style="text-align:center;">Интерпретация результатов оценки управленческих компетенций</th>
+						<th colspan="3" style="text-align:center;">Интерпретация результатов оценки компетенций</th>
 					</tr>
 					<tr>
 						<th>Балл</th>
@@ -346,7 +346,7 @@
 						</tbody>
 					</table>
 
-					<div typeAssessment="userJudged" class="action_btn primary_btn assessment" onclick="assessEmployee(this, @Model.Assessment.Id, @Model.SupervisorAssessmentResult.Id, @Model.SupervisorAssessmentResult.Judged.Id)">
+					<div class="action_btn primary_btn assessment" onclick="assessAnotherUser(this, @Model.SupervisorAssessmentResult.Id)">
 						Сохранить
 					</div>
 				}
