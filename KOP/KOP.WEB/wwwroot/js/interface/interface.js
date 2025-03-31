@@ -70,6 +70,11 @@ function closeBtnPopup(item, isReload) {
         if (popupSection) {
             popupSection.remove(); // Удаляем родительский элемент
         }
+    } else if (item.id == 'overlayWrapper') {
+        const defaultPopupSection = document.getElementById('section_popup');
+        if (defaultPopupSection) {
+            defaultPopupSection.remove(); // Удаляем родительский элемент
+        }
     }
 
     const overlay = document.querySelector('.overlay');
@@ -110,7 +115,6 @@ function popupResult(text, isReload) {
     if (sectionPopup) {
         sectionPopup.remove()
     }
-    console.log(overlay)
     let alertSection = document.createElement('section');
     let homeSection = document.querySelector('.home-content')
     alertSection.className = "section_popup result_popup active_popup";
@@ -211,6 +215,7 @@ function addRow(elem, type, id) {
         tablePopup.appendChild(row)
     }
     else if (type === 'project') {
+        var selectedUserFullName = document.getElementById("SelectedUserFullName").value;
         const row = document.createElement('div');
         row.innerHTML = `
             
@@ -219,7 +224,7 @@ function addRow(elem, type, id) {
                 Проект ${newIndex + 1}
             </div>
             <div>
-                ФИО является 
+                ${selectedUserFullName} является 
                 <input type="text" name="Projects[${newIndex}].UserRole" placeholder="руководителем/заказчиком/со-заказчиком" required />
                 стратегического проекта 
                 <input type="text" name="Projects[${newIndex}].Name" placeholder="Наименование проекта" required />
@@ -574,7 +579,7 @@ function saveStrategicTasksAsDraft(gradeId, employeeId) {
 }
 function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
-    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить как черновик\"'
 
     popupConfirmation(confirmationText, false)
     const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')

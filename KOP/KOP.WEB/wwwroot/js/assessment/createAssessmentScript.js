@@ -79,7 +79,7 @@ async function assessEmployee(elem, assessmentId, assessmentResultId, judgedId) 
     }
 }
 
-async function createAssessment(elem, assessmentResultId, isSelfAssessment = false, assessmentId = null, judgedId = null) {
+async function createAssessment(elem, assessmentResultId, judgedId, isSelfAssessment = false, assessmentId = null) {
     try {
         const assessmentValues = elem.parentNode.querySelectorAll(".input_assessment_value");
         const { isValid, jsonToSend } = await validateAssessmentValues(assessmentValues);
@@ -98,7 +98,7 @@ async function createAssessment(elem, assessmentResultId, isSelfAssessment = fal
         popupAlert('Оценка успешно принята!', false);
 
         // Обновление данных
-        await getAssessmentLayout();
+        await getEmployeeAssessmentLayout(judgedId);
         if (isSelfAssessment) {
             await getSelfAssessment(assessmentId, judgedId);
         }
@@ -110,9 +110,9 @@ async function createAssessment(elem, assessmentResultId, isSelfAssessment = fal
 }
 
 async function assessYourself(elem, assessmentId, assessmentResultId, judgedId) {
-    await createAssessment(elem, assessmentResultId, true, assessmentId, judgedId);
+    await createAssessment(elem, assessmentResultId, judgedId, true, assessmentId);
 }
 
-async function assessAnotherUser(elem, assessmentResultId) {
-    await createAssessment(elem, assessmentResultId);
+async function assessAnotherUser(elem, assessmentResultId, judgedId) {
+    await createAssessment(elem, assessmentResultId, judgedId);
 }

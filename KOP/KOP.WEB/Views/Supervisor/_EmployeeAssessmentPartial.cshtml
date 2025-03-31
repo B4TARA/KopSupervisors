@@ -15,7 +15,7 @@
 						Выбор оценщиков
 					</div>
 					<div class="mid_description">
-						Выберите трех коллег, которые будут оценивать корпоративные компетенции данного сотрудника
+						Выберите минимум трех коллег, которые будут оценивать корпоративные компетенции данного сотрудника
 					</div>
 				</div>
 				<div class="choose_user_container" id="choose_user_container">
@@ -346,7 +346,7 @@
 						</tbody>
 					</table>
 
-					<div class="action_btn primary_btn assessment" onclick="assessAnotherUser(this, @Model.SupervisorAssessmentResult.Id)">
+					<div class="action_btn primary_btn assessment" onclick="assessAnotherUser(this, @Model.SupervisorAssessmentResult.Id, @Model.SupervisorAssessmentResult.Judged.Id)">
 						Сохранить
 					</div>
 				}

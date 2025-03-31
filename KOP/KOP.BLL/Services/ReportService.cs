@@ -78,7 +78,7 @@ namespace KOP.BLL.Services
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.2
-            AddParagraph(document, "2.2. Результаты выполнения стратегических проектов и задач.", true, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, "2.2. Результаты выполнения стратегических проектов.", true, "Cambria", 10, ParagraphAlignment.LEFT);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем строку с описанием показателя Qn2 по всем проектам
@@ -204,7 +204,7 @@ namespace KOP.BLL.Services
 
             // Строка 7: Стратегические проекты
             AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов и задач.", true, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов.", true, ParagraphAlignment.LEFT);
             if (gradeDto.ProjectDtoList.Any())
             {
                 AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Выполнение стратегических проектов за отчетный период, Qn2 {gradeDto.Qn2} %", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);

@@ -3859,6 +3859,11 @@ button.show-modal,
     gap: 10px;
 }
 
+    .experience_item span {
+        white-space: nowrap;
+        font-size:14px;
+    }
+
 .result_item_header {
     display: flex;
     align-items: center;
@@ -4175,8 +4180,8 @@ button.show-modal,
 }
 
 .user-type-card:hover {
-    transform: scale(1.02); 
-    border:1px solid #1B74FD;
+    transform: scale(1.02);
+    border: 1px solid #1B74FD;
 }
 
 .user-type-card-icon {
@@ -4187,7 +4192,7 @@ button.show-modal,
     position: fixed;
     top: 50%;
     left: 50%;
-    flex-direction:column;
+    flex-direction: column;
     transform: translate(-50%, -50%);
     background-color: white;
     border-radius: 10px;
@@ -4198,5 +4203,5 @@ button.show-modal,
     height: fit-content;
     justify-content: center;
     align-items: center;
-    padding:40px 20px;
+    padding: 40px 20px;
 }

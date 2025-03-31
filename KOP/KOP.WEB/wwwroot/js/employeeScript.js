@@ -21,7 +21,7 @@ async function getEmployeeLayout() {
     }
 }
 
-async function getAssessmentLayout() {
+async function getEmployeeAssessmentLayout() {
     try {
         let response = await fetch(`/Employee/GetAssessmentLayout`);
         let htmlContent = await response.text();

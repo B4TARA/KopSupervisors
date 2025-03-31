@@ -36,7 +36,7 @@ namespace KOP.WEB.Controllers
                     SubdivisionFromFile = user.SubdivisionFromFile,
                 }).ToList();
 
-                return View("Users", allUsersSummariesDtos);
+                return View("Users", allUsersSummariesDtos.OrderBy(x => x.FullName).ToList());
             }
             catch (Exception ex)
             {

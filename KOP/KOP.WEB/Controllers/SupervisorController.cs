@@ -430,7 +430,7 @@ namespace KOP.WEB.Controllers
 
                 var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
 
-                return View("ReportLayout", subordinateUsersSummariesHasGrades);
+                return View("ReportLayout", subordinateUsersSummariesHasGrades.OrderBy(x => x.FullName).ToList());
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@
     @await Html.PartialAsync("_SidebarPartial.cshtml")
     <section class="home-section" role="main">
         @RenderBody()
-        <div class="overlay" onclick="closeBtnPopup(this, false)"></div>
+        <div class="overlay" id="overlayWrapper" onclick="closeBtnPopup(this, false)"></div>
     </section>
     @await Html.PartialAsync("_ScriptsPartial.cshtml")
 </body>
