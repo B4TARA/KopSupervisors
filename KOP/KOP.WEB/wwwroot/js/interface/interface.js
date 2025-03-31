@@ -63,21 +63,21 @@ function toggleSelectButton(button) {
 
 /******POPUP ALERT*******/
 function closeBtnPopup(item, isReload) {
-    let popupSection = document.getElementById("section_popup");
-    let isCompareBox = document.getElementById('compare_box')
-    let isSelectedWrapper = document.getElementById('selected_main_wrapper')
-    popupSection.remove();
+    // Проверяем, является ли переданный элемент тем, который нужно обработать
+    if (item && item.id === 'disagreeBtnConfirm') {
+        // Находим родительский элемент с классом 'section_popup'
+        const popupSection = item.closest('.section_popup');
+        if (popupSection) {
+            popupSection.remove(); // Удаляем родительский элемент
+        }
+    }
 
     const overlay = document.querySelector('.overlay');
-    overlay.classList.remove('active')
-    //if (isCompareBox != undefined || isSelectedWrapper != undefined) {
-    //    console.log(isCompareBox)
-    //} else {
-    //    location.reload();
-    //}
-    bodyTag.style.overflow = 'auto'
+    overlay.classList.remove('active');
 
-    if (isReload == true) {
+    bodyTag.style.overflow = 'auto';
+
+    if (isReload === true) {
         location.reload();
     }
 }
@@ -502,13 +502,9 @@ async function getStrategicTasksPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteStrategicTask(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
 
     fetch(`/StrategicTask/Delete/${id}`, {
         method: 'DELETE'
@@ -527,73 +523,101 @@ function deleteStrategicTask(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveStrategicTasksAsDraft(gradeId, employeeId) {
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
 
-    fetch(`/StrategicTask/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+            fetch(`/StrategicTask/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getStrategicTasksPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                    popupResult('Ошибка: ' + error.message, false);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getStrategicTasksPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
+        
+    
+
 }
 function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-    fetch(`/StrategicTask/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+
+
+            fetch(`/StrategicTask/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getStrategicTasksPopup(gradeId);
+
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                    popupResult('Ошибка: ' + error.message, false);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getStrategicTasksPopup(gradeId);
-            
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 
 // Projects
@@ -636,66 +660,92 @@ function deleteProject(id, gradeId) {
 }
 function saveProjectsAsDraft(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-    fetch(`/Project/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
+
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
+
+            fetch(`/Project/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getProjectsPopup(gradeId);
+                })
+                .catch(error => {
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getProjectsPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
+
 }
 function saveProjectsAsFinal(gradeId, employeeId) {
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
 
-    fetch(`/Project/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
+
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+            fetch(`/Project/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getProjectsPopup(gradeId);
+                })
+                .catch(error => {
                 });
+        }
+        else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+                closeBtnPopup(event.target, false)
             }
-            return response.text();
+
         })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getProjectsPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
 }
 
 // Kpis
@@ -737,67 +787,93 @@ function deleteKpi(id, gradeId) {
         });
 }
 function saveKpisAsDraft(gradeId, employeeId) {
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    fetch(`/Kpi/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
+
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
+
+            fetch(`/Kpi/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getKpisPopup(gradeId);
+                })
+                .catch(error => {
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getKpisPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 function saveKpisAsFinal(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-    fetch(`/Kpi/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+            fetch(`/Kpi/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getKpisPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                    popupResult('Ошибка: ' + error.message, false);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getKpisPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 
 // Marks
@@ -814,9 +890,6 @@ async function getMarksPopup(gradeId) {
     }
 }
 function deleteMark(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
 
     fetch(`/Mark/Delete/${id}`, {
         method: 'DELETE'
@@ -839,70 +912,94 @@ function deleteMark(id, gradeId) {
         });
 }
 function saveMarksAsDraft(gradeId, employeeId) {
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
-    formData.forEach((value, key) => {
-        console.log(`Key: ${key}, Value: ${value}, Type: ${typeof value}`);
-    });
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    fetch(`/Mark/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+        const form = document.getElementById('popupForm');
+        form.setAttribute('novalidate', 'true')
+
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
+
+            fetch(`/Mark/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getMarksPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getMarksPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
+    
 }
 function saveMarksAsFinal(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-    fetch(`/Mark/EditAll`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+            fetch(`/Mark/EditAll`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getMarksPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getMarksPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 
 // Qualification
@@ -999,71 +1096,97 @@ function deleteHigherEducation(id, gradeId) {
         });
 }
 function saveQualificationAsDraft(gradeId, employeeId) {
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-    formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-    });
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
 
-    fetch(`/Qualification/Edit`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
+
+            formData.forEach((value, key) => {
+                console.log(`${key}: ${value}`);
+            });
+
+            fetch(`/Qualification/Edit`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getQualificationPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getQualificationPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 function saveQualificationAsFinal(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-    fetch(`/Qualification/Edit`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+            fetch(`/Qualification/Edit`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId);
+                    getQualificationPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId);
-            getQualificationPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 
 // ValueJudgment
@@ -1080,67 +1203,94 @@ async function getValueJudgmentPopup(gradeId) {
     }
 }
 function saveValueJudgmentAsDraft(gradeId, employeeId) {
-    const form = document.getElementById('popupForm');
-    form.setAttribute('novalidate', 'true')
 
-    const formData = new FormData(form);
-    formData.append('IsFinalized', false);
+    let confirmationText = 'Вы действительно хотите сохранить как черновик?'
 
-    fetch(`/ValueJudgment/Edit`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
+
+            const formData = new FormData(form);
+            formData.append('IsFinalized', false);
+
+            fetch(`/ValueJudgment/Edit`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getValueJudgmentPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                    popupResult('Ошибка: ' + error.message, false);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getValueJudgmentPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 function saveValueJudgmentAsFinal(gradeId, employeeId) {
 
-    const form = document.getElementById('popupForm');
-    const formData = new FormData(form);
-    formData.append('IsFinalized', true);
+    let confirmationText = 'Вы уверены, что хотите сохранить изменения? После сохранения вы не сможете редактировать это поле. Если вы планируете вносить изменения, нажмите \"Сохранить ка черновик\"'
 
-    fetch(`/ValueJudgment/Edit`, {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            let popupSection = document.getElementById("section_popup");
-            popupSection.remove();
+    popupConfirmation(confirmationText, false)
+    const confirmationBtnsWrapper = document.querySelector('.confirmation_btns_wrapper')
+    confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Неизвестная ошибка');
+        if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
+
+            const form = document.getElementById('popupForm');
+            const formData = new FormData(form);
+            formData.append('IsFinalized', true);
+
+            fetch(`/ValueJudgment/Edit`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    let popupSection = document.getElementById("section_popup");
+                    popupSection.remove();
+
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Неизвестная ошибка');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(successMessage => {
+                    popupResult(successMessage, false);
+                    getEmployeeLayout(employeeId)
+                    getValueJudgmentPopup(gradeId);
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                    popupResult('Ошибка: ' + error.message, false);
                 });
-            }
-            return response.text();
-        })
-        .then(successMessage => {
-            popupResult(successMessage, false);
-            getEmployeeLayout(employeeId)
-            getValueJudgmentPopup(gradeId);
-        })
-        .catch(error => {
-            console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
-        });
+        } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
+            closeBtnPopup(event.target, false)
+        }
+
+    })
 }
 
 // ManagmentCompetencies
@@ -1252,10 +1402,26 @@ function filterTable(filterValue) {
     });
 }
 
-//// Закрытие дропдауна при клике вне его
-//window.onclick = function (event) {
-//    const dropdownContent = document.querySelector('.dropdown-content');
-//    if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown')) {
-//        dropdownContent.style.display = 'none';
-//    }
-//};
+function popupConfirmation(text, isReload) {
+    let alertSection = document.createElement('section');
+    let homeSection = document.querySelector('.home-content')
+    alertSection.className = "section_popup alert_popup active_popup";
+    alertSection.setAttribute('id', 'section_popup')
+
+    alertSection.innerHTML = `<div class="modal-box">
+        
+        <div class="mid_title">${text}</div>
+        <div class="action_buttons_wrapper confirmation_btns_wrapper">
+
+                <div class="action_btn green_btn" id = "agreeBtnConfirm">
+                    Да
+                </div>
+                <div class="action_btn red_btn" id="disagreeBtnConfirm">
+                    Нет
+                </div>
+
+            </div>
+        </div>
+        `;
+    homeSection.appendChild(alertSection)
+}

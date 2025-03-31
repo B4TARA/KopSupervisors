@@ -102,6 +102,8 @@ async function getEmployeeAssessmentLayout(employeeId) {
         if (lastAssessments && lastAssessments.length > 0) {
             await getEmployeeAssessment(lastAssessments[0].id);
         }
+
+        arrUsersForAssessment.splice(0, arrUsersForAssessment.length); // Удаляем все элементы
     } catch (error) {
         console.error('Произошла ошибка:', error);
     }
