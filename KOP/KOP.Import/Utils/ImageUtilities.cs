@@ -6,10 +6,15 @@ namespace KOP.Import.Utils
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public static string SaveBase64Image(string base64String, string fileName, string userImgDownloadPath)
+        public static string SaveBase64Image(string? base64String, string fileName, string userImgDownloadPath)
         {
             try
             {
+                if(string.IsNullOrEmpty(base64String))
+                {
+                    return "../UserImages/default_profile_icon.svg";
+                }
+
                 var file = Path.Combine(userImgDownloadPath, $"{fileName}.jpg");
 
                 byte[] bytes = Convert.FromBase64String(base64String);

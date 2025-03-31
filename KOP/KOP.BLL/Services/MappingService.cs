@@ -27,7 +27,7 @@ namespace KOP.BLL.Services
                 SystemRoles = user.SystemRoles,
             };
 
-            var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+            var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
             if (lastGrade == null)
             {
                 dto.PendingGradeStatus = false;
