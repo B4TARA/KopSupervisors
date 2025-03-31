@@ -8,7 +8,7 @@
 {
 	<div class="undefined_page_wrapper">
 		<div class="title">
-			Результаты выполнения стратегических проектов и задач не заполнены
+			Результаты выполнения стратегических проектов не заполнены
 		</div>
 		<div class="empty_state_image_wrapper_middle">
 			<img src="/image/EmptyState.png" alt="default_page">
@@ -19,10 +19,11 @@ else
 {
 	<form id="popupForm">
 		<input type="hidden" asp-for="GradeId">
+		<input type="hidden" asp-for="SelectedUserFullName">
 		<div class="popup_content">
 			<div class="popup_content_header margin_container_bottom_middle">
 				<div class="title">
-					Результаты выполнения стратегических проектов и задач
+					Результаты выполнения стратегических проектов
 				</div>
 				@if (!Model.Projects.Any() && Model.IsFinalized)
 				{
@@ -63,7 +64,7 @@ else
 								является
 								@if (Model.EditAccess)
 								{
-									<input type="text" asp-for="Projects[i].UserRole" value="@project.UserRole" disabled="@(Model.EditAccess ? null : "disabled")"  style="width:320px;"/>
+									<input type="text" asp-for="Projects[i].UserRole" value="@project.UserRole" disabled="@(Model.EditAccess ? null : "disabled")"  style="width:320px;" required/>
 								}
 								else
 								{
@@ -73,7 +74,7 @@ else
 								стратегического проекта
 								@if (Model.EditAccess)
 								{
-									<input type="text" asp-for="Projects[i].Name" value="@project.Name" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="text" asp-for="Projects[i].Name" value="@project.Name" disabled="@(Model.EditAccess ? null : "disabled")" required />
 								}
 								else
 								{
@@ -85,7 +86,7 @@ else
 								Проект
 								@if (Model.EditAccess)
 								{
-									<input type="text" asp-for="Projects[i].Stage" value="@project.Stage" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="text" asp-for="Projects[i].Stage" value="@project.Stage" disabled="@(Model.EditAccess ? null : "disabled")" required />
 								}
 								else
 								{

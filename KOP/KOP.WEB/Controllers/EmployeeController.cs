@@ -202,7 +202,7 @@ namespace KOP.WEB.Controllers
             {
                 var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(userId);
 
-                return PartialView("_EmployeeGradesPartial", gradeSummaryDtoList);
+                return View("EmployeeGrades", gradeSummaryDtoList);
             }
             catch
             {

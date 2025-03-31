@@ -26,7 +26,7 @@ namespace KOP.BLL.Services
             {
                 var strGradeEntity = Enum.GetName(typeof(GradeEntities), gradeEntity);
 
-                if (strGradeEntity is null)
+                if (strGradeEntity == null)
                 {
                     continue;
                 }
@@ -40,6 +40,8 @@ namespace KOP.BLL.Services
                 // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!
                 else if (gradeEntity == GradeEntities.Qualification)
                 {
+                    // КОСТЫЛЬ
+                    includeProperties.Add(strGradeEntity + ".HigherEducations");
                     strGradeEntity += ".PreviousJobs";
                 }
                 // УБРАТЬ ЭТОТ КОСТЫЛЬ !!!

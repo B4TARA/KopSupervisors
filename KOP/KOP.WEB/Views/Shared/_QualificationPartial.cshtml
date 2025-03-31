@@ -62,9 +62,7 @@ else
                         {
                             <b>@Model.Qualification.HigherEducations[i].Education</b>
                         }
-                        ,
-
-                        специальность
+                        <span>, специальность</span>
                         @if (Model.EditAccess)
                         {
                             <input type="text" asp-for="Qualification.HigherEducations[i].Speciality" />
@@ -73,9 +71,7 @@ else
                         {
                             <b>@Model.Qualification.HigherEducations[i].Speciality</b>
                         }
-                        ,
-
-                        квалификация
+                        <span>, квалификация</span>
                         @if (Model.EditAccess)
                         {
                             <input type="text" asp-for="Qualification.HigherEducations[i].QualificationName" />
@@ -84,29 +80,26 @@ else
                         {
                             <b>@Model.Qualification.HigherEducations[i].QualificationName</b>
                         }
-                        ,
-
-                        период обучения c
+                        <span>, период обучения c</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="Qualification.HigherEducations[i].StartDateTime" min="1970-01-01" />
                         }
                         else
                         {
                             <b>@educationStartDateTime</b>
                         }
 
-                        по
+                        <span>по</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="Qualification.HigherEducations[i].EndDateTime" min="1970-01-01" />
                         }
                         else
                         {
                             <b>@educationEndDateTime</b>
                         }
-                        ;
-
+                        <span>;</span>
                     </div>
                     @if (Model.EditAccess)
                     {
