@@ -35,7 +35,7 @@ else
 					@if (Model.EditAccess)
 					{
 						<div class="description">
-							Выполнение стратегических проектов за отчетный период, Qn2 <input type="number" asp-for="Qn2" value="@Model.Qn2" disabled="@(Model.EditAccess ? null : "disabled")"> %
+							Выполнение стратегических проектов за отчетный период, Qn2 <input type="number" asp-for="Qn2" value="@Model.Qn2" disabled="@(Model.EditAccess ? null : "disabled")" style="width:100px;"> %
 						</div>
 					}
 					else
@@ -63,7 +63,7 @@ else
 								является
 								@if (Model.EditAccess)
 								{
-									<input type="text" asp-for="Projects[i].UserRole" value="@project.UserRole" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="text" asp-for="Projects[i].UserRole" value="@project.UserRole" disabled="@(Model.EditAccess ? null : "disabled")"  style="width:320px;"/>
 								}
 								else
 								{

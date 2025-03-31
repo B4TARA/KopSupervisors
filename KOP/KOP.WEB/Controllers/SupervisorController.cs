@@ -338,7 +338,7 @@ namespace KOP.WEB.Controllers
                 {
                     var supervisorForCurrentUser = await _commonService.GetSupervisorForUser(userId);
                     supervisorId = supervisorForCurrentUser?.Id;
-                }
+                 }
                 else
                 {
                     supervisorId = supervisorResult.Judge.Id;

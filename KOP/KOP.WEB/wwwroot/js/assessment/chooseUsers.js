@@ -7,13 +7,15 @@ function selectedContainerOpen(elem) {
     let optionsContainer = document.getElementById("options-container");
 
     optionsContainer.classList.toggle("active");
-    searchBoxItem.value = "";
-    filterListSearch("");
+    if (searchBoxItem) {
+        searchBoxItem.value = "";
+      
+        filterListSearch("");
 
-    if (optionsContainer.classList.contains("active")) {
-        searchBoxItem.focus();
+        if (optionsContainer.classList.contains("active")) {
+            searchBoxItem.focus();
+        }
     }
-
 }
 
 function optionClick(elem) {
@@ -40,7 +42,6 @@ function optionClick(elem) {
             </div>`;
 
         arrUsersForAssessment.push(idCol);
-        console.log(idCol);
     } else {
         let alertText = "Этот сотрудник уже добавлен";
         popupAlert(alertText, false);
@@ -64,7 +65,6 @@ function optionClick(elem) {
     deleteItemBtn.forEach(elem => {
         elem.addEventListener('click', (e) => {
             e.stopPropagation()
-            console.log(arrUsersForAssessment)
             let divBtnSubmit = document.getElementById("users_assessment_submit")
             let deleteUserSelect = e.target.parentElement;
             deleteUserSelect.remove()
@@ -144,9 +144,11 @@ function addJudges() {
         .then(successMessage => {
             htmlContentMessage = `<div class="title">${successMessage}</div>`
             popupResult(htmlContentMessage, false);
-            getEmployeeLayout(employeeId);
-            getEmployeeAssessmentLayout(employeeId);
+            //getEmployeeLayout(employeeId);
+            //getEmployeeAssessmentLayout(employeeId);
             getEmployeeAssessment(assessmentId);
+
+            arrUsersForAssessment.splice(0, arrUsersForAssessment.length); // Удаляем все элементы
         })
         .catch(error => {
             //console.error('Произошла ошибка:', error);
@@ -177,18 +179,21 @@ function deleteJudge(assessmentId, employeeId, assessmentResultId) {
         .then(successMessage => {
             htmlContentMessage = `<div class="title">${successMessage}</div>`
             popupResult(htmlContentMessage, false);
-            getEmployeeLayout(employeeId);
-            getEmployeeAssessmentLayout(employeeId);
+            //getEmployeeLayout(employeeId);
+            //getEmployeeAssessmentLayout(employeeId);
             getEmployeeAssessment(assessmentId);
         })
         .catch(error => {
             //console.error('Произошла ошибка:', error);
-            htmlContentMessage = `<div class="title">Ошибка:${error.message}</div>`
-            popupResult(htmlContentMessage, false);
+            //htmlContentMessage = `<div class="title">Ошибка:${error.message}</div>`
+            //popupResult(htmlContentMessage, false);
         });
 
     let divBtnSubmit = document.getElementById("users_assessment_submit")
     if (arrUsersForAssessment.length == 0) {
-        divBtnSubmit.remove()
+        if (divBtnSubmit) {
+            divBtnSubmit.remove()
+        }
+        
     }
 }

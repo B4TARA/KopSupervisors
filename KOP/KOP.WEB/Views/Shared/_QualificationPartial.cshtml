@@ -216,10 +216,10 @@ else
             {
                 <div class="add_row_btn add_project" onclick="addRow(this,'experience')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
             }
-            <div>
+            <div >
                 ЗАО "МТБанк":
             </div>
-            <div>
+            <div class="popup_row_text">
                 с
                 @if (Model.EditAccess)
                 {
@@ -233,14 +233,14 @@ else
                 по настоящее время -
                 @if (Model.EditAccess)
                 {
-                    <input type="text" asp-for="Qualification.CurrentJobPositionName" placeholder="наименование текущей должности" />
+                    <input type="text" asp-for="Qualification.CurrentJobPositionName" placeholder="наименование текущей должности"  style="width:320px;"/>
                 }
                 else
                 {
                     <b>@Model.Qualification.CurrentJobPositionName</b>
                 }
             </div>
-            <div>
+            <div class="popup_row_text">
                 3.
                 @if (Model.EditAccess)
                 {
@@ -255,11 +255,11 @@ else
                 инициативе нанимателя в случае совершения лицом виновных действий,
                 являющихся основаниями для утраты доверия к нему со стороны нанимателя.
             </div>
-            <div>
+            <div class="popup_row_text">
                 4.
                 @if (Model.EditAccess)
                 {
-                    <input type="text" asp-for="Qualification.QualificationResult" />
+                    <textarea type="text" asp-for="Qualification.QualificationResult" placeholder="" style="width:100%;"></textarea>
                 }
                 else
                 {
