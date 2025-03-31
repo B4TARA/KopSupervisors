@@ -25,8 +25,7 @@
 
         public static DateOnly GetDate()
         {
-            //return DateOnly.FromDateTime(DateTime.Today);
-            return new DateOnly(2025, 3, 1);
+            return DateOnly.FromDateTime(DateTime.Today);
         }
     }
 }

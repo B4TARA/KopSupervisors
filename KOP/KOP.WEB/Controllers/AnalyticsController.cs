@@ -28,7 +28,7 @@ namespace KOP.WEB.Controllers
                 return NotFound(new { Message = $"Не удалось найти пользователя с ID {userId}" });
             }
 
-            var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+            var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
             if (lastGrade is null)
             {
                 return NotFound(new { Message = $"Не удалось найти последнюю оценку у пользователя с ID {userId}" });
@@ -101,7 +101,7 @@ namespace KOP.WEB.Controllers
                 return NotFound(new { Message = $"Не удалось найти пользователя с ID {userId}" });
             }
 
-            var lastGrade = user.Grades.OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
+            var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
             if (lastGrade is null)
             {
                 return NotFound(new { Message = $"Не удалось найти последнюю оценку у пользователя с ID {userId}" });
