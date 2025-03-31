@@ -104,7 +104,7 @@ async function sendLoginRequest() {
 }
 
 function showProjectPopup() {
-    document.getElementById('projectPopup').style.display = 'block';
+    document.getElementById('projectPopup').style.display = 'flex';
     document.getElementById('overlay').style.display = 'block';
 }
 

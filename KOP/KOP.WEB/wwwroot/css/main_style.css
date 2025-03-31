@@ -1792,20 +1792,20 @@ nav.close ~ .dashboard .top {
 }
 
     .list_division_users_wrapper .list-items {
-        margin-bottom:10px;
+        margin-bottom: 10px;
     }
-    /*.list_division_users_wrapper .list-items {
+/*.list_division_users_wrapper .list-items {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
 */
-    .list-items .list_division_users_wrapper {
-        transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
-        max-height: 0; /* Начальная высота */
-        overflow: hidden; /* Скрываем переполнение */
-        opacity: 0; /* Начальная непрозрачность */
-    }
+.list-items .list_division_users_wrapper {
+    transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход для max-height и opacity */
+    max-height: 0; /* Начальная высота */
+    overflow: hidden; /* Скрываем переполнение */
+    opacity: 0; /* Начальная непрозрачность */
+}
 
     .list-items .list_division_users_wrapper.open {
         max-height: 1000px; /* Установите максимальную высоту, которая будет достаточной для вашего контента */
@@ -2204,7 +2204,7 @@ nav.close ~ .dashboard .top {
     .competence_description .mid_description {
         color: #000;
         font-weight: 500;
-        text-align:left;
+        text-align: left;
     }
 
 /* .info_btn{
@@ -2290,7 +2290,7 @@ nav.close ~ .dashboard .top {
 /*****TABLE INFO ASSESSMENT****/
 .table_info_assessment thead th {
     font-size: 12px;
-    text-align:left;
+    text-align: left;
 }
 
 .table_info_assessment tbody td {
@@ -3771,10 +3771,10 @@ button.show-modal,
 
 .result_item span.indicator_assessment {
     background: #FF280C;
-    border-radius:50%;
-    left:auto;
-    right:0;
-    top:-20px;
+    border-radius: 50%;
+    left: auto;
+    right: 0;
+    top: -20px;
 }
 
 .result_item span {
@@ -4126,4 +4126,77 @@ button.show-modal,
 
 .user-dropdown-wrapper {
     width: 28%;
+}
+
+
+.user-types {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    /* align-items: center; */
+}
+
+.user-type-card {
+    padding: 32px 24px;
+    border-radius: 8px;
+    background-color: #ededfb;
+    border: 1px solid #ededfb;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+    cursor: pointer;
+}
+
+    .user-type-card.active {
+        background-color: #fff;
+        border: 1px solid #306DDE;
+    }
+
+.user-type-card-content {
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-type-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #5B596E;
+}
+
+.user-type-card-description {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #5B596E;
+}
+
+.user-type-card:hover {
+    transform: scale(1.02); 
+    border:1px solid #1B74FD;
+}
+
+.user-type-card-icon {
+    min-width: 40px;
+}
+
+#projectPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    flex-direction:column;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 20px;
+    z-index: 1000;
+    overflow: hidden;
+    width: 40%;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    padding:40px 20px;
 }
