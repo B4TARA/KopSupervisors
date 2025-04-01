@@ -1,20 +1,20 @@
 ﻿
 async function openUserLayout(userId) {
-    let response = await fetch(`/Admin/GetUserLayout?userId=${encodeURIComponent(userId)}`);
+    let response = await fetch(`/supervisors/Admin/GetUserLayout?userId=${encodeURIComponent(userId)}`);
     let htmlContent = await response.text();
     popupResult(htmlContent, false)
     openUserSystemRoles(userId);
 }
 
 async function openUserSubordinates(userId) {
-    let response = await fetch(`/Admin/GetUserSubordinates?userId=${encodeURIComponent(userId)}`);
+    let response = await fetch(`/supervisors/Admin/GetUserSubordinates?userId=${encodeURIComponent(userId)}`);
     let htmlContent = await response.text();
     document.getElementById('popupContent').innerHTML = htmlContent;
     showSubordinatesTree();
 }
 
 async function openUserSystemRoles(userId) {
-    let response = await fetch(`/Admin/GetUserSystemRoles?userId=${encodeURIComponent(userId)}`);
+    let response = await fetch(`/supervisors/Admin/GetUserSystemRoles?userId=${encodeURIComponent(userId)}`);
     let htmlContent = await response.text();
     document.getElementById('popupContent').innerHTML = htmlContent;
 }
@@ -23,7 +23,7 @@ function updateUserSystemRoles() {
     const form = document.getElementById('userSystemRolesForm');
     const formData = new FormData(form);
 
-    fetch(`/Admin/UpdateUserSystemRoles`, {
+    fetch(`/supervisors/Admin/UpdateUserSystemRoles`, {
         method: 'POST',
         body: formData
     })
@@ -58,7 +58,7 @@ function updateUserSubordinates() {
     };
 
     // Отправка данных на сервер с помощью fetch
-    fetch('/Admin/UpdateUserSubordinates', {
+    fetch('/supervisors/Admin/UpdateUserSubordinates', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ function updateMatrix() {
     const form = document.getElementById('matrixForm');
     const formData = new FormData(form);
 
-    fetch(`/Admin/UpdateMatrix`, {
+    fetch(`/supervisors/Admin/UpdateMatrix`, {
         method: 'POST',
         body: formData
     })

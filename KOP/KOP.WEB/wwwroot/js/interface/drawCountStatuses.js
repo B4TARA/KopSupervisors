@@ -30,19 +30,12 @@ listDivsMainWrapper.forEach((item) => {
         div.innerHTML = `${resultObj.resultAgreement}`
         insertDescriptionWrapper.appendChild(div)
     }
-
-
-
-
-
-
 })
 
 
 function countStatuses(elem) {
     const tableUsers = elem.querySelectorAll('.table_users');
 
-    //let processStatusCount = 0;
     let statusesObj = {}
     let arrProcessStatuses = [];
     let arrPurpleStatuses = [];
@@ -72,5 +65,4 @@ function countStatuses(elem) {
 
     })
     return statusesObj
-
 }

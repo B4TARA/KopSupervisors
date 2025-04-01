@@ -23,7 +23,7 @@ document.getElementById('remindPasswordForm').onsubmit = function (event) {
 
 async function sendRemindPasswordRequest() {
     try {
-        const url = '/Account/RemindPassword';
+        const url = '/supervisors/Account/RemindPassword';
         const jsonToSend = {};
         jsonToSend.Login = document.getElementById('loginRemindPassword').value;
 
@@ -50,7 +50,7 @@ async function sendRemindPasswordRequest() {
 
 async function sendLoginRequest() {
     try {
-        const url = '/Account/Login';
+        const url = '/supervisors/Account/Login';
         const jsonToSend = {};
         jsonToSend.Login = document.getElementById('login').value;
         jsonToSend.Password = document.getElementById('password').value;
@@ -66,7 +66,7 @@ async function sendLoginRequest() {
         let data = await response.json();
 
         if (data.statusCode == 200) {
-            location.href = '/Home/Index';
+            location.href = '/supervisors/Home/Index';
         }
         else if (data.statusCode == 210) {
             showProjectPopup();
@@ -91,9 +91,6 @@ async function sendLoginRequest() {
             form.submit();
         }
         else {
-            //let validationTextElem = document.getElementById('validationText');
-            //validationTextElem.innerText = data.description;
-
             alert(data.description);
             console.error(data.description);
         }
@@ -119,7 +116,7 @@ document.getElementById('heavenSection').addEventListener('click', function () {
     jsonToSend.Password = document.getElementById('password').value;
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = 'https://10.117.11.77:44305/Account/LoginNow';
+    form.action = 'https://kop.mtb.minsk.by/supervisors/Account/LoginNow';
 
     for (const key in jsonToSend) {
         if (jsonToSend.hasOwnProperty(key)) {

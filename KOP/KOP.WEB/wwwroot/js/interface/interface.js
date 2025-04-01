@@ -503,7 +503,7 @@ function updateIndices(type) {
 // StrategicTasks
 async function getStrategicTasksPopup(gradeId) {
     try {
-        let response = await fetch(`/StrategicTask/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/StrategicTask/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -514,7 +514,7 @@ async function getStrategicTasksPopup(gradeId) {
 }
 function deleteStrategicTask(id, gradeId) {
 
-    fetch(`/StrategicTask/Delete/${id}`, {
+    fetch(`/supervisors/StrategicTask/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -547,7 +547,7 @@ function saveStrategicTasksAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/StrategicTask/EditAll`, {
+            fetch(`/supervisors/StrategicTask/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -596,7 +596,7 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
 
 
-            fetch(`/StrategicTask/EditAll`, {
+            fetch(`/supervisors/StrategicTask/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -631,7 +631,7 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
 // Projects
 async function getProjectsPopup(gradeId) {
     try {
-        let response = await fetch(`/Project/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Project/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -646,7 +646,7 @@ function deleteProject(id, gradeId) {
     //    return;
     //}
 
-    fetch(`/Project/Delete/${id}`, {
+    fetch(`/supervisors/Project/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -682,7 +682,7 @@ function saveProjectsAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Project/EditAll`, {
+            fetch(`/supervisors/Project/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -726,7 +726,7 @@ function saveProjectsAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Project/EditAll`, {
+            fetch(`/supervisors/Project/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -759,7 +759,7 @@ function saveProjectsAsFinal(gradeId, employeeId) {
 // Kpis
 async function getKpisPopup(gradeId) {
     try {
-        let response = await fetch(`/Kpi/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Kpi/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -774,7 +774,7 @@ function deleteKpi(id, gradeId) {
         return;
     }
 
-    fetch(`/Kpi/Delete/${id}`, {
+    fetch(`/supervisors/Kpi/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -811,7 +811,7 @@ function saveKpisAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Kpi/EditAll`, {
+            fetch(`/supervisors/Kpi/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -853,7 +853,7 @@ function saveKpisAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Kpi/EditAll`, {
+            fetch(`/supervisors/Kpi/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -887,7 +887,7 @@ function saveKpisAsFinal(gradeId, employeeId) {
 // Marks
 async function getMarksPopup(gradeId) {
     try {
-        let response = await fetch(`/Mark/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Mark/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -899,7 +899,7 @@ async function getMarksPopup(gradeId) {
 }
 function deleteMark(id, gradeId) {
 
-    fetch(`/Mark/Delete/${id}`, {
+    fetch(`/supervisors/Mark/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -935,7 +935,7 @@ function saveMarksAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Mark/EditAll`, {
+            fetch(`/supervisors/Mark/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -980,7 +980,7 @@ function saveMarksAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Mark/EditAll`, {
+            fetch(`/supervisors/Mark/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -1013,7 +1013,7 @@ function saveMarksAsFinal(gradeId, employeeId) {
 // Qualification
 async function getQualificationPopup(gradeId) {
     try {
-        let response = await fetch(`/Qualification/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Qualification/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -1058,7 +1058,7 @@ function deletePreviousJob(id, gradeId) {
         return;
     }
 
-    fetch(`/Qualification/DeletePreviousJob/${id}`, {
+    fetch(`/supervisors/Qualification/DeletePreviousJob/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -1083,7 +1083,7 @@ function deleteHigherEducation(id, gradeId) {
     //    return;
     //}
 
-    fetch(`/Qualification/DeleteHigherEducation/${id}`, {
+    fetch(`/supervisors/Qualification/DeleteHigherEducation/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -1122,7 +1122,7 @@ function saveQualificationAsDraft(gradeId, employeeId) {
                 console.log(`${key}: ${value}`);
             });
 
-            fetch(`/Qualification/Edit`, {
+            fetch(`/supervisors/Qualification/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1166,7 +1166,7 @@ function saveQualificationAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Qualification/Edit`, {
+            fetch(`/supervisors/Qualification/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1200,7 +1200,7 @@ function saveQualificationAsFinal(gradeId, employeeId) {
 // ValueJudgment
 async function getValueJudgmentPopup(gradeId) {
     try {
-        let response = await fetch(`/ValueJudgment/getPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/ValueJudgment/getPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -1226,7 +1226,7 @@ function saveValueJudgmentAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/ValueJudgment/Edit`, {
+            fetch(`/supervisors/ValueJudgment/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1270,7 +1270,7 @@ function saveValueJudgmentAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/ValueJudgment/Edit`, {
+            fetch(`/supervisors/ValueJudgment/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1305,7 +1305,7 @@ function saveValueJudgmentAsFinal(gradeId, employeeId) {
 async function getManagmentCompetenciesPopup(employeeId, gradeId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Assessment/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Assessment/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -1324,7 +1324,7 @@ async function getManagmentCompetenciesPopup(employeeId, gradeId) {
 async function getCorporateCompetenciesPopup(employeeId, gradeId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Assessment/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Assessment/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -1342,7 +1342,7 @@ async function getCorporateCompetenciesPopup(employeeId, gradeId) {
 // TrainingEvents
 async function getTrainingEventsPopup(gradeId) {
     try {
-        let response = await fetch(`/TrainingEvent/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/TrainingEvent/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)

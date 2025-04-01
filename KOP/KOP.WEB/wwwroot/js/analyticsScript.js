@@ -279,7 +279,7 @@ function getChartOptions() {
 
 // Получить данные для отрисовки графика (json)
 async function loadAssessmentAnalytics(userId) {
-    const url = `/Analytics/GetAssessmentAnalytics?userId=${userId}`;
+    const url = `/supervisors/Analytics/GetAssessmentAnalytics?userId=${userId}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -357,7 +357,7 @@ function setActiveTab(activeTab) {
 
 // Получить данные для аналитики компетенций
 async function loadCompetenciesAnalytics(userId) {
-    const url = `/Analytics/GetCompetenciesAnalytics?userId=${userId}`;
+    const url = `/supervisors/Analytics/GetCompetenciesAnalytics?userId=${userId}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -367,49 +367,6 @@ async function loadCompetenciesAnalytics(userId) {
         const data = await response.json();
         const topCompetencies = document.getElementById('topCompetencies');
         const antiTopCompetencies = document.getElementById('antiTopCompetencies');
-        //const topDescriptions = document.getElementById('topDescriptions');
-        //const antiTopDescriptions = document.getElementById('antiTopDescriptions');
-
-        //topCompetencies.innerHTML = '';
-        //topDescriptions.innerHTML = '';
-       // data.topCompetencies.forEach((item, index) => {
-       //     var newTopCompetenceDiv = document.createElement('div');
-       //     newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
-       //     const itemPercentage = (item.avgValue / 13) * 100;
-       //     newTopCompetenceDiv.innerHTML = ` 
-       //     <div class="dashboard-competences-group-item-text">${item.name}</div>
-							//<div class="dashboard-competences-group-item-scale-wrapper">
-							//	<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
-							//	<div class="description">${item.avgValue}</div>
-							//</div>
-       //     `;
-       //     topCompetencies.appendChild(newTopCompetenceDiv);
-
-       //     var newTopDescription = document.createElement('li');
-       //     newTopDescription.textContent = item.competenceDescription;
-       //     topDescriptions.appendChild(newTopDescription);
-       // });
-
-       // antiTopCompetencies.innerHTML = '';
-       // antiTopDescriptions.innerHTML = '';
-       // data.antiTopCompetencies.forEach((item, index) => {
-       //     const itemPercentage = (item.avgValue / 13) * 100;
-       //     var newAntiTopCompetenceDiv = document.createElement('div');
-       //     newAntiTopCompetenceDiv.classList.add('dashboard-competences-group-item');
-       //     newAntiTopCompetenceDiv.innerHTML = ` 
-       //     <div class="dashboard-competences-group-item-text">${item.name}</div>
-							//<div class="dashboard-competences-group-item-scale-wrapper">
-							//	<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
-							//	<div class="description">${item.avgValue}</div>
-							//</div>
-       //     `;
-       //     antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
-
-       //     var newAntiTopDescription = document.createElement('li');
-       //     newAntiTopDescription.textContent = item.competenceDescription;
-       //     antiTopDescriptions.appendChild(newAntiTopDescription);
-       // });
-
 
         document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {
 

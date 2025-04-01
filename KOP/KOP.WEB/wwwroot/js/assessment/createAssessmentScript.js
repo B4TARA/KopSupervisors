@@ -36,7 +36,7 @@ async function validateAssessmentValues(assessmentValues) {
 }
 
 async function sendAssessmentData(jsonToSend) {
-    const response = await fetch('/Employee/AssessUser', {
+    const response = await fetch('/supervisors/Employee/AssessUser', {
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },

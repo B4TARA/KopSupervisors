@@ -1,7 +1,7 @@
 ﻿
 async function getGradeLayout() {
     try {
-        let response = await fetch(`/Employee/GetGradeLayout`);
+        let response = await fetch(`/supervisors/Employee/GetGradeLayout`);
         let htmlContent = await response.text();
         document.getElementById('gradeLayout').innerHTML = htmlContent;
     } catch (error) {
@@ -12,7 +12,7 @@ async function getGradeLayout() {
 
 async function getEmployeeLayout() {
     try {
-        let response = await fetch(`/Employee/GetGradeLayout`);
+        let response = await fetch(`/supervisors/Employee/GetGradeLayout`);
         let htmlContent = await response.text();
         document.getElementById('gradeLayout').innerHTML = htmlContent;
     } catch (error) {
@@ -23,7 +23,7 @@ async function getEmployeeLayout() {
 
 async function getEmployeeAssessmentLayout() {
     try {
-        let response = await fetch(`/Employee/GetAssessmentLayout`);
+        let response = await fetch(`/supervisors/Employee/GetAssessmentLayout`);
         let htmlContent = await response.text();
         document.getElementById('assessmentLayout').innerHTML = htmlContent;
 
@@ -42,7 +42,7 @@ async function getColleaguesAssessment() {
         selfAssessmentLinkItem.classList.remove("active");
         colleaguesAssessmentLinkItem.classList.add("active");
 
-        let response = await fetch(`/Employee/GetColleaguesAssessment`);
+        let response = await fetch(`/supervisors/Employee/GetColleaguesAssessment`);
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
     } catch (error) {
@@ -59,11 +59,11 @@ async function getSelfAssessment(assessmentId, userId) {
         selfAssessmentLinkItem.classList.add("active");
         colleaguesAssessmentLinkItem.classList.remove("active");
 
-        let response = await fetch(`/Employee/GetSelfAssessmentLayout`);
+        let response = await fetch(`/supervisors/Employee/GetSelfAssessmentLayout`);
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/Assessment/GetLastAssessments?userId=${encodeURIComponent(userId)}`);
+        let response2 = await fetch(`/supervisors/Assessment/GetLastAssessments?userId=${encodeURIComponent(userId)}`);
         let jsonResponse = await response2.json();
         if (!jsonResponse.success) {
             console.error('Произошла ошибка:', jsonResponse.message);
@@ -94,7 +94,7 @@ async function getAssessment(assessmentId) {
             });
         });
 
-        let response = await fetch(`/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
+        let response = await fetch(`/supervisors/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
         let htmlContent = await response.text();
         document.getElementById('lastAssessment').innerHTML = htmlContent;       
     } catch (error) {
@@ -125,7 +125,7 @@ function validationFormAssessment(item, type) {
 
 async function approveGrade(gradeId) {
     try {
-        let response = await fetch('/Employee/ApproveGrade', {
+        let response = await fetch('/supervisors/Employee/ApproveGrade', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'

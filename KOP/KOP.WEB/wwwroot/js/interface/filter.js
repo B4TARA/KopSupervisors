@@ -27,8 +27,6 @@ function addFilterIcons() {
     }
 }
 
-
-
 function sortTableFunction(table, sort_asc, type) {
 
     return function (ev) {
@@ -52,7 +50,6 @@ function sortTableFunction(table, sort_asc, type) {
             ev.preventDefault();
         }
     };
-
 }
 
 //Ищем  индекс/номер столбца по которой искать

@@ -1,6 +1,6 @@
 ﻿async function downloadGradeWordDocument(gradeId) {
     try {
-        const response = await fetch('/Report/GenerateGradeWordDocument', {
+        const response = await fetch('/supervisors/Report/GenerateGradeWordDocument', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -19,7 +19,7 @@ namespace KOP.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IBaseResponse<ClaimsIdentity>> LoginNow(LoginDto dto)
+        public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDto dto)
         {
             try
             {
@@ -45,71 +45,6 @@ namespace KOP.BLL.Services
                     Data = authenticationResult,
                     StatusCode = StatusCodes.OK
                 };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<ClaimsIdentity>()
-                {
-                    Description = $"[AccountService.Login] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError
-                };
-            }
-        }
-        public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDto dto)
-        {
-            try
-            {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login && x.Password == dto.Password);
-
-                var existsInKopSupervisorsDatabase = user != null;
-                var existsInKopEmployeesDatabase = await UserExistsInKopDatabase(dto.Login, dto.Password);
-
-                if (!existsInKopSupervisorsDatabase && existsInKopEmployeesDatabase)
-                {
-                    return new BaseResponse<ClaimsIdentity>()
-                    {
-                        StatusCode = StatusCodes.Redirect,
-                    };
-                }
-                else if (existsInKopSupervisorsDatabase && !existsInKopEmployeesDatabase)
-                {
-                    if (user.IsSuspended)
-                    {
-                        return new BaseResponse<ClaimsIdentity>()
-                        {
-                            StatusCode = StatusCodes.UserIsSuspended,
-                            Description = "Учетная запись заблокирована"
-                        };
-                    }
-
-                    user.LastLogin = DateTime.UtcNow;
-                    _unitOfWork.Users.Update(user);
-
-                    await _unitOfWork.CommitAsync();
-
-                    var authenticationResult = Authenticate(user);
-
-                    return new BaseResponse<ClaimsIdentity>()
-                    {
-                        Data = authenticationResult,
-                        StatusCode = StatusCodes.OK
-                    };
-                }
-                else if (existsInKopSupervisorsDatabase && existsInKopEmployeesDatabase)
-                {
-                    return new BaseResponse<ClaimsIdentity>()
-                    {
-                        StatusCode = StatusCodes.UserExistsInMultipleDatabases
-                    };
-                }
-                else
-                {
-                    return new BaseResponse<ClaimsIdentity>()
-                    {
-                        StatusCode = StatusCodes.EntityNotFound,
-                        Description = "Неверные учетные данные",
-                    };
-                }
             }
             catch (Exception ex)
             {
@@ -180,32 +115,6 @@ namespace KOP.BLL.Services
                     StatusCode = StatusCodes.InternalServerError
                 };
             }
-        }
-
-        private async Task<bool> UserExistsInKopDatabase(string login, string password)
-        {
-            var connectionString = "Host=localhost;Database=KOP;Username=postgres;Password=12345";
-
-            try
-            {
-                using (var connection = new NpgsqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-                    using (var command = new NpgsqlCommand("SELECT COUNT(*) FROM \"USER_SYSTEM_INFO\" usi  WHERE login = @Login AND password = @Password", connection))
-                    {
-                        command.Parameters.AddWithValue("@Login", login);
-                        command.Parameters.AddWithValue("@Password", password);
-
-                        var count = (long)await command.ExecuteScalarAsync();
-                        return count > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при проверке пользователя: {ex.Message}");
-                return false;
-            }
-        }
+        }     
     }
 }

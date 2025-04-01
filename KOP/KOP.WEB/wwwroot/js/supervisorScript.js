@@ -2,7 +2,7 @@
 async function getSubordinates(supervisorId) {
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}`);
+        let response = await fetch(`/supervisors/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -50,7 +50,7 @@ async function getEmployeeLayout(employeeId, elem) {
 
 
         // Выполняем fetch запрос
-        let response = await fetch(`/Supervisor/GetEmployeeLayout?employeeId=${encodeURIComponent(employeeId)}`);
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeLayout?employeeId=${encodeURIComponent(employeeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -73,7 +73,7 @@ async function getEmployeeAssessmentLayout(employeeId) {
         linkMenuItemGrade.classList.remove("active");
         linkMenuItemAssessment.classList.add("active");
 
-        let response = await fetch(`/Supervisor/GetEmployeeAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`, {
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`, {
             method: 'GET'
         });
 
@@ -84,7 +84,7 @@ async function getEmployeeAssessmentLayout(employeeId) {
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/Assessment/GetLastAssessments?userId=${encodeURIComponent(employeeId)}`);
+        let response2 = await fetch(`/supervisors/Assessment/GetLastAssessments?userId=${encodeURIComponent(employeeId)}`);
 
         if (!response2.ok) {
             throw new Error('Ошибка при загрузке последних оценок');
@@ -124,7 +124,7 @@ async function getEmployeeAssessment(assessmentId) {
 
     try {
         // Выполняем fetch запрос
-        let response = await fetch(`/Supervisor/GetEmployeeAssessment?assessmentId=${encodeURIComponent(assessmentId)}`, {
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessment?assessmentId=${encodeURIComponent(assessmentId)}`, {
             method: 'GET'
         });
 
@@ -170,7 +170,7 @@ async function getEmployeeGradeLayout(employeeId) {
         linkMenuItemGrade.classList.add("active");
 
         // Выполняем fetch запрос
-        let response = await fetch(`/Supervisor/GetEmployeeGradeLayout?employeeId=${encodeURIComponent(employeeId)}`);
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeGradeLayout?employeeId=${encodeURIComponent(employeeId)}`);
 
         // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
@@ -186,7 +186,7 @@ async function getEmployeeGradeLayout(employeeId) {
 
 async function approveEmployeeGrade(gradeId, employeeId) {
     try {
-        let response = await fetch('/Supervisor/ApproveEmployeeGrade', {
+        let response = await fetch('/supervisors/Supervisor/ApproveEmployeeGrade', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'

@@ -24,13 +24,6 @@ function optionClick(elem) {
     let optionsContainer = document.getElementById("options-container");
     let idCol = elem.querySelector("label").getAttribute('idcol');
 
-    // Проверка на максимальное количество пользователей
-    //if (arrUsersForAssessment.length >= 3) {
-    //    let alertText = "Нельзя добавить больше трех сотрудников";
-    //    popupAlert(alertText, false);
-    //    return; // Выходим из функции, если достигнут лимит
-    //}
-
     // Проверка на уникальность добавляемого пользователя
     if (!arrUsersForAssessment.includes(idCol)) {
         selected.innerHTML += `
@@ -56,10 +49,6 @@ function optionClick(elem) {
         divBtnSubmit.setAttribute('onclick', "addJudges()");
         choose_user_container.appendChild(divBtnSubmit);
     }
-    //Если добавлено 3 сотрудника, то закрываем
-    //if (arrUsersForAssessment.length === 3) {
-    //    optionsContainer.classList.remove("active");
-    //}
 
     const deleteItemBtn = document.querySelectorAll('.delete_item');
     deleteItemBtn.forEach(elem => {
@@ -129,7 +118,7 @@ function addJudges() {
     formData.append('judgesIds', JSON.stringify(arrUsersForAssessment));
     let htmlContentMessage;
 
-    fetch(`/Supervisor/AddJudges`, {
+    fetch(`/supervisors/Supervisor/AddJudges`, {
         method: 'POST',
         body: formData
     })
@@ -161,7 +150,7 @@ function deleteJudge(assessmentId, employeeId, assessmentResultId) {
 
     let htmlContentMessage;
 
-    fetch(`/Supervisor/DeleteJudge`, {
+    fetch(`/supervisors/Supervisor/DeleteJudge`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
