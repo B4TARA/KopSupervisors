@@ -4205,3 +4205,22 @@ button.show-modal,
     align-items: center;
     padding: 40px 20px;
 }
+
+
+.admin_info_section {
+    height: 100vh;
+    padding:40px 20px;
+}
+
+#matrixTable{
+    width:100%;
+}
+
+    #matrixTable td input[type="text"] {
+        width: 100%;
+        min-height: 80px;
+        outline: none;
+        border: 1px solid #d3d3d3;
+        border-radius: 12px;
+        padding-left: 10px;
+    }

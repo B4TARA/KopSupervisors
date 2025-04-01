@@ -1,6 +1,8 @@
 ﻿@using KOP.Common.Enums
 @model KOP.WEB.Models.ViewModels.Admin.AssessmentMatrixViewModel
 
+
+<section class="admin_info_section">
 @if(Model.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
 {
     <h2>Матрица КК</h2>
@@ -44,7 +46,10 @@ else{
             </tbody>
         </table>
     </div>
-    <button type="button" onclick="updateMatrix()">Сохранить изменения</button>
+        <div class="action_buttons_wrapper" style="margin-top:20px;">
+            <button type="button" onclick="updateMatrix()" class="action_btn primary_btn">Сохранить</button>
+        </div>
+    
 </form>
-
+</section>
 <script src="/js/adminScript.js"></script>

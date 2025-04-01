@@ -138,7 +138,6 @@ function addRow(elem, type, id) {
     const rowContainer = document.getElementById("rowContainer");
     
     const rowContainerEducation = document.getElementById("rowContainerEducation");
-    console.log(rowContainerEducation.children.length)
     let newIndex;
 
     if (rowContainer) {
@@ -1418,7 +1417,7 @@ function popupConfirmation(text, isReload) {
 
     alertSection.innerHTML = `<div class="modal-box">
         
-        <div class="mid_title">${text}</div>
+        <div class="mid_title" style="text-align:center; margin-bottom:40px;">${text}</div>
         <div class="action_buttons_wrapper confirmation_btns_wrapper">
 
                 <div class="action_btn green_btn" id = "agreeBtnConfirm">
