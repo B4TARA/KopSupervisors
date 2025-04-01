@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\inetpub\KopSupervisors</_PublishTargetUrl>
-    <History>True|2024-12-05T10:37:27.0338378Z||;</History>
+    <History>True|2025-04-01T08:50:45.1073003Z||;True|2024-12-05T13:37:27.0338378+03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

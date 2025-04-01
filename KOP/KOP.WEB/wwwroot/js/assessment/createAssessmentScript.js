@@ -98,6 +98,7 @@ async function createAssessment(elem, assessmentResultId, judgedId, isSelfAssess
         popupAlert('Оценка успешно принята!', false);
 
         // Обновление данных
+        await getEmployeeLayout(judgedId);
         await getEmployeeAssessmentLayout(judgedId);
         if (isSelfAssessment) {
             await getSelfAssessment(assessmentId, judgedId);
