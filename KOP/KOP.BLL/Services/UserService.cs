@@ -246,7 +246,7 @@ namespace KOP.BLL.Services
                 {
                     grade.IsManagmentCompetenciesFinalized = true;
                 }
-                else if (assessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                else if (assessmentType == SystemAssessmentTypes.СorporateСompetencies)
                 {
                     grade.IsCorporateCompetenciesFinalized = true;
                 }

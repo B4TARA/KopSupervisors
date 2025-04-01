@@ -293,19 +293,26 @@ namespace KOP.Import
                                     x.DateOfCreation.Year == today.Year &&
                                     x.SystemStatus == SystemStatuses.PENDING));
 
-                        // Есть подчиненные с назначенными оценками в текущем месяце
-                        if (subordinateUsersWithThisMonthPendingGrade.Any())
-                        {
-                            Mail? mail = null;
+                        //// Есть подчиненные с назначенными оценками в текущем месяце
+                        //if (subordinateUsersWithThisMonthPendingGrade.Any())
+                        //{
+                        //    Mail? mail = null;
 
-                            if (today.Day == 1)
-                            {
-                                mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
-                            }
-                            else if (today.Day == 10)
-                            {
-                                mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
-                            }
+                        //    if (today.Day == 1)
+                        //    {
+                        //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
+                        //    }
+                        //    else if (today.Day == 10)
+                        //    {
+                        //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
+                        //    }
+                        //}
+
+                        foreach (var subordinateUser in subordinateUsersWithThisMonthPendingGrade)
+                        {
+                            var mail = new Mail();
+                            mail.Body = $"Уважаемый(ая) {user.FullName}!\r\nСообщаем, что контракт с {subordinateUser.FullName} завершается {subordinateUser.ContractEndDate}.\r\nВыберите 3 и более коллег, с которыми взаимодействует оцениваемый работник, для оценки корпоративных компетенций.\r\nВы можете сделать это в системе КОП самостоятельно или обратиться к вашему HR-менеджеру.\r\n\r\n[Ссылка для входа]";
+                            mail.Title = mail.Title = $"КОП.Оценка{subordinateUser.FullName}: назначьте группу оценки корпоративных компетенций";
 
                             if (mail == null)
                             {
@@ -331,16 +338,20 @@ namespace KOP.Import
                         // Есть назначенные оценки в текущем месяце
                         if (thisMonthPendingGrade != null)
                         {
-                            Mail? mail = null;
+                            //Mail? mail = null;
 
-                            if (today.Day == 1)
-                            {
-                                mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentNotification);
-                            }
-                            else if (today.Day == 15)
-                            {
-                                mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentReminder);
-                            }
+                            //if (today.Day == 1)
+                            //{
+                            //    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentNotification);
+                            //}
+                            //else if (today.Day == 15)
+                            //{
+                            //    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentReminder);
+                            //}
+
+                            var mail = new Mail();
+                            mail.Body = $"Уважаемый(ая) {user.FullName}!\r\nИнформируем вас, что срок заключенного с вами контракта истекает {user.ContractEndDate}.\r\n\r\nС целью проведения оценки результатов деятельности и достижений работника при продлении контракта просим вас до 20 числа:\r\n- провести самооценку корпоративных компетенций\r\n- провести самооценку управленческих компетенций\r\n- заполнить результаты деятельности, достигнутые вами при исполнении должностных обязанностей в течение {thisMonthPendingGrade.StartDate} - {thisMonthPendingGrade.EndDate}\r\n\r\n[Ссылка для входа]\r\n";
+                            mail.Title = mail.Title = $"КОП. Самооценка {user.FullName}";
 
                             if (mail == null)
                             {
@@ -370,23 +381,40 @@ namespace KOP.Import
                                        x.DateOfCreation.Year == today.Year &&
                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            // Есть сотрудники с назначенными оценками в текущем месяце
-                            if (usersWithThisMonthPendingGrade.Any())
-                            {
-                                Mail? mail = null;
+                            //// Есть сотрудники с назначенными оценками в текущем месяце
+                            //if (usersWithThisMonthPendingGrade.Any())
+                            //{
+                            //    Mail? mail = null;
 
-                                if (today.Day == 1)
-                                {
-                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaNotification);
-                                }
-                                else if (today.Day == 10)
-                                {
-                                    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaReminder);
-                                }
+                            //    if (today.Day == 1)
+                            //    {
+                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaNotification);
+                            //    }
+                            //    else if (today.Day == 10)
+                            //    {
+                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaReminder);
+                            //    }
+
+                            //    if (mail == null)
+                            //    {
+                            //        await HandleErrorAsync("Не найдено сообщение для отправки ответственным за заполнение критериев 1 или 15 числа месяца оценки");
+                            //    }
+                            //    else
+                            //    {
+                            //        var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
+                            //        await _emailSender.SendEmailAsync(message);
+                            //    }
+                            //}
+
+                            foreach (var subordinateUser in usersWithThisMonthPendingGrade)
+                            {
+                                var mail = new Mail();
+                                mail.Body = $"Уважаемый(ая) {user.FullName}!\r\nДля проведения оценки руководителя {subordinateUser.FullName} просим до 20 числа заполнить закрепленные за вами критерии оценки. \r\n\r\n[Ссылка для входа]";
+                                mail.Title = mail.Title = $"КОП. Заполнение критериев оценки  {subordinateUser.FullName}";
 
                                 if (mail == null)
                                 {
-                                    await HandleErrorAsync("Не найдено сообщение для отправки ответственным за заполнение критериев 1 или 15 числа месяца оценки");
+                                    await HandleErrorAsync("Не найдено сообщение для отправки непосредственным руковолителям 1 или 10 числа месяца оценки");
                                 }
                                 else
                                 {
