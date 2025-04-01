@@ -101,7 +101,7 @@ namespace KOP.BLL.Services
                     Name = kpiDto.Name ?? "КПЭ",
                     PeriodStartDate = kpiDto.PeriodStartDate,
                     PeriodEndDate = kpiDto.PeriodEndDate,
-                    CompletionPercentage = kpiDto.CompletionPercentage,
+                    CompletionPercentage = kpiDto.CompletionPercentage ?? "% выполнения",
                     CalculationMethod = kpiDto.CalculationMethod ?? "Методика расчета",
                 };
 
@@ -157,6 +157,7 @@ namespace KOP.BLL.Services
                 grade.Qualification.EmploymentContarctTerminations = dto.QualificationDto.EmploymentContarctTerminations ?? "";
                 grade.Qualification.QualificationResult = dto.QualificationDto.QualificationResult ?? "";
 
+                grade.Qualification.PreviousJobs.Clear();
                 foreach (var previousJob in dto.QualificationDto.PreviousJobs)
                 {
                     grade.Qualification.PreviousJobs.Add(new PreviousJob
@@ -168,6 +169,7 @@ namespace KOP.BLL.Services
                     });
                 }
 
+                grade.Qualification.HigherEducations.Clear();
                 foreach (var higherEducation in dto.QualificationDto.HigherEducations)
                 {
                     grade.Qualification.HigherEducations.Add(new HigherEducation
