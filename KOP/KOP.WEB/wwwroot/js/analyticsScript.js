@@ -90,13 +90,12 @@ function drawAssessmentAnalytics(item, typeRender) {
         window.gaugeChart.destroy();
     }
 
-    if (item.typeName == 'Управленческие') {
+    if (item.typeName == 'Управленческие компетенции') {
         colleaguesAvgValueContainer.style.display = 'none'
     } else {
         colleaguesAvgValueContainer.style.display = 'flex'
     }
 
-    console.log(item)
     if (typeRender) {
         // Проверяем наличие данных
         if (!hasData(item)) {
@@ -105,6 +104,8 @@ function drawAssessmentAnalytics(item, typeRender) {
         }
 
         clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
+
+        document.getElementById('exportButton').style.display = 'flex'
 
     }
     
@@ -172,6 +173,8 @@ function clearNoDataMessage() {
     const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
     dashboardItemContentRight.style.display = 'flex'
 
+    document.getElementById('exportButton').style.display = 'flex'
+
     const emptyImageElement = document.getElementById('emptyImage');
     emptyImageElement.innerHTML = ''; // Очищаем содержимое элемента
 
@@ -183,7 +186,9 @@ function displayNoDataMessage() {
     const dashboardItemContentLeft = document.getElementById('dashboardItemContentLeft');
     dashboardItemContentLeft.style.display = 'none'
     const dashboardItemContentRight = document.getElementById('dashboardItemContentRight');
-    dashboardItemContentRight.style.display = 'none'
+    dashboardItemContentRight.style.display = 'none';
+
+    document.getElementById('exportButton').style.display = 'none'
 
     const emptyImageElement = document.getElementById('emptyImage');
     emptyImageElement.innerHTML = `
@@ -253,6 +258,14 @@ function createDatasets(item) {
 function getChartOptions() {
     return {
         responsive: true,
+        scales: {
+            r: { // Настройки радиальной оси
+                min: 0, // Устанавливаем минимальное значение на 0
+                ticks: {
+                    beginAtZero: true // Убедитесь, что метки начинаются с нуля
+                }
+            }
+        },
         plugins: {
             legend: {
                 display: true,
@@ -367,6 +380,48 @@ async function loadCompetenciesAnalytics(userId) {
         const data = await response.json();
         const topCompetencies = document.getElementById('topCompetencies');
         const antiTopCompetencies = document.getElementById('antiTopCompetencies');
+        //const topDescriptions = document.getElementById('topDescriptions');
+        //const antiTopDescriptions = document.getElementById('antiTopDescriptions');
+
+        topCompetencies.innerHTML = '';
+        /*topDescriptions.innerHTML = '';*/
+        data.topCompetencies.forEach((item, index) => {
+            var newTopCompetenceDiv = document.createElement('div');
+            newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            const itemPercentage = (item.avgValue / 13) * 100;
+            newTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
+            topCompetencies.appendChild(newTopCompetenceDiv);
+
+            //var newTopDescription = document.createElement('li');
+            //newTopDescription.textContent = item.competenceDescription;
+            //topDescriptions.appendChild(newTopDescription);
+        });
+
+        antiTopCompetencies.innerHTML = '';
+        //antiTopDescriptions.innerHTML = '';
+        data.antiTopCompetencies.forEach((item, index) => {
+            const itemPercentage = (item.avgValue / 13) * 100;
+            var newAntiTopCompetenceDiv = document.createElement('div');
+            newAntiTopCompetenceDiv.classList.add('dashboard-competences-group-item');
+            newAntiTopCompetenceDiv.innerHTML = ` 
+            <div class="dashboard-competences-group-item-text">${item.name}</div>
+							<div class="dashboard-competences-group-item-scale-wrapper">
+								<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
+								<div class="description">${item.avgValue}</div>
+							</div>
+            `;
+            antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
+
+            //var newAntiTopDescription = document.createElement('li');
+            //newAntiTopDescription.textContent = item.competenceDescription;
+            //antiTopDescriptions.appendChild(newAntiTopDescription);
+        });
 
         document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {
 
@@ -397,3 +452,15 @@ async function loadCompetenciesAnalytics(userId) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }
+
+
+// Предполагается, что ваш график уже создан и доступен как myChart
+const exportChartToPDF = () => {
+    const chartImage = radarChart.toBase64Image();
+    const pdf = new jsPDF();
+    pdf.addImage(chartImage, 'PNG', 10, 10, 180, 160);
+    pdf.save('chart.pdf');
+};
+
+// Привязка функции к кнопке
+document.getElementById('exportButton').addEventListener('click', exportChartToPDF);
