@@ -63,6 +63,7 @@ function toggleSelectButton(button) {
 
 /******POPUP ALERT*******/
 function closeBtnPopup(item, isReload) {
+    console.log(item)
     // Проверяем, является ли переданный элемент тем, который нужно обработать
     if (item && item.id === 'disagreeBtnConfirm') {
         // Находим родительский элемент с классом 'section_popup'
@@ -135,7 +136,9 @@ function popupResult(text, isReload) {
 function addRow(elem, type, id) {
 
     const rowContainer = document.getElementById("rowContainer");
+    
     const rowContainerEducation = document.getElementById("rowContainerEducation");
+    console.log(rowContainerEducation.children.length)
     let newIndex;
 
     if (rowContainer) {
@@ -635,13 +638,13 @@ async function getProjectsPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteProject(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
+    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
+    //    return;
+    //}
 
     fetch(`/Project/Delete/${id}`, {
         method: 'DELETE'
@@ -763,7 +766,7 @@ async function getKpisPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteKpi(id, gradeId) {
@@ -891,7 +894,7 @@ async function getMarksPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteMark(id, gradeId) {
@@ -1017,7 +1020,7 @@ async function getQualificationPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function addEducationRow() {
@@ -1076,9 +1079,9 @@ function deletePreviousJob(id, gradeId) {
         });
 }
 function deleteHigherEducation(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
+    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
+    //    return;
+    //}
 
     fetch(`/Qualification/DeleteHigherEducation/${id}`, {
         method: 'DELETE'
@@ -1204,7 +1207,7 @@ async function getValueJudgmentPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function saveValueJudgmentAsDraft(gradeId, employeeId) {
@@ -1313,7 +1316,7 @@ async function getManagmentCompetenciesPopup(employeeId, gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -1332,7 +1335,7 @@ async function getCorporateCompetenciesPopup(employeeId, gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -1346,7 +1349,7 @@ async function getTrainingEventsPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
+        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 

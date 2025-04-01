@@ -52,3 +52,21 @@ function checkIfHideListItems() {
         }
     });
 }
+
+function searchBoxKeyUpReport(input, tableClass) {
+    
+    const filter = input.value.toLowerCase(); // Получаем текст из поля поиска и приводим к нижнему регистру
+    const tableRows = document.querySelectorAll(`.d-tbody .d-tr`); // Получаем все строки таблицы
+
+    tableRows.forEach(row => {
+        const fullname = row.querySelector('.fullname').textContent.toLowerCase(); // Получаем ФИО
+        const position = row.querySelector('.d-td:nth-child(4)').textContent.toLowerCase(); // Получаем должность
+
+        // Проверяем, содержит ли ФИО или должность текст из поля поиска
+        if (fullname.includes(filter) || position.includes(filter)) {
+            row.style.display = ''; // Показываем строку
+        } else {
+            row.style.display = 'none'; // Скрываем строку
+        }
+    });
+}

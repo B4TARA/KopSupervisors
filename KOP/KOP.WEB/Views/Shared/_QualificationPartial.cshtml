@@ -100,13 +100,14 @@ else
                             <b>@educationEndDateTime</b>
                         }
                         <span>;</span>
+                        @if (Model.EditAccess)
+                        {
+                            <div>
+                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.Qualification.HigherEducations[i].Id, @Model.GradeId)"></i>
+                            </div>
+                        }
                     </div>
-                    @if (Model.EditAccess)
-                    {
-                        <div>
-                            <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.Qualification.HigherEducations[i].Id, @Model.GradeId)"></i>
-                        </div>
-                    }
+                    
                 }
             </div>
             @if (Model.EditAccess)
@@ -196,13 +197,14 @@ else
                         }
 
                         ;
+                        @if (Model.EditAccess)
+                        {
+                            <div>
+                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.Qualification.PreviousJobs[i].Id, @Model.GradeId)"></i>
+                            </div>
+                        }
                     </div>
-                    @if (Model.EditAccess)
-                    {
-                        <div>
-                            <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.Qualification.PreviousJobs[i].Id, @Model.GradeId)"></i>
-                        </div>
-                    }
+                    
                 }
             </div>
             @if (Model.EditAccess)
