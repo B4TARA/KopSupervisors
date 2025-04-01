@@ -179,7 +179,7 @@ function addRow(elem, type, id) {
                 <input type="text" name="Kpis[${newIndex}].Name" placeholder="КПЭ" required value="${previousRowValues.name || ''}" />
             </td>
             <td>
-                <input type="number" name="Kpis[${newIndex}].CompletionPercentage" placeholder="% выполнения" required value="${previousRowValues.completionPercentage || ''}" />
+                <input type="text" name="Kpis[${newIndex}].CompletionPercentage" placeholder="% выполнения" required value="${previousRowValues.completionPercentage || ''}" />
             </td>
             <td>
                 <input type="text" name="Kpis[${newIndex}].CalculationMethod" placeholder="Методика расчета" required value="${previousRowValues.calculationMethod || ''}" />
