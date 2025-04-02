@@ -1371,32 +1371,33 @@ function openUserDropdown() {
     });
 }
 
+
 // Функция для фильтрации таблицы
 function filterTable(filterValue) {
-
     const userWrappers = document.querySelectorAll('.list_division_users_wrapper.users.open');
+    const noResultsMessage = document.getElementById('no-results-message'); // Предполагаем, что у вас есть элемент с этим ID для сообщения
+
+    let anyVisibleRows = false; // Флаг для отслеживания наличия видимых строк
 
     userWrappers.forEach(wrapper => {
         const rows = wrapper.querySelectorAll('.user_row');
-        let hasVisibleRows = false; // Флаг для отслеживания наличия видимых строк
+        let hasVisibleRows = false; // Флаг для отслеживания наличия видимых строк в текущем блоке
 
         rows.forEach(row => {
             const assessmentFlag = row.getAttribute('data-assessment-flag');
 
             if (filterValue === 'all') {
-                // Если выбрано "Все", показываем все строки
                 row.style.display = '';
             } else if (filterValue === 'assessmentTrue') {
-                // Если выбрано "Идет оценка", показываем только строки с TRUE
                 row.style.display = (assessmentFlag === 'True') ? '' : 'none';
             } else if (filterValue === 'assessmentFalse') {
-                // Если выбрано "Не идет оценка", показываем только строки с FALSE
                 row.style.display = (assessmentFlag === 'False') ? '' : 'none';
             }
 
             // Проверяем, есть ли видимые строки
             if (row.style.display !== 'none') {
                 hasVisibleRows = true;
+                anyVisibleRows = true; // Устанавливаем флаг, если хотя бы одна строка видима
             }
         });
 
@@ -1407,6 +1408,13 @@ function filterTable(filterValue) {
             wrapper.style.display = 'none'; // Скрываем блок, если нет видимых строк
         }
     });
+
+    // Обновляем сообщение о результатах
+    if (anyVisibleRows) {
+        noResultsMessage.style.display = 'none'; // Скрываем сообщение, если есть видимые строки
+    } else {
+        noResultsMessage.style.display = ''; // Показываем сообщение, если нет видимых строк
+    }
 }
 
 function popupConfirmation(text, isReload) {
