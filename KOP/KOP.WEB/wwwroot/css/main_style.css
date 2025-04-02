@@ -1,34 +1,34 @@
 ﻿/* Google Font Import - Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');*/
 
 @font-face {
-    font-family: 'Axiforma';
+    font-family: 'Montserrat';
     font-weight: 400;
-    src: url('/font/Axiforma-Regular.ttf');
+    src: url('/font/Montserrat-Regular.ttf');
 }
 
 @font-face {
-    font-family: 'Axiforma';
+    font-family: 'Montserrat';
     font-weight: 500;
-    src: url('/font/Axiforma-Medium.ttf');
+    src: url('/font/Montserrat-Medium.ttf');
 }
 
 @font-face {
-    font-family: 'Axiforma';
+    font-family: 'Montserrat';
     font-weight: 600;
-    src: url('/font/Axiforma-SemiBold.ttf');
+    src: url('/font/Montserrat-SemiBold.ttf');
 }
 
 @font-face {
-    font-family: 'Axiforma';
+    font-family: 'Montserrat';
     font-weight: 700;
-    src: url('/font/Axiforma-Bold.ttf');
+    src: url('/font/Montserrat-Bold.ttf');
 }
 
 @font-face {
-    font-family: 'Axiforma';
+    font-family: 'Montserrat';
     font-weight: 800;
-    src: url('/font/Axiforma-ExtraBold.ttf');
+    src: url('/font/Montserrat-ExtraBold.ttf');
 }
 
 * {
@@ -1663,11 +1663,15 @@ nav.close ~ .dashboard .top {
     }
 
         .table_users tbody tr:hover {
-            background-color: #1b74fd30;
+            background-color: #E4EFFF;
             color: #1b74fd;
             cursor: pointer;
             border-radius: 0px 0px 10px 10px;
             transition: background-color 0.2s ease-in;
+        }
+
+        .table_users tbody tr:last-child:hover td:first-child {
+            border-radius: 0px 0px 0px 10px;
         }
 
         .table_users tbody tr:last-child:hover {
@@ -3397,7 +3401,7 @@ button.show-modal,
 
 
 .table_users tbody tr.active {
-    background-color: #1b74fd30;
+    /*background-color: #1b74fd30;*/
     color: #1b74fd;
     cursor: pointer;
 }
@@ -4224,3 +4228,10 @@ button.show-modal,
         border-radius: 12px;
         padding-left: 10px;
     }
+
+
+#no-results-message {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 20px;
+}
