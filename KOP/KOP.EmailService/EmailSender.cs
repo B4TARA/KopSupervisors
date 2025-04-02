@@ -1,5 +1,4 @@
 ﻿using MailKit.Net.Smtp;
-using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Utils;
 
@@ -8,11 +7,12 @@ namespace KOP.EmailService
     public class EmailSender : IEmailSender
     {
         private readonly EmailConfiguration _emailConfig;
-        private readonly ILogger<EmailSender> _logger;
+        //private readonly ILogger _logger;
 
-        public EmailSender(ILogger<EmailSender> logger)
+        public EmailSender(//ILogger logger
+                           )
         {
-            _logger = logger;
+            //_logger = logger;
             _emailConfig = new EmailConfiguration
             {
                 From = "KOPSender",
@@ -35,13 +35,6 @@ namespace KOP.EmailService
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress(_emailConfig.From, _emailConfig.From));
             emailMessage.To.AddRange((IEnumerable<InternetAddress>)message.To);
-
-            // TEST CASE //
-            //var stringList = new string[] { "ebaturel@mtb.minsk.by", "nsakirina@mtb.minsk.by" };
-            //List<MailboxAddress> mailboxAddressesList = stringList.Select(x => new MailboxAddress(x, x)).ToList();
-            //emailMessage.To.AddRange((IEnumerable<InternetAddress>)mailboxAddressesList);
-            //    //    // 
-
             emailMessage.Subject = message.Subject;
 
             var bodyBuilder = new BodyBuilder();
@@ -87,11 +80,13 @@ namespace KOP.EmailService
                     await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port);
                     await client.SendAsync(mailMessage);
 
-                    _logger.LogWarning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
+                    Console.WriteLine($"Уведомление для {message.AddresseeName} успешно отправлено");
+                    //_logger.LogWarning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
+                    Console.WriteLine($"Не удалось отправить уведомление для {message.AddresseeName} : {ex.Message}");
+                    //_logger.LogWarning($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
                 }
             }
         }

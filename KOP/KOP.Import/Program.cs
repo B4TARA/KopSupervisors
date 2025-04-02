@@ -14,6 +14,8 @@ internal class Program
     {
         // Регистрация провайдера кодировок
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        Console.InputEncoding = System.Text.Encoding.GetEncoding(1251); // Для CP1251
+        Console.OutputEncoding = System.Text.Encoding.GetEncoding(1251); // Для CP1251
 
         // Настройка Serilog
         Log.Logger = new LoggerConfiguration()
@@ -56,7 +58,9 @@ internal class Program
                 throw new InvalidOperationException("Сервис IExportAndImport не зарегистрирован в контейнере зависимостей.");
             }
 
-            //await exportAndImport.TransferDataFromExcelToDatabase();
+            await exportAndImport.TransferDataFromExcelToDatabase();
+            //await exportAndImport.CheckUsersForGradeProcess();
+            //await exportAndImport.CheckForNotifications();
 
             Log.Information("Импорт завершен");
         }

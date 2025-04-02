@@ -1,22 +1,24 @@
-﻿using System.Security.Claims;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Dtos.AccountDtos;
 using KOP.Common.Enums;
 using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
-using Npgsql;
+using KOP.EmailService;
+using System.Security.Claims;
 
 namespace KOP.BLL.Services
 {
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailSender _emailSender;
 
-        public AccountService(IUnitOfWork unitOfWork)
+        public AccountService(IUnitOfWork unitOfWork, IEmailSender emailSender)
         {
             _unitOfWork = unitOfWork;
+            _emailSender = emailSender;
         }
 
         public async Task<IBaseResponse<ClaimsIdentity>> Login(LoginDto dto)
@@ -88,7 +90,7 @@ namespace KOP.BLL.Services
             {
                 var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
 
-                if (user is null)
+                if (user == null)
                 {
                     return new BaseResponse<object>()
                     {
@@ -97,9 +99,8 @@ namespace KOP.BLL.Services
                     };
                 }
 
-                //
-                // Тут нужно Реализовать логику отправки уведомления на почту
-                //
+                var message = new Message([user.Email], "Учетные данные", $"Логин - {user.Login}, Пароль - {user.Password}", user.FullName);
+                await _emailSender.SendEmailAsync(message);
 
                 return new BaseResponse<object>()
                 {
@@ -115,6 +116,6 @@ namespace KOP.BLL.Services
                     StatusCode = StatusCodes.InternalServerError
                 };
             }
-        }     
+        }
     }
 }
