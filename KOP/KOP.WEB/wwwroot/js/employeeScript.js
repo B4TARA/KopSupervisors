@@ -51,7 +51,7 @@ async function getColleaguesAssessment() {
     }
 }
 
-async function getSelfAssessment(assessmentId, userId) {   
+async function getSelfAssessment() {
     try {
         let colleaguesAssessmentLinkItem = document.getElementById('colleagues_assessment_link_item');
         let selfAssessmentLinkItem = document.getElementById('self_assessment_link_item');
@@ -96,7 +96,7 @@ async function getAssessment(assessmentId) {
 
         let response = await fetch(`/supervisors/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
         let htmlContent = await response.text();
-        document.getElementById('lastAssessment').innerHTML = htmlContent;       
+        document.getElementById('lastAssessment').innerHTML = htmlContent;
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');

@@ -3,7 +3,6 @@ using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
-using KOP.Common.Interfaces;
 using KOP.DAL.Entities.AssessmentEntities;
 using KOP.DAL.Interfaces;
 
@@ -22,11 +21,10 @@ namespace KOP.BLL.Services
             _mappingService = mappingService;
         }
 
-        public async Task<UserDto> GetUser(int id)
+        public async Task<UserDto> GetUserDto(int userId)
         {
 
-            var user = await _unitOfWork.Users.GetAsync(x => x.Id == id, includeProperties: new string[]
-            {
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: [
                 "Grades.Qualification",
                 "Grades.ValueJudgment",
                 "Grades.Marks",
@@ -35,19 +33,45 @@ namespace KOP.BLL.Services
                 "Grades.StrategicTasks",
                 "Grades.TrainingEvents",
                 "Grades.Assessments.AssessmentType.AssessmentMatrix",
-            });
+            ]);
 
             if (user == null)
             {
-                throw new Exception($"User with ID {id} not found.");
+                throw new Exception($"User with ID {userId} not found.");
             }
 
             var userDto = _mappingService.CreateUserDto(user);
 
             return userDto;
         }
+        public async Task<List<AssessmentDto>> GetUserLastGradeAssessmentDtoList(int userId)
+        {
 
-        public async Task<IEnumerable<GradeSummaryDto>> GetUserGradesSummaries(int employeeId)
+            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: ["Grades.Assessments.AssessmentType"]);
+
+            if (user == null)
+            {
+                throw new Exception($"User with ID {userId} not found.");
+            }
+
+            var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
+
+            if (lastGrade == null)
+            {
+                throw new Exception($"Last grade fot user with ID {userId} not found.");
+            }
+
+            var assessmentDtoList = lastGrade.Assessments
+                .Select(assessment => new AssessmentDto
+                {
+                    Id = assessment.Id,
+                    AssessmentTypeName = assessment.AssessmentType.Name
+                })
+                .ToList();
+
+            return assessmentDtoList;
+        }
+        public async Task<List<GradeSummaryDto>> GetUserGradeSummaryDtoList(int employeeId)
         {
 
             var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
@@ -67,124 +91,71 @@ namespace KOP.BLL.Services
 
             return gradeSummaryDtoList;
         }
-
-        public async Task<List<AssessmentDto>> GetUserLastAssessmentsOfEachAssessmentType(int userId, int supervisorId)
+        public async Task<List<AssessmentResultDto>> GetColleaguesAssessmentResultsForAssessment(int userId)
         {
-            var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: new string[]
+            var dtos = new List<AssessmentResultDto>();
+            var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults
+                .GetAllAsync(x => x.JudgeId == userId && x.Assessment.UserId != userId && x.SystemStatus == SystemStatuses.PENDING && x.AssignedBy.HasValue);
+
+            foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
             {
-                    "Assessments.AssessmentType"
-            });
-
-            if (user == null)
-            {
-                throw new Exception($"User with ID {userId} not found.");
-            }
-
-            var userAssessmentTypes = user.Assessments.GroupBy(x => x.AssessmentType);
-            var userLastAssessmentsOfEachType = new List<AssessmentDto>();
-
-            foreach (var assessmentType in userAssessmentTypes)
-            {
-                var lastAssessment = assessmentType.OrderByDescending(x => x.DateOfCreation).First();
-
-                var lastAssessmentDto = new AssessmentDto
+                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties: new string[]
                 {
-                    Id = lastAssessment.Id,
-                    UserId = userId,
-                    Number = lastAssessment.Number,
-                    AssessmentTypeName = assessmentType.Key.Name,
-                };
-
-                var isActiveAssessment = await _assessmentService.IsActiveAssessment(supervisorId, userId, lastAssessment.Id);
-
-                lastAssessmentDto.IsActiveAssessment = isActiveAssessment;
-
-                userLastAssessmentsOfEachType.Add(lastAssessmentDto);
-            }
-
-            return userLastAssessmentsOfEachType;
-        }
-
-        public async Task<IBaseResponse<List<AssessmentResultDto>>> GetColleaguesAssessmentResultsForAssessment(int userId)
-        {
-            try
-            {
-                var dtos = new List<AssessmentResultDto>();
-                var colleaguesAssessmentResultsForAssessment = await _unitOfWork.AssessmentResults
-                    .GetAllAsync(x => x.JudgeId == userId && x.Assessment.UserId != userId && x.SystemStatus == SystemStatuses.PENDING && x.AssignedBy.HasValue);
-
-                foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
-                {
-                    var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties: new string[]
-                    {
                         "User",
                         "AssessmentResults.AssessmentResultValues",
                         "AssessmentType.AssessmentMatrix.Elements"
+                });
+
+                var assessmentResultDto = new AssessmentResultDto
+                {
+                    Id = assessmentResult.Id,
+                    AssessmentId = assessmentResult.AssessmentId,
+                    SystemStatus = assessmentResult.SystemStatus,
+                    Type = assessmentResult.Type,
+                    Sum = assessmentResult.AssessmentResultValues.Sum(x => x.Value),
+                    TypeName = assessment.AssessmentType.Name,
+                    MinValue = assessment.AssessmentType.AssessmentMatrix.MinAssessmentMatrixResultValue,
+                    MaxValue = assessment.AssessmentType.AssessmentMatrix.MaxAssessmentMatrixResultValue,
+                };
+
+                assessmentResultDto.Judge = new UserDto
+                {
+                    Id = userId,
+                };
+
+                assessmentResultDto.Judged = new UserDto
+                {
+                    Id = assessment.UserId,
+                    ImagePath = assessmentResult.Assessment.User.ImagePath,
+                    FullName = assessmentResult.Assessment.User.FullName,
+                };
+
+                foreach (var value in assessmentResult.AssessmentResultValues)
+                {
+                    assessmentResultDto.Values.Add(new AssessmentResultValueDto
+                    {
+                        Value = value.Value,
+                        AssessmentMatrixRow = value.AssessmentMatrixRow,
                     });
-
-                    var assessmentResultDto = new AssessmentResultDto
-                    {
-                        Id = assessmentResult.Id,
-                        AssessmentId = assessmentResult.AssessmentId,
-                        SystemStatus = assessmentResult.SystemStatus,
-                        Type = assessmentResult.Type,
-                        Sum = assessmentResult.AssessmentResultValues.Sum(x => x.Value),
-                        TypeName = assessment.AssessmentType.Name,
-                        MinValue = assessment.AssessmentType.AssessmentMatrix.MinAssessmentMatrixResultValue,
-                        MaxValue = assessment.AssessmentType.AssessmentMatrix.MaxAssessmentMatrixResultValue,
-                    };
-
-                    assessmentResultDto.Judge = new UserDto
-                    {
-                        Id = userId,
-                    };
-
-                    assessmentResultDto.Judged = new UserDto
-                    {
-                        Id = assessment.UserId,
-                        ImagePath = assessmentResult.Assessment.User.ImagePath,
-                        FullName = assessmentResult.Assessment.User.FullName,
-                    };
-
-                    foreach (var value in assessmentResult.AssessmentResultValues)
-                    {
-                        assessmentResultDto.Values.Add(new AssessmentResultValueDto
-                        {
-                            Value = value.Value,
-                            AssessmentMatrixRow = value.AssessmentMatrixRow,
-                        });
-                    }
-
-                    foreach (var element in assessment.AssessmentType.AssessmentMatrix.Elements)
-                    {
-                        assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
-                        {
-                            Column = element.Column,
-                            Row = element.Row,
-                            Value = element.Value,
-                            HtmlClassName = element.HtmlClassName
-                        });
-                    }
-
-                    assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
-
-                    dtos.Add(assessmentResultDto);
                 }
 
-                return new BaseResponse<List<AssessmentResultDto>>()
+                foreach (var element in assessment.AssessmentType.AssessmentMatrix.Elements)
                 {
-                    Data = dtos,
-                    StatusCode = StatusCodes.OK
-                };
+                    assessmentResultDto.Elements.Add(new AssessmentMatrixElementDto
+                    {
+                        Column = element.Column,
+                        Row = element.Row,
+                        Value = element.Value,
+                        HtmlClassName = element.HtmlClassName
+                    });
+                }
+
+                assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+
+                dtos.Add(assessmentResultDto);
             }
-            catch (Exception ex)
-            {
-                return new BaseResponse<List<AssessmentResultDto>>()
-                {
-                    Description = $"[UserService.GetColleaguesAssessmentResultsForAssessment] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
+
+            return dtos;
         }
 
         public async Task AssessUser(AssessUserDto assessUserDto)
@@ -257,17 +228,6 @@ namespace KOP.BLL.Services
             _unitOfWork.AssessmentResults.Update(assessmentResult);
             await _unitOfWork.CommitAsync();
         }
-
-        public bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto)
-        {
-            var isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
-            var isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
-            var isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
-            var completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
-
-            return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
-        }
-
         public async Task ApproveGrade(int gradeId)
         {
             var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
@@ -281,6 +241,16 @@ namespace KOP.BLL.Services
 
             _unitOfWork.Grades.Update(grade);
             await _unitOfWork.CommitAsync();
+        }
+
+        public bool CanChooseJudges(List<string> userRoles, AssessmentDto assessmentDto)
+        {
+            var isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
+            var isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
+            var isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
+            var completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
+
+            return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }
     }
 }

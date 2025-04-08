@@ -251,19 +251,11 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-                if (currentUserId <= 0)
-                {
-                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
-                    return BadRequest("Current user ID is not valid.");
-                }
-
-                var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, currentUserId);
+                var employeeLastGradeAssessmentsDtos = await _userService.GetUserLastGradeAssessmentDtoList(employeeId);
 
                 var viewModel = new EmployeeAssessmentLayoutViewModel
                 {
-                    LastAssessments = lastAssessmentOfEachType,
+                    LastGradeAssessmentDtoList = employeeLastGradeAssessmentsDtos,
                 };
 
                 return PartialView("_EmployeeAssessmentLayoutPartial", viewModel);

@@ -4,6 +4,6 @@ namespace KOP.WEB.Models.ViewModels.Employee
 {
     public class SelfAssessmentLayoutViewModel
     {
-        public List<AssessmentDto> LastAssessmentDtoList = new();
+        public List<AssessmentDto> LastGradeAssessmentDtoList = new();
     }
 }

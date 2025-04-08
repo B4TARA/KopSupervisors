@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -7,6 +6,7 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -63,7 +63,7 @@ namespace KOP.WEB.Controllers
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-            var userDto = await _userService.GetUser(currentUserId);
+            var userDto = await _userService.GetUserDto(currentUserId);
 
             var viewModel = new GradeLayoutViewModel
             {
@@ -109,20 +109,11 @@ namespace KOP.WEB.Controllers
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
 
-            var response = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
-
-            if (!response.HasData)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
-                });
-            }
+            var colleaguesAssessmentResultsForAssessment = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
 
             var viewModel = new ColleagueAssessmentViewModel
             {
-                ColleagueAssessmentResultDtoList = response.Data,
+                ColleagueAssessmentResultDtoList = colleaguesAssessmentResultsForAssessment,
             };
 
             return PartialView("_ColleaguesAssessmentPartial", viewModel);
@@ -154,12 +145,11 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> GetSelfAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-            var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(currentUserId, currentUserId);
+            var userLastGradeAssessmentsDtos = await _userService.GetUserLastGradeAssessmentDtoList(currentUserId);
 
             var viewModel = new SelfAssessmentLayoutViewModel
             {
-                LastAssessmentDtoList = lastAssessmentOfEachType,
+                LastGradeAssessmentDtoList = userLastGradeAssessmentsDtos,
             };
 
             return PartialView("_SelfAssessmentLayoutPartial", viewModel);
@@ -206,7 +196,7 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(userId);
+                var gradeSummaryDtoList = await _userService.GetUserGradeSummaryDtoList(userId);
 
                 return View("EmployeeGrades", gradeSummaryDtoList);
             }

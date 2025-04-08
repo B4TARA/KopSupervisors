@@ -4,6 +4,6 @@ namespace KOP.WEB.Models.ViewModels.Supervisor
 {
     public class EmployeeAssessmentLayoutViewModel
     {
-        public List<AssessmentDto> LastAssessments = new();
+        public List<AssessmentDto> LastGradeAssessmentDtoList = new();
     }
 }

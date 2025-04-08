@@ -125,9 +125,9 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var lastAssessmentsOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(userId, userId);
+                var userLastGradeAssessmentsDtos = await _userService.GetUserLastGradeAssessmentDtoList(userId);
 
-                return Json(new { success = true, data = lastAssessmentsOfEachType });
+                return Json(new { success = true, data = userLastGradeAssessmentsDtos });
             }
 
             catch
