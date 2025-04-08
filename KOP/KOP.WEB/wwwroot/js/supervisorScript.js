@@ -48,7 +48,6 @@ async function getEmployeeLayout(employeeId, elem) {
             elem.classList.add('active')
         }
 
-
         // Выполняем fetch запрос
         let response = await fetch(`/supervisors/Supervisor/GetEmployeeLayout?employeeId=${encodeURIComponent(employeeId)}`);
 

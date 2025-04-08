@@ -28,10 +28,16 @@ namespace KOP.WEB.Controllers
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
             var currentUserFullName = User.FindFirstValue("FullName") ?? "-";
 
+            var viewModel = new EmployeeLayoutViewModel
+            {
+                Id = currentUserId,
+                FullName = currentUserFullName,
+            };
+
             HttpContext.Session.SetString("SelectedUserFullName", currentUserFullName);
             HttpContext.Session.SetInt32("SelectedUserId", currentUserId);
 
-            return View("EmployeeLayout", currentUserId);
+            return View("EmployeeLayout", viewModel);
         }
 
         [HttpGet]

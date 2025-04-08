@@ -11,6 +11,7 @@ namespace KOP.DAL.Entities
         public string FullName { get; set; }
         public string Position { get; set; }
         public string SubdivisionFromFile { get; set; }
+        public string DepartmentFromFile { get; set; }
         public string StructureRole { get; set; }
         public string GradeGroup { get; set; }
         public DateOnly HireDate { get; set; }
@@ -103,7 +104,9 @@ namespace KOP.DAL.Entities
                 var tempDate = ContractEndDate.AddMonths(-4);
                 var nextGradeStartDate = new DateOnly(tempDate.Year, tempDate.Month, 1);
 
-                if (nextGradeStartDate < DateOnly.FromDateTime(DateTime.Today))
+                // Дата запуска веб-приложения
+                // До этой даты оценки не начинались
+                if (nextGradeStartDate < new DateOnly(2025,4,1))
                 {
                     return "-";
                 }

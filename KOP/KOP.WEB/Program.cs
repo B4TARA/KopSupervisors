@@ -1,5 +1,6 @@
 using KOP.DAL;
 using KOP.WEB;
+using KOP.WEB.Middlewares;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -76,12 +77,12 @@ try
         app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
     }
+    else
+    {
+        app.UseMiddleware<UrlPrefixMiddleware>();
+    }
 
-    // Write streamlined request completion events, instead of the more verbose ones from the framework.
-    // To use the default framework request logging instead, remove this line and set the "Microsoft"
-    // level in appsettings.json to "Information".
     app.UseSerilogRequestLogging();
-
     app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseRouting();

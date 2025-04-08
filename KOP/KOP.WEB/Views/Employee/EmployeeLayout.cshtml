@@ -1,5 +1,4 @@
-﻿@using System.Security.Claims;
-@model int
+﻿@model KOP.WEB.Models.ViewModels.Employee.EmployeeLayoutViewModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -34,12 +33,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        getEmployeeAssessmentLayout(@Model)
-        
+        getEmployeeAssessmentLayout();
+        getGradeLayout();
     });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        getGradeLayout(@Model)
-    });
-    
 </script>

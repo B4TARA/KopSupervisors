@@ -1,8 +1,7 @@
-﻿namespace KOP.Import
+﻿namespace KOP.Import.Interfaces
 {
     public interface IExportAndImport
     {
-        Task CheckUsersForNotifications();
         Task TransferDataFromExcelToDatabase();
         Task CheckUsersForGradeProcess();
     }

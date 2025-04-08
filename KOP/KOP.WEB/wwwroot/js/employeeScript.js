@@ -103,8 +103,6 @@ async function getAssessment(assessmentId) {
     }
 }
 
-
-
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";
     let errorElem = item.parentNode.parentNode.nextElementSibling.querySelector('.grade_error_description');

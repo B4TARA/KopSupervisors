@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AccountDtos;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -36,33 +36,41 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var response = await _accountService.Login(dto);
-
-            if (response.StatusCode == Common.Enums.StatusCodes.Redirect)
+            if (dto == null || string.IsNullOrEmpty(dto.Login) || string.IsNullOrEmpty(dto.Password))
             {
-                return Json(new { statusCode = (int)response.StatusCode });
+                return BadRequest(new { error = "Логин и пароль не могут быть пустыми." });
             }
 
-            if (!response.HasData)
+            var loginResponse = await _accountService.Login(dto);
+
+            if (loginResponse.StatusCode != Common.Enums.StatusCodes.OK || loginResponse.Data == null)
             {
-                return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
+                return Unauthorized(new { error = loginResponse.Description });
             }
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                   new ClaimsPrincipal(response.Data),
-                   new AuthenticationProperties { IsPersistent = true });
+            var claimsPrincipal = loginResponse.Data;
 
-            return Json(new { statusCode = (int)response.StatusCode });
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(loginResponse.Data),
+                new AuthenticationProperties { IsPersistent = true });
+
+            return Ok();
         }
 
         [HttpPost]
-        public async Task<JsonResult> RemindPassword([FromBody] LoginDto dto)
+        public async Task<IActionResult> RemindPassword([FromBody] LoginDto dto)
         {
-            var response = await _accountService.RemindPassword(dto);
+            var remindPasswordResponse = await _accountService.RemindPassword(dto);
 
-            return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
+            if (remindPasswordResponse.StatusCode != Common.Enums.StatusCodes.OK)
+            {
+                return Unauthorized(new { error = remindPasswordResponse.Description });
+            }
+
+            return Ok(new { message = remindPasswordResponse.Description });
         }
     }
 }

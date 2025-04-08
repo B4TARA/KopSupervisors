@@ -136,7 +136,7 @@ function popupResult(text, isReload) {
 function addRow(elem, type, id) {
 
     const rowContainer = document.getElementById("rowContainer");
-    
+
     const rowContainerEducation = document.getElementById("rowContainerEducation");
     let newIndex;
 
@@ -347,7 +347,7 @@ function updateIndices(type) {
             row.querySelector('input[name^="Kpis["][name$=".CalculationMethod"]').name = `Kpis[${index}].CalculationMethod`;
         });
 
-        
+
     }
 
     // Обновляем индексы для стратегий
@@ -486,7 +486,7 @@ function updateIndices(type) {
 
 
     // Обновляем индексы для образования
-     if (type === 'education') {
+    if (type === 'education') {
         const educationRows = rowContainerEducation.querySelectorAll('.experience_item');
         educationRows.forEach((row, index) => {
             row.querySelector('input[name^="Qualification.HigherEducations["][name$=".Education"]').name = `Qualification.HigherEducations[${index}].Education`;
@@ -512,7 +512,6 @@ async function getStrategicTasksPopup(gradeId) {
     }
 }
 function deleteStrategicTask(id, gradeId) {
-
     fetch(`/supervisors/StrategicTask/Delete/${id}`, {
         method: 'DELETE'
     })
@@ -573,11 +572,7 @@ function saveStrategicTasksAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-        
-    
-
 }
 function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
@@ -588,12 +583,9 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
     confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
         if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
-
             const form = document.getElementById('popupForm');
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
-
-
 
             fetch(`/supervisors/StrategicTask/EditAll`, {
                 method: 'POST',
@@ -623,7 +615,6 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
@@ -634,17 +625,11 @@ async function getProjectsPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
-
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteProject(id, gradeId) {
-    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-    //    return;
-    //}
-
     fetch(`/supervisors/Project/Delete/${id}`, {
         method: 'DELETE'
     })
@@ -662,7 +647,6 @@ function deleteProject(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveProjectsAsDraft(gradeId, employeeId) {
@@ -703,13 +687,10 @@ function saveProjectsAsDraft(gradeId, employeeId) {
                 })
                 .catch(error => {
                 });
-
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-
 }
 function saveProjectsAsFinal(gradeId, employeeId) {
 
@@ -749,10 +730,9 @@ function saveProjectsAsFinal(gradeId, employeeId) {
                 });
         }
         else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
-                closeBtnPopup(event.target, false)
-            }
-
-        })
+            closeBtnPopup(event.target, false)
+        }
+    })
 }
 
 // Kpis
@@ -765,14 +745,9 @@ async function getKpisPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteKpi(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
-
     fetch(`/supervisors/Kpi/Delete/${id}`, {
         method: 'DELETE'
     })
@@ -790,7 +765,6 @@ function deleteKpi(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveKpisAsDraft(gradeId, employeeId) {
@@ -835,7 +809,6 @@ function saveKpisAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveKpisAsFinal(gradeId, employeeId) {
@@ -879,7 +852,6 @@ function saveKpisAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
@@ -893,11 +865,9 @@ async function getMarksPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteMark(id, gradeId) {
-
     fetch(`/supervisors/Mark/Delete/${id}`, {
         method: 'DELETE'
     })
@@ -915,7 +885,6 @@ function deleteMark(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveMarksAsDraft(gradeId, employeeId) {
@@ -928,8 +897,8 @@ function saveMarksAsDraft(gradeId, employeeId) {
 
         if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
 
-        const form = document.getElementById('popupForm');
-        form.setAttribute('novalidate', 'true')
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
 
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
@@ -961,9 +930,7 @@ function saveMarksAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-    
 }
 function saveMarksAsFinal(gradeId, employeeId) {
 
@@ -1005,7 +972,6 @@ function saveMarksAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
@@ -1019,7 +985,6 @@ async function getQualificationPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function addEducationRow() {
@@ -1053,10 +1018,6 @@ function addEducationRow() {
     rowContainer.appendChild(row)
 }
 function deletePreviousJob(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
-
     fetch(`/supervisors/Qualification/DeletePreviousJob/${id}`, {
         method: 'DELETE'
     })
@@ -1074,14 +1035,9 @@ function deletePreviousJob(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function deleteHigherEducation(id, gradeId) {
-    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-    //    return;
-    //}
-
     fetch(`/supervisors/Qualification/DeleteHigherEducation/${id}`, {
         method: 'DELETE'
     })
@@ -1099,7 +1055,6 @@ function deleteHigherEducation(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveQualificationAsDraft(gradeId, employeeId) {
@@ -1148,7 +1103,6 @@ function saveQualificationAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveQualificationAsFinal(gradeId, employeeId) {
@@ -1206,7 +1160,6 @@ async function getValueJudgmentPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function saveValueJudgmentAsDraft(gradeId, employeeId) {
@@ -1252,7 +1205,6 @@ function saveValueJudgmentAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveValueJudgmentAsFinal(gradeId, employeeId) {
@@ -1296,45 +1248,33 @@ function saveValueJudgmentAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
 // ManagmentCompetencies
-async function getManagmentCompetenciesPopup(employeeId, gradeId) {
+async function getManagmentCompetenciesPopup(gradeId) {
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/supervisors/Assessment/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
+        let response = await fetch(`/supervisors/Assessment/GetManagmentCompetenciesPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
 // CorporateCompetencies
-async function getCorporateCompetenciesPopup(employeeId, gradeId) {
+async function getCorporateCompetenciesPopup(gradeId) {
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/supervisors/Assessment/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
-        // Получаем текстовый HTML-контент из ответа
+        let response = await fetch(`/supervisors/Assessment/GetCorporateCompetenciesPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -1348,7 +1288,6 @@ async function getTrainingEventsPopup(gradeId) {
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 

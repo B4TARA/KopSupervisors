@@ -2,7 +2,8 @@
 using KOP.DAL.Interfaces;
 using KOP.DAL.Repositories;
 using KOP.EmailService;
-using KOP.Import;
+using KOP.Import.Interfaces;
+using KOP.Import.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,9 +59,9 @@ internal class Program
                 throw new InvalidOperationException("Сервис IExportAndImport не зарегистрирован в контейнере зависимостей.");
             }
 
-            await exportAndImport.TransferDataFromExcelToDatabase();
+            //await exportAndImport.TransferDataFromExcelToDatabase();
             //await exportAndImport.CheckUsersForGradeProcess();
-            //await exportAndImport.CheckForNotifications();
+            await exportAndImport.CheckUsersForNotifications();
 
             Log.Information("Импорт завершен");
         }

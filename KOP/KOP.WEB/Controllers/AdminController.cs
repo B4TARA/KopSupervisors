@@ -6,6 +6,7 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
@@ -392,10 +393,17 @@ namespace KOP.WEB.Controllers
                 foreach (var id in viewModel.SubordinateSubdivisionsIds)
                 {
                     var dbSubdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == id);
-                    if(dbSubdivision == null)
+                    if (dbSubdivision == null)
                     {
                         _logger.LogWarning($"Subdivision with ID {id} not found.");
                         continue;
+                    }
+
+                    // Работает только с одним уровнем вложенности
+                    // Проверяем, есть ли ParentId в списке SubordinateSubdivisionsIds
+                    if (dbSubdivision.ParentId.HasValue && viewModel.SubordinateSubdivisionsIds.Contains(dbSubdivision.ParentId.Value))
+                    {
+                        continue; // Пропускаем добавление
                     }
 
                     user.SubordinateSubdivisions.Add(dbSubdivision);

@@ -25,23 +25,31 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetCorporateCompetenciesPopup(int employeeId, int gradeId)
+        public async Task<IActionResult> GetCorporateCompetenciesPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
-                var lastAssessmentIdForUserAndTypeRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.СorporateСompetencies);
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, [GradeEntities.Assessments]);
 
-                if (!lastAssessmentIdForUserAndTypeRes.HasData)
+                var corporateAssessmentDto = gradeDto.AssessmentDtoList.FirstOrDefault(a => a.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies);
+
+                if (corporateAssessmentDto == null)
                 {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastAssessmentIdForUserAndTypeRes.StatusCode,
-                        Message = lastAssessmentIdForUserAndTypeRes.Description,
-                    });
+                    throw new Exception($"Corporate competencies assessment is null for Grade with ID {gradeId}.");
                 }
 
-                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(corporateAssessmentDto.Id);
+
+                if (assessmentSummaryDto == null)
+                {
+                    throw new Exception($"Corporate competencies assessment summary is null for Grade with ID {gradeId}.");
+                }
 
                 var viewModel = new CorporateCompetenciesViewModel
                 {
@@ -51,8 +59,10 @@ namespace KOP.WEB.Controllers
 
                 return View("_CorporateCompetenciesPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[AssessmentController.GetCorporateCompetenciesPopup] : ");
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -63,23 +73,31 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetManagmentCompetenciesPopup(int employeeId, int gradeId)
+        public async Task<IActionResult> GetManagmentCompetenciesPopup(int gradeId)
         {
+            if (gradeId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {gradeId}", gradeId);
+                return BadRequest("Invalid grade ID.");
+            }
+
             try
             {
-                var lastAssessmentIdForUserAndTypeRes = await _userService.GetLastAssessmentIdForUserAndType(employeeId, SystemAssessmentTypes.ManagementCompetencies);
+                var gradeDto = await _gradeService.GetGradeDto(gradeId, [GradeEntities.Assessments]);
 
-                if (!lastAssessmentIdForUserAndTypeRes.HasData)
+                var managmentAssessmentDto = gradeDto.AssessmentDtoList.FirstOrDefault(a => a.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
+
+                if (managmentAssessmentDto == null)
                 {
-                    return View("Error", new ErrorViewModel
-                    {
-                        StatusCode = lastAssessmentIdForUserAndTypeRes.StatusCode,
-                        Message = lastAssessmentIdForUserAndTypeRes.Description,
-                    });
+                    throw new Exception($"Managment competencies assessment is null for Grade with ID {gradeId}.");
                 }
 
-                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(lastAssessmentIdForUserAndTypeRes.Data);
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities>());
+                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(managmentAssessmentDto.Id);
+
+                if (assessmentSummaryDto == null)
+                {
+                    throw new Exception($"Managment competencies assessment summary is null for Grade with ID {gradeId}.");
+                }
 
                 var viewModel = new ManagmentCompetenciesViewModel
                 {
@@ -89,8 +107,10 @@ namespace KOP.WEB.Controllers
 
                 return View("_ManagmentCompetenciesPartial", viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[AssessmentController.GetManagmentCompetenciesPopup] : ");
+
                 return View("Error", new ErrorViewModel
                 {
                     StatusCode = StatusCodes.InternalServerError,

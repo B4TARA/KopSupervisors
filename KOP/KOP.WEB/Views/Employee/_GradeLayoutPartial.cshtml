@@ -59,7 +59,7 @@
         <div class="description_wrapper">
             <div class="description">Дата окончания контракта</div>
             <div class="mid_title ">
-                @Model.ContractEndDate
+                @Model.ContractEndDate.ToString("dd.MM.yyyy")
             </div>
         </div>
         <div class="description_wrapper">
@@ -67,7 +67,7 @@
             @if (Model.LastGradeDto != null)
             {
                 <div class="mid_title ">
-                    @Model.LastGradeDto.StartDate -  @Model.LastGradeDto.EndDate
+                    @Model.LastGradeDto.StartDate.ToString("dd.MM.yyyy") -  @Model.LastGradeDto.EndDate.ToString("dd.MM.yyyy")
                 </div>
             }
             else
@@ -207,7 +207,7 @@
                         </span>
                     }
                     <div class="mid_title">Оценка управленческих компетенций</div>
-                    <div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.Id, @Model.LastGradeDto.Id)">
+                    <div class="result_item_popup_btn" onclick="getManagmentCompetenciesPopup(@Model.LastGradeDto.Id)">
                         Подробнее
                         <i class="fa-solid fa-circle-arrow-right"></i>
                     </div>
@@ -230,7 +230,7 @@
                         </span>
                     }
                     <div class="mid_title">Оценка корпоративных компетенций</div>
-                    <div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.Id, @Model.LastGradeDto.Id)">
+                    <div class="result_item_popup_btn" onclick="getCorporateCompetenciesPopup(@Model.LastGradeDto.Id)">
                         Подробнее
                         <i class="fa-solid fa-circle-arrow-right"></i>
                     </div>

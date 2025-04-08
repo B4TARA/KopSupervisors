@@ -79,7 +79,6 @@ namespace KOP.EmailService
                 {
                     await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port);
                     await client.SendAsync(mailMessage);
-
                     Console.WriteLine($"Уведомление для {message.AddresseeName} успешно отправлено");
                     //_logger.LogWarning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
                 }

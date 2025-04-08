@@ -4,31 +4,31 @@
 @font-face {
     font-family: 'Montserrat';
     font-weight: 400;
-    src: url('/font/Montserrat-Regular.ttf');
+    src: url('../font/Montserrat-Regular.ttf');
 }
 
 @font-face {
     font-family: 'Montserrat';
     font-weight: 500;
-    src: url('/font/Montserrat-Medium.ttf');
+    src: url('../font/Montserrat-Medium.ttf');
 }
 
 @font-face {
     font-family: 'Montserrat';
     font-weight: 600;
-    src: url('/font/Montserrat-SemiBold.ttf');
+    src: url('../font/Montserrat-SemiBold.ttf');
 }
 
 @font-face {
     font-family: 'Montserrat';
     font-weight: 700;
-    src: url('/font/Montserrat-Bold.ttf');
+    src: url('../font/Montserrat-Bold.ttf');
 }
 
 @font-face {
     font-family: 'Montserrat';
     font-weight: 800;
-    src: url('/font/Montserrat-ExtraBold.ttf');
+    src: url('../font/Montserrat-ExtraBold.ttf');
 }
 
 * {
@@ -3865,7 +3865,7 @@ button.show-modal,
 
     .experience_item span {
         white-space: nowrap;
-        font-size:14px;
+        font-size: 14px;
     }
 
 .result_item_header {
@@ -4213,11 +4213,11 @@ button.show-modal,
 
 .admin_info_section {
     height: 100vh;
-    padding:40px 20px;
+    padding: 40px 20px;
 }
 
-#matrixTable{
-    width:100%;
+#matrixTable {
+    width: 100%;
 }
 
     #matrixTable td input[type="text"] {
@@ -4229,9 +4229,62 @@ button.show-modal,
         padding-left: 10px;
     }
 
-
 #no-results-message {
     background-color: #fff;
     padding: 20px;
     border-radius: 20px;
 }
+
+/* Стили для текста валидации */
+#loginValidationText {
+    display: none; /* Скрыть по умолчанию */
+    align-items: center;
+    background-color: #ffffff; /* Белый фон */
+    color: #d9534f; /* Красный цвет текста */
+    font-size: 14px; /* Размер шрифта */
+    font-weight: bold; /* Жирный текст */
+    padding: 5px; /* Внутренние отступы */
+    border: 1px solid #d9534f; /* Красная рамка */
+    border-radius: 5px; /* Закругленные углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
+}
+
+    #loginValidationText svg {
+        margin-right: 10px; /* Отступ справа от иконки */
+    }
+
+/* Стили для текста валидации */
+#remindPasswordErrorValidationText {
+    display: none; /* Скрыть по умолчанию */
+    align-items: center;
+    background-color: #ffffff; /* Белый фон */
+    color: #d9534f; /* Красный цвет текста */
+    font-size: 14px; /* Размер шрифта */
+    font-weight: bold; /* Жирный текст */
+    padding: 5px; /* Внутренние отступы */
+    border: 1px solid #d9534f; /* Красная рамка */
+    border-radius: 5px; /* Закругленные углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
+}
+
+    #remindPasswordErrorValidationText svg {
+        margin-right: 10px; /* Отступ справа от иконки */
+    }
+
+/* Стили для текста валидации */
+#remindPasswordSuccessValidationText {
+    display: none; /* Скрыть по умолчанию */
+    align-items: center;
+    background-color: #ffffff; /* Белый фон */
+    color: #5cb85c; /* Красный цвет текста */
+    font-size: 14px; /* Размер шрифта */
+    font-weight: bold; /* Жирный текст */
+    padding: 5px; /* Внутренние отступы */
+    border: 1px solid #5cb85c; /* Красная рамка */
+    border-radius: 5px; /* Закругленные углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
+}
+
+    #remindPasswordSuccessValidationText svg {
+        margin-right: 10px; /* Отступ справа от иконки */
+    }

@@ -1,41 +1,72 @@
 ﻿@model KOP.Common.Dtos.AccountDtos.LoginDto
 
 @{
-	Layout = null;
+    Layout = null;
 }
 
 <head>
-	<title>Авторизация</title>
-	<link rel="stylesheet" href="/supervisors/css/main_style.css">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="/supervisors/css/main_style.css">
 </head>
 <body>
-	<section class="login_container">
-		<div class="login_main_wrapper">
-			<div class="form signup">
-				<header class="header_login_form">Вход</header>
-				<form id="loginForm" class="login_form">
-					<!--дизайн текста об ошибке при авторизации-->
-					<div asp-validation-summary="All" style="font-size:23px; font-family:Impact" class="text-danger text-center" id="validationText"></div>
-					<div style="font-size:23px; font-family:Impact" class="text-center" id="description"></div>
-					<input id="login" type="text" class="form-control" placeholder="Логин" minlength="3" maxlength="20" required />
-					<input id="password" type="password" class="form-control" placeholder="Пароль" minlength="3" maxlength="20" required />
-					<a href="#" class="forgot_pass" id="forgot_pass">Забыли пароль?</a>
-					<input type="submit" value="Войти" />
-				</form>
-			</div>
-			<div class="form login">
-				<header class="header_login_form">KOП</header>
-				<form id="remindPasswordForm" class="login_form">
-					<div class="description">
-						Пароль будет выслан Вам на рабочую почту
-					</div>
-					<input id="loginRemindPassword" type="text" class="form-control" placeholder="Логин" minlength="3" maxlength="20" required />
-					<input type="submit" value="Напомнить пароль" />
-				</form>
-			</div>
-		</div>
-	</section>
+    <section class="login_container">
+        <div class="login_main_wrapper">
+            <div class="form signup">
+                <header class="header_login_form">Вход</header>
+                <form id="loginForm" class="login_form">
+                    <span id="loginValidationText">
+                        <span>
+                            <svg width="30" height="30" viewBox="0 0 18 18">
+                                <!-- Круг -->
+                                <circle cx="9" cy="9" r="8" fill="none" stroke="#d9534f" stroke-width="2" />
+                                <!-- Крестик -->
+                                <line x1="5" y1="5" x2="13" y2="13" stroke="#d9534f" stroke-width="2" stroke-linecap="round" />
+                                <line x1="13" y1="5" x2="5" y2="13" stroke="#d9534f" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span id="loginErrorMessage"></span>
+                    </span>
+                    <input id="login" type="text" class="form-control" placeholder="Логин" minlength="3" maxlength="20" required />
+                    <input id="password" type="password" class="form-control" placeholder="Пароль" minlength="3" maxlength="20" required />
+                    <a href="#" class="forgot_pass" id="forgot_pass">Забыли пароль?</a>
+                    <input type="submit" value="Войти" />
+                </form>
+            </div>
+            <div class="form login">
+                <header class="header_login_form">KOП</header>
+                <form id="remindPasswordForm" class="login_form">
+                    <div class="description">
+                        Пароль будет выслан Вам на рабочую почту
+                    </div>
+                    <input id="loginRemindPassword" type="text" class="form-control" placeholder="Логин" minlength="3" maxlength="20" required />
+                    <input type="submit" value="Напомнить пароль" />
+                    <span id="remindPasswordErrorValidationText">
+                        <span>
+                            <svg width="30" height="30" viewBox="0 0 18 18">
+                                <!-- Круг -->
+                                <circle cx="9" cy="9" r="8" fill="none" stroke="#d9534f" stroke-width="2" />
+                                <!-- Крестик -->
+                                <line x1="5" y1="5" x2="13" y2="13" stroke="#d9534f" stroke-width="2" stroke-linecap="round" />
+                                <line x1="13" y1="5" x2="5" y2="13" stroke="#d9534f" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span id="remindPasswordErrorMessage"></span>
+                    </span>
+                    <span id="remindPasswordSuccessValidationText">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 18 18">
+                                <!-- Круг -->
+                                <circle cx="9" cy="9" r="8" fill="none" stroke="#5cb85c" stroke-width="2" />
+                                <!-- Галочка -->
+                                <polyline points="5 9 8 12 13 6" fill="none" stroke="#5cb85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span id="remindPasswordSuccessMessage"></span>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </section>
 </body>
 
-<script src="/supervisors/js/loginScript.js">
-</script>
+<script src="/supervisors/js/loginScript.js"></script>

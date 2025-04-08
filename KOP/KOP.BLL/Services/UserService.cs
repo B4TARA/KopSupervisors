@@ -258,44 +258,12 @@ namespace KOP.BLL.Services
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<IBaseResponse<int>> GetLastAssessmentIdForUserAndType(int userId, SystemAssessmentTypes assessmentType)
-        {
-            try
-            {
-                var assessmentsForUserAndType = await _unitOfWork.Assessments.GetAllAsync(x => x.UserId == userId && x.AssessmentType.SystemAssessmentType == assessmentType);
-                var lastAssessmentForUserAndType = assessmentsForUserAndType.OrderByDescending(x => x.Number).OrderByDescending(x => x.DateOfCreation).FirstOrDefault();
-
-                if (lastAssessmentForUserAndType == null)
-                {
-                    return new BaseResponse<int>()
-                    {
-                        Description = $"Тип = {assessmentType} не содержит оценок",
-                        StatusCode = StatusCodes.EntityNotFound,
-                    };
-                }
-
-                return new BaseResponse<int>()
-                {
-                    Data = lastAssessmentForUserAndType.Id,
-                    StatusCode = StatusCodes.OK
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse<int>()
-                {
-                    Description = $"[UserService.GetLastAssessmentIdForUserAndType] : {ex.Message}",
-                    StatusCode = StatusCodes.InternalServerError,
-                };
-            }
-        }
-
         public bool CanChooseJudges(IEnumerable<string> userRoles, AssessmentDto assessmentDto)
         {
-            bool isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
-            bool isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
-            bool isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
-            int completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
+            var isUserInRole = userRoles.Any(role => role == "Urp" || role == "Supervisor");
+            var isAssessmentTypeCorporate = assessmentDto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies;
+            var isStatusPending = assessmentDto.SystemStatus == SystemStatuses.PENDING;
+            var completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
 
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
         }
@@ -303,14 +271,15 @@ namespace KOP.BLL.Services
         public async Task ApproveGrade(int gradeId)
         {
             var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == gradeId, includeProperties: "Assessments.AssessmentResults");
-            if (grade is null)
+
+            if (grade == null)
             {
                 throw new Exception($"Grade with ID {gradeId} not found.");
             }
 
             grade.GradeStatus = GradeStatuses.APPROVED_BY_EMPLOYEE;
-            _unitOfWork.Grades.Update(grade);
 
+            _unitOfWork.Grades.Update(grade);
             await _unitOfWork.CommitAsync();
         }
     }

@@ -25,8 +25,24 @@ namespace KOP.BLL.Services
         {
             try
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login && x.Password == dto.Password);
-                if (user.IsSuspended)
+                var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
+                if (user == null)
+                {
+                    return new BaseResponse<ClaimsIdentity>()
+                    {
+                        StatusCode = StatusCodes.EntityNotFound,
+                        Description = "Неверный логин или пароль",
+                    };
+                }
+                else if (dto.Password != user.Password)
+                {
+                    return new BaseResponse<ClaimsIdentity>()
+                    {
+                        StatusCode = StatusCodes.IncorrectPassword,
+                        Description = "Неверный логин или пароль"
+                    };
+                }
+                else if (user.IsSuspended)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
@@ -37,7 +53,6 @@ namespace KOP.BLL.Services
 
                 user.LastLogin = DateTime.UtcNow;
                 _unitOfWork.Users.Update(user);
-
                 await _unitOfWork.CommitAsync();
 
                 var authenticationResult = Authenticate(user);
@@ -45,7 +60,8 @@ namespace KOP.BLL.Services
                 return new BaseResponse<ClaimsIdentity>()
                 {
                     Data = authenticationResult,
-                    StatusCode = StatusCodes.OK
+                    StatusCode = StatusCodes.OK,
+                    Description = "Успешный вход"
                 };
             }
             catch (Exception ex)
@@ -95,7 +111,7 @@ namespace KOP.BLL.Services
                     return new BaseResponse<object>()
                     {
                         StatusCode = StatusCodes.EntityNotFound,
-                        Description = "Пользователь не найден",
+                        Description = "Пользователь не найден. Пожалуйста, проверьте введенные данные",
                     };
                 }
 
@@ -105,7 +121,7 @@ namespace KOP.BLL.Services
                 return new BaseResponse<object>()
                 {
                     StatusCode = StatusCodes.OK,
-                    Description = "Данные высланы Вам на почту"
+                    Description = "Данные успешно отправлены на вашу почту."
                 };
             }
             catch (Exception ex)
