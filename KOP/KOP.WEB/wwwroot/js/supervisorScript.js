@@ -1,35 +1,32 @@
 ﻿
 async function getSubordinates(supervisorId) {
     try {
-        // Выполняем fetch запрос
         let response = await fetch(`/supervisors/Supervisor/GetSubordinates?supervisorId=${encodeURIComponent(supervisorId)}`);
 
-        // Получаем текстовый HTML-контент из ответа
-        let htmlContent = await response.text();
+        if (!response.ok) {
+            throw new Error(`Ошибка при загрузке данных: ${response.status} ${response.statusText}`);
+        }
 
-        // Вставляем HTML-контент в нужный элемент
+        let htmlContent = await response.text();
         document.getElementById('subordinates').innerHTML = htmlContent;
-        filterTable('assessmentTrue')
+
+        filterTable('assessmentTrue');
+
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
 function findEmployeeRow(employeeId) {
-    // Находим все строки таблиц с классом 'table_users'
+
     const rows = document.querySelectorAll('.table_users tbody tr');
 
-    // Перебираем все строки
     for (let row of rows) {
-        // Проверяем, совпадает ли id строки с переданным employeeId
         if (row.id === employeeId.toString()) {
-            // Если совпадает, возвращаем найденную строку
             return row;
         }
     }
 
-    // Если строка не найдена, возвращаем null
     return null;
 }
 
@@ -69,40 +66,24 @@ async function getEmployeeAssessmentLayout(employeeId) {
     try {
         let linkMenuItemGrade = document.getElementById('grade_link_item');
         let linkMenuItemAssessment = document.getElementById('assessment_link_item');
+
         linkMenuItemGrade.classList.remove("active");
         linkMenuItemAssessment.classList.add("active");
 
-        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`, {
-            method: 'GET'
-        });
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessmentLayout?employeeId=${encodeURIComponent(employeeId)}`);
 
         if (!response.ok) {
-            throw new Error('Ошибка при загрузке оценки сотрудника');
+            throw new Error(`Ошибка при загрузке оценки сотрудника: ${response.status} ${response.statusText}`);
         }
 
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/supervisors/Assessment/GetLastAssessments?userId=${encodeURIComponent(employeeId)}`);
+        let firstAssessmentId = document.getElementById('firstAssessmentId').value;
 
-        if (!response2.ok) {
-            throw new Error('Ошибка при загрузке последних оценок');
+        if (firstAssessmentId && firstAssessmentId > 0) {
+            await getEmployeeAssessment(firstAssessmentId);
         }
-
-        let jsonResponse = await response2.json();
-
-        if (!jsonResponse.success) {
-            console.warn('Не удалось получить последние оценки:', jsonResponse.message);
-            return;
-        }
-
-        const lastAssessments = jsonResponse.data;
-
-        if (lastAssessments && lastAssessments.length > 0) {
-            await getEmployeeAssessment(lastAssessments[0].id);
-        }
-
-        arrUsersForAssessment.splice(0, arrUsersForAssessment.length); // Удаляем все элементы
     } catch (error) {
         console.error('Произошла ошибка:', error);
     }
@@ -113,33 +94,21 @@ async function getEmployeeAssessment(assessmentId) {
     const buttons = document.querySelectorAll('.self_assesment .link_menu');
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Удаляем класс active у всех кнопок
             buttons.forEach(b => b.classList.remove('active'));
-            // Добавляем класс active к текущей кнопке
             btn.classList.add('active');
         });
     });
-
-
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessment?assessmentId=${encodeURIComponent(assessmentId)}`, {
-            method: 'GET'
-        });
+        let response = await fetch(`/supervisors/Supervisor/GetEmployeeAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
 
-        // Получаем HTML-контент
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
         document.getElementById('lastAssessment').innerHTML = htmlContent;
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
-
-
 
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";
@@ -161,25 +130,20 @@ function validationFormAssessment(item, type) {
 
 async function getEmployeeGradeLayout(employeeId) {
     try {
-        // Устанавливаем активный класс на ссылку Grade и убираем с Assessment
         let linkMenuItemGrade = document.getElementById('grade_link_item');
         let linkMenuItemAssessment = document.getElementById('assessment_link_item');
 
         linkMenuItemAssessment.classList.remove("active");
         linkMenuItemGrade.classList.add("active");
 
-        // Выполняем fetch запрос
         let response = await fetch(`/supervisors/Supervisor/GetEmployeeGradeLayout?employeeId=${encodeURIComponent(employeeId)}`);
 
-        // Получаем текстовый HTML-контент из ответа
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -198,10 +162,8 @@ async function approveEmployeeGrade(gradeId, employeeId) {
             getEmployeeGradeLayout(employeeId);
         } else {
             console.error("Ошибка при создании Word документа:", response.statusText);
-            //alert("Ошибка при создании Word документа. Пожалуйста, посмотрите в консоль для деталей.");
         }
     } catch (error) {
         console.error("Ошибка:", error);
-        //alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
     }
 }

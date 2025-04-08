@@ -11,14 +11,12 @@ namespace KOP.WEB.Controllers
     public class AssessmentController : Controller
     {
         private readonly IGradeService _gradeService;
-        private readonly IUserService _userService;
         private readonly IAssessmentService _assessmentService;
         private readonly ILogger<AssessmentController> _logger;
 
-        public AssessmentController(IGradeService gradeService, IUserService userService, IAssessmentService assessmentService, ILogger<AssessmentController> logger)
+        public AssessmentController(IGradeService gradeService, IAssessmentService assessmentService, ILogger<AssessmentController> logger)
         {
             _gradeService = gradeService;
-            _userService = userService;
             _assessmentService = assessmentService;
             _logger = logger;
         }
@@ -116,24 +114,6 @@ namespace KOP.WEB.Controllers
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "An unexpected error occurred. Please try again later."
                 });
-            }
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetLastAssessments(int userId)
-        {
-            try
-            {
-                var userLastGradeAssessmentsDtos = await _userService.GetUserLastGradeAssessmentDtoList(userId);
-
-                return Json(new { success = true, data = userLastGradeAssessmentsDtos });
-            }
-
-            catch
-            {
-                // LOG!!!
-                return Json(new { success = false, message = "An unexpected error occurred. Please try again later." });
             }
         }
     }

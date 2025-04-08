@@ -22,6 +22,9 @@
             }
         </ul>
     </div>
+
+    <!-- Скрытое поле для хранения ID первого элемента -->
+    <input type="hidden" id="firstAssessmentId" value="@Model.LastGradeAssessmentDtoList.FirstOrDefault()?.Id" />
 }
 else
 {
