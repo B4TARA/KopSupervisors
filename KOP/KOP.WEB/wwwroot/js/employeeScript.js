@@ -60,27 +60,21 @@ async function getSelfAssessment() {
         colleaguesAssessmentLinkItem.classList.remove("active");
 
         let response = await fetch(`/supervisors/Employee/GetSelfAssessmentLayout`);
+
+        if (!response.ok) {
+            throw new Error(`Ошибка при загрузке оценки сотрудника: ${response.status} ${response.statusText}`);
+        }
+
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/supervisors/Assessment/GetLastAssessments?userId=${encodeURIComponent(userId)}`);
-        let jsonResponse = await response2.json();
-        if (!jsonResponse.success) {
-            console.error('Произошла ошибка:', jsonResponse.message);
-            return;
+        let firstAssessmentId = document.getElementById('firstAssessmentId').value;
+
+        if (firstAssessmentId && firstAssessmentId > 0) {
+            await getAssessment(firstAssessmentId);
         }
-        const lastAssessments = jsonResponse.data;
-        if (lastAssessments && lastAssessments.length > 0) {
-            if (assessmentId !== undefined) {
-                await getAssessment(assessmentId);
-            }
-            else {
-                await getAssessment(lastAssessments[0].id);
-            }
-        }        
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
