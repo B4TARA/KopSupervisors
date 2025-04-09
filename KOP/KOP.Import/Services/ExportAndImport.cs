@@ -571,7 +571,7 @@ namespace KOP.Import.Services
 
         private bool IsAdditionalSubdivision(string subdivision, string department)
         {
-            return subdivision.Contains("УМСТ ") || (subdivision.Contains("УРП ") && department.Contains("Отдел развития персонала"));
+            return subdivision.Contains("ЦУП ") || subdivision.Contains("УМСТ ") || (subdivision.Contains("УРП ") && department.Contains("Отдел развития персонала"));
         }
 
         private List<int> ReadAdditionalUsersServiceNumbersFromFile(string path)
