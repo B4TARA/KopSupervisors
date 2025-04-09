@@ -106,9 +106,7 @@ function drawAssessmentAnalytics(item, typeRender) {
         clearNoDataMessage(); // Очищаем сообщение об отсутствии данных
 
         document.getElementById('exportButton').style.display = 'flex'
-
-    }
-    
+    }   
 
     const ctx = document.getElementById('chart4').getContext('2d');
 
@@ -121,7 +119,6 @@ function drawAssessmentAnalytics(item, typeRender) {
         },
         options: getChartOptions()
     });
-
 
     var maxValue = 13; // Максимальное значение
 
@@ -152,11 +149,10 @@ function drawAssessmentAnalytics(item, typeRender) {
         }
     }
 
-    //// Создание графика
+    // Создание графика
     var gaugeCtx = document.getElementById('chartJSContainer').getContext('2d');
 
     window.gaugeChart = new Chart(gaugeCtx, options);
-
 }
 
 // Проверка наличия данных
@@ -207,8 +203,6 @@ function displayNoDataMessage() {
 			</div>
 		</div>
     `;
-
-
 
     const emptyImageElementRight = document.getElementById('emptyImageRight');
     emptyImageElementRight.innerHTML = `
