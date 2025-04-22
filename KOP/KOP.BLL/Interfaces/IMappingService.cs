@@ -1,10 +1,7 @@
 ﻿using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
-using KOP.Common.Interfaces;
 using KOP.DAL.Entities;
-using KOP.DAL.Entities.AssessmentEntities;
-using KOP.DAL.Entities.GradeEntities;
 
 namespace KOP.BLL.Interfaces
 {
@@ -25,6 +22,6 @@ namespace KOP.BLL.Interfaces
         AssessmentResultDto CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);
         AssessmentResultValueDto CreateAssessmentResultValueDto(AssessmentResultValue value);
         AssessmentMatrixElementDto CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
-        AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);        
+        AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);
     }
 }

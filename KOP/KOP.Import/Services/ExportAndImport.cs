@@ -1,8 +1,6 @@
 ﻿using ExcelDataReader;
 using KOP.Common.Enums;
 using KOP.DAL.Entities;
-using KOP.DAL.Entities.AssessmentEntities;
-using KOP.DAL.Entities.GradeEntities;
 using KOP.DAL.Interfaces;
 using KOP.EmailService;
 using KOP.Import.Interfaces;
@@ -273,7 +271,7 @@ namespace KOP.Import.Services
                     continue;
                 }
             }
-        }      
+        }
 
         public async Task CheckUsersForGradeProcess()
         {
@@ -495,9 +493,9 @@ namespace KOP.Import.Services
             var allDbUsers = await _unitOfWork.Users.GetAllAsync();
 
             foreach (var dbUser in allDbUsers)
-            { 
+            {
                 // Технологическая учетная запись URP
-                if(dbUser.Id == 201)
+                if (dbUser.Id == 201)
                 {
                     continue;
                 }
@@ -811,7 +809,7 @@ namespace KOP.Import.Services
 
                 excelDataReader.Close();
             }
-        }     
+        }
 
         private async Task HandleErrorAsync(string errorMessage)
         {

@@ -4,8 +4,6 @@ using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.DAL.Entities;
-using KOP.DAL.Entities.AssessmentEntities;
-using KOP.DAL.Entities.GradeEntities;
 
 namespace KOP.BLL.Services
 {

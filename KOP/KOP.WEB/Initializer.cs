@@ -46,6 +46,7 @@ namespace KOP.WEB
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISupervisorService, SupervisorService>();
             services.AddScoped<IAssessmentService, AssessmentService>();
+            services.AddScoped<IAssessmentResultService, AssessmentResultService>();
         }
     }
 }
