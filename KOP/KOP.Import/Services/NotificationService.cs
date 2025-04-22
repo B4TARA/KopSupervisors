@@ -4,24 +4,41 @@ using KOP.DAL.Interfaces;
 using KOP.EmailService;
 using KOP.Import.Interfaces;
 using KOP.Import.Utils;
+using Serilog;
 
 namespace KOP.Import.Services
 {
     public class NotificationService : INotificationService
     {
+        private readonly ILogger _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailSender _emailSender;
-        public NotificationService(IUnitOfWork unitOfWork, IEmailSender emailSender)
+        private readonly string _templatesPath;
+
+        public NotificationService(IUnitOfWork unitOfWork, IEmailSender emailSender, ILogger logger)
         {
             _unitOfWork = unitOfWork;
             _emailSender = emailSender;
+            _logger = logger;
+            _templatesPath = Path.Combine("C:", "PROJECTS", "KopSupervisors", "Files", "templates");
+        }
+
+        private string LoadEmailTemplate(string templateName)
+        {
+            var templatePath = Path.Combine(_templatesPath, templateName);
+            if (!File.Exists(templatePath))
+            {
+                _logger.Error($"Email template not found at path: {templatePath}");
+                throw new FileNotFoundException("Email template not found.", templatePath);
+            }
+
+            return File.ReadAllText(templatePath);
         }
 
         public async Task CheckUsersForNotifications()
         {
             var today = TermManager.GetDate();
             var users = await _unitOfWork.Users.GetAllAsync(includeProperties: "Grades");
-            var mails = await _unitOfWork.Mails.GetAllAsync();
             var pendingAssessmentResults = await _unitOfWork.AssessmentResults.GetAllAsync(x => x.SystemStatus == SystemStatuses.PENDING);
 
             foreach (var user in users)
@@ -30,46 +47,43 @@ namespace KOP.Import.Services
                 {
                     // Руководителям 1 и 10 числа месяца оценки
                     // Оценить КК, УК и Назначить группу оценки КК
-                    if ((today.Day == 1 || today.Day == 10) && user.SystemRoles.Contains(SystemRoles.Supervisor))
+                    if ((today.Day == 1 || today.Day == 7) && user.SystemRoles.Contains(SystemRoles.Supervisor))
                     {
-                        if (user.SystemRoles.Contains(SystemRoles.Curator) && user.Id != 119)
+                        var subordinateUsers = await GetSubordinateUsers(user.Id);
+                        var subordinateUsersWithThisMonthPendingGrade = subordinateUsers
+                            .Where(x => x.Grades
+                                .Any(x =>
+                                    x.DateOfCreation.Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING));
+
+                        foreach (var subordinateUser in subordinateUsersWithThisMonthPendingGrade)
                         {
-                            // Не надо уведомление
-                        }
-                        else
-                        {
-                            var subordinateUsers = await GetSubordinateUsers(user.Id);
-                            var subordinateUsersWithThisMonthPendingGrade = subordinateUsers
-                                .Where(x => x.Grades
-                                    .Any(x =>
-                                        x.DateOfCreation.Month == today.Month &&
-                                        x.DateOfCreation.Year == today.Year &&
-                                        x.SystemStatus == SystemStatuses.PENDING));
+                            // Функция находит самого первого руководителя
+                            // Если текущий руководитель не является самым первым (непосредственным), то существует другой
+                            var supervisor = GetSupervisorForUser(subordinateUser.Id);
 
-                            //// Есть подчиненные с назначенными оценками в текущем месяце
-                            //if (subordinateUsersWithThisMonthPendingGrade.Any())
-                            //{
-                            //    Mail? mail = null;
-
-                            //    if (today.Day == 1)
-                            //    {
-                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeNotification);
-                            //    }
-                            //    else if (today.Day == 10)
-                            //    {
-                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentGroupAndAssessEmployeeReminder);
-                            //    }
-                            //}
-
-                            foreach (var subordinateUser in subordinateUsersWithThisMonthPendingGrade)
+                            if(supervisor.Id != user.Id)
                             {
-                                var mail = new Mail();
-                                mail.Body = $"Сообщаем, что контракт с {subordinateUser.FullName} завершается {subordinateUser.ContractEndDate}.\r\nВыберите 3 и более коллег, с которыми взаимодействует оцениваемый работник, для оценки корпоративных компетенций.\r\nВы можете сделать это в системе КОП самостоятельно или обратиться к вашему HR-менеджеру.\r\n\r\n<a href=\"https://kop.mtb.minsk.by/supervisors\" target=\"_blank\">https://kop.mtb.minsk.by/supervisors</a>";
-                                mail.Title = mail.Title = $"КОП.Оценка {subordinateUser.FullName}: назначьте группу оценки корпоративных компетенций";
-
-                                var message = new Message([user.Email, "nsakirina@mtb.minsk.by"], mail.Title, mail.Body, user.FullName);
-                                await _emailSender.SendEmailAsync(message);
+                                continue;
                             }
+
+                            var template = string.Empty;
+
+                            if (today.Day == 1)
+                            {
+                                template = LoadEmailTemplate("CreateAssessmentGroupNotificationTemplate.html"); 
+                            }
+                            else if (today.Day == 7)
+                            {
+                                template = LoadEmailTemplate("CreateAssessmentGroupReminderTemplate.html");
+                            }
+
+                            var mailBody = template.Replace("{SubordinateUserFullName}", subordinateUser.FullName).Replace("{SubordinateUserContractEndDate}", subordinateUser.ContractEndDate.ToString());
+                            var mailTitle = $"КОП. Оценка {subordinateUser.FullName}: назначьте группу оценки корпоративных компетенций";
+                            var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+
+                            await _emailSender.SendEmailAsync(message);
                         }
                     }
                     // Оцениваемым сотрудникам 1 и 15 числа месяца оценки
@@ -85,23 +99,24 @@ namespace KOP.Import.Services
                         // Есть назначенные оценки в текущем месяце
                         if (thisMonthPendingGrade != null)
                         {
-                            //Mail? mail = null;
+                            if (today.Day == 1)
+                            {
+                                var template = LoadEmailTemplate("CreateStrategicTasksAndSelfAssessmentNotificationTemplate.html");
+                                var mailBody = template.Replace("{UserContractEndDate}", user.ContractEndDate.ToString());
+                                var mailTitle = $"КОП. Самооценка {user.FullName}";
 
-                            //if (today.Day == 1)
-                            //{
-                            //    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentNotification);
-                            //}
-                            //else if (today.Day == 15)
-                            //{
-                            //    mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateStrategicTasksAndSelfAssessmentReminder);
-                            //}
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+                            }
+                            else if (today.Day == 15)
+                            {
+                                var template = LoadEmailTemplate("CreateStrategicTasksAndSelfAssessmentReminderTemplate.html");
+                                var mailBody = template.Replace("{UserContractEndDate}", user.ContractEndDate.ToString());
+                                var mailTitle = $"КОП. Самооценка {user.FullName}";
 
-                            var mail = new Mail();
-                            mail.Body = $"Информируем вас, что срок заключенного с вами контракта истекает {user.ContractEndDate}.\r\n\r\nС целью проведения оценки результатов деятельности и достижений работника при продлении контракта просим вас до 20 числа:\r\n- провести самооценку корпоративных компетенций\r\n- провести самооценку управленческих компетенций\r\n- заполнить результаты деятельности, достигнутые вами при исполнении должностных обязанностей в течение {thisMonthPendingGrade.StartDate} - {thisMonthPendingGrade.EndDate}\r\n\r\n<a href=\"https://kop.mtb.minsk.by/supervisors\" target=\"_blank\">https://kop.mtb.minsk.by/supervisors</a>\r\n";
-                            mail.Title = mail.Title = $"КОП. Самооценка {user.FullName}";
-
-                            var message = new Message([user.Email, "nsakirina@mtb.minsk.by"], mail.Title, mail.Body, user.FullName);
-                            await _emailSender.SendEmailAsync(message);
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+                            }
                         }
                     }
                     // Ответственным за заполнение показателей (УМСТ, ЦУП, УРП) 1 и 15 числа месяца оценки
@@ -121,214 +136,211 @@ namespace KOP.Import.Services
                                        x.DateOfCreation.Year == today.Year &&
                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            //// Есть сотрудники с назначенными оценками в текущем месяце
-                            //if (usersWithThisMonthPendingGrade.Any())
-                            //{
-                            //    Mail? mail = null;
-
-                            //    if (today.Day == 1)
-                            //    {
-                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaNotification);
-                            //    }
-                            //    else if (today.Day == 10)
-                            //    {
-                            //        mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateAssessmentCriteriaReminder);
-                            //    }
-
-                            //    if (mail == null)
-                            //    {
-                            //        await HandleErrorAsync("Не найдено сообщение для отправки ответственным за заполнение критериев 1 или 15 числа месяца оценки");
-                            //    }
-                            //    else
-                            //    {
-                            //        var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                            //        await _emailSender.SendEmailAsync(message);
-                            //    }
-                            //}
-
-                            foreach (var subordinateUser in usersWithThisMonthPendingGrade)
+                            if (today.Day == 1)
                             {
-                                var mail = new Mail();
-                                mail.Body = $"Для проведения оценки руководителя {subordinateUser.FullName} просим до 20 числа заполнить закрепленные за вами критерии оценки. \r\n\r\n<a href=\"https://kop.mtb.minsk.by/supervisors\" target=\"_blank\">https://kop.mtb.minsk.by/supervisors</a>";
-                                mail.Title = mail.Title = $"КОП. Заполнение критериев оценки  {subordinateUser.FullName}";
+                                var template = LoadEmailTemplate("CreateAssessmentCriteriaNotificationTemplate.html");
 
-                                var message = new Message([user.Email, "nsakirina@mtb.minsk.by"], mail.Title, mail.Body, user.FullName);
+                                foreach (var subordinateUser in usersWithThisMonthPendingGrade)
+                                {
+                                    var mailBody = template.Replace("{SubordinateUserFullName}", subordinateUser.FullName);
+                                    var mailTitle = $"КОП. Заполнение критериев оценки {subordinateUser.FullName}";
+
+                                    var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                    await _emailSender.SendEmailAsync(message);
+                                }
+                            }
+                            else if (today.Day == 15)
+                            {
+                                var template = LoadEmailTemplate("CreateAssessmentCriteriaReminderTemplate.html");
+
+                                foreach (var subordinateUser in usersWithThisMonthPendingGrade)
+                                {
+                                    var mailBody = template.Replace("{SubordinateUserFullName}", subordinateUser.FullName);
+                                    var mailTitle = $"КОП. Заполнение критериев оценки {subordinateUser.FullName}";
+
+                                    var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                    await _emailSender.SendEmailAsync(message);
+                                }
+                            }
+                        }
+                    }
+                    // Группе оценки КК + HR (Отдел развития УРП) 10 и 20 числа месяца оценки
+                    // Оценить КК
+                    if (today.Day == 10 || today.Day == 20)
+                    {
+                        var appointedThisMonthCorporateAssessmentResults = await _unitOfWork.AssessmentResults
+                            .GetAllAsync(x =>
+                                x.JudgeId == user.Id && // Пользователь является оценщиком
+                                (x.Type == AssessmentResultTypes.ColleagueAssessment || x.Type == AssessmentResultTypes.UrpAssessment) &&
+                                x.DateOfCreation.Month == today.Month &&
+                                x.DateOfCreation.Year == today.Year &&
+                                x.SystemStatus == SystemStatuses.PENDING &&
+                                x.Assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies,
+                                includeProperties: ["Assessment.User"]);
+
+                        foreach (var assessmentResult in appointedThisMonthCorporateAssessmentResults)
+                        {
+                            if (today.Day == 10)
+                            {
+                                var template = LoadEmailTemplate("CreateCorporateCompeteciesAssessmentNotificationTemplate.html");
+                                var mailBody = template.Replace("{SubordinateUserFullName}", assessmentResult.Assessment.User.FullName);
+                                var mailTitle = $"КОП. Оцените корпоративные компетенции {assessmentResult.Assessment.User.FullName}";
+
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+
+                            }
+                            else if (today.Day == 20)
+                            {
+                                var template = LoadEmailTemplate("CreateCorporateCompeteciesAssessmentReminderTemplate.html");
+                                var mailBody = template.Replace("{SubordinateUserFullName}", assessmentResult.Assessment.User.FullName);
+                                var mailTitle = $"КОП. Оцените корпоративные компетенции {assessmentResult.Assessment.User.FullName}";
+
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+
+                            }
+                        }
+                    }
+                    // УРП 1 числа месяца, следующего за месяцем оценки
+                    // Оставить выводы по криетриям: результаты деятельности, КПЭ, квалификация
+                    if (today.Day == 1 && user.SystemRoles.Contains(SystemRoles.Urp))
+                    {
+                        var usersWithPreviousMonthPendingGrade = users
+                            .Where(x => x.Grades
+                                .Any(x =>
+                                    x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING));
+
+                        // Есть сотрудники с назначенными оценками в прошлом месяце
+                        if (usersWithPreviousMonthPendingGrade.Any())
+                        {
+                            var template = LoadEmailTemplate("CreateCorporateCompeteciesAssessmentReminderTemplate.html");
+
+                            foreach (var userWithPrevMonthGrade in usersWithPreviousMonthPendingGrade)
+                            {
+                                var mailBody = template;
+                                var mailTitle = $"КОП. {userWithPrevMonthGrade.FullName}. Заполните краткие выводы";
+
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
                                 await _emailSender.SendEmailAsync(message);
                             }
                         }
                     }
-                    //// Группе оценки КК + HR (Отдел развития УРП) 15 числа месяца оценки
-                    //// Оценить КК
-                    //if (today.Day == 15)
-                    //{
-                    //    var appointedThisMonthCorporateAssessmentResults = await _unitOfWork.AssessmentResults
-                    //        .GetAllAsync(x =>
-                    //            x.JudgeId == user.Id && // Пользователь является оценщиком
-                    //            x.Assessment.UserId != user.Id && // Не самооценка
-                    //            x.DateOfCreation.Month == today.Month &&
-                    //            x.DateOfCreation.Year == today.Year &&
-                    //            x.SystemStatus == SystemStatuses.PENDING &&
-                    //            x.Assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies, includeProperties: "Assessment");
+                    // Непосредственным руководителям 5 и 8 числа месяца, следующего за месяцем оценки
+                    // Оставить ОС от руководителя и ознакомиться с результатами оценки
+                    if ((today.Day == 5 || today.Day == 8) && user.SystemRoles.Contains(SystemRoles.Supervisor))
+                    {
+                        var subordinateUsers = await GetSubordinateUsers(user.Id);
+                        var subordinateUsersWithPreviousMonthPendingGrade = subordinateUsers
+                            .Where(x => x.Grades
+                                .Any(x =>
+                                    x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING));
 
-                    //    foreach (var assessmentResult in appointedThisMonthCorporateAssessmentResults)
-                    //    {
-                    //        var userId = assessmentResult.Assessment.UserId;
-                    //        var supervisorForUser = GetSupervisorForUser(userId);
+                        // Есть сотрудники с назначенными оценками в прошлом месяце
+                        if (subordinateUsersWithPreviousMonthPendingGrade.Any())
+                        {
+                            if (today.Day == 5)
+                            {
+                                var template = LoadEmailTemplate("CreateValueJudgmentAndApproveEmployeeNotificationTemplate.html");
 
-                    //        // Если пользователь является непосредственным руководителем оцениваемого
-                    //        if (supervisorForUser != null && supervisorForUser.Id == user.Id)
-                    //        {
-                    //            continue;
-                    //        }
+                                foreach (var subUserWithPrevMonthGrade in subordinateUsersWithPreviousMonthPendingGrade)
+                                {
+                                    var mailBody = template.Replace("{UserFullName}", subUserWithPrevMonthGrade.FullName).Replace("{SubordinateUserContractEndDate}", subUserWithPrevMonthGrade.ContractEndDate.ToString());
+                                    var mailTitle = $"КОП. {subUserWithPrevMonthGrade.FullName}. Ознакомьтесь с результатами оценки";
 
-                    //        var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateCorporateCompeteciesAssessmentNotification);
+                                    var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                    await _emailSender.SendEmailAsync(message);
+                                }
+                            }
+                            else if (today.Day == 8)
+                            {
+                                var template = LoadEmailTemplate("CreateValueJudgmentAndApproveEmployeeReminderTemplate.html");
 
-                    //        if (mail == null)
-                    //        {
-                    //            await HandleErrorAsync("Не найдено сообщение для отправки оценщикам 15 числа месяца оценки");
-                    //        }
-                    //        else
-                    //        {
-                    //            var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                    //            await _emailSender.SendEmailAsync(message);
-                    //        }
-                    //    }
-                    //}
-                    //// УРП 1 числа месяца, следующего за месяцем оценки
-                    //// Оставить выводы по криетриям: результаты деятельности, КПЭ, квалификация
-                    //if (today.Day == 1 && user.SystemRoles.Contains(SystemRoles.Urp))
-                    //{
-                    //    var usersWithPreviousMonthPendingGrade = users
-                    //        .Where(x => x.Grades
-                    //            .Any(x =>
-                    //                x.DateOfCreation.AddMonths(1).Month == today.Month &&
-                    //                x.DateOfCreation.Year == today.Year &&
-                    //                x.SystemStatus == SystemStatuses.PENDING));
+                                foreach (var subUserWithPrevMonthGrade in subordinateUsersWithPreviousMonthPendingGrade)
+                                {
+                                    var mailBody = template.Replace("{UserFullName}", subUserWithPrevMonthGrade.FullName).Replace("{SubordinateUserContractEndDate}", subUserWithPrevMonthGrade.ContractEndDate.ToString());
+                                    var mailTitle = $"КОП. {subUserWithPrevMonthGrade.FullName}. Ознакомьтесь с результатами оценки";
 
-                    //    // Есть сотрудники с назначенными оценками в прошлом месяце
-                    //    if (usersWithPreviousMonthPendingGrade.Any())
-                    //    {
-                    //        var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateConclusionsAndCheckGradeNotification);
+                                    var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                    await _emailSender.SendEmailAsync(message);
+                                }
+                            }
+                        }
+                    }
+                    // Оцениваемым сотрудникам 10 и 13 числа месяца, следующего за месяцем оценки
+                    // Ознакомиться с результатами оценки
+                    if ((today.Day == 10 || today.Day == 13) && user.SystemRoles.Contains(SystemRoles.Employee))
+                    {
+                        var thisMonthPendingGrade = user.Grades
+                            .FirstOrDefault(x =>
+                                x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                x.DateOfCreation.Year == today.Year &&
+                                x.SystemStatus == SystemStatuses.PENDING);
 
-                    //        if (mail == null)
-                    //        {
-                    //            await HandleErrorAsync("Не найдено сообщение для отправки УРП 1 числа месяца, следующего за месяцем оценки");
-                    //        }
-                    //        else
-                    //        {
-                    //            var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                    //            await _emailSender.SendEmailAsync(message);
-                    //        }
-                    //    }
-                    //}
-                    //// Непосредственным руководителям 5 и 8 числа месяца, следующего за месяцем оценки
-                    //// Оставить ОС от руководителя и ознакомиться с результатами оценки
-                    //if ((today.Day == 5 || today.Day == 8) && user.SystemRoles.Contains(SystemRoles.Supervisor))
-                    //{
-                    //    var subordinateUsers = await GetSubordinateUsers(user.Id);
-                    //    var subordinateUsersWithPreviousMonthPendingGrade = subordinateUsers
-                    //        .Where(x => x.Grades
-                    //            .Any(x =>
-                    //                x.DateOfCreation.AddMonths(1).Month == today.Month &&
-                    //                x.DateOfCreation.Year == today.Year &&
-                    //                x.SystemStatus == SystemStatuses.PENDING));
+                        // Есть назначенные оценки в прошлом месяце
+                        if (thisMonthPendingGrade != null)
+                        {
+                            if (today.Day == 10)
+                            {
+                                var template = LoadEmailTemplate("CreateApprovementByEmployeeNotificationTemplate.html");
+                                var mailBody = template.Replace("{SubordinateUserContractEndDate}", user.ContractEndDate.ToString());
+                                var mailTitle = $"КОП. {user.FullName}. Ознакомьтесь с результатами оценки";
 
-                    //    // Есть сотрудники с назначенными оценками в прошлом месяце
-                    //    if (subordinateUsersWithPreviousMonthPendingGrade.Any())
-                    //    {
-                    //        Mail? mail = null;
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
 
-                    //        if (today.Day == 5)
-                    //        {
-                    //            mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateValueJudgmentAndApproveEmployeeNotification);
-                    //        }
-                    //        else if (today.Day == 8)
-                    //        {
-                    //            mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateValueJudgmentAndApproveEmployeeReminder);
-                    //        }
+                            }
+                            else if (today.Day == 13)
+                            {
+                                var template = LoadEmailTemplate("CreateApprovementByEmployeeReminderTemplate.html");
+                                var mailBody = template.Replace("{SubordinateUserContractEndDate}", user.ContractEndDate.ToString());
+                                var mailTitle = $"КОП. {user.FullName}. Ознакомьтесь с результатами оценки";
 
-                    //        if (mail == null)
-                    //        {
-                    //            await HandleErrorAsync("Не найдено сообщение для отправки непосредственным руковолителям 5 или 8 числа месяца, следующего за месяцем оценки");
-                    //        }
-                    //        else
-                    //        {
-                    //            var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                    //            await _emailSender.SendEmailAsync(message);
-                    //        }
-                    //    }
-                    //}
-                    //// Оцениваемым сотрудникам 10 и 13 числа месяца, следующего за месяцем оценки
-                    //// Ознакомиться с результатами оценки
-                    //if ((today.Day == 10 || today.Day == 13) && user.SystemRoles.Contains(SystemRoles.Employee))
-                    //{
-                    //    var thisMonthPendingGrade = user.Grades
-                    //        .FirstOrDefault(x =>
-                    //            x.DateOfCreation.AddMonths(1).Month == today.Month &&
-                    //            x.DateOfCreation.Year == today.Year &&
-                    //            x.SystemStatus == SystemStatuses.PENDING);
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+                            }
+                        }
+                    }
+                    // УРП 15 числа месяца, следующего за месяцем оценки
+                    // Выгрузить результаты оценки
+                    if (today.Day == 15 && user.SystemRoles.Contains(SystemRoles.Urp))
+                    {
+                        var usersWithPreviousMonthPendingGrade = users
+                            .Where(x => x.Grades
+                                .Any(x =>
+                                    x.DateOfCreation.AddMonths(1).Month == today.Month &&
+                                    x.DateOfCreation.Year == today.Year &&
+                                    x.SystemStatus == SystemStatuses.PENDING));
 
-                    //    // Есть назначенные оценки в прошлом месяце
-                    //    if (thisMonthPendingGrade != null)
-                    //    {
-                    //        Mail? mail = null;
+                        // Есть сотрудники с назначенными оценками в прошлом месяце
+                        if (usersWithPreviousMonthPendingGrade.Any())
+                        {
+                            var template = LoadEmailTemplate("CreateReportAndCheckAssessmentCompletionNotificationTemplate.html");
 
-                    //        if (today.Day == 10)
-                    //        {
-                    //            mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateApprovementByEmployeeNotification);
-                    //        }
-                    //        else if (today.Day == 13)
-                    //        {
-                    //            mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateApprovementByEmployeeReminder);
-                    //        }
+                            foreach (var userWithPrevMonthGrade in usersWithPreviousMonthPendingGrade)
+                            {
+                                var mailBody = template.Replace("{SubordinateUserFullName}", userWithPrevMonthGrade.FullName);
+                                var mailTitle = $"КОП. {userWithPrevMonthGrade.FullName}. Выгрузите результаты оценки";
 
-                    //        if (mail == null)
-                    //        {
-                    //            await HandleErrorAsync("Не найдено сообщение для отправки оцениваемым сотрудникам 10 или 13 числа месяца, следующего за месяцем оценки");
-                    //        }
-                    //        else
-                    //        {
-                    //            var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                    //            await _emailSender.SendEmailAsync(message);
-                    //        }
-                    //    }
-                    //}
-                    //// УРП 15 числа месяца, следующего за месяцем оценки
-                    //// Выгрузить результаты оценки
-                    //if (today.Day == 15 && user.SystemRoles.Contains(SystemRoles.Urp))
-                    //{
-                    //    var usersWithPreviousMonthPendingGrade = users
-                    //        .Where(x => x.Grades
-                    //            .Any(x =>
-                    //                x.DateOfCreation.AddMonths(1).Month == today.Month &&
-                    //                x.DateOfCreation.Year == today.Year &&
-                    //                x.SystemStatus == SystemStatuses.PENDING));
-
-                    //    // Есть сотрудники с назначенными оценками в прошлом месяце
-                    //    if (usersWithPreviousMonthPendingGrade.Any())
-                    //    {
-                    //        var mail = mails.FirstOrDefault(x => x.Code == MailCodes.CreateReportAndCheckAssessmentCompletionNotification);
-
-                    //        if (mail == null)
-                    //        {
-                    //            await HandleErrorAsync("Не найдено сообщение для отправки УРП 15 числа месяца, следующего за месяцем оценки");
-                    //        }
-                    //        else
-                    //        {
-                    //            var message = new Message([user.Email], mail.Title, mail.Body, user.FullName);
-                    //            await _emailSender.SendEmailAsync(message);
-                    //        }
-                    //    }
-                    //}
+                                var message = new Message([user.Email], mailTitle, mailBody, user.FullName);
+                                await _emailSender.SendEmailAsync(message);
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    await HandleErrorAsync(ex.Message);
+                    _logger.Error($"Error while checking user with ID {user.Id} for notifications: {ex.Message}");
+                    continue;
                 }
             }
         }
 
-        private async Task<IEnumerable<User>> GetSubordinateUsers(int supervisorId)
+        private async Task<List<User>> GetSubordinateUsers(int supervisorId)
         {
             var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId, includeProperties: [
                     "SubordinateSubdivisions.Users.Grades",
@@ -352,7 +364,7 @@ namespace KOP.Import.Services
             return allSubordinateUsers;
         }
 
-        private async Task<IEnumerable<User>> GetSubordinateUsers(Subdivision subdivision)
+        private async Task<List<User>> GetSubordinateUsers(Subdivision subdivision)
         {
             var subordinateUsers = new List<User>();
 

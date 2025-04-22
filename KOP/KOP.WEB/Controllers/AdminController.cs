@@ -6,7 +6,6 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
@@ -111,7 +110,7 @@ namespace KOP.WEB.Controllers
                     return BadRequest($"User with ID {userId} not found.");
                 }
 
-                var allsubdivisions  = await _unitOfWork.Subdivisions.GetAllAsync();
+                var allsubdivisions = await _unitOfWork.Subdivisions.GetAllAsync();
                 var userSubdivisions = user.SubordinateSubdivisions;
 
                 var viewModel = new UserSubordinatesViewModel
@@ -119,7 +118,7 @@ namespace KOP.WEB.Controllers
                     UserId = user.Id,
                 };
 
-                foreach(var subdivision in allsubdivisions)
+                foreach (var subdivision in allsubdivisions)
                 {
                     viewModel.Subdivisions.Add(new SubdivisionSummaryDto
                     {
@@ -371,7 +370,7 @@ namespace KOP.WEB.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Urp")]
-        public async Task<IActionResult> UpdateUserSubordinates([FromBody]UserSubordinatesViewModel viewModel)
+        public async Task<IActionResult> UpdateUserSubordinates([FromBody] UserSubordinatesViewModel viewModel)
         {
             if (viewModel.UserId <= 0)
             {

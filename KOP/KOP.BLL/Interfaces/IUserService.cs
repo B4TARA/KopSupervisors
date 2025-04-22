@@ -8,7 +8,7 @@ namespace KOP.BLL.Interfaces
     {
         Task<UserDto> GetUserDto(int userId);
         Task<List<AssessmentDto>> GetUserLastGradeAssessmentDtoList(int userId);
-        Task<List<GradeSummaryDto>> GetUserGradeSummaryDtoList(int userId);
+        Task<List<GradeReducedDto>> GetUserGradeSummaryDtoList(int userId);
         Task<List<AssessmentResultDto>> GetColleaguesAssessmentResultsForAssessment(int userId);
 
         Task AssessUser(AssessUserDto assessUserDto);

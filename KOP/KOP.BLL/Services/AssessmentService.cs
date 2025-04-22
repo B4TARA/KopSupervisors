@@ -1,10 +1,8 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
-using KOP.DAL.Entities.AssessmentEntities;
+using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
-using KOP.EmailService;
-using Microsoft.Extensions.Configuration;
 
 namespace KOP.BLL.Services
 {
@@ -12,64 +10,30 @@ namespace KOP.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
-        private readonly IEmailSender _emailSender;
-        private readonly IConfiguration _configuration;
-        private readonly ICommonService _commonService;
 
-        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService, IEmailSender emailSender,
-            IConfiguration configuration, ICommonService commonService)
+        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService)
         {
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
-            _emailSender = emailSender;
-            _configuration = configuration;
-            _commonService = commonService;
         }
 
-        public async Task<AssessmentDto> GetAssessment(int id)
+        public async Task<AssessmentDto?> GetAssessment(int id)
         {
             var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == id,
-                includeProperties: new string[]{
+                includeProperties: [
                     "AssessmentType.AssessmentInterpretations",
                     "AssessmentType.AssessmentMatrix.Elements",
                     "AssessmentResults.AssessmentResultValues",
                     "AssessmentResults.Judge",
-                    "User",
-                });
+                    "User" ]);
 
             if (assessment == null)
-            {
-                throw new Exception($"Assessment with ID {id} not found.");
-            }
-
-            var assessmentDto = _mappingService.CreateAssessmentDto(assessment);
-            return assessmentDto;
-        }
-
-        public async Task<AssessmentResultDto?> GetAssessmentResult(int judgeId, int assessmentId)
-        {
-            var assessmentResult = await _unitOfWork.AssessmentResults.GetAsync(
-                x => x.AssessmentId == assessmentId && x.JudgeId == judgeId,
-                includeProperties: new string[]
-                {
-                    "Judge",
-                    "AssessmentResultValues",
-                    "Assessment.AssessmentType.AssessmentMatrix.Elements",
-                    "Assessment.User",
-                }
-            );
-
-            if (assessmentResult == null)
             {
                 return null;
             }
 
-            var assessmentResultDto = _mappingService.CreateAssessmentResultDto(
-                assessmentResult,
-                assessmentResult.Assessment.AssessmentType
-            );
-
-            return assessmentResultDto;
+            var assessmentDto = _mappingService.CreateAssessmentDto(assessment);
+            return assessmentDto;
         }
 
         public async Task<AssessmentSummaryDto> GetAssessmentSummary(int assessmentId)
@@ -152,20 +116,6 @@ namespace KOP.BLL.Services
                     .OrderBy(x => x.Key)
                     .ToList()
             };
-        }
-
-        private IEnumerable<AssessmentResultValueDto> GetAssessmentResultValues(AssessmentResult result)
-        {
-            if (result == null || result.AssessmentResultValues == null)
-            {
-                return Enumerable.Empty<AssessmentResultValueDto>();
-            }
-
-            return result.AssessmentResultValues.Select(value => new AssessmentResultValueDto
-            {
-                Value = value.Value,
-                AssessmentMatrixRow = value.AssessmentMatrixRow,
-            });
         }
 
         private double CalculateAverage(List<AssessmentResultValueDto> values)
@@ -298,80 +248,25 @@ namespace KOP.BLL.Services
             return pendingAssessmentResults.Any();
         }
 
-        public async Task DeleteJudgeForAssessment(int assessmentResultId)
-        {
-            var assessmentResultToDelete = await _unitOfWork.AssessmentResults.GetAsync(x => x.Id == assessmentResultId);
-
-            if (assessmentResultToDelete == null)
-            {
-                throw new Exception($"AssessmentResult with ID {assessmentResultId} not found.");
-            }
-
-            if (assessmentResultToDelete.SystemStatus == SystemStatuses.COMPLETED)
-            {
-                throw new Exception($"AssessmentResult with ID {assessmentResultId} has completed status already.");
-            }
-
-            _unitOfWork.AssessmentResults.Remove(assessmentResultToDelete);
-            await _unitOfWork.CommitAsync();
-        }
-
-        public async Task AddJudgeForAssessment(int judgeId, int assessmentId, int assignerId)
-        {
-            var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentId);
-            if (assessment == null)
-            {
-                throw new Exception($"Assessment with ID {assessmentId} not found.");
-            }
-
-            var judge = await _unitOfWork.Users.GetAsync(x => x.Id == judgeId);
-            if (judge == null)
-            {
-                throw new Exception($"Judge with ID {judgeId} not found.");
-            }
-
-            var existingAssessmentResult = await _unitOfWork.AssessmentResults.GetAsync(
-                x => x.AssessmentId == assessmentId && x.JudgeId == judgeId && x.AssignedBy != null
-            );
-
-            if (existingAssessmentResult != null)
-            {
-                throw new InvalidOperationException($"AssessmentResult with JudgeId {judgeId} and AssessmentId {assessmentId} already exists.");
-            }
-
-            var assessmentResultToAdd = new AssessmentResult
-            {
-                SystemStatus = SystemStatuses.PENDING,
-                JudgeId = judgeId,
-                AssessmentId = assessmentId,
-                Type = AssessmentResultTypes.ColleagueAssessment,
-                AssignedBy = assignerId,
-            };
-
-            await _unitOfWork.AssessmentResults.AddAsync(assessmentResultToAdd);
-            await _unitOfWork.CommitAsync();
-
-            var mail = await _unitOfWork.Mails.GetAsync(x => x.Code == MailCodes.CreateCorporateCompeteciesAssessmentNotification);
-
-            if (mail == null)
-            {
-                var addressee = new string[] { "ebaturel@mtb.minsk.by" };
-                var messageBody = "Не найдено сообщение для отправки оценщикам при назначении";
-                var errorMessage = new Message(addressee, "Ошибка веб-приложения", messageBody, "Батурель Евгений Дмитриевич");
-                await _emailSender.SendEmailAsync(errorMessage);
-            }
-            else
-            {
-                var message = new Message([judge.Email], mail.Title, mail.Body, judge.FullName);
-                await _emailSender.SendEmailAsync(message);
-            }
-        }
-
         public async Task<int> GetMatrixColumnForAssessmentValue(int value)
         {
             var assessmentRange = await _unitOfWork.AssessmentRanges.GetAsync(x => x.MinRangeValue <= value && value <= x.MaxRangeValue);
 
             return assessmentRange.ColumnNumber;
+        }
+
+        private IEnumerable<AssessmentResultValueDto> GetAssessmentResultValues(AssessmentResult result)
+        {
+            if (result == null || result.AssessmentResultValues == null)
+            {
+                return Enumerable.Empty<AssessmentResultValueDto>();
+            }
+
+            return result.AssessmentResultValues.Select(value => new AssessmentResultValueDto
+            {
+                Value = value.Value,
+                AssessmentMatrixRow = value.AssessmentMatrixRow,
+            }).ToList();
         }
     }
 }

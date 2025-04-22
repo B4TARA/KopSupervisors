@@ -729,30 +729,6 @@ namespace KOP.DAL.Migrations
                     b.ToTable("ValueJudgments");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.Mail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Code")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Mails");
-                });
-
             modelBuilder.Entity("KOP.DAL.Entities.Subdivision", b =>
                 {
                     b.Property<int>("Id")

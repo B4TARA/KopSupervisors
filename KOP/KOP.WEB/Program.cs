@@ -7,103 +7,68 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Globalization;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
+var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("WebApiDatabase");
+var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ru-RU") };
 
-Log.Information("Starting up!");
+builder.Services.AddSerilog((services, lc) => lc
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console());
 
-try
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
-    var builder = WebApplication.CreateBuilder(args);
+    options.Cookie.Name = "KopSupervisorsAuthCookie";
+    options.LoginPath = new PathString("/Account/Login");
+    options.AccessDeniedPath = new PathString("/Account/AccessDenied");
+    options.ExpireTimeSpan = TimeSpan.FromHours(48);
+});
 
-    builder.Services.AddSerilog((services, lc) => lc
-        .ReadFrom.Configuration(builder.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console());
+builder.Services.InitializeRepositories();
+builder.Services.InitializeServices();
 
-    var connection = builder.Configuration.GetConnectionString("WebApiDatabase");
+builder.Services.AddDistributedMemoryCache();
 
-    builder.Services.AddControllersWithViews();
-
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connection));
-
-    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-    {
-        options.LoginPath = new PathString("");
-        options.AccessDeniedPath = new PathString("/Account/Logout");
-        options.ExpireTimeSpan = TimeSpan.FromHours(48);
-    });
-
-    builder.Services.AddAuthorization();
-
-    builder.Services.InitializeRepositories();
-    builder.Services.InitializeServices();
-
-    builder.Services.AddDistributedMemoryCache();
-    builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromHours(48);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    });
-
-    builder.Services.ConfigureApplicationCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-    });
-
-    builder.Services.Configure<RequestLocalizationOptions>(options =>
-    {
-        var supportedCultures = new[]
-        {
-            new CultureInfo("en-US"),
-            new CultureInfo("ru-RU")
-            };
-
-        options.DefaultRequestCulture = new RequestCulture("ru-RU");
-        options.SupportedCultures = supportedCultures;
-        options.SupportedUICultures = supportedCultures;
-    });
-
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
-    {
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseExceptionHandler("/Home/Error");
-        app.UseHsts();
-    }
-    else
-    {
-        app.UseMiddleware<UrlPrefixMiddleware>();
-    }
-
-    app.UseSerilogRequestLogging();
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
-    app.UseRouting();
-    app.UseAuthentication();
-    app.UseAuthorization();
-    app.UseSession();
-    app.UseRequestLocalization();
-
-    app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-
-    app.Run();
-
-    Log.Information("Stopped cleanly");
-}
-catch (Exception ex)
+builder.Services.AddSession(options =>
 {
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
+    options.Cookie.Name = "KopSupervisorsSessionCookie";
+    options.IdleTimeout = TimeSpan.FromHours(48);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    Log.CloseAndFlush();
+    options.DefaultRequestCulture = new RequestCulture("ru-RU");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
+var app = builder.Build();
+
+if (app.Environment.IsProduction())
+{
+    app.UseHsts();
 }
+else if(app.Environment.IsDevelopment())
+{
+    app.UseMiddleware<UrlPrefixMiddleware>();
+}
+
+app.UseSerilogRequestLogging();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseSession();
+app.UseRequestLocalization();
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

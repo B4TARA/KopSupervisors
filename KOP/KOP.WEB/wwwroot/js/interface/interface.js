@@ -63,7 +63,6 @@ function toggleSelectButton(button) {
 
 /******POPUP ALERT*******/
 function closeBtnPopup(item, isReload) {
-    console.log(item)
     // Проверяем, является ли переданный элемент тем, который нужно обработать
     if (item && item.id === 'disagreeBtnConfirm') {
         // Находим родительский элемент с классом 'section_popup'

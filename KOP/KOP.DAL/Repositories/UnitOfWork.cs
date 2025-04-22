@@ -1,8 +1,4 @@
 ﻿using KOP.DAL.Interfaces;
-using KOP.DAL.Interfaces.AssessmentInterfaces;
-using KOP.DAL.Interfaces.GradeInterfaces;
-using KOP.DAL.Repositories.AssessmentRepositories;
-using KOP.DAL.Repositories.GradeRepositories;
 
 namespace KOP.DAL.Repositories
 {
@@ -31,7 +27,6 @@ namespace KOP.DAL.Repositories
         private IStrategicTaskRepository? strategicTaskRepository;
         private ITrainingEventRepository? trainingEventRepository;
         private IValueJudgmentRepository? valueJudgmentRepository;
-        private IMailRepository? mailRepository;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -245,16 +240,6 @@ namespace KOP.DAL.Repositories
                 if (valueJudgmentRepository == null)
                     valueJudgmentRepository = new ValueJudgmentRepository(_dbContext);
                 return valueJudgmentRepository;
-            }
-        }
-
-        public IMailRepository Mails
-        {
-            get
-            {
-                if (mailRepository == null)
-                    mailRepository = new MailRepository(_dbContext);
-                return mailRepository;
             }
         }
 

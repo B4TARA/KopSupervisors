@@ -17,27 +17,27 @@ namespace KOP.WEB.Controllers
     public class SupervisorController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly ISupervisorService _supervisorService;
         private readonly IAssessmentService _assessmentService;
+        private readonly IAssessmentResultService _assessmentResultService;
         private readonly IUserService _userService;
         private readonly ICommonService _commonService;
         private readonly ILogger<SupervisorController> _logger;
 
         public SupervisorController(IUnitOfWork unitOfWork, ISupervisorService supervisorService, IAssessmentService assessmentService,
-            IUserService userService, ICommonService commonService, ILogger<SupervisorController> logger)
+            IAssessmentResultService assessmentResultService, IUserService userService, ICommonService commonService, ILogger<SupervisorController> logger)
         {
             _unitOfWork = unitOfWork;
-
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
+            _assessmentResultService = assessmentResultService;
             _userService = userService;
             _commonService = commonService;
             _logger = logger;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public IActionResult GetSupervisorLayout()
         {
             try
@@ -65,7 +65,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
             if (supervisorId <= 0)
@@ -101,7 +101,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetEmployeeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -144,7 +144,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetEmployeeGradeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -215,7 +215,7 @@ namespace KOP.WEB.Controllers
                     return PartialView("_EmployeeGradeLayoutPartial", viewModel);
                 }
 
-                var supervisor = await _commonService.GetSupervisorForUser(employeeId);
+                var supervisor = await _commonService.GetFirstSupervisorForUser(employeeId);
                 if (supervisor == null)
                 {
                     _logger.LogWarning($"Supervisor for user with ID {employeeId} not found.");
@@ -239,7 +239,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop")]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -273,7 +273,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop")]
         public async Task<IActionResult> GetEmployeeAssessment(int assessmentId)
         {
             if (assessmentId <= 0)
@@ -300,7 +300,7 @@ namespace KOP.WEB.Controllers
                     return NotFound("Assessment not found.");
                 }
 
-                var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
+                var assessmentResult = await _assessmentResultService.GetAssessmentResultDto(currentUserId, assessmentId);
 
                 var userRoles = User.Claims
                     .Where(c => c.Type == ClaimTypes.Role)
@@ -328,9 +328,9 @@ namespace KOP.WEB.Controllers
 
                 if (supervisorResult == null)
                 {
-                    var supervisorForCurrentUser = await _commonService.GetSupervisorForUser(userId);
+                    var supervisorForCurrentUser = await _commonService.GetFirstSupervisorForUser(userId);
                     supervisorId = supervisorForCurrentUser?.Id;
-                 }
+                }
                 else
                 {
                     supervisorId = supervisorResult.Judge.Id;
@@ -377,7 +377,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetAnalyticsLayout()
         {
             try
@@ -407,7 +407,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetReportLayout()
         {
             try
@@ -437,7 +437,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
             if (requestModel.assessmentId <= 0)
@@ -466,7 +466,7 @@ namespace KOP.WEB.Controllers
 
                 foreach (var judgeId in judgesIds)
                 {
-                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), requestModel.assessmentId, currentUserId);
+                    await _assessmentResultService.CreatePendingColleagueAssessmentResult(Convert.ToInt32(judgeId), requestModel.assessmentId, currentUserId);
                 }
 
                 return Ok("Сохранение прошло успешно");
@@ -484,7 +484,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> DeleteJudge([FromBody] int assessmentResultId)
         {
             if (assessmentResultId <= 0)
@@ -496,7 +496,7 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);
+                await _assessmentResultService.DeletePendingColleagueAssessmentResult(assessmentResultId);
 
                 return Ok("Удаление прошло успешно");
             }
@@ -512,7 +512,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> ApproveEmployeeGrade([FromBody] int gradeId)
         {
             if (gradeId <= 0)

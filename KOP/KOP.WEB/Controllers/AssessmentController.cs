@@ -22,7 +22,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Employee, Urp, Curator, Uop")]
         public async Task<IActionResult> GetCorporateCompetenciesPopup(int gradeId)
         {
             if (gradeId <= 0)
@@ -70,7 +70,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Employee, Urp, Curator, Uop")]
         public async Task<IActionResult> GetManagmentCompetenciesPopup(int gradeId)
         {
             if (gradeId <= 0)

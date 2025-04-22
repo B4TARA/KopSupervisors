@@ -1,7 +1,4 @@
-﻿using KOP.DAL.Interfaces.AssessmentInterfaces;
-using KOP.DAL.Interfaces.GradeInterfaces;
-
-namespace KOP.DAL.Interfaces
+﻿namespace KOP.DAL.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
@@ -26,7 +23,6 @@ namespace KOP.DAL.Interfaces
         IStrategicTaskRepository StrategicTasks { get; }
         ITrainingEventRepository TrainingEvents { get; }
         IValueJudgmentRepository ValueJudgments { get; }
-        IMailRepository Mails { get; }
 
         void Commit();
         void Rollback();

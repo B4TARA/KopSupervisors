@@ -1,6 +1,4 @@
 ﻿using KOP.Common.Enums;
-using KOP.DAL.Entities.AssessmentEntities;
-using KOP.DAL.Entities.GradeEntities;
 
 namespace KOP.DAL.Entities
 {

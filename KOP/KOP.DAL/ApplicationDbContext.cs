@@ -1,6 +1,4 @@
 ﻿using KOP.DAL.Entities;
-using KOP.DAL.Entities.AssessmentEntities;
-using KOP.DAL.Entities.GradeEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOP.DAL
@@ -9,8 +7,6 @@ namespace KOP.DAL
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            //Database.EnsureDeleted();
-            //Database.EnsureCreated();
         }
 
         public DbSet<AssessmentInterpretation> AssessmentInterpretations { get; set; }
@@ -28,12 +24,12 @@ namespace KOP.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<Qualification> Qualifications { get; set; }
         public DbSet<Mark> Marks { get; set; }
-        public DbSet<Mail> Mails { get; set; }
         public DbSet<MarkType> MarkTypes { get; set; }
         public DbSet<Subdivision> Subdivisions { get; set; }
         public DbSet<StrategicTask> StrategicTasks { get; set; }
         public DbSet<TrainingEvent> TrainingEvents { get; set; }
         public DbSet<ValueJudgment> ValueJudgments { get; set; }
+        public DbSet<HigherEducation> HigherEducations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

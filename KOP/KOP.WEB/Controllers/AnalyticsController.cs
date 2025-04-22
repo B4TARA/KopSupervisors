@@ -18,7 +18,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetAssessmentAnalytics(int userId)
         {
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: "Grades.Assessments.AssessmentType");
@@ -93,7 +93,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetCompetenciesAnalytics(int userId)
         {
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: "Grades.Assessments.AssessmentType");

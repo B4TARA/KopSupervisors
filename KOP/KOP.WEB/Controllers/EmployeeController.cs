@@ -22,7 +22,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public IActionResult GetEmployeeLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -41,7 +41,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -58,7 +58,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetGradeLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -104,23 +104,22 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetColleaguesAssessment()
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> GetColleaguesAssessmentResultsForAssessment()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-            var colleaguesAssessmentResultsForAssessment = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
+            var assessmentResultDtoList = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
 
             var viewModel = new ColleagueAssessmentViewModel
             {
-                ColleagueAssessmentResultDtoList = colleaguesAssessmentResultsForAssessment,
+                ColleagueAssessmentResultDtoList = assessmentResultDtoList,
             };
 
             return PartialView("_ColleaguesAssessmentPartial", viewModel);
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessment(int assessmentId)
         {
             try
@@ -141,7 +140,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -156,7 +155,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Employee")]
         public async Task<IActionResult> AssessUser([FromBody] AssessUserRequestModel requestModel)
         {
             var assessUserDTO = new AssessUserDto
@@ -171,7 +170,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> ApproveGrade([FromBody] int gradeId)
         {
             try
@@ -191,7 +190,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetGrades(int userId)
         {
             try

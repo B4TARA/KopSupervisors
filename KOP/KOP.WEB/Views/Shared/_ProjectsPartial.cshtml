@@ -36,7 +36,7 @@ else
 					@if (Model.EditAccess)
 					{
 						<div class="description">
-							Выполнение стратегических проектов за отчетный период, Qn2 <input type="number" asp-for="Qn2" value="@Model.Qn2" disabled="@(Model.EditAccess ? null : "disabled")" style="width:100px;"> %
+							Выполнение стратегических проектов за отчетный период, Qn2 = <input type="number" asp-for="Qn2" disabled="@(Model.EditAccess ? null : "disabled")" style="width:100px;"> %
 						</div>
 					}
 					else
@@ -121,7 +121,7 @@ else
 								Коэффициент успешности проекта
 								@if (Model.EditAccess)
 								{
-									<input type="number" asp-for="Projects[i].SuccessRate" value="@project.SuccessRate" disabled="@(Model.EditAccess ? null : "disabled")" />
+									<input type="number" asp-for="Projects[i].SuccessRate" disabled="@(Model.EditAccess ? null : "disabled")" />
 								}
 								else
 								{

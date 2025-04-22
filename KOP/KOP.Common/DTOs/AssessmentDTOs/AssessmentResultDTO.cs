@@ -5,7 +5,7 @@ namespace KOP.Common.Dtos.AssessmentDtos
     public class AssessmentResultDto
     {
         public int Id { get; set; }
-        public int AssessmentId { get; set; }
+        public int AssessmentTypeId { get; set; }
 
         public string TypeName { get; set; }
         public int Sum { get; set; }
@@ -19,12 +19,8 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public UserDto Judge { get; set; } = new();
         public UserDto Judged { get; set; } = new();
 
-        public List<AssessmentResultValueDto> AverageValues { get; set; } = new();
         public List<AssessmentResultValueDto> Values { get; set; } = new();
         public List<AssessmentMatrixElementDto> Elements { get; set; } = new();
         public List<IGrouping<int, AssessmentMatrixElementDto>> ElementsByRow { get; set; } = new();
-
-        public double AverageResult { get; set; }
-        public int PlanValue { get; set; }
     }
 }

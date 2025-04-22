@@ -2,6 +2,7 @@
 using KOP.Common.Dtos.AccountDtos;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -30,8 +31,13 @@ namespace KOP.WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            // Очищаем сессии
+            HttpContext.Session.Clear();
+
+            // Выходим из системы
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+            // Перенаправляем на страницу входа
             return RedirectToAction("Login", "Account");
         }
 
@@ -71,6 +77,12 @@ namespace KOP.WEB.Controllers
             }
 
             return Ok(new { message = remindPasswordResponse.Description });
+        }
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

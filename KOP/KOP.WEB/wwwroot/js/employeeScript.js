@@ -42,7 +42,7 @@ async function getColleaguesAssessment() {
         selfAssessmentLinkItem.classList.remove("active");
         colleaguesAssessmentLinkItem.classList.add("active");
 
-        let response = await fetch(`/supervisors/Employee/GetColleaguesAssessment`);
+        let response = await fetch(`/supervisors/Employee/GetColleaguesAssessmentResultsForAssessment`);
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
     } catch (error) {

@@ -1,18 +1,22 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
-using KOP.DAL.Entities.GradeEntities;
+using KOP.DAL;
+using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace KOP.BLL.Services
 {
     public class GradeService : IGradeService
     {
+        private readonly ApplicationDbContext _dbContext;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
 
-        public GradeService(IUnitOfWork unitOfWork, IMappingService mappingService)
+        public GradeService(ApplicationDbContext dbContext, IUnitOfWork unitOfWork, IMappingService mappingService)
         {
+            _dbContext = dbContext;
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
         }
@@ -63,10 +67,10 @@ namespace KOP.BLL.Services
 
             return gradeDto;
         }
-
+  
         public async Task EditGrade(GradeDto dto)
         {
-            var grade = await _unitOfWork.Grades.GetAsync(x => x.Id == dto.Id);
+            var grade = await _dbContext.Grades.FirstOrDefaultAsync(x => x.Id == dto.Id);
 
             if (grade == null)
             {
@@ -198,95 +202,87 @@ namespace KOP.BLL.Services
             grade.IsKpisFinalized = dto.IsKpisFinalized;
             grade.IsMarksFinalized = dto.IsMarksFinalized;
             grade.IsQualificationFinalized = dto.IsQualificationFinalized;
-            grade.IsValueJudgmentFinalized = dto.IsValueJudgmentFinalized;
 
-            _unitOfWork.Grades.Update(grade);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.Grades.Update(grade);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteStrategicTask(int id)
         {
-            var strategicTaskToDelete = await _unitOfWork.StrategicTasks.GetAsync(x => x.Id == id);
+            var strategicTaskToDelete = await _dbContext.StrategicTasks.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (strategicTaskToDelete is null)
+            if (strategicTaskToDelete == null)
             {
                 throw new Exception($"StrategicTask with ID {id} not found.");
             }
 
-            _unitOfWork.StrategicTasks.Remove(strategicTaskToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.StrategicTasks.Remove(strategicTaskToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteProject(int id)
         {
-            var projectToDelete = await _unitOfWork.Projects.GetAsync(x => x.Id == id);
+            var projectToDelete = await _dbContext.Projects.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (projectToDelete is null)
+            if (projectToDelete == null)
             {
                 throw new Exception($"Project with ID {id} not found.");
             }
 
-            _unitOfWork.Projects.Remove(projectToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.Projects.Remove(projectToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteKpi(int id)
         {
-            var kpiToDelete = await _unitOfWork.Kpis.GetAsync(x => x.Id == id);
+            var kpiToDelete = await _dbContext.Kpis.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (kpiToDelete is null)
+            if (kpiToDelete == null)
             {
                 throw new Exception($"KPI with ID {id} not found.");
             }
 
-            _unitOfWork.Kpis.Remove(kpiToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.Kpis.Remove(kpiToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteMark(int id)
         {
-            var markToDelete = await _unitOfWork.Marks.GetAsync(x => x.Id == id);
+            var markToDelete = await _dbContext.Marks.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (markToDelete is null)
+            if (markToDelete == null)
             {
                 throw new Exception($"Mark with ID {id} not found.");
             }
 
-            _unitOfWork.Marks.Remove(markToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.Marks.Remove(markToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeletePreviousJob(int id)
         {
-            var previousJobToDelete = await _unitOfWork.PreviousJobs.GetAsync(x => x.Id == id);
+            var previousJobToDelete = await _dbContext.PreviousJobs.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (previousJobToDelete is null)
+            if (previousJobToDelete == null)
             {
                 throw new Exception($"PreviousJob with ID {id} not found.");
             }
 
-            _unitOfWork.PreviousJobs.Remove(previousJobToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.PreviousJobs.Remove(previousJobToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteHigherEducation(int id)
         {
-            var higherEducationToDelete = await _unitOfWork.HigherEducations.GetAsync(x => x.Id == id);
+            var higherEducationToDelete = await _dbContext.HigherEducations.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (higherEducationToDelete is null)
+            if (higherEducationToDelete == null)
             {
                 throw new Exception($"HigherEducation with ID {id} not found.");
             }
 
-            _unitOfWork.HigherEducations.Remove(higherEducationToDelete);
-
-            await _unitOfWork.CommitAsync();
+            _dbContext.HigherEducations.Remove(higherEducationToDelete);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

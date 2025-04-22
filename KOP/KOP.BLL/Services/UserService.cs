@@ -3,7 +3,7 @@ using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
-using KOP.DAL.Entities.AssessmentEntities;
+using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
 
 namespace KOP.BLL.Services
@@ -58,7 +58,7 @@ namespace KOP.BLL.Services
 
             if (lastGrade == null)
             {
-                throw new Exception($"Last grade fot user with ID {userId} not found.");
+                return new List<AssessmentDto>();
             }
 
             var assessmentDtoList = lastGrade.Assessments
@@ -71,15 +71,15 @@ namespace KOP.BLL.Services
 
             return assessmentDtoList;
         }
-        public async Task<List<GradeSummaryDto>> GetUserGradeSummaryDtoList(int employeeId)
+        public async Task<List<GradeReducedDto>> GetUserGradeSummaryDtoList(int userId)
         {
 
-            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == employeeId && x.SystemStatus == SystemStatuses.COMPLETED);
-            var gradeSummaryDtoList = new List<GradeSummaryDto>();
+            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == userId && x.SystemStatus == SystemStatuses.COMPLETED);
+            var gradeSummaryDtoList = new List<GradeReducedDto>();
 
             foreach (var grade in grades)
             {
-                gradeSummaryDtoList.Add(new GradeSummaryDto
+                gradeSummaryDtoList.Add(new GradeReducedDto
                 {
                     Id = grade.Id,
                     Number = grade.Number,
@@ -99,17 +99,16 @@ namespace KOP.BLL.Services
 
             foreach (var assessmentResult in colleaguesAssessmentResultsForAssessment)
             {
-                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties: new string[]
-                {
+                var assessment = await _unitOfWork.Assessments.GetAsync(x => x.Id == assessmentResult.AssessmentId, includeProperties:
+                [
                         "User",
                         "AssessmentResults.AssessmentResultValues",
                         "AssessmentType.AssessmentMatrix.Elements"
-                });
+                ]);
 
                 var assessmentResultDto = new AssessmentResultDto
                 {
                     Id = assessmentResult.Id,
-                    AssessmentId = assessmentResult.AssessmentId,
                     SystemStatus = assessmentResult.SystemStatus,
                     Type = assessmentResult.Type,
                     Sum = assessmentResult.AssessmentResultValues.Sum(x => x.Value),
@@ -150,7 +149,11 @@ namespace KOP.BLL.Services
                     });
                 }
 
-                assessmentResultDto.ElementsByRow = assessmentResultDto.Elements.OrderBy(x => x.Column).GroupBy(x => x.Row).OrderBy(x => x.Key).ToList();
+                assessmentResultDto.ElementsByRow = assessmentResultDto.Elements
+                    .OrderBy(x => x.Column)
+                    .GroupBy(x => x.Row)
+                    .OrderBy(x => x.Key)
+                    .ToList();
 
                 dtos.Add(assessmentResultDto);
             }

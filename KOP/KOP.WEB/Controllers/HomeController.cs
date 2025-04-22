@@ -12,13 +12,17 @@ namespace KOP.WEB.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            else if (User.IsInRole("Employee"))
+            else if (User.IsInRole("Supervisor") || User.IsInRole("Curator") || User.IsInRole("Umst") || User.IsInRole("Cup") || User.IsInRole("Urp") || User.IsInRole("Uop"))
+            {
+                return RedirectToAction("GetSupervisorLayout", "Supervisor");
+            }
+            else if(User.IsInRole("Employee"))
             {
                 return RedirectToAction("GetEmployeeLayout", "Employee");
             }
             else
             {
-                return RedirectToAction("GetSupervisorLayout", "Supervisor");
+                return RedirectToAction("AccessDenied", "Account");
             }
         }
     }

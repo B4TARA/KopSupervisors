@@ -4,6 +4,6 @@ namespace KOP.BLL.Interfaces
 {
     public interface ICommonService
     {
-        Task<User?> GetSupervisorForUser(int userId);
+        Task<User?> GetFirstSupervisorForUser(int userId);
     }
 }

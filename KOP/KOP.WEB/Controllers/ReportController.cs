@@ -17,7 +17,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GenerateGradeWordDocument([FromBody] GenerateGradeWordDocumentRequestModel requestModel)
         {
             if (requestModel.gradeId <= 0)

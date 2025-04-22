@@ -31,7 +31,7 @@ namespace KOP.Import.Services
         private readonly string _usersImgDownloadPath;
         private readonly string _trainingEventsPath;
 
-        private List<int> additionalUsersServiceNumbers = new();
+        private List<int> additionalUsersServiceNumbers;
 
         public ExportAndImport(ILogger logger, IEmailSender emailSender, IConfiguration config, IUnitOfWork unitOfWork)
         {
@@ -39,6 +39,7 @@ namespace KOP.Import.Services
             _emailSender = emailSender;
             _config = config;
             _unitOfWork = unitOfWork;
+            additionalUsersServiceNumbers = new();
 
             _additionalUsersServiceNumbersPath = _config["FilePaths:AdditionalUsersServiceNumbersPath"] ?? "";
             _usersInfosPath = _config["FilePaths:UsersInfosPath"] ?? "";
@@ -112,7 +113,7 @@ namespace KOP.Import.Services
             }
         }
 
-        private async Task<IEnumerable<User>> ProcessUsers()
+        private async Task<List<User>> ProcessUsers()
         {
             Log.Information("Чтение дополнительных табельных номеров ...");
             additionalUsersServiceNumbers = ReadAdditionalUsersServiceNumbersFromFile(_additionalUsersServiceNumbersPath);
@@ -230,7 +231,7 @@ namespace KOP.Import.Services
             }
         }
 
-        private async Task PutUsersInDatabase(IEnumerable<User> usersFromExcel)
+        private async Task PutUsersInDatabase(List<User> usersFromExcel)
         {
             foreach (var userFromExcel in usersFromExcel)
             {
@@ -612,7 +613,7 @@ namespace KOP.Import.Services
             return numbers;
         }
 
-        public async Task<IEnumerable<User>> ReadUsersStructuresFromFile(string filePath)
+        public async Task<List<User>> ReadUsersStructuresFromFile(string filePath)
         {
             var usersFromExcel = new List<User>();
 
@@ -667,7 +668,7 @@ namespace KOP.Import.Services
             return usersFromExcel;
         }
 
-        public async Task<IEnumerable<User>> ReadUsersInfosFromFile(string filePath, List<User> usersFromExcel)
+        public async Task<List<User>> ReadUsersInfosFromFile(string filePath, List<User> usersFromExcel)
         {
             using (var fStream = File.Open(_usersInfosPath, FileMode.Open, FileAccess.Read))
             {
