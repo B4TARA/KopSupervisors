@@ -21,7 +21,7 @@ namespace KOP.Import.Services
         private readonly IConfiguration _config;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly string _additionalUsersServiceNumbersPath;
+        private readonly string _admUsersServiceNumbersPath;
         private readonly string _usersInfosPath;
         private readonly string _usersStructuresPath;
         private readonly string _colsArrayPath;
@@ -29,7 +29,7 @@ namespace KOP.Import.Services
         private readonly string _usersImgDownloadPath;
         private readonly string _trainingEventsPath;
 
-        private List<int> additionalUsersServiceNumbers;
+        private List<int> admUsersServiceNumbers;
 
         public ExportAndImport(ILogger logger, IEmailSender emailSender, IConfiguration config, IUnitOfWork unitOfWork)
         {
@@ -37,9 +37,9 @@ namespace KOP.Import.Services
             _emailSender = emailSender;
             _config = config;
             _unitOfWork = unitOfWork;
-            additionalUsersServiceNumbers = new();
+            admUsersServiceNumbers = new();
 
-            _additionalUsersServiceNumbersPath = _config["FilePaths:AdditionalUsersServiceNumbersPath"] ?? "";
+            _admUsersServiceNumbersPath = _config["FilePaths:AdmUsersServiceNumbersPath"] ?? "";
             _usersInfosPath = _config["FilePaths:UsersInfosPath"] ?? "";
             _usersStructuresPath = _config["FilePaths:UsersStructuresPath"] ?? "";
             _colsArrayPath = _config["FilePaths:ColsArrayPath"] ?? "";
@@ -50,9 +50,9 @@ namespace KOP.Import.Services
 
         private async Task ValidateFilePaths()
         {
-            if (string.IsNullOrEmpty(_additionalUsersServiceNumbersPath))
+            if (string.IsNullOrEmpty(_admUsersServiceNumbersPath))
             {
-                await HandleErrorAsync("_additionalUsersServiceNumbersPath не задан.");
+                await HandleErrorAsync("_admUsersServiceNumbersPath не задан.");
                 return;
             }
             if (string.IsNullOrEmpty(_usersInfosPath))
@@ -114,7 +114,7 @@ namespace KOP.Import.Services
         private async Task<List<User>> ProcessUsers()
         {
             Log.Information("Чтение дополнительных табельных номеров ...");
-            additionalUsersServiceNumbers = ReadAdditionalUsersServiceNumbersFromFile(_additionalUsersServiceNumbersPath);
+            admUsersServiceNumbers = ReadAdmUsersServiceNumbersFromFile(_admUsersServiceNumbersPath);
 
             Log.Information("Чтение данных из ШР ...");
             var usersFromExcel = await ReadUsersStructuresFromFile(_usersStructuresPath);
@@ -126,17 +126,14 @@ namespace KOP.Import.Services
 
         private async Task PopulateUserWithModule(User userFromExcel)
         {
-            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile, userFromExcel.DepartmentFromFile) && !IsMeetUserStructureBusinessRequirements(userFromExcel.StructureRole, userFromExcel.GradeGroup))
-            {
+            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile, userFromExcel.DepartmentFromFile, userFromExcel.ServiceNumber) 
+                && !IsMeetUserStructureBusinessRequirements(userFromExcel.StructureRole, userFromExcel.GradeGroup)) 
                 return;
-            }
 
             var subdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == userFromExcel.SubdivisionFromFile.Replace(" ", "").ToLower());
 
             if (subdivision == null)
-            {
                 return;
-            }
 
             userFromExcel.ParentSubdivision = subdivision;
         }
@@ -144,9 +141,7 @@ namespace KOP.Import.Services
         private void PopulateUserWithXmlData(User userFromExcel, XmlDocument colsArrayDocument, XmlDocument usersPassContainerDocument)
         {
             if (userFromExcel.FullName == null)
-            {
                 return;
-            }
 
             var parts = userFromExcel.FullName.Split(' ');
             var firstName = parts[0];
@@ -439,7 +434,8 @@ namespace KOP.Import.Services
         public bool ReadyForSupervisorEmployeeApproval(User user, Grade lastGrade)
         {
             if (TermManager.GetDate().Day != 11
-                || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
+                || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL 
+                || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
             {
                 return false;
             }
@@ -563,17 +559,19 @@ namespace KOP.Import.Services
             return true;
         }
 
-        private bool IsAdditionalUser(int userServiceNumber)
+        private bool IsAdmUser(int userServiceNumber)
         {
-            return additionalUsersServiceNumbers.Contains(userServiceNumber);
+            return admUsersServiceNumbers.Contains(userServiceNumber);
         }
 
-        private bool IsAdditionalSubdivision(string subdivision, string department)
+        private bool IsAdditionalSubdivision(string subdivision, string department, int serviceNumber)
         {
-            return subdivision.Contains("ЦУП ") || subdivision.Contains("УМСТ ") || (subdivision.Contains("УРП ") && department.Contains("Отдел развития персонала"));
+            return subdivision.Contains("УМСТ ")
+                || (subdivision.Contains("ЦУП ") && (serviceNumber == 6143 || serviceNumber == 11245 || serviceNumber == 7727))
+                || (subdivision.Contains("УРП ") && department.Contains("Отдел развития персонала"));
         }
 
-        private List<int> ReadAdditionalUsersServiceNumbersFromFile(string path)
+        private List<int> ReadAdmUsersServiceNumbersFromFile(string path)
         {
             var numbers = new List<int>();
 
@@ -628,9 +626,9 @@ namespace KOP.Import.Services
                         var userServiceNumber = Convert.ToInt32(table.Rows[rowCounter][43]);
 
                         bool meetsBusinessRequirements = IsMeetUserStructureBusinessRequirements(table.Rows[rowCounter]);
-                        bool isAdditionalUser = IsAdditionalUser(userServiceNumber);
+                        bool isAdmUser = IsAdmUser(userServiceNumber);
 
-                        if (!meetsBusinessRequirements && !isAdditionalUser)
+                        if (!meetsBusinessRequirements && !isAdmUser)
                         {
                             continue;
                         }
@@ -688,7 +686,7 @@ namespace KOP.Import.Services
                         var department = Convert.ToString(table.Rows[rowCounter][24]) ?? "-";
                         var userFromExcel = usersFromExcel.FirstOrDefault(x => x.ServiceNumber == serviceNumber);
 
-                        if (IsAdditionalSubdivision(subdivision, department) && userFromExcel == null)
+                        if (IsAdditionalSubdivision(subdivision, department, serviceNumber) && userFromExcel == null)
                         {
                             userFromExcel = new User
                             {
@@ -705,13 +703,13 @@ namespace KOP.Import.Services
                         }
 
                         bool meetsBusinessRequirements = IsMeetUserInfoBusinessRequirements(table.Rows[rowCounter], userFromExcel);
-                        bool isAdditionalUser = IsAdditionalUser(serviceNumber);
+                        bool isAdmUser = IsAdmUser(serviceNumber);
 
                         if (!meetsBusinessRequirements)
                         {
                             userFromExcel.SystemRoles.Remove(SystemRoles.Employee);
 
-                            if (!isAdditionalUser)
+                            if (!isAdmUser)
                             {
                                 usersFromExcel.Remove(userFromExcel);
                             }
