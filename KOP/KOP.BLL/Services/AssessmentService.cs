@@ -85,11 +85,12 @@ namespace KOP.BLL.Services
 
             var assessmentType = assessment.AssessmentType.SystemAssessmentType;
             var completedAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.COMPLETED).ToList();
+            var completedAssessmentResultsWithoutSelfAssessment = completedAssessmentResults.Where(x => x.Type != AssessmentResultTypes.SelfAssessment).ToList();
 
             assessmentSummaryDto.IsFinalized = IsAssessmentFinalized(assessmentType, completedAssessmentResults);
 
             ProcessColleaguesResults(colleaguesAssessmentResults, assessmentSummaryDto);
-            ProcessCompletedResults(completedAssessmentResults, assessmentSummaryDto);
+            ProcessCompletedResultsWithoutSelfAssessment(completedAssessmentResultsWithoutSelfAssessment, assessmentSummaryDto);
             ProcessInterpretations(assessment, assessmentSummaryDto);
 
             return assessmentSummaryDto;
@@ -183,9 +184,9 @@ namespace KOP.BLL.Services
             }
         }
 
-        private void ProcessCompletedResults(List<AssessmentResult> completedResults, AssessmentSummaryDto assessmentSummaryDto)
+        private void ProcessCompletedResultsWithoutSelfAssessment(List<AssessmentResult> completedAssessmentResultsWithoutSelfAssessment, AssessmentSummaryDto assessmentSummaryDto)
         {
-            foreach (var result in completedResults)
+            foreach (var result in completedAssessmentResultsWithoutSelfAssessment)
             {
                 foreach (var value in result.AssessmentResultValues)
                 {
@@ -212,7 +213,7 @@ namespace KOP.BLL.Services
             // Вычисление среднего значения для завершенных оценок
             foreach (var value in assessmentSummaryDto.AverageValuesByRow)
             {
-                var average = Math.Round(value.Value / completedResults.Count, 1);
+                var average = Math.Round(value.Value / completedAssessmentResultsWithoutSelfAssessment.Count, 1);
                 value.Value = average;
                 assessmentSummaryDto.GeneralAverageResult += average;
             }

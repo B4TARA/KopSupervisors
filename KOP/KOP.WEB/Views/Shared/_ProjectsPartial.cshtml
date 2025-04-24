@@ -41,7 +41,7 @@ else
 					}
 					else
 					{
-						<b>Выполнение стратегических проектов за отчетный период, Qn2 @Model.Qn2 %</b>
+						<b>Выполнение стратегических проектов за отчетный период, Qn2 = @Model.Qn2 %</b>
 					}
 				}
 			</div>
@@ -118,7 +118,7 @@ else
 								}
 							</div>
 							<div>
-								Коэффициент успешности проекта
+								Коэффициент успешности проекта =
 								@if (Model.EditAccess)
 								{
 									<input type="number" asp-for="Projects[i].SuccessRate" disabled="@(Model.EditAccess ? null : "disabled")" />
@@ -130,7 +130,7 @@ else
 								%
 							</div>
 							<div>
-								Средний KPI проекта
+								Средний KPI проекта =
 								@if (Model.EditAccess)
 								{
 									<input type="number" asp-for="Projects[i].AverageKpi" disabled="@(Model.EditAccess ? null : "disabled")" />
@@ -142,7 +142,7 @@ else
 								%
 							</div>
 							<div>
-								Оценка реализации проекта SP
+								Оценка реализации проекта SP =
 								@if (Model.EditAccess)
 								{
 									<input type="number" asp-for="Projects[i].SP" disabled="@(Model.EditAccess ? null : "disabled")" />

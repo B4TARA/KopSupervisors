@@ -20,6 +20,7 @@ namespace KOP.BLL.Services
                 throw new ArgumentException("Grade ID cannot be 0", nameof(gradeId));
 
             var valueJudgmentDto = await _dbContext.ValueJudgments
+                .AsNoTracking()
                 .Select(x => new ValueJudgmentDto
                 {
                     Id = x.Id,

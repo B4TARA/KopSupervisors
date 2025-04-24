@@ -12,8 +12,8 @@
         public double AverageKpi { get; set; }
         public double SP { get; set; }
 
-        public Grade Grade { get; set; }
         public int GradeId { get; set; }
+        public Grade Grade { get; set; }
 
         public DateOnly DateOfCreation { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
