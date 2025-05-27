@@ -1,4 +1,5 @@
-﻿using KOP.Common.Dtos.GradeDtos;
+﻿using KOP.Common.Dtos;
+using KOP.Common.Dtos.GradeDtos;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {
@@ -10,7 +11,7 @@ namespace KOP.WEB.Models.ViewModels.Supervisor
         public string SubdivisionFromFile { get; set; }
         public string GradeGroup { get; set; }
         public string WorkPeriod { get; set; }
-        public DateOnly ContractEndDate { get; set; }
+        public DateOnly? ContractEndDate { get; set; }
         public string ImagePath { get; set; }
         public GradeDto? LastGrade { get; set; }
         public bool AccessForSupervisorApproval { get; set; }

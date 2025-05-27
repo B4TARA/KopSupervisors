@@ -12,7 +12,7 @@ namespace KOP.Common.Dtos
         public string GradeGroup { get; set; }
         public string WorkPeriod { get; set; }
         public string NextGradeStartDate { get; set; }
-        public DateOnly ContractEndDate { get; set; }
+        public DateOnly? ContractEndDate { get; set; }
         public string ImagePath { get; set; }
         public List<SystemRoles> SystemRoles { get; set; } = new();
         public GradeDto? LastGrade { get; set; }

@@ -1,5 +1,14 @@
-﻿async function downloadGradeWordDocument(gradeId) {
+﻿async function downloadGradeWordDocument(gradeId, employeeFullName) {
+    const loader = document.getElementById('loader');
+    const downloadText = document.getElementById('downloadText');
+    const downloadButton = document.getElementById('downloadButton');
+
     try {
+        // Показываем индикатор загрузки
+        downloadText.style.display = 'none';
+        loader.style.display = 'block';
+        downloadButton.disabled = true;  // Кнопка теперь неактивна
+
         const response = await fetch('/supervisors/Report/GenerateGradeWordDocument', {
             method: 'POST',
             headers: {
@@ -16,7 +25,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Report_Grade_${gradeId}.docx`; // Имя файла
+            a.download = `${employeeFullName}.docx`; // Имя файла          
 
             // Добавляем ссылку на страницу, кликаем на нее и удаляем
             document.body.appendChild(a);
@@ -30,5 +39,10 @@
     } catch (error) {
         console.error("Ошибка:", error);
         alert("Произошла ошибка. Пожалуйста, посмотрите в консоль для деталей.");
+    } finally {
+        // Скрываем индикатор загрузки
+        loader.style.display = 'none';
+        downloadText.style.display = 'block';
+        downloadButton.disabled = false;  // Кнопка теперь активна
     }
 }

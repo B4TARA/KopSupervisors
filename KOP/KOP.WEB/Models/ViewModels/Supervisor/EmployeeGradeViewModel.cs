@@ -1,4 +1,5 @@
-﻿using KOP.Common.Dtos.GradeDtos;
+﻿using KOP.Common.Dtos;
+using KOP.Common.Dtos.GradeDtos;
 
 namespace KOP.WEB.Models.ViewModels.Supervisor
 {

@@ -28,15 +28,16 @@ namespace KOP.DAL.Entities
 
         public double Qn2 { get; set; }
 
-        public User User { get; set; }
         public int UserId { get; set; }
+        public User User { get; set; }
 
-        public Qualification Qualification { get; set; }
         public int QualificationId { get; set; }
+        public Qualification Qualification { get; set; }
 
-        public ValueJudgment ValueJudgment { get; set; }
         public int ValueJudgmentId { get; set; }
+        public ValueJudgment ValueJudgment { get; set; }
 
+        public List<Recommendation> Recommendations { get; set; } = new();
         public List<Mark> Marks { get; set; } = new();
         public List<Kpi> Kpis { get; set; } = new();
         public List<Project> Projects { get; set; } = new();

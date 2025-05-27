@@ -191,13 +191,16 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
-        public async Task<IActionResult> GetGrades(int userId)
+        public async Task<IActionResult> GetGrades(int userId, string userFullName)
         {
             try
             {
                 var gradeSummaryDtoList = await _userService.GetUserGradeSummaryDtoList(userId);
+                var viewModel = new EmployeeGradesViewModel();
+                viewModel.EmployeeName = userFullName;
+                viewModel.GradeReducedDtoList = gradeSummaryDtoList;
 
-                return View("EmployeeGrades", gradeSummaryDtoList);
+                return View("EmployeeGrades", viewModel);
             }
             catch
             {

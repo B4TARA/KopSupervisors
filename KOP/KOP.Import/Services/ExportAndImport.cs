@@ -126,8 +126,8 @@ namespace KOP.Import.Services
 
         private async Task PopulateUserWithModule(User userFromExcel)
         {
-            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile, userFromExcel.DepartmentFromFile, userFromExcel.ServiceNumber) 
-                && !IsMeetUserStructureBusinessRequirements(userFromExcel.StructureRole, userFromExcel.GradeGroup)) 
+            if (IsAdditionalSubdivision(userFromExcel.SubdivisionFromFile, userFromExcel.DepartmentFromFile, userFromExcel.ServiceNumber)
+                && !IsMeetUserStructureBusinessRequirements(userFromExcel.StructureRole, userFromExcel.GradeGroup))
                 return;
 
             var subdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Name.Replace(" ", "").ToLower() == userFromExcel.SubdivisionFromFile.Replace(" ", "").ToLower());
@@ -140,6 +140,10 @@ namespace KOP.Import.Services
 
         private void PopulateUserWithXmlData(User userFromExcel, XmlDocument colsArrayDocument, XmlDocument usersPassContainerDocument)
         {
+            if (userFromExcel.Id == 125)
+            {
+                var f = 4;
+            }
             if (userFromExcel.FullName == null)
                 return;
 
@@ -262,6 +266,7 @@ namespace KOP.Import.Services
                 }
                 catch (Exception ex)
                 {
+                    //await _unitOfWork.RollbackAsync();
                     await HandleErrorAsync($"[ExportAndImport.PutUsersInDatabase]: exception while process user with ServiceNumber {userFromExcel.ServiceNumber}: {ex.Message}");
                     continue;
                 }
@@ -277,6 +282,11 @@ namespace KOP.Import.Services
             {
                 try
                 {
+                    if(employee.ServiceNumber == 7587 || employee.ServiceNumber == 3202)
+                    {
+                        var l = 2;
+                    }
+
                     var lastGrade = employee.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
 
                     if (lastGrade != null && ReadyForEmployeeApproval(employee, lastGrade))
@@ -299,12 +309,16 @@ namespace KOP.Import.Services
                     {
                         continue;
                     }
+                    else if(!employee.ContractEndDate.HasValue)
+                    {
+                        continue;
+                    }
 
                     var currentDay = TermManager.GetDate().Day;
                     var currentMonth = TermManager.GetDate().Month;
                     var currentYear = TermManager.GetDate().Year;
-                    var gradeStartMonth = employee.ContractEndDate.AddMonths(-4).Month;
-                    var gradeStartYear = employee.ContractEndDate.AddMonths(-4).Year;
+                    var gradeStartMonth = employee.ContractEndDate.Value.AddMonths(-4).Month;
+                    var gradeStartYear = employee.ContractEndDate.Value.AddMonths(-4).Year;
 
                     if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
                     {
@@ -343,7 +357,8 @@ namespace KOP.Import.Services
                             BehaviorToCorrect = "",
                             RecommendationsForDevelopment = "",
                         },
-                        QualificationConclusion = "Руководитель соответствует квалификационным требованиям и требованиям к деловой репутации.",
+                        QualificationConclusion = $"{employee.FullName} соответствует квалификационным требованиям и требованиям к деловой репутации.",
+                        StrategicTasksConclusion = "За оцениваемый период времени поставленные задачи выполнены в срок (согласно позадачнику).",
                     };
 
                     var firstDayOfCurrentMonth = new DateOnly(TermManager.GetDate().Year, TermManager.GetDate().Month, 1);
@@ -434,7 +449,7 @@ namespace KOP.Import.Services
         public bool ReadyForSupervisorEmployeeApproval(User user, Grade lastGrade)
         {
             if (TermManager.GetDate().Day != 11
-                || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL 
+                || !user.Grades.Any(x => x.GradeStatus == GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL
                 || x.GradeStatus == GradeStatuses.APPROVED_BY_EMPLOYEE))
             {
                 return false;
@@ -566,6 +581,11 @@ namespace KOP.Import.Services
 
         private bool IsAdditionalSubdivision(string subdivision, string department, int serviceNumber)
         {
+            if(subdivision == null || department == null)
+            {
+                return false;
+            }
+
             return subdivision.Contains("УМСТ ")
                 || (subdivision.Contains("ЦУП ") && (serviceNumber == 6143 || serviceNumber == 11245 || serviceNumber == 7727))
                 || (subdivision.Contains("УРП ") && department.Contains("Отдел развития персонала"));
@@ -717,11 +737,39 @@ namespace KOP.Import.Services
 
                         userFromExcel.FullName = Convert.ToString(table.Rows[rowCounter][3]) ?? "-";
                         userFromExcel.Position = Convert.ToString(table.Rows[rowCounter][6]) ?? "-";
-                        userFromExcel.HireDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][12]));
-                        userFromExcel.SubdivisionFromFile = Convert.ToString(table.Rows[rowCounter][22]) ?? "-";
-                        userFromExcel.DepartmentFromFile = Convert.ToString(table.Rows[rowCounter][24]) ?? "-";
-                        userFromExcel.ContractStartDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][57]));
-                        userFromExcel.ContractEndDate = DateOnly.FromDateTime(Convert.ToDateTime(table.Rows[rowCounter][58]));
+
+                        DateTime hireDate;
+                        if (DateTime.TryParse(Convert.ToString(table.Rows[rowCounter][12]), out hireDate))
+                        {
+                            userFromExcel.HireDate = DateOnly.FromDateTime(hireDate);
+                        }
+                        else
+                        {
+                            userFromExcel.HireDate = null;
+                        }
+
+                        userFromExcel.SubdivisionFromFile = Convert.ToString(table.Rows[rowCounter][24]) ?? "-";
+                        userFromExcel.DepartmentFromFile = Convert.ToString(table.Rows[rowCounter][22]) ?? "-";
+
+                        DateTime contractStartDate;
+                        if (DateTime.TryParse(Convert.ToString(table.Rows[rowCounter][57]), out contractStartDate))
+                        {
+                            userFromExcel.ContractStartDate = DateOnly.FromDateTime(contractStartDate);
+                        }
+                        else
+                        {
+                            userFromExcel.ContractStartDate = null;
+                        }
+
+                        DateTime contractEndDate;
+                        if (DateTime.TryParse(Convert.ToString(table.Rows[rowCounter][58]), out contractEndDate))
+                        {
+                            userFromExcel.ContractEndDate = DateOnly.FromDateTime(contractEndDate);
+                        }
+                        else
+                        {
+                            userFromExcel.ContractEndDate = null;
+                        }
 
                         PopulateUserWithXmlData(userFromExcel, colsArrayDocument, usersPassContainerDocument);
                     }
@@ -815,7 +863,7 @@ namespace KOP.Import.Services
             var messageBody = errorMessage;
             var message = new Message(addressee, "Ошибка импорта", messageBody, "Батурель Евгений Дмитриевич");
 
-            await _emailSender.SendEmailAsync(message);
+            //await _emailSender.SendEmailAsync(message);
             _logger.Error(errorMessage);
         }
     }

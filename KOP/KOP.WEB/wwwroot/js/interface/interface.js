@@ -243,16 +243,16 @@ function addRow(elem, type, id) {
                 <input type="date" name="Projects[${newIndex}].EndDateTime" required min="1994-01-01"/>
             </div>      
             <div>
-                Коэффициент успешности проекта
-                <input type="number"  name="Projects[${newIndex}].SuccessRate" required /> %
+                Коэффициент успешности проекта, % =
+                <input type="text"  name="Projects[${newIndex}].SuccessRate" required />
             </div>
             <div>
-                Cредний KPI проекта
-                <input type="number"  name="Projects[${newIndex}].AverageKpi" required /> %
+                Cредний KPI проекта, % =
+                <input type="text"  name="Projects[${newIndex}].AverageKpi" required />
             </div>
             <div>
-                Оценка реализации проекта SP 
-                <input type="number"  name="Projects[${newIndex}].SP" required /> %
+                Оценка реализации проекта SP, % =
+                <input type="text"  name="Projects[${newIndex}].SP" required />
             </div>
             <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>

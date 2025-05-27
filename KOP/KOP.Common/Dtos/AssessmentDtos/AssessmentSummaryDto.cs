@@ -11,8 +11,8 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public int MinValue { get; set; }
         public int MaxValue { get; set; }
 
-        public List<AssessmentInterpretationDto> AssessmentTypeInterpretations { get; set; } = new();
-        public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
+        public List<GetAssessmentInterpretationDto> AssessmentTypeInterpretations { get; set; } = new();
+        public GetAssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
         public List<AssessmentResultValueDto> AverageValuesByRow { get; set; } = new();
 
         public int SelfAssessmentResultId { get; set; }

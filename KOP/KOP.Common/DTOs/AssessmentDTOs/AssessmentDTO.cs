@@ -15,6 +15,6 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public int AverageValue { get; set; }
         public List<AssessmentResultDto> AllAssessmentResults { get; set; } = new();
         public List<AssessmentResultDto> CompletedAssessmentResults { get; set; } = new();
-        public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
+        public GetAssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
     }
 }

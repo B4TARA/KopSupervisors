@@ -8,9 +8,9 @@
         public string Stage { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
-        public double SuccessRate { get; set; }
-        public double AverageKpi { get; set; }
-        public double SP { get; set; }
+        public string SuccessRate { get; set; }
+        public string AverageKpi { get; set; }
+        public string SP { get; set; }
 
         public int GradeId { get; set; }
         public Grade Grade { get; set; }

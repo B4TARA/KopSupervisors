@@ -47,7 +47,7 @@ namespace KOP.Import.Services
                 {
                     // Руководителям 1 и 10 числа месяца оценки
                     // Оценить КК, УК и Назначить группу оценки КК
-                    if ((today.Day == 1 || today.Day == 7) && user.SystemRoles.Contains(SystemRoles.Supervisor))
+                    if ((today.Day == 14 || today.Day == 7) && user.SystemRoles.Contains(SystemRoles.Supervisor))
                     {
                         var subordinateUsers = await GetSubordinateUsers(user.Id);
                         var subordinateUsersWithThisMonthPendingGrade = subordinateUsers
@@ -61,16 +61,20 @@ namespace KOP.Import.Services
                         {
                             // Функция находит самого первого руководителя
                             // Если текущий руководитель не является самым первым (непосредственным), то существует другой
-                            var supervisor = GetSupervisorForUser(subordinateUser.Id);
+                            var supervisor = await GetSupervisorForUser(subordinateUser.Id);
 
-                            if(supervisor.Id != user.Id)
+                            if(supervisor == null)
+                            {
+                                continue;
+                            }
+                            else if(supervisor.Id != user.Id)
                             {
                                 continue;
                             }
 
                             var template = string.Empty;
 
-                            if (today.Day == 1)
+                            if (today.Day == 14)
                             {
                                 template = LoadEmailTemplate("CreateAssessmentGroupNotificationTemplate.html"); 
                             }
@@ -88,7 +92,7 @@ namespace KOP.Import.Services
                     }
                     // Оцениваемым сотрудникам 1 и 15 числа месяца оценки
                     // Провести самооценку КК, УК и заполнить результаты деятельности
-                    if ((today.Day == 1 || today.Day == 15) && user.SystemRoles.Contains(SystemRoles.Employee))
+                    if ((today.Day == 14 || today.Day == 15) && user.SystemRoles.Contains(SystemRoles.Employee))
                     {
                         var thisMonthPendingGrade = user.Grades
                             .FirstOrDefault(x =>
@@ -99,7 +103,7 @@ namespace KOP.Import.Services
                         // Есть назначенные оценки в текущем месяце
                         if (thisMonthPendingGrade != null)
                         {
-                            if (today.Day == 1)
+                            if (today.Day == 14)
                             {
                                 var template = LoadEmailTemplate("CreateStrategicTasksAndSelfAssessmentNotificationTemplate.html");
                                 var mailBody = template.Replace("{UserContractEndDate}", user.ContractEndDate.ToString());
@@ -121,7 +125,7 @@ namespace KOP.Import.Services
                     }
                     // Ответственным за заполнение показателей (УМСТ, ЦУП, УРП) 1 и 15 числа месяца оценки
                     // Заполнить критерии
-                    if (today.Day == 1 || today.Day == 15)
+                    if (today.Day == 14 || today.Day == 15)
                     {
                         var isInRole = user.SystemRoles.Contains(SystemRoles.Umst) ||
                             user.SystemRoles.Contains(SystemRoles.Cup) ||
@@ -136,7 +140,7 @@ namespace KOP.Import.Services
                                        x.DateOfCreation.Year == today.Year &&
                                        x.SystemStatus == SystemStatuses.PENDING));
 
-                            if (today.Day == 1)
+                            if (today.Day == 14)
                             {
                                 var template = LoadEmailTemplate("CreateAssessmentCriteriaNotificationTemplate.html");
 

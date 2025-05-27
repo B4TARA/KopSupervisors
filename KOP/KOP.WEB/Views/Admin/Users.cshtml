@@ -1,4 +1,4 @@
-﻿@model List<KOP.Common.Dtos.UserSummaryDto>
+﻿@model KOP.WEB.Models.ViewModels.Admin.UsersViewModel
 
 <div class="home-content">
     <div class="home_content_info">
@@ -30,13 +30,13 @@
                     int count = 1;
                 }
                 <div class="d-tbody">
-                    @foreach (var user in Model)
+                    @foreach (var userSummaryDto in Model.UserSummaryDtoList)
                     {
                         <div class="d-tr">
                             <div class="d-td number">@(count++)</div>
-                            <div onclick="openUserLayout(@user.Id)" class="d-td fullname">@user.FullName</div>
-                            <div class="d-td">@user.SubdivisionFromFile</div>
-                            <div class="d-td">@user.Position</div>
+                            <div onclick="openUserLayout(@userSummaryDto.Id)" class="d-td fullname">@userSummaryDto.FullName</div>
+                            <div class="d-td">@userSummaryDto.SubdivisionFromFile</div>
+                            <div class="d-td">@userSummaryDto.Position</div>
                         </div>
                     }
                 </div>

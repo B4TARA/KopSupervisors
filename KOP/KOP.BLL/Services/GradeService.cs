@@ -121,9 +121,9 @@ namespace KOP.BLL.Services
                     Stage = projectDto.Stage ?? "в реализации/завершен",
                     StartDate = projectDto.StartDate,
                     EndDate = projectDto.EndDate,
-                    SuccessRate = projectDto.SuccessRate,
-                    AverageKpi = projectDto.AverageKpi,
-                    SP = projectDto.SP,
+                    SuccessRate = projectDto.SuccessRate ?? "",
+                    AverageKpi = projectDto.AverageKpi ?? "",
+                    SP = projectDto.SP ?? "",
                 };
 
                 projects.Add(project);

@@ -19,7 +19,7 @@ namespace KOP.BLL.Services
             _assessmentService = assessmentService;
         }
 
-        private async Task<IEnumerable<UserDto>> GetUsers(Subdivision subdivision)
+        private async Task<List<UserDto>> GetUsers(Subdivision subdivision)
         {
             var subordinateUserDtoList = new List<UserDto>();
 
@@ -39,7 +39,7 @@ namespace KOP.BLL.Services
 
             return subordinateUserDtoList;
         }
-        public async Task<IEnumerable<SubdivisionDto>> GetSubordinateSubdivisions(int supervisorId)
+        public async Task<List<SubdivisionDto>> GetSubordinateSubdivisions(int supervisorId)
         {
             var supervisor = await _unitOfWork.Users.GetAsync(x => x.Id == supervisorId,
                 includeProperties: new string[]{
@@ -91,19 +91,19 @@ namespace KOP.BLL.Services
                     continue;
                 }
 
-                foreach (var dto in userDto.LastGrade.AssessmentDtoList)
-                {
-                    var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
+                //foreach (var dto in userDto.LastGrade.AssessmentDtoList)
+                //{
+                //    var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
 
-                    if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                    {
-                        userDto.LastGrade.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                    }
-                    else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                    {
-                        userDto.LastGrade.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                    }
-                }
+                //    if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                //    {
+                //        userDto.LastGrade.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
+                //    }
+                //    else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                //    {
+                //        userDto.LastGrade.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
+                //    }
+                //}
             }
 
             foreach (var child in subdivision.Children)
@@ -118,15 +118,15 @@ namespace KOP.BLL.Services
             return subdivisionDto.Users.Count > 0 || subdivisionDto.Children.Count > 0 ? subdivisionDto : null;
         }
 
-        public async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(int supervisorId)
+        public async Task<List<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(int supervisorId)
         {
             var supervisor = await _unitOfWork.Users.GetAsync(
                 x => x.Id == supervisorId,
-                includeProperties: new string[]
-                {
+                includeProperties:
+                [
                     "SubordinateSubdivisions.Users.Grades",
                     "SubordinateSubdivisions.Children.Users.Grades",
-                }
+                ]
             );
 
             if (supervisor == null)
@@ -145,7 +145,7 @@ namespace KOP.BLL.Services
 
             return allSubordinateUsers;
         }
-        private async Task<IEnumerable<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(Subdivision subdivision)
+        private async Task<List<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(Subdivision subdivision)
         {
             var subordinateUsers = new List<UserSummaryDto>();
 
@@ -169,7 +169,6 @@ namespace KOP.BLL.Services
 
             return subordinateUsers;
         }
-
 
         public async Task ApproveGrade(int gradeId)
         {

@@ -19,6 +19,12 @@ async function openUserSystemRoles(userId) {
     document.getElementById('popupContent').innerHTML = htmlContent;
 }
 
+async function openUserRecomendations(userId) {
+    let response = await fetch(`/supervisors/Admin/GetUserRecomendations?userId=${encodeURIComponent(userId)}`);
+    let htmlContent = await response.text();
+    document.getElementById('popupContent').innerHTML = htmlContent;
+}
+
 function updateUserSystemRoles() {
     const form = document.getElementById('userSystemRolesForm');
     const formData = new FormData(form);

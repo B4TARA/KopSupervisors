@@ -3,6 +3,7 @@ using System;
 using KOP.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KOP.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514114732_MakeDateFieldsNullableInUserEntity")]
+    partial class MakeDateFieldsNullableInUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,9 +533,8 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AverageKpi")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("AverageKpi")
+                        .HasColumnType("double precision");
 
                     b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
@@ -547,9 +549,8 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SP")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("SP")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -558,9 +559,8 @@ namespace KOP.DAL.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("SuccessRate")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("SuccessRate")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("UserRole")
                         .IsRequired()
@@ -614,37 +614,6 @@ namespace KOP.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Qualifications");
-                });
-
-            modelBuilder.Entity("KOP.DAL.Entities.Recommendation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("DateOfCreation")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("DateOfModification")
-                        .HasColumnType("date");
-
-                    b.Property<int>("GradeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GradeId");
-
-                    b.ToTable("Recommendation");
                 });
 
             modelBuilder.Entity("KOP.DAL.Entities.StrategicTask", b =>
@@ -1016,13 +985,11 @@ namespace KOP.DAL.Migrations
 
             modelBuilder.Entity("KOP.DAL.Entities.Kpi", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
+                    b.HasOne("KOP.DAL.Entities.Grade", null)
                         .WithMany("Kpis")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Grade");
                 });
 
             modelBuilder.Entity("KOP.DAL.Entities.Mark", b =>
@@ -1059,17 +1026,6 @@ namespace KOP.DAL.Migrations
                 {
                     b.HasOne("KOP.DAL.Entities.Grade", "Grade")
                         .WithMany("Projects")
-                        .HasForeignKey("GradeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grade");
-                });
-
-            modelBuilder.Entity("KOP.DAL.Entities.Recommendation", b =>
-                {
-                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
-                        .WithMany("Recommendations")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1165,8 +1121,6 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Marks");
 
                     b.Navigation("Projects");
-
-                    b.Navigation("Recommendations");
 
                     b.Navigation("StrategicTasks");
 

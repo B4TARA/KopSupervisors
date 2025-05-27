@@ -73,9 +73,11 @@ namespace KOP.BLL.Services
         }
         public async Task<List<GradeReducedDto>> GetUserGradeSummaryDtoList(int userId)
         {
-
-            var grades = await _unitOfWork.Grades.GetAllAsync(x => x.UserId == userId && x.SystemStatus == SystemStatuses.COMPLETED);
             var gradeSummaryDtoList = new List<GradeReducedDto>();
+            var grades = await _unitOfWork.Grades.GetAllAsync(
+                x => x.UserId == userId && 
+                (x.SystemStatus == SystemStatuses.COMPLETED || x.SystemStatus == SystemStatuses.PENDING)
+);
 
             foreach (var grade in grades)
             {

@@ -320,8 +320,7 @@ namespace KOP.WEB.Controllers
 
                 var userId = currentUserId;
                 int? supervisorId;
-                var requiredRoles = new HashSet<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
-                var excludedRole = SystemRoles.Curator;
+                var requiredRoles = new HashSet<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor, SystemRoles.Curator };
 
                 var supervisorResult = assessment.AllAssessmentResults
                     .FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
@@ -337,8 +336,7 @@ namespace KOP.WEB.Controllers
                 }
 
                 var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(x =>
-                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
-                    !x.SystemRoles.Contains(excludedRole) &&
+                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&               
                     x.Id != supervisorId &&
                     x.Id != userId);
 

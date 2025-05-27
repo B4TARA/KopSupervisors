@@ -42,7 +42,7 @@ namespace KOP.EmailService
             //// Добавляем Сакирину
             //message.To.AddRange(new List<string> { "nsakirina@mtb.minsk.by" }.Select(x => new MailboxAddress(x, x)));
 
-            //// Только самому себе - ebaturel@mtb.minsk.by
+            // Только самому себе - ebaturel@mtb.minsk.by
             //message.To = new List<string> { "ebaturel@mtb.minsk.by" }.Select(x => new MailboxAddress(x, x)).ToList();
 
             var mimeMessage = CreateEmailMessage(message);

@@ -1,4 +1,5 @@
-﻿using KOP.BLL.Interfaces;
+﻿using DocumentFormat.OpenXml.Drawing;
+using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
 using KOP.Common.Dtos.AccountDtos;
 using KOP.Common.Enums;
@@ -25,13 +26,16 @@ namespace KOP.BLL.Services
         {
             try
             {
+                dto.Login = dto.Login.Trim();
+                dto.Password = dto.Password.Trim();
+
                 var user = await _unitOfWork.Users.GetAsync(x => x.Login == dto.Login);
                 if (user == null)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
                         StatusCode = StatusCodes.EntityNotFound,
-                        Description = "Неверный логин или пароль",
+                        Description = "Неверный логин или пароль. Убедитесь, что вводите учетные данные MTSpace Mobile",
                     };
                 }
                 else if (dto.Password != user.Password)
@@ -39,7 +43,7 @@ namespace KOP.BLL.Services
                     return new BaseResponse<ClaimsIdentity>()
                     {
                         StatusCode = StatusCodes.IncorrectPassword,
-                        Description = "Неверный логин или пароль"
+                        Description = "Неверный логин или пароль. Убедитесь, что вводите учетные данные MTSpace Mobile"
                     };
                 }
                 else if (user.IsSuspended)
@@ -52,6 +56,7 @@ namespace KOP.BLL.Services
                 }
 
                 user.LastLogin = DateTime.UtcNow;
+
                 _unitOfWork.Users.Update(user);
                 await _unitOfWork.CommitAsync();
 

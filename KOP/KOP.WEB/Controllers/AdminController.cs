@@ -1,22 +1,26 @@
 ﻿using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
+using KOP.DAL;
 using KOP.DAL.Interfaces;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IUnitOfWork unitOfWork, ILogger<AdminController> logger)
+        public AdminController(ApplicationDbContext context, IUnitOfWork unitOfWork, ILogger<AdminController> logger)
         {
+            _context = context;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -27,20 +31,169 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var allUsers = await _unitOfWork.Users.GetAllAsync();
-                var allUsersSummariesDtos = allUsers.Select(user => new UserSummaryDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Position = user.Position,
-                    SubdivisionFromFile = user.SubdivisionFromFile,
-                }).ToList();
+                var userSummaryDtoList = await _context.Users
+                    .AsNoTracking()
+                    .Select(user => new UserSummaryDto
+                    {
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        Position = user.Position,
+                        SubdivisionFromFile = user.SubdivisionFromFile,
+                    })
+                    .OrderBy(x => x.FullName)
+                    .ToListAsync();
 
-                return View("Users", allUsersSummariesDtos.OrderBy(x => x.FullName).ToList());
+                return View("Users", userSummaryDtoList);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[AdminController.GetUsers] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Urp, Uop")]
+        public async Task<IActionResult> GetUsersWithAnyPendingGrade()
+        {
+            try
+            {
+                var userSummaryDtoList = await _context.Users
+                    .AsNoTracking()
+                    .Where(x => x.Grades.Any(g => g.SystemStatus == SystemStatuses.PENDING))
+                    .Select(user => new UserSummaryDto
+                    {
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        Position = user.Position,
+                        SubdivisionFromFile = user.SubdivisionFromFile,
+                    })
+                    .OrderBy(x => x.FullName)
+                    .ToListAsync();
+
+                return View("Users", userSummaryDtoList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[AdminController.GetUsersWithPendingGrade] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Urp, Uop")]
+        public async Task<IActionResult> GetUserRecommendations(int userId)
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("Invalid userId: {userId}", userId);
+                return BadRequest("Invalid user ID.");
+            }
+
+            try
+            {
+                var viewModel = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => new UserRecommendationsViewModel
+                {
+                    SelfAssessmentSum = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Assessments)
+                        .Where(a => a.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                        .SelectMany(a => a.AssessmentResults)
+                        .FirstOrDefault(r => r.Type == AssessmentResultTypes.SelfAssessment)
+                        .TotalValue,
+
+                    SupervisorAssessmentSum = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Assessments)
+                        .Where(a => a.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                        .SelectMany(a => a.AssessmentResults)
+                        .FirstOrDefault(r => r.Type == AssessmentResultTypes.SupervisorAssessment)
+                        .TotalValue,
+
+                    CompetenceRecommendationList = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Recommendations)
+                        .Where(r => r.Type == RecommendationTypes.Сompetence)
+                        .Select(r => new GetRecommendationDto
+                        {
+                            Id = r.Id,
+                            Value = r.Value,
+                        })
+                        .ToList(),
+
+                    LiteratureRecommendationList = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Recommendations)
+                        .Where(r => r.Type == RecommendationTypes.Literature)
+                        .Select(r => new GetRecommendationDto
+                        {
+                            Id = r.Id,
+                            Value = r.Value,
+                        })
+                        .ToList(),
+
+                    CourseRecommendationList = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Recommendations)
+                        .Where(r => r.Type == RecommendationTypes.Course)
+                        .Select(r => new GetRecommendationDto
+                        {
+                            Id = r.Id,
+                            Value = r.Value,
+                        })
+                        .ToList(),
+
+                    SeminarRecommendationList = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Recommendations)
+                        .Where(r => r.Type == RecommendationTypes.Seminar)
+                        .Select(r => new GetRecommendationDto
+                        {
+                            Id = r.Id,
+                            Value = r.Value,
+                        })
+                        .ToList(),
+
+                    AssessmentInterpretation = u.Grades
+                        .OrderByDescending(g => g.Number)
+                        .SelectMany(g => g.Assessments)
+                        .Select(a => new
+                        {
+                            Average = a.AssessmentResults.Average(ar => ar.TotalValue),
+                            Interpretations = a.AssessmentType.AssessmentInterpretations
+                        })
+                        .Select(x => x.Interpretations.FirstOrDefault(i =>
+                            x.Average >= i.MinValue && x.Average <= i.MaxValue))
+                        .Select(i => new GetAssessmentInterpretationDto
+                        {
+                            MinValue = i.MinValue,
+                            MaxValue = i.MaxValue,
+                            Level = i.Level,
+                            Competence = i.Competence,
+                            HtmlClassName = i.HtmlClassName
+                        })
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync();
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[AdminController.GetUserRecommendations] : ");
 
                 return View("Error", new ErrorViewModel
                 {
@@ -62,7 +215,7 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
                 if (user == null)
                 {
@@ -190,7 +343,7 @@ namespace KOP.WEB.Controllers
                     Message = "An unexpected error occurred. Please try again later."
                 });
             }
-        }
+        }        
 
         [HttpGet]
         [Authorize(Roles = "Urp")]

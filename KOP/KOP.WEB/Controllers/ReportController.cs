@@ -28,9 +28,7 @@ namespace KOP.WEB.Controllers
             try
             {
                 var document = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
-                var fileName = $"Report_Grade_{requestModel.gradeId}.docx";
-
-                return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+                return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             }
             catch(Exception ex)
             {

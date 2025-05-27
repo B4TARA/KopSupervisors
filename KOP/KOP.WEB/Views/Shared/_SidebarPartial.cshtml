@@ -62,7 +62,7 @@
                 </ul>
             </li>
         }
-        @if (User.IsInRole("Urp"))
+        @if (User.IsInRole("Urp") || User.IsInRole("Uop"))
         {
             <li>
                 <div class="iocn-link">
@@ -74,14 +74,20 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Админ.</a></li>
+                    @if (User.IsInRole("Urp"))
+                    {
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetUsers">Сотрудники</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetCorporateMatrix">Матрица КК</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
+                        </li>
+                    }
                     <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetUsers">Сотрудники</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetCorporateMatrix">Матрица КК</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetUsersForRecommendations">Рекомендации УК</a>
                     </li>
                 </ul>
             </li>

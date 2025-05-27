@@ -27,18 +27,13 @@ else
 				<div class="title">
 					Результаты выполнения ключевых показателей эффективности деятельности
 				</div>
-
-
-				@if (!string.IsNullOrEmpty(Model.Conclusion))
-				{
 					<div class="conclusion-popup-wrapper">
 						<div class="title">
 							<i class="fa-solid fa-list"></i>
 							Вывод
 						</div>
-						<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+						<input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
 					</div>
-				}
 			</div>
 			<table class="table_popup">
 				<thead>

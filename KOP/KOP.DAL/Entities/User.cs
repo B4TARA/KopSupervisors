@@ -12,9 +12,9 @@ namespace KOP.DAL.Entities
         public string DepartmentFromFile { get; set; }
         public string StructureRole { get; set; }
         public string GradeGroup { get; set; }
-        public DateOnly HireDate { get; set; }
-        public DateOnly ContractStartDate { get; set; }
-        public DateOnly ContractEndDate { get; set; }
+        public DateOnly? HireDate { get; set; }
+        public DateOnly? ContractStartDate { get; set; }
+        public DateOnly? ContractEndDate { get; set; }
 
         public string Login { get; set; }
         public string Password { get; set; }
@@ -36,6 +36,11 @@ namespace KOP.DAL.Entities
         {
             get
             {
+                if (!HireDate.HasValue)
+                {
+                    return "Дата найма не установлена";
+                }
+
                 var monthDay = new int[12] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
                 var currentDate = DateTime.Now;
                 var increment = 0;
@@ -43,14 +48,17 @@ namespace KOP.DAL.Entities
                 var month = 0;
                 var year = 0;
 
-                if (HireDate.Day > currentDate.Day)
+                // Получаем значение HireDate
+                var hireDate = HireDate.Value;
+
+                if (hireDate.Day > currentDate.Day)
                 {
-                    increment = monthDay[HireDate.Month - 1];
+                    increment = monthDay[hireDate.Month - 1];
                 }
 
                 if (increment == -1)
                 {
-                    if (DateTime.IsLeapYear(HireDate.Year))
+                    if (DateTime.IsLeapYear(hireDate.Year))
                     {
                         increment = 29;
                     }
@@ -62,26 +70,26 @@ namespace KOP.DAL.Entities
 
                 if (increment != 0)
                 {
-                    day = (currentDate.Day + increment) - HireDate.Day;
+                    day = (currentDate.Day + increment) - hireDate.Day;
                     increment = 1;
                 }
                 else
                 {
-                    day = currentDate.Day - HireDate.Day;
+                    day = currentDate.Day - hireDate.Day;
                 }
 
-                if ((HireDate.Month + increment) > currentDate.Month)
+                if ((hireDate.Month + increment) > currentDate.Month)
                 {
-                    month = (currentDate.Month + 12) - (HireDate.Month + increment);
+                    month = (currentDate.Month + 12) - (hireDate.Month + increment);
                     increment = 1;
                 }
                 else
                 {
-                    month = (currentDate.Month) - (HireDate.Month + increment);
+                    month = (currentDate.Month) - (hireDate.Month + increment);
                     increment = 0;
                 }
 
-                year = currentDate.Year - (HireDate.Year + increment);
+                year = currentDate.Year - (hireDate.Year + increment);
 
                 var yearsString = (year > 4 || year == 0) ? "л." : "г.";
                 var durationString = $"{year} {yearsString} {month} мес. {day} дн.";
@@ -90,21 +98,29 @@ namespace KOP.DAL.Entities
             }
         }
 
+
         public string GetNextGradeStartDate
         {
             get
             {
+                // Проверяем, установлено ли значение ContractEndDate
+                if (!ContractEndDate.HasValue)
+                {
+                    return "Дата окончания контракта не установлена";
+                }
+
+                // Проверяем, закончился ли контракт
                 if (ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
                 {
                     return "Вероятно, контракт уже закончился";
                 }
 
-                var tempDate = ContractEndDate.AddMonths(-4);
+                var tempDate = ContractEndDate.Value.AddMonths(-4);
                 var nextGradeStartDate = new DateOnly(tempDate.Year, tempDate.Month, 1);
 
                 // Дата запуска веб-приложения
                 // До этой даты оценки не начинались
-                if (nextGradeStartDate < new DateOnly(2025,4,1))
+                if (nextGradeStartDate < new DateOnly(2025, 4, 1))
                 {
                     return "-";
                 }
@@ -112,5 +128,6 @@ namespace KOP.DAL.Entities
                 return nextGradeStartDate.ToString("dd.MM.yyyy");
             }
         }
+
     }
 }

@@ -1,0 +1,48 @@
+﻿@model KOP.WEB.Models.ViewModels.Admin.UserRecommendationsViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="popup_content">
+
+    <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Оценка управленческих компетенций
+        </div>
+    </div>
+
+    <table class="table_popup">
+        <thead>
+            <tr>
+                <th>Балл</th>
+                <th>Уровень</th>
+                <th>Компетентность</th>
+            </tr>
+        </thead>
+
+        @if (Model.AssessmentInterpretation != null)
+        {
+            <tr class="@Model.AssessmentInterpretation.HtmlClassName">
+                <td class="table_value">@Model.AssessmentInterpretation.MinValue -@Model.AssessmentInterpretation.MaxValue</td>
+                <td class="table_level">@Model.AssessmentInterpretation.Level</td>
+                <td class="table_text">@Model.AssessmentInterpretation.Competence</td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td>-</td>
+                <td>Не удалось определить интерпретацию</td>
+                <td>-</td>
+            </tr>
+        }
+    </table>
+
+    @foreach(var competenceRecommendation in Model.CompetenceRecommendationList)
+    {
+        <div>
+            @competenceRecommendation.Value
+        </div>
+    }
+</div>

@@ -28,12 +28,13 @@ else
                 <div class="title">
                     Квалификация Руководителя
                 </div>
-                @if (!string.IsNullOrEmpty(Model.Conclusion))
-                {
-                    <div class="description">
-                        <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled") " required />
+                <div class="conclusion-popup-wrapper">
+                    <div class="title">
+                        <i class="fa-solid fa-list"></i>
+                        Вывод
                     </div>
-                }
+                    <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")" />
+                </div>
             </div>
             <div>
                 Соответствие

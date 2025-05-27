@@ -210,13 +210,25 @@ namespace KOP.BLL.Services
                 }
             }
 
-            // Вычисление среднего значения для завершенных оценок
-            foreach (var value in assessmentSummaryDto.AverageValuesByRow)
+            if (completedAssessmentResultsWithoutSelfAssessment.Count == 0)
             {
-                var average = Math.Round(value.Value / completedAssessmentResultsWithoutSelfAssessment.Count, 1);
-                value.Value = average;
-                assessmentSummaryDto.GeneralAverageResult += average;
+                assessmentSummaryDto.GeneralAverageResult = 0;
+                return; // или продолжить логику
             }
+
+            assessmentSummaryDto.GeneralAverageResult = 0;
+
+            foreach (var entry in assessmentSummaryDto.AverageValuesByRow)
+            {
+                entry.Value /= completedAssessmentResultsWithoutSelfAssessment.Count;
+                assessmentSummaryDto.GeneralAverageResult += entry.Value;
+            }
+
+            assessmentSummaryDto.GeneralAverageResult = Math.Round(
+                assessmentSummaryDto.GeneralAverageResult,
+                0,
+                MidpointRounding.AwayFromZero
+            );
         }
 
         private void ProcessInterpretations(Assessment assessment, AssessmentSummaryDto assessmentSummaryDto)

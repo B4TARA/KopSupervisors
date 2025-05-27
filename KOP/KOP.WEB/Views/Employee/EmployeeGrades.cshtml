@@ -1,47 +1,51 @@
-﻿@model List<KOP.Common.Dtos.GradeDtos.GradeReducedDto>
+﻿@model KOP.WEB.Models.ViewModels.Employee.EmployeeGradesViewModel
 
 <div class="home-content">
-	<div class="home_content_info">
-		<div class="home_content_info_icon">
-			<i class="fa-solid fa-folder"></i>
-		</div>
-		<div class="mid_title">
-			Отчетность
-		</div>
-	</div>
+    <div class="home_content_info">
+        <div class="home_content_info_icon">
+            <i class="fa-solid fa-folder"></i>
+        </div>
+        <div class="mid_title">
+            Отчетность
+        </div>
+    </div>
 </div>
-<div class="main_container_content" id="main_container_content">	
-	<section class="list_users_archive_container">
-		<div class="list_division_users_wrapper archive">
-			<div class="d-table table_users">
-				<div class="d-tr-th table_header">
-					<div class="d-th table_header_elem number">#</div>
-					<div class="d-th table_header_elem">№ Оценки</div>
-					<div class="d-th table_header_elem">Период</div>
-					<div class="d-th table_header_elem">Дата назначения</div>
-					<div class="d-th table_header_elem download">Документ</div>
-				</div>
+<div class="main_container_content" id="main_container_content">
+    <section class="list_users_archive_container">
+        <div class="list_division_users_wrapper archive">
+            <div class="d-table table_users">
+                <div class="d-tr-th table_header">
+                    <div class="d-th table_header_elem number">#</div>
+                    <div class="d-th table_header_elem">№ Оценки</div>
+                    <div class="d-th table_header_elem">Период</div>
+                    <div class="d-th table_header_elem">Дата назначения</div>
+                    <div class="d-th table_header_elem download">Документ</div>
+                </div>
 
-				@{
-					int count = 1;
-				}
+                @{
+                    int count = 1;
+                }
 
-				<div class="d-tbody">
-					@foreach (var grade in Model)
-					{
-						<div class="d-tr download-tr">
-							<div class="d-td number">@(count++)</div>
-							<div class="d-td fullname">@grade.Number</div>
-							<div class="d-td">@grade.StartDate - @grade.EndDate</div>
-							<div class="d-td">@grade.DateOfCreation</div>
-							<div class="d-td"><button onclick="downloadGradeWordDocument(@grade.Id)" class="action_btn primary_btn">Скачать</button></div>				
-						</div>
-						
-					}
-				</div>
-			</div>
-		</div>
-	</section>
+                <div class="d-tbody">
+                    @foreach (var grade in Model.GradeReducedDtoList)
+                    {
+                        <div class="d-tr download-tr">
+                            <div class="d-td number">@(count++)</div>
+                            <div class="d-td fullname">@grade.Number</div>
+                            <div class="d-td">@grade.StartDate - @grade.EndDate</div>
+                            <div class="d-td">@grade.DateOfCreation</div>
+                            <div class="d-td">
+                                <button id="downloadButton" onclick="downloadGradeWordDocument(@grade.Id, '@Model.EmployeeName')" class="action_btn primary_btn" style="display: flex; align-items: center; gap: 10px;">
+                                    <span id="downloadText">Скачать</span>
+                                    <span style="display:none" id="loader" class="loader"></span>
+                                </button>                                
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 <script src="/supervisors/js/reportScript.js"></script>

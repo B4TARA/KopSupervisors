@@ -22,6 +22,6 @@ namespace KOP.BLL.Interfaces
         AssessmentResultDto CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);
         AssessmentResultValueDto CreateAssessmentResultValueDto(AssessmentResultValue value);
         AssessmentMatrixElementDto CreateAssessmentMatrixElementDto(AssessmentMatrixElement element);
-        AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);
+        GetAssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation);
     }
 }

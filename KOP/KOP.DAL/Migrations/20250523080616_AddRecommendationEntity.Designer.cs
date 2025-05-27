@@ -3,6 +3,7 @@ using System;
 using KOP.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KOP.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523080616_AddRecommendationEntity")]
+    partial class AddRecommendationEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,9 +533,8 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AverageKpi")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("AverageKpi")
+                        .HasColumnType("double precision");
 
                     b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
@@ -547,9 +549,8 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SP")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("SP")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -558,9 +559,8 @@ namespace KOP.DAL.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("SuccessRate")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("SuccessRate")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("UserRole")
                         .IsRequired()

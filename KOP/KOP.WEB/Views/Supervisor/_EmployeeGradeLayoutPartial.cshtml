@@ -57,9 +57,18 @@
 		</div>
 		<div class="description_wrapper">
 			<div class="description">Дата окончания контракта</div>
-			<div class="mid_title ">
-				@Model.ContractEndDate.ToString("dd.MM.yyyy")
-			</div>
+			@if (Model.ContractEndDate.HasValue)
+			{
+				<div class="mid_title ">
+					@Model.ContractEndDate.Value.ToString("dd.MM.yyyy")
+				</div>
+			}
+			else
+			{
+				<div class="mid_title ">
+					Нет данных
+				</div>
+			}
 		</div>
 		<div class="description_wrapper">
 			<div class="description">Период оценки</div>

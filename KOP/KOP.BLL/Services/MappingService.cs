@@ -65,6 +65,8 @@ namespace KOP.BLL.Services
                 StrategicTasksConclusion = grade.StrategicTasksConclusion,
                 KPIsConclusion = grade.KPIsConclusion,
                 QualificationConclusion = grade.QualificationConclusion,
+                IsCorporateCompetenciesFinalized = grade.IsCorporateCompetenciesFinalized,
+                IsManagmentCompetenciesFinalized = grade.IsManagmentCompetenciesFinalized,
                 ManagmentCompetenciesConclusion = grade.ManagmentCompetenciesConclusion,
                 CorporateCompetenciesConclusion = grade.CorporateCompetenciesConclusion,
                 Qn2 = grade.Qn2,
@@ -156,19 +158,15 @@ namespace KOP.BLL.Services
                 QualificationResult = qualification.QualificationResult,
             };
 
-            foreach (var previousJob in qualification.PreviousJobs)
-            {
-                var previousJobDto = CreatePreviousJobDto(previousJob);
+            dto.PreviousJobs = qualification.PreviousJobs
+                .Select(CreatePreviousJobDto)
+                .OrderBy(x => x.StartDateTime)
+                .ToList();
 
-                dto.PreviousJobs.Add(previousJobDto);
-            }
-
-            foreach (var higherEducation in qualification.HigherEducations)
-            {
-                var higherEducationDto = CreateHigherEducationDto(higherEducation);
-
-                dto.HigherEducations.Add(higherEducationDto);
-            }
+            dto.HigherEducations = qualification.HigherEducations
+                .Select(CreateHigherEducationDto)
+                .OrderBy(x => x.StartDateTime)
+                .ToList();
 
             return dto;
         }
@@ -394,9 +392,9 @@ namespace KOP.BLL.Services
             return dto;
         }
 
-        public AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation)
+        public GetAssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation)
         {
-            var dto = new AssessmentInterpretationDto()
+            var dto = new GetAssessmentInterpretationDto()
             {
                 MinValue = interpretation.MinValue,
                 MaxValue = interpretation.MaxValue,
