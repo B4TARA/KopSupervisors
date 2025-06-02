@@ -1,4 +1,5 @@
-﻿using KOP.Common.Enums;
+﻿using KOP.Common.Dtos.AssessmentResultDtos;
+using KOP.Common.Enums;
 
 namespace KOP.Common.Dtos.AssessmentDtos
 {
@@ -15,6 +16,6 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public int AverageValue { get; set; }
         public List<AssessmentResultDto> AllAssessmentResults { get; set; } = new();
         public List<AssessmentResultDto> CompletedAssessmentResults { get; set; } = new();
-        public GetAssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
+        public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
     }
 }

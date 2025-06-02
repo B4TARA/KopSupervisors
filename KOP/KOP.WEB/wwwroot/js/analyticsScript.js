@@ -351,9 +351,7 @@ function createTabs(data) {
 
             
         }
-    });
-
-    	
+    });	
 }
 
 // Устанавливаем активную вкладку
@@ -374,11 +372,12 @@ async function loadCompetenciesAnalytics(userId) {
         const data = await response.json();
         const topCompetencies = document.getElementById('topCompetencies');
         const antiTopCompetencies = document.getElementById('antiTopCompetencies');
-        //const topDescriptions = document.getElementById('topDescriptions');
-        //const antiTopDescriptions = document.getElementById('antiTopDescriptions');
+        const courseRecommendations = document.getElementById('courseRecommendations');
+        const seminarRecommendations = document.getElementById('seminarRecommendations');
+        const competenceRecommendations = document.getElementById('competenceRecommendations');
+        const literatureRecommendations = document.getElementById('literatureRecommendations');
 
         topCompetencies.innerHTML = '';
-        /*topDescriptions.innerHTML = '';*/
         data.topCompetencies.forEach((item, index) => {
             var newTopCompetenceDiv = document.createElement('div');
             newTopCompetenceDiv.classList.add('dashboard-competences-group-item');
@@ -391,14 +390,9 @@ async function loadCompetenciesAnalytics(userId) {
 							</div>
             `;
             topCompetencies.appendChild(newTopCompetenceDiv);
-
-            //var newTopDescription = document.createElement('li');
-            //newTopDescription.textContent = item.competenceDescription;
-            //topDescriptions.appendChild(newTopDescription);
         });
 
         antiTopCompetencies.innerHTML = '';
-        //antiTopDescriptions.innerHTML = '';
         data.antiTopCompetencies.forEach((item, index) => {
             const itemPercentage = (item.avgValue / 13) * 100;
             var newAntiTopCompetenceDiv = document.createElement('div');
@@ -411,10 +405,34 @@ async function loadCompetenciesAnalytics(userId) {
 							</div>
             `;
             antiTopCompetencies.appendChild(newAntiTopCompetenceDiv);
+        });
 
-            //var newAntiTopDescription = document.createElement('li');
-            //newAntiTopDescription.textContent = item.competenceDescription;
-            //antiTopDescriptions.appendChild(newAntiTopDescription);
+        courseRecommendations.innerHTML = '';
+        data.courseRecommendations.forEach((item, index) => {
+            var newCourseRecommendation = document.createElement('li');
+            newCourseRecommendation.textContent = item.value;
+            courseRecommendations.appendChild(newCourseRecommendation);
+        });
+
+        seminarRecommendations.innerHTML = '';
+        data.seminarRecommendations.forEach((item, index) => {
+            var newSeminarRecommendation = document.createElement('li');
+            newSeminarRecommendation.textContent = item.value;
+            seminarRecommendations.appendChild(newSeminarRecommendation);
+        });
+
+        competenceRecommendations.innerHTML = '';
+        data.competenceRecommendations.forEach((item, index) => {
+            var newCompetenceRecommendation = document.createElement('li');
+            newCompetenceRecommendation.textContent = item.value;
+            competenceRecommendations.appendChild(newCompetenceRecommendation);
+        });
+
+        literatureRecommendations.innerHTML = '';
+        data.literatureRecommendations.forEach((item, index) => {
+            var newLiteratureRecommendation = document.createElement('li');
+            newLiteratureRecommendation.textContent = item.value;
+            literatureRecommendations.appendChild(newLiteratureRecommendation);
         });
 
         document.querySelectorAll('.dashboard-description-header-btn').forEach(function (headerBtn) {

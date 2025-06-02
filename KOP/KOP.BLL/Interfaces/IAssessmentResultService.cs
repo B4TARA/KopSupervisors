@@ -1,4 +1,4 @@
-﻿using KOP.Common.Dtos.AssessmentDtos;
+﻿using KOP.Common.Dtos.AssessmentResultDtos;
 using KOP.DAL.Entities;
 
 namespace KOP.BLL.Interfaces
@@ -10,5 +10,8 @@ namespace KOP.BLL.Interfaces
         Task DeletePendingColleagueAssessmentResult(int id);
         Task CreateAssessmentResult(AssessmentResult assessmentResult);
         Task DeleteAssessmentResult(AssessmentResult assessmentResult);
+
+        Task<AssessmentResultDto?> GetManagementSelfAssessmentResultForGrade(int gradeId);
+        Task<AssessmentResultDto?> GetManagementSupervisorAssessmentResultForGrade(int gradeId);
     }
 }

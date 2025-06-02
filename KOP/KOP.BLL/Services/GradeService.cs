@@ -10,18 +10,18 @@ namespace KOP.BLL.Services
 {
     public class GradeService : IGradeService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
 
-        public GradeService(ApplicationDbContext dbContext, IUnitOfWork unitOfWork, IMappingService mappingService)
+        public GradeService(ApplicationDbContext context, IUnitOfWork unitOfWork, IMappingService mappingService)
         {
-            _dbContext = dbContext;
+            _context = context;
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
         }
 
-        public async Task<GradeDto> GetGradeDto(int gradeId, IEnumerable<GradeEntities> gradeEntities)
+        public async Task<GradeExtendedDto> GetGradeDto(int gradeId, IEnumerable<GradeEntities> gradeEntities)
         {
             var includeProperties = new List<string>();
             var allMarkTypes = new List<MarkType>();
@@ -67,10 +67,10 @@ namespace KOP.BLL.Services
 
             return gradeDto;
         }
-  
-        public async Task EditGrade(GradeDto dto)
+
+        public async Task EditGrade(GradeExtendedDto dto)
         {
-            var grade = await _dbContext.Grades.FirstOrDefaultAsync(x => x.Id == dto.Id);
+            var grade = await _context.Grades.FirstOrDefaultAsync(x => x.Id == dto.Id);
 
             if (grade == null)
             {
@@ -203,86 +203,105 @@ namespace KOP.BLL.Services
             grade.IsMarksFinalized = dto.IsMarksFinalized;
             grade.IsQualificationFinalized = dto.IsQualificationFinalized;
 
-            _dbContext.Grades.Update(grade);
-            await _dbContext.SaveChangesAsync();
+            _context.Grades.Update(grade);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteStrategicTask(int id)
         {
-            var strategicTaskToDelete = await _dbContext.StrategicTasks.FirstOrDefaultAsync(x => x.Id == id);
+            var strategicTaskToDelete = await _context.StrategicTasks.FirstOrDefaultAsync(x => x.Id == id);
 
             if (strategicTaskToDelete == null)
             {
                 throw new Exception($"StrategicTask with ID {id} not found.");
             }
 
-            _dbContext.StrategicTasks.Remove(strategicTaskToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.StrategicTasks.Remove(strategicTaskToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteProject(int id)
         {
-            var projectToDelete = await _dbContext.Projects.FirstOrDefaultAsync(x => x.Id == id);
+            var projectToDelete = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id);
 
             if (projectToDelete == null)
             {
                 throw new Exception($"Project with ID {id} not found.");
             }
 
-            _dbContext.Projects.Remove(projectToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.Projects.Remove(projectToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteKpi(int id)
         {
-            var kpiToDelete = await _dbContext.Kpis.FirstOrDefaultAsync(x => x.Id == id);
+            var kpiToDelete = await _context.Kpis.FirstOrDefaultAsync(x => x.Id == id);
 
             if (kpiToDelete == null)
             {
                 throw new Exception($"KPI with ID {id} not found.");
             }
 
-            _dbContext.Kpis.Remove(kpiToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.Kpis.Remove(kpiToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteMark(int id)
         {
-            var markToDelete = await _dbContext.Marks.FirstOrDefaultAsync(x => x.Id == id);
+            var markToDelete = await _context.Marks.FirstOrDefaultAsync(x => x.Id == id);
 
             if (markToDelete == null)
             {
                 throw new Exception($"Mark with ID {id} not found.");
             }
 
-            _dbContext.Marks.Remove(markToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.Marks.Remove(markToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeletePreviousJob(int id)
         {
-            var previousJobToDelete = await _dbContext.PreviousJobs.FirstOrDefaultAsync(x => x.Id == id);
+            var previousJobToDelete = await _context.PreviousJobs.FirstOrDefaultAsync(x => x.Id == id);
 
             if (previousJobToDelete == null)
             {
                 throw new Exception($"PreviousJob with ID {id} not found.");
             }
 
-            _dbContext.PreviousJobs.Remove(previousJobToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.PreviousJobs.Remove(previousJobToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteHigherEducation(int id)
         {
-            var higherEducationToDelete = await _dbContext.HigherEducations.FirstOrDefaultAsync(x => x.Id == id);
+            var higherEducationToDelete = await _context.HigherEducations.FirstOrDefaultAsync(x => x.Id == id);
 
             if (higherEducationToDelete == null)
             {
                 throw new Exception($"HigherEducation with ID {id} not found.");
             }
 
-            _dbContext.HigherEducations.Remove(higherEducationToDelete);
-            await _dbContext.SaveChangesAsync();
+            _context.HigherEducations.Remove(higherEducationToDelete);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<GradeReducedDto?> GetLatestGradeForUser(int userId)
+        {
+            var latestGrade = await _context.Grades
+                .AsNoTracking()
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.Number)
+                .Select(g => new GradeReducedDto
+                {
+                    Id = g.Id,
+                    Number = g.Number,
+                    StartDate = g.StartDate,
+                    EndDate = g.EndDate,
+                    DateOfCreation = g.DateOfCreation,
+                })
+                .FirstOrDefaultAsync();
+
+            return latestGrade;
         }
     }
 }

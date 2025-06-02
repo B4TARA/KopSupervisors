@@ -4,7 +4,7 @@ namespace KOP.BLL.Interfaces
 {
     public interface IValueJudgmentService
     {
-        Task<ValueJudgmentDto> GetValueJudgmentDtoByGradeId(int gradeId);
+        Task<ValueJudgmentDto> GetValueJudgmentByGradeId(int gradeId);
         Task EditValueJudgment(ValueJudgmentDto valueJudgmentDto);
     }
 }

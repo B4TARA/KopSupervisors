@@ -30,6 +30,7 @@ namespace KOP.DAL
         public DbSet<TrainingEvent> TrainingEvents { get; set; }
         public DbSet<ValueJudgment> ValueJudgments { get; set; }
         public DbSet<HigherEducation> HigherEducations { get; set; }
+        public DbSet<Recommendation> Recommendations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

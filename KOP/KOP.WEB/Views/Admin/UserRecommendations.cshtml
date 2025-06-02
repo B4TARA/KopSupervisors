@@ -5,13 +5,27 @@
 }
 
 <div class="popup_content">
-
+    <input type="hidden" class="grade-id" value="@Model.GradeId" />
     <div class="popup_content_header margin_container_bottom_middle">
         <div class="title">
-            Оценка управленческих компетенций
+            Результат оценки управленческих компетенций:
         </div>
     </div>
-
+    <table class="table_popup">
+        <tr>
+            <td>Самооценка</td>
+            <td>@Model.SelfAssessmentSum балл</td>
+        </tr>
+        <tr>
+            <td>Оценка руководителя</td>
+            <td>@Model.SupervisorAssessmentSum балл</td>
+        </tr>
+    </table>
+    @*  <div class="popup_content_header margin_container_bottom_middle">
+        <div class="title">
+            Интерпретация результатов:
+        </div>
+    </div>
     <table class="table_popup">
         <thead>
             <tr>
@@ -37,12 +51,103 @@
                 <td>-</td>
             </tr>
         }
-    </table>
+    </table> *@
 
-    @foreach(var competenceRecommendation in Model.CompetenceRecommendationList)
-    {
-        <div>
-            @competenceRecommendation.Value
+    <div class="recommendations-form">
+        <!-- Компетенции -->
+        <div class="section-header">
+            <h3>Вместе с тем, следует поддерживать на должном лидерском уровне следующие компетенции:</h3>
+            <button type="button" class="add-btn" onclick="addNewField('competencesContainer', @Model.GradeId)">+</button>
         </div>
-    }
+        <div id="competencesContainer">
+            @foreach (var item in Model.CompetenceRecommendations)
+            {
+                <div class="input-group">
+                    <input type="text" value="@item.Value" class="form-control" required />
+                    <input type="hidden" class="item-id" value="@item.Id" />
+                    <input type="hidden" class="grade-id" value="@item.GradeId" />
+                    <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+                </div>
+            }
+        </div>
+
+        <!-- Бизнес-литература -->
+        <div class="section-header">
+            <h3>Изучение бизнес-литературы:</h3>
+            <button type="button" class="add-btn" onclick="addNewField('literatureContainer', @Model.GradeId)">+</button>
+        </div>
+        <div id="literatureContainer">
+            @foreach (var item in Model.LiteratureRecommendations)
+            {
+                <div class="input-group">
+                    <input type="text" value="@item.Value" class="form-control" required />
+                    <input type="hidden" class="item-id" value="@item.Id" />
+                    <input type="hidden" class="grade-id" value="@item.GradeId" />
+                    <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+                </div>
+            }
+        </div>
+
+        <!-- Курсы -->
+        <div class="section-header">
+            <h3>Электронный курс на Корпоративном Портале МТSpace:</h3>
+            <button type="button" class="add-btn" onclick="addNewField('coursesContainer', @Model.GradeId)">+</button>
+        </div>
+        <div id="coursesContainer">
+            @foreach (var item in Model.CourseRecommendations)
+            {
+                <div class="input-group">
+                    <input type="text" value="@item.Value" class="form-control" />
+                    <input type="hidden" class="item-id" value="@item.Id" />
+                    <input type="hidden" class="grade-id" value="@item.GradeId" />
+                    <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+                </div>
+            }
+        </div>
+
+        <!-- Семинары -->
+        <div class="section-header">
+            <h3>Семинары, тренинги, курсы, конференции и иное:</h3>
+            <button type="button" class="add-btn" onclick="addNewField('seminarsContainer', @Model.GradeId)">+</button>
+        </div>
+        <div id="seminarsContainer">
+            @foreach (var item in Model.SeminarRecommendations)
+            {
+                <div class="input-group">
+                    <input type="text" value="@item.Value" class="form-control" required />
+                    <input type="hidden" class="item-id" value="@item.Id" />
+                    <input type="hidden" class="grade-id" value="@item.GradeId" />
+                    <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+                </div>
+            }
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveRecommendations(@Model.UserId)">Сохранить</button>
+    </div>
 </div>
+
+<style>
+    .input-group.deleted {
+        opacity: 0.6;
+        background-color: #ffecec;
+        border-left: 3px solid #ff6b6b;
+    }
+
+        .input-group.deleted input[type="text"] {
+            text-decoration: line-through;
+            background-color: transparent;
+        }
+
+    .restore-btn {
+        background: none;
+        border: none;
+        color: #4CAF50;
+        cursor: pointer;
+        font-size: 1.2em;
+        margin-left: 8px;
+    }
+
+    .remove-btn {
+        /* Ваши существующие стили */
+    }
+</style>

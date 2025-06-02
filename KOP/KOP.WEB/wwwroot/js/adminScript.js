@@ -6,6 +6,12 @@ async function openUserLayout(userId) {
     openUserSystemRoles(userId);
 }
 
+async function openUserRecommendations(userId) {
+    let response = await fetch(`/supervisors/Admin/GetUserRecommendations?userId=${encodeURIComponent(userId)}`);
+    let htmlContent = await response.text();
+    popupResult(htmlContent, false)
+}
+
 async function openUserSubordinates(userId) {
     let response = await fetch(`/supervisors/Admin/GetUserSubordinates?userId=${encodeURIComponent(userId)}`);
     let htmlContent = await response.text();
@@ -213,4 +219,120 @@ function showSubordinatesTree() {
             $('<li/>').text(o.text).appendTo(list)
         })
     })
+}
+
+// Добавление нового поля
+function addNewField(containerId, gradeId) {
+    const container = document.getElementById(containerId);
+    const div = document.createElement('div');
+    div.className = 'input-group';
+    div.innerHTML = `
+        <input type="text" class="form-control" placeholder="Введите рекомендацию" />
+        <input type="hidden" class="item-id" value="0" />
+        <input type="hidden" class="grade-id" value="${gradeId}" />
+        <input type="hidden" class="delete-flag" name="isDeleted" value="false" />
+        <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+    `;
+    container.appendChild(div);
+}
+
+// Удаление/скрытие поля
+function removeField(btn) {
+    const element = btn.closest('.input-group');
+
+    // Добавляем флаг удаления
+    let deleteFlag = element.querySelector('.delete-flag');
+    if (!deleteFlag) {
+        deleteFlag = document.createElement('input');
+        deleteFlag.type = 'hidden';
+        deleteFlag.className = 'delete-flag';
+        deleteFlag.value = 'true';
+        element.appendChild(deleteFlag);
+    } else {
+        deleteFlag.value = 'true';
+    }
+
+    // Визуально помечаем как удаленное
+    element.classList.add('deleted');
+
+    // Добавляем кнопку восстановления
+    const restoreBtn = document.createElement('button');
+    restoreBtn.type = 'button';
+    restoreBtn.className = 'restore-btn';
+    restoreBtn.innerHTML = '↻';
+    restoreBtn.onclick = () => restoreField(restoreBtn);
+    element.appendChild(restoreBtn);
+
+    // Скрываем кнопку удаления
+    btn.style.display = 'none';
+}
+
+// Восстановление поля
+function restoreField(btn) {
+    const element = btn.closest('.input-group');
+    const deleteFlag = element.querySelector('.delete-flag');
+
+    // Снимаем пометку удаления
+    deleteFlag.value = 'false';
+    element.classList.remove('deleted');
+
+    // Удаляем кнопку восстановления
+    btn.remove();
+
+    // Показываем кнопку удаления
+    element.querySelector('.remove-btn').style.display = '';
+}
+
+// Сбор данных и отправка
+async function saveRecommendations(userId) {
+    const data = {
+        Competences: getItemsData('competencesContainer'),
+        Literature: getItemsData('literatureContainer'),
+        Courses: getItemsData('coursesContainer'),
+        Seminars: getItemsData('seminarsContainer')
+    };
+
+    try {
+        const response = await fetch('/supervisors/Admin/UpdateRecommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert('Данные успешно сохранены!');
+            openUserRecommendations(userId);
+        } else {
+            throw new Error('Ошибка сохранения');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при сохранении');
+    }
+}
+
+// Получение данных из контейнера с учетом ID
+function getItemsData(containerId) {
+    const container = document.getElementById(containerId);
+    const items = container.querySelectorAll('.input-group');
+    const result = [];
+
+    items.forEach(item => {
+        const input = item.querySelector('input[type="text"]');
+        const idInput = item.querySelector('.item-id');
+        const gradeIdInput = item.querySelector('.grade-id');
+        const deleteFlag = item.querySelector('.delete-flag');
+        const value = input.value.trim();
+
+        result.push({
+            Id: idInput ? parseInt(idInput.value) : 0,
+            GradeId: gradeIdInput ? parseInt(gradeIdInput.value) : 0,
+            Value: value,
+            IsDeleted: deleteFlag ? deleteFlag.value === 'true' : false
+        });
+    });
+
+    return result;
 }

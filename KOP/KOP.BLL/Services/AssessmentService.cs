@@ -1,18 +1,22 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
+using KOP.DAL;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace KOP.BLL.Services
 {
     public class AssessmentService : IAssessmentService
     {
+        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMappingService _mappingService;
 
-        public AssessmentService(IUnitOfWork unitOfWork, IMappingService mappingService)
+        public AssessmentService(ApplicationDbContext context, IUnitOfWork unitOfWork, IMappingService mappingService)
         {
+            _context = context;
             _unitOfWork = unitOfWork;
             _mappingService = mappingService;
         }
@@ -210,17 +214,14 @@ namespace KOP.BLL.Services
                 }
             }
 
-            if (completedAssessmentResultsWithoutSelfAssessment.Count == 0)
+            if (!completedAssessmentResultsWithoutSelfAssessment.Any())
             {
-                assessmentSummaryDto.GeneralAverageResult = 0;
-                return; // или продолжить логику
+                return;
             }
-
-            assessmentSummaryDto.GeneralAverageResult = 0;
 
             foreach (var entry in assessmentSummaryDto.AverageValuesByRow)
             {
-                entry.Value /= completedAssessmentResultsWithoutSelfAssessment.Count;
+                entry.Value = Math.Round(entry.Value / completedAssessmentResultsWithoutSelfAssessment.Count, 2);
                 assessmentSummaryDto.GeneralAverageResult += entry.Value;
             }
 
@@ -280,6 +281,47 @@ namespace KOP.BLL.Services
                 Value = value.Value,
                 AssessmentMatrixRow = value.AssessmentMatrixRow,
             }).ToList();
+        }
+
+        public async Task<AssessmentInterpretationDto?> GetCorporateAssessmentInterpretationForGrade(int gradeId)
+        {
+            var corporateAssessment = await _context.Assessments
+                .AsNoTracking()
+                .Include(a => a.AssessmentType)
+                .FirstOrDefaultAsync(a =>
+                    a.GradeId == gradeId &&
+                    a.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies);
+
+            if (corporateAssessment == null)
+                throw new Exception($"Corporate assessment with gradeId {gradeId} not found.");
+
+            var validResults = corporateAssessment.AssessmentResults
+                .Where(ar => ar.Type != AssessmentResultTypes.SelfAssessment)
+                .ToList();
+
+            if (!validResults.Any())
+                return null;
+
+            var averageValue = Math.Round(validResults.Average(ar => ar.TotalValue), 2); // Округляем до 2 знаков
+
+            var assessmentInterpretation = await _context.AssessmentInterpretations
+                .AsNoTracking()
+                .Include(ai => ai.AssessmentType)
+                .Where(ai =>
+                    ai.MinValue <= averageValue &&
+                    ai.MaxValue >= averageValue &&
+                    ai.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
+                .Select(ai => new AssessmentInterpretationDto
+                {
+                    MinValue = ai.MinValue,
+                    MaxValue = ai.MaxValue,
+                    Level = ai.Level,
+                    Competence = ai.Competence,
+                    HtmlClassName = ai.HtmlClassName,
+                })
+                .FirstOrDefaultAsync();
+
+            return assessmentInterpretation;
         }
     }
 }

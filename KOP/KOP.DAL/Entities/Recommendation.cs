@@ -21,6 +21,8 @@ namespace KOP.DAL.Entities
             Value = value;
             Type = type;
             GradeId = gradeId;
+            DateOfCreation = DateTime.UtcNow;
+            DateOfModification = DateTime.UtcNow;
         }
         public string Value { get; set; }
         public RecommendationTypes Type { get; set; }

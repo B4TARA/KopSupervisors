@@ -1,9 +1,9 @@
-﻿using KOP.Common.Dtos;
+﻿using KOP.Common.Dtos.UserDtos;
 
 namespace KOP.WEB.Models.ViewModels.Admin
 {
     public class UsersViewModel
     {
-        public List<UserSummaryDto> UserSummaryDtoList { get; set; } = new();
+        public List<UserReducedDto> UserSummaryDtoList { get; set; } = new();
     }
 }

@@ -6,6 +6,7 @@ namespace KOP.BLL.Interfaces
 {
     public interface IAssessmentService
     {
+        Task<AssessmentInterpretationDto?> GetCorporateAssessmentInterpretationForGrade(int gradeId);
         Task<AssessmentDto?> GetAssessment(int id);
         Task<AssessmentSummaryDto> GetAssessmentSummary(int assessmentId);
         Task<bool> IsActiveAssessment(int judgeId, int judgedId, int? assessmentId = null);

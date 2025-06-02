@@ -1,7 +1,8 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.AssessmentResultDtos;
 using KOP.Common.Dtos.GradeDtos;
+using KOP.Common.Dtos.UserDtos;
 using KOP.Common.Enums;
 using KOP.DAL.Entities;
 
@@ -9,9 +10,9 @@ namespace KOP.BLL.Services
 {
     public class MappingService : IMappingService
     {
-        public UserDto CreateUserDto(User user)
+        public UserExtendedDto CreateUserDto(User user)
         {
-            var dto = new UserDto
+            var dto = new UserExtendedDto
             {
                 Id = user.Id,
                 FullName = user.FullName,
@@ -46,9 +47,9 @@ namespace KOP.BLL.Services
             return dto;
         }
 
-        public GradeDto CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes)
+        public GradeExtendedDto CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes)
         {
-            var dto = new GradeDto()
+            var dto = new GradeExtendedDto()
             {
                 Id = grade.Id,
                 Number = grade.Number,
@@ -357,7 +358,7 @@ namespace KOP.BLL.Services
                 dto.HtmlClassName = assessmentInterpretation.HtmlClassName;
             }
 
-            dto.Judge = new UserDto
+            dto.Judge = new UserExtendedDto
             {
                 Id = result.Judge.Id,
                 FullName = result.Judge.FullName,
@@ -365,7 +366,7 @@ namespace KOP.BLL.Services
                 ImagePath = result.Judge.ImagePath,
             };
 
-            dto.Judged = new UserDto
+            dto.Judged = new UserExtendedDto
             {
                 Id = result.Assessment.User.Id,
                 FullName = result.Assessment.User.FullName,
@@ -392,9 +393,9 @@ namespace KOP.BLL.Services
             return dto;
         }
 
-        public GetAssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation)
+        public AssessmentInterpretationDto CreateAssessmentInterpretationDto(AssessmentInterpretation interpretation)
         {
-            var dto = new GetAssessmentInterpretationDto()
+            var dto = new AssessmentInterpretationDto()
             {
                 MinValue = interpretation.MinValue,
                 MaxValue = interpretation.MaxValue,

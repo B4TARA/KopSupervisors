@@ -1,6 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AnalyticsDtos;
 using KOP.DAL.Interfaces;
+using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,13 @@ namespace KOP.WEB.Controllers
     public class AnalyticsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRecommendationService _recommendationService;
         private readonly IAssessmentService _assessmentService;
 
-        public AnalyticsController(IUnitOfWork unitOfWork, IAssessmentService assessmentService)
+        public AnalyticsController(IUnitOfWork unitOfWork, IRecommendationService recommendationService, IAssessmentService assessmentService)
         {
             _unitOfWork = unitOfWork;
+            _recommendationService = recommendationService;
             _assessmentService = assessmentService;
         }
 
@@ -97,16 +100,14 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> GetCompetenciesAnalytics(int userId)
         {
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: "Grades.Assessments.AssessmentType");
-            if (user is null)
-            {
+
+            if (user == null)
                 return NotFound(new { Message = $"Не удалось найти пользователя с ID {userId}" });
-            }
 
             var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-            if (lastGrade is null)
-            {
+
+            if (lastGrade == null)
                 return NotFound(new { Message = $"Не удалось найти последнюю оценку у пользователя с ID {userId}" });
-            }
 
             var competenciesAnalytics = new CompetenciesAnalyticsDto();
             var allCompetencies = new List<CompetenceDto>();
@@ -122,10 +123,9 @@ namespace KOP.WEB.Controllers
                 foreach (var value in averageValuesByRow)
                 {
                     var row = rowsWithElements.FirstOrDefault(x => x.Key == (value.AssessmentMatrixRow + 1)); // т.к 1-ый элемент - это заголовок
+
                     if (row == null)
-                    {
                         continue;
-                    }
 
                     var competenceDto = new CompetenceDto
                     {
@@ -149,6 +149,16 @@ namespace KOP.WEB.Controllers
                 .OrderBy(c => c.avgValue)
                 .Take(5)
                 .ToList();
+
+            var courseRecommendations = await _recommendationService.GetCourseRecommendationsForGrade(lastGrade.Id);
+            var seminarRecommendations = await _recommendationService.GetSeminarRecommendationsForGrade(lastGrade.Id);
+            var competenceRecommendations = await _recommendationService.GetCompetenceRecommendationsForGrade(lastGrade.Id);
+            var literatureRecommendations = await _recommendationService.GetLiteratureRecommendationsForGrade(lastGrade.Id);
+
+            competenciesAnalytics.CourseRecommendations = courseRecommendations;
+            competenciesAnalytics.SeminarRecommendations = seminarRecommendations;
+            competenciesAnalytics.CompetenceRecommendations = competenceRecommendations;
+            competenciesAnalytics.LiteratureRecommendations = literatureRecommendations;
 
             // Возврат JSON с типами assessment
             return Json(competenciesAnalytics);

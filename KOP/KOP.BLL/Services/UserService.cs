@@ -1,27 +1,32 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.AssessmentResultDtos;
 using KOP.Common.Dtos.GradeDtos;
+using KOP.Common.Dtos.UserDtos;
 using KOP.Common.Enums;
+using KOP.DAL;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace KOP.BLL.Services
 {
     public class UserService : IUserService
     {
+        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
         private readonly IMappingService _mappingService;
 
-        public UserService(IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService)
+        public UserService(ApplicationDbContext context, IUnitOfWork unitOfWork, IAssessmentService assessmentService, IMappingService mappingService)
         {
+            _context = context;
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
             _mappingService = mappingService;
         }
 
-        public async Task<UserDto> GetUserDto(int userId)
+        public async Task<UserExtendedDto> GetUserDto(int userId)
         {
 
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: [
@@ -75,7 +80,7 @@ namespace KOP.BLL.Services
         {
             var gradeSummaryDtoList = new List<GradeReducedDto>();
             var grades = await _unitOfWork.Grades.GetAllAsync(
-                x => x.UserId == userId && 
+                x => x.UserId == userId &&
                 (x.SystemStatus == SystemStatuses.COMPLETED || x.SystemStatus == SystemStatuses.PENDING)
 );
 
@@ -119,12 +124,12 @@ namespace KOP.BLL.Services
                     MaxValue = assessment.AssessmentType.AssessmentMatrix.MaxAssessmentMatrixResultValue,
                 };
 
-                assessmentResultDto.Judge = new UserDto
+                assessmentResultDto.Judge = new UserExtendedDto
                 {
                     Id = userId,
                 };
 
-                assessmentResultDto.Judged = new UserDto
+                assessmentResultDto.Judged = new UserExtendedDto
                 {
                     Id = assessment.UserId,
                     ImagePath = assessmentResult.Assessment.User.ImagePath,
@@ -256,6 +261,40 @@ namespace KOP.BLL.Services
             var completedJudgesCount = assessmentDto.CompletedAssessmentResults.Count(x => x.AssignedBy.HasValue);
 
             return isUserInRole && isAssessmentTypeCorporate && isStatusPending && completedJudgesCount < 3;
+        }
+
+        public async Task<List<UserReducedDto>> GetAllUsers()
+        {
+            var users = await _context.Users
+                .AsNoTracking()
+                .Select(user => new UserReducedDto
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Position = user.Position,
+                    SubdivisionFromFile = user.SubdivisionFromFile,
+                })
+                .OrderBy(x => x.FullName)
+                .ToListAsync();
+
+            return users;
+        }
+        public async Task<List<UserReducedDto>> GetUsersWithAnyPendingGrade()
+        {
+            var users = await _context.Users
+                .AsNoTracking()
+                .Where(x => x.Grades.Any(g => g.SystemStatus == SystemStatuses.PENDING))
+                .Select(user => new UserReducedDto
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Position = user.Position,
+                    SubdivisionFromFile = user.SubdivisionFromFile,
+                })
+                .OrderBy(x => x.FullName)
+                .ToListAsync();
+
+            return users;
         }
     }
 }

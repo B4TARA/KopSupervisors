@@ -14,7 +14,7 @@ namespace KOP.BLL.Services
             _dbContext = dbContext;
         }
 
-        public async Task<ValueJudgmentDto> GetValueJudgmentDtoByGradeId(int gradeId)
+        public async Task<ValueJudgmentDto> GetValueJudgmentByGradeId(int gradeId)
         {
             if (gradeId == 0)
                 throw new ArgumentException("Grade ID cannot be 0", nameof(gradeId));

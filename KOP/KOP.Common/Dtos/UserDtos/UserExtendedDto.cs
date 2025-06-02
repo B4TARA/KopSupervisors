@@ -1,9 +1,9 @@
 ﻿using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 
-namespace KOP.Common.Dtos
+namespace KOP.Common.Dtos.UserDtos
 {
-    public class UserDto
+    public class UserExtendedDto
     {
         public int Id { get; set; }
         public string FullName { get; set; }
@@ -15,7 +15,7 @@ namespace KOP.Common.Dtos
         public DateOnly? ContractEndDate { get; set; }
         public string ImagePath { get; set; }
         public List<SystemRoles> SystemRoles { get; set; } = new();
-        public GradeDto? LastGrade { get; set; }
+        public GradeExtendedDto? LastGrade { get; set; }
         public bool PendingGradeStatus { get; set; }
     }
 }

@@ -36,6 +36,7 @@ namespace KOP.WEB
 
         public static void InitializeServices(this IServiceCollection services)
         {
+            services.AddScoped<IRecommendationService, RecommendationService>();
             services.AddScoped<IValueJudgmentService, ValueJudgmentService>();
             services.AddScoped<ICommonService, CommonService>();
             services.AddScoped<IEmailSender, EmailSender>();

@@ -1,5 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
+using KOP.Common.Dtos.UserDtos;
 using KOP.Common.Enums;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
@@ -19,9 +20,9 @@ namespace KOP.BLL.Services
             _assessmentService = assessmentService;
         }
 
-        private async Task<List<UserDto>> GetUsers(Subdivision subdivision)
+        private async Task<List<UserExtendedDto>> GetUsers(Subdivision subdivision)
         {
-            var subordinateUserDtoList = new List<UserDto>();
+            var subordinateUserDtoList = new List<UserExtendedDto>();
 
             foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee)))
             {
@@ -71,7 +72,7 @@ namespace KOP.BLL.Services
             {
                 Id = subdivision.Id,
                 Name = subdivision.Name,
-                Users = new List<UserDto>(),
+                Users = new List<UserExtendedDto>(),
                 Children = new List<SubdivisionDto>()
             };
 
@@ -118,7 +119,7 @@ namespace KOP.BLL.Services
             return subdivisionDto.Users.Count > 0 || subdivisionDto.Children.Count > 0 ? subdivisionDto : null;
         }
 
-        public async Task<List<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(int supervisorId)
+        public async Task<List<UserReducedDto>> GetSubordinateUsersSummariesHasGrade(int supervisorId)
         {
             var supervisor = await _unitOfWork.Users.GetAsync(
                 x => x.Id == supervisorId,
@@ -134,7 +135,7 @@ namespace KOP.BLL.Services
                 throw new Exception($"User with ID {supervisorId} not found.");
             }
 
-            var allSubordinateUsers = new List<UserSummaryDto>();
+            var allSubordinateUsers = new List<UserReducedDto>();
 
             foreach (var subdivision in supervisor.SubordinateSubdivisions)
             {
@@ -145,13 +146,13 @@ namespace KOP.BLL.Services
 
             return allSubordinateUsers;
         }
-        private async Task<List<UserSummaryDto>> GetSubordinateUsersSummariesHasGrade(Subdivision subdivision)
+        private async Task<List<UserReducedDto>> GetSubordinateUsersSummariesHasGrade(Subdivision subdivision)
         {
-            var subordinateUsers = new List<UserSummaryDto>();
+            var subordinateUsers = new List<UserReducedDto>();
 
             foreach (var user in subdivision.Users.Where(x => x.SystemRoles.Contains(SystemRoles.Employee) && x.Grades.Any()))
             {
-                subordinateUsers.Add(new UserSummaryDto
+                subordinateUsers.Add(new UserReducedDto
                 {
                     Id = user.Id,
                     FullName = user.FullName,

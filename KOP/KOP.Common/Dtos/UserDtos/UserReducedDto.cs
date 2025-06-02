@@ -1,6 +1,6 @@
-﻿namespace KOP.Common.Dtos
+﻿namespace KOP.Common.Dtos.UserDtos
 {
-    public class UserSummaryDto
+    public class UserReducedDto
     {
         public int Id { get; set; }
         public string FullName { get; set; }

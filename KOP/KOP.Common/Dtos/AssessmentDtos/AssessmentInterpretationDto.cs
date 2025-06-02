@@ -1,6 +1,6 @@
 ﻿namespace KOP.Common.Dtos.AssessmentDtos
 {
-    public class GetAssessmentInterpretationDto
+    public class AssessmentInterpretationDto
     {
         public int MinValue { get; init; }
         public int MaxValue { get; init; }

@@ -194,7 +194,7 @@ namespace KOP.WEB.Controllers
                     return PartialView("_EmployeeGradeLayoutPartial", viewModel);
                 }
 
-                viewModel.LastGrade = new GradeDto
+                viewModel.LastGrade = new GradeExtendedDto
                 {
                     Id = lastGrade.Id,
                     StartDate = lastGrade.StartDate,

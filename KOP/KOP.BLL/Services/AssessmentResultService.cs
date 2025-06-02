@@ -1,6 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
+using KOP.Common.Dtos.AssessmentResultDtos;
+using KOP.Common.Dtos.UserDtos;
 using KOP.Common.Enums;
 using KOP.DAL;
 using KOP.DAL.Entities;
@@ -11,18 +12,18 @@ namespace KOP.BLL.Services
 {
     public class AssessmentResultService : IAssessmentResultService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
 
-        public AssessmentResultService(ApplicationDbContext dbContext, IEmailSender emailSender)
+        public AssessmentResultService(ApplicationDbContext context, IEmailSender emailSender)
         {
-            _dbContext = dbContext;
+            _context = context;
             _emailSender = emailSender;
         }
 
         public async Task<AssessmentResultDto?> GetAssessmentResultDto(int judgeId, int assessmentId)
         {
-            var assessmentResultDto = await _dbContext.AssessmentResults
+            var assessmentResultDto = await _context.AssessmentResults
                 .Where(x => x.AssessmentId == assessmentId && x.JudgeId == judgeId)
                 .Select(ar => new AssessmentResultDto
                 {
@@ -32,14 +33,14 @@ namespace KOP.BLL.Services
                     Type = ar.Type,
                     Sum = ar.AssessmentResultValues.Sum(value => value.Value),
                     AssignedBy = ar.AssignedBy,
-                    Judge = new UserDto
+                    Judge = new UserExtendedDto
                     {
                         Id = ar.Judge.Id,
                         FullName = ar.Judge.FullName,
                         SystemRoles = ar.Judge.SystemRoles,
                         ImagePath = ar.Judge.ImagePath,
                     },
-                    Judged = new UserDto
+                    Judged = new UserExtendedDto
                     {
                         Id = ar.Assessment.User.Id,
                         FullName = ar.Assessment.User.FullName,
@@ -65,7 +66,7 @@ namespace KOP.BLL.Services
             }
 
             // Дополнительные вычисления
-            var assessmentType = await _dbContext.AssessmentTypes
+            var assessmentType = await _context.AssessmentTypes
                 .Include(at => at.AssessmentInterpretations)
                 .FirstOrDefaultAsync(at => at.Id == assessmentResultDto.AssessmentTypeId);
 
@@ -95,14 +96,14 @@ namespace KOP.BLL.Services
 
         public async Task CreatePendingColleagueAssessmentResult(int judgeId, int assessmentId, int assignerId)
         {
-            var judge = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == judgeId);
+            var judge = await _context.Users.FirstOrDefaultAsync(x => x.Id == judgeId);
 
             if (judge == null)
             {
                 throw new Exception($"Judge with ID {judgeId} not found.");
             }
 
-            var assessment = await _dbContext.Assessments.FirstOrDefaultAsync(x => x.Id == assessmentId);
+            var assessment = await _context.Assessments.FirstOrDefaultAsync(x => x.Id == assessmentId);
 
             if (assessment == null)
             {
@@ -128,7 +129,7 @@ namespace KOP.BLL.Services
 
         public async Task DeletePendingColleagueAssessmentResult(int id)
         {
-            var assessmentResult = await _dbContext.AssessmentResults.FirstOrDefaultAsync(x => x.Id == id);
+            var assessmentResult = await _context.AssessmentResults.FirstOrDefaultAsync(x => x.Id == id);
 
             if (assessmentResult == null)
             {
@@ -147,8 +148,8 @@ namespace KOP.BLL.Services
             if (assessmentResult == null)
                 throw new ArgumentNullException(nameof(assessmentResult), "Assessment result cannot be null.");
 
-            _dbContext.AssessmentResults.Remove(assessmentResult);
-            await _dbContext.SaveChangesAsync();
+            _context.AssessmentResults.Remove(assessmentResult);
+            await _context.SaveChangesAsync();
         }
 
         public async Task CreateAssessmentResult(AssessmentResult assessmentResult)
@@ -156,14 +157,45 @@ namespace KOP.BLL.Services
             if (assessmentResult == null)
                 throw new ArgumentNullException(nameof(assessmentResult), "Assessment result cannot be null.");
 
-            var dbAssessmentResult = await _dbContext.AssessmentResults
+            var dbAssessmentResult = await _context.AssessmentResults
                 .FirstOrDefaultAsync(x => x.AssessmentId == assessmentResult.AssessmentId && x.JudgeId == assessmentResult.JudgeId && x.Type == assessmentResult.Type);
 
             if (dbAssessmentResult != null)
                 throw new InvalidOperationException($"AssessmentResult with JudgeId {assessmentResult.JudgeId} and AssessmentId {assessmentResult.AssessmentId} already exists.");
 
-            await _dbContext.AssessmentResults.AddAsync(assessmentResult);
-            await _dbContext.SaveChangesAsync();
+            await _context.AssessmentResults.AddAsync(assessmentResult);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<AssessmentResultDto?> GetManagementSelfAssessmentResultForGrade(int gradeId)
+        {
+            var assessmentResult = await _context.AssessmentResults
+                   .Where(ar => ar.Assessment.GradeId == gradeId
+                       && ar.Assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies
+                       && ar.Type == AssessmentResultTypes.SelfAssessment)
+                   .Select(ar => new AssessmentResultDto
+                   {
+                       Id = ar.Id,
+                       Sum = ar.AssessmentResultValues.Sum(value => value.Value),
+                   })
+                   .FirstOrDefaultAsync();
+
+            return assessmentResult;
+        }
+        public async Task<AssessmentResultDto?> GetManagementSupervisorAssessmentResultForGrade(int gradeId)
+        {
+            var assessmentResult = await _context.AssessmentResults
+               .Where(ar => ar.Assessment.GradeId == gradeId
+                   && ar.Assessment.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies
+                   && ar.Type == AssessmentResultTypes.SupervisorAssessment)
+               .Select(ar => new AssessmentResultDto
+               {
+                   Id = ar.Id,
+                   Sum = ar.AssessmentResultValues.Sum(value => value.Value),
+               })
+               .FirstOrDefaultAsync();
+
+            return assessmentResult;
         }
     }
 }

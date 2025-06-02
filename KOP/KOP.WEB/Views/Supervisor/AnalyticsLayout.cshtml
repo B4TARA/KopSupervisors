@@ -1,4 +1,4 @@
-﻿@model List<KOP.Common.Dtos.UserSummaryDto>
+﻿@model List<KOP.Common.Dtos.UserDtos.UserReducedDto>
 
 @{
     Layout = "/Views/Shared/_Layout.cshtml";
@@ -103,7 +103,6 @@
                 <div class="dashboard-competences-list">
                     <div class="dashboard-competence-item">
                         <div class="dashboard-competence-header mid_title">ТОП-5 КОМПЕТЕНЦИЙ</div>
-
                         <div id="topCompetencies" class="dashboard-competences-group">
                         </div>
                     </div>
@@ -113,10 +112,30 @@
                         </div>
                     </div>
                 </div>
+                <div class="dashboard-competences-list">
+                    <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">КОМПЕТЕНЦИИ</div>
+                        <div id="competenceRecommendations" class="dashboard-competences-group">
+                        </div>
+                    </div>
+                    <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">ЛИТЕРАТУРА</div>
+                        <div id="literatureRecommendations" class="dashboard-competences-group">
+                        </div>
+                    </div>
+                     <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">КУРСЫ</div>
+                        <div id="courseRecommendations" class="dashboard-competences-group">
+                        </div>
+                    </div>
+                    <div class="dashboard-competence-item">
+                        <div class="dashboard-competence-header mid_title">СЕМИНАРЫ</div>
+                        <div id="seminarRecommendations" class="dashboard-competences-group">
+                        </div>
+                    </div>
+                </div>
             </div>
-
             <div id="emptyImageRight"></div>
-
         </div>
         <div id="chartModal" class="modal">
             <span class="close"><i class="fa-solid fa-xmark" style="color: #ffffff;"></i></span>
