@@ -26,11 +26,13 @@ namespace KOP.BLL.Services
                 .AsNoTracking()
                 .Where(u => u.Id == supervisorId)
                 .Include(u => u.SubordinateSubdivisions)
-                    .ThenInclude(s => s.Users)
+                    .ThenInclude(s => s.Users
+                        .Where(u => !u.IsDismissed))
                     .ThenInclude(u => u.Grades)
                 .Include(u => u.SubordinateSubdivisions)
                     .ThenInclude(s => s.Children)
-                    .ThenInclude(c => c.Users)
+                    .ThenInclude(c => c.Users
+                        .Where(u => !u.IsDismissed))
                     .ThenInclude(u => u.Grades)
                 .FirstOrDefaultAsync();
 
@@ -158,7 +160,7 @@ namespace KOP.BLL.Services
 
         public async Task<List<UserDto>> GetUsersWithAnyUpcomingGradeForSupervisor(int supervisorId)
         {
-            var users = await GetUsersForSupervisor(supervisorId, u => u.GetNextGradeStartDate.HasDateValue);
+            var users = await GetUsersForSupervisor(supervisorId, u => u.GetNextGradeStartDate.HasDateValue && !u.IsDismissed);
             var orderedUser = users
               .OrderBy(u => u.FullName)
               .ToList();
@@ -168,72 +170,69 @@ namespace KOP.BLL.Services
 
         public async Task ApproveGrade(int gradeId)
         {
-            var grade = await _context.Grades
-                .Where(g => g.Id == gradeId)
-                .Include(g => g.Assessments)
-                    .ThenInclude(a => a.AssessmentResults)
-                .FirstOrDefaultAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (grade == null)
-                throw new Exception($"Grade with ID {gradeId} not found.");
-
-            grade.GradeStatus = GradeStatuses.COMPLETED;
-            grade.SystemStatus = SystemStatuses.COMPLETED;
-
-            foreach (var assessment in grade.Assessments)
+            try
             {
-                var pendingAssessmentResults = assessment.AssessmentResults.Where(x => x.SystemStatus == SystemStatuses.PENDING);
-                foreach (var result in pendingAssessmentResults)
-                {
-                    _context.AssessmentResults.Remove(result);
-                }
+                var grade = await _context.Grades.FindAsync(gradeId);
+                if (grade == null)
+                    throw new Exception($"Grade with ID {gradeId} not found.");
 
-                assessment.SystemStatus = SystemStatuses.COMPLETED;
+                grade.GradeStatus = GradeStatuses.COMPLETED;
+                grade.SystemStatus = SystemStatuses.COMPLETED;
+
+                await _context.AssessmentResults
+                    .Where(ar => ar.Assessment.GradeId == gradeId && ar.SystemStatus == SystemStatuses.PENDING)
+                    .ExecuteDeleteAsync();
+
+                await _context.Assessments
+                    .Where(a => a.GradeId == gradeId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(a => a.SystemStatus, SystemStatuses.COMPLETED));
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-
-            _context.Grades.Update(grade);
-            await _context.SaveChangesAsync();
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
-        public async Task SuspendUser(int userId)
+        public async Task DismissUser(int userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var user = await _context.Users
-                    .FindAsync(userId);
-
+                var user = await _context.Users.FindAsync(userId);
                 if (user == null)
                     throw new Exception($"User with ID {userId} not found.");
 
-                user.IsSuspended = true;
+                user.IsDismissed = true;
 
                 var latestGrade = await _context.Grades
                     .Where(g => g.UserId == userId && g.SystemStatus == SystemStatuses.PENDING)
-                    .Include(g => g.Assessments)
-                        .ThenInclude(a => a.AssessmentResults)
                     .OrderByDescending(g => g.Number)
                     .FirstOrDefaultAsync();
 
-                if (latestGrade == null)
+                if (latestGrade != null)
                 {
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    return;
+                    latestGrade.EndDate = DateOnly.FromDateTime(DateTime.Today);
+                    latestGrade.GradeStatus = GradeStatuses.DISMISSED;
+                    latestGrade.SystemStatus = SystemStatuses.DISMISSED;
+
+                    await _context.Assessments
+                        .Where(a => a.GradeId == latestGrade.Id)
+                        .ExecuteUpdateAsync(s => s
+                            .SetProperty(a => a.SystemStatus, SystemStatuses.DISMISSED));
+
+                    await _context.AssessmentResults
+                        .Where(ar => (ar.JudgeId == userId || ar.Assessment.GradeId == latestGrade.Id) &&
+                                     ar.SystemStatus == SystemStatuses.PENDING)
+                        .ExecuteDeleteAsync();
                 }
-
-                latestGrade.EndDate = DateOnly.FromDateTime(DateTime.Today);
-                latestGrade.GradeStatus = GradeStatuses.SUSPENDED;
-                latestGrade.SystemStatus = SystemStatuses.SUSPENDED;
-
-                var pendingAssessmentResults = await _context.AssessmentResults
-                    .Where(ar =>
-                        (ar.JudgeId == userId || ar.Assessment.GradeId == latestGrade.Id) &&
-                        ar.SystemStatus == SystemStatuses.PENDING)
-                    .ToListAsync();
-
-                _context.AssessmentResults.RemoveRange(pendingAssessmentResults);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

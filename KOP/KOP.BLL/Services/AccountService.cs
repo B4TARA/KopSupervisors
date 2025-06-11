@@ -46,7 +46,7 @@ namespace KOP.BLL.Services
                         Description = "Неверный логин или пароль. Убедитесь, что вводите учетные данные MTSpace Mobile"
                     };
                 }
-                else if (user.IsSuspended)
+                else if (user.IsDismissed)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {

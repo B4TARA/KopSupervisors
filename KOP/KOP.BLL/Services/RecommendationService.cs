@@ -81,6 +81,9 @@ namespace KOP.BLL.Services
 
         private async Task AddRecommendation(string value, RecommendationTypes type, int gradeId)
         {
+            if(string.IsNullOrEmpty(value))
+                return;
+
             var newItem = new Recommendation(value, type, gradeId);
 
             _context.Recommendations.Add(newItem);

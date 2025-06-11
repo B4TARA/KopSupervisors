@@ -68,6 +68,7 @@ namespace KOP.BLL.Services
         {
             var users = await _context.Users
                 .AsNoTracking()
+                .Where(u => !u.IsDismissed)
                 .Select(user => new UserDto
                 {
                     Id = user.Id,
@@ -85,7 +86,7 @@ namespace KOP.BLL.Services
         {
             var users = await _context.Users
                 .AsNoTracking()
-                .Where(x => x.Grades.Any(g => g.SystemStatus == SystemStatuses.PENDING))
+                .Where(u => u.Grades.Any(g => g.SystemStatus == SystemStatuses.PENDING) && !u.IsDismissed)
                 .Select(user => new UserDto
                 {
                     Id = user.Id,
@@ -93,7 +94,7 @@ namespace KOP.BLL.Services
                     Position = user.Position,
                     SubdivisionFromFile = user.SubdivisionFromFile,
                 })
-                .OrderBy(x => x.FullName)
+                .OrderBy(u => u.FullName)
                 .ToListAsync();
 
             return users;

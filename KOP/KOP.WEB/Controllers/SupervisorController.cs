@@ -1,6 +1,5 @@
 using KOP.BLL.Interfaces;
 using KOP.Common.Dtos;
-using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
 using KOP.DAL.Interfaces;
 using KOP.WEB.Models.RequestModels;
@@ -281,10 +280,11 @@ namespace KOP.WEB.Controllers
                     supervisorId = supervisorResult.Judge.Id;
                 }
 
-                var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(x =>
-                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&               
-                    x.Id != supervisorId &&
-                    x.Id != userId);
+                var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(u =>
+                    u.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
+                    u.Id != supervisorId &&
+                    u.Id != userId &&
+                    !u.IsDismissed);
 
                 var allCandidates = candidatesForJudges.Select(candidate => new CandidateForJudgeDto
                 {
@@ -526,7 +526,7 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                await _supervisorService.SuspendUser(userId);
+                await _supervisorService.DismissUser(userId);
 
                 return Ok("Операция увольнения/перевода успешно завершена");
             }
