@@ -20,7 +20,7 @@ namespace KOP.DAL.Entities
         public string Password { get; set; }
         public string Email { get; set; }
         public string ImagePath { get; set; }
-        public bool IsSuspended { get; set; }
+        public bool IsDismissed { get; set; }
 
         public Subdivision? ParentSubdivision { get; set; }
         public int? ParentSubdivisionId { get; set; }

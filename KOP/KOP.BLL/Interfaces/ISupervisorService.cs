@@ -9,6 +9,6 @@ namespace KOP.BLL.Interfaces
         Task<List<UserDto>> GetUsersWithAnyGradeForSupervisor(int supervisorId);
         Task<List<UserDto>> GetUsersWithAnyUpcomingGradeForSupervisor(int supervisorId);
         Task ApproveGrade(int gradeId);
-        Task SuspendUser(int userId);
+        Task DismissUser(int userId);
     }
 }

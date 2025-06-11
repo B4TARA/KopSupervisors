@@ -140,10 +140,6 @@ namespace KOP.Import.Services
 
         private void PopulateUserWithXmlData(User userFromExcel, XmlDocument colsArrayDocument, XmlDocument usersPassContainerDocument)
         {
-            if (userFromExcel.Id == 125)
-            {
-                var f = 4;
-            }
             if (userFromExcel.FullName == null)
                 return;
 
@@ -239,7 +235,11 @@ namespace KOP.Import.Services
 
                     var existingUser = await _unitOfWork.Users.GetAsync(x => x.ServiceNumber == userFromExcel.ServiceNumber, includeProperties: "ParentSubdivision");
 
-                    if (existingUser == null)
+                    if(existingUser.IsDismissed)
+                    {
+                        continue;
+                    }
+                    else if (existingUser == null)
                     {
                         await _unitOfWork.Users.AddAsync(userFromExcel);
                         await _unitOfWork.CommitAsync();
@@ -276,20 +276,15 @@ namespace KOP.Import.Services
         public async Task CheckUsersForGradeProcess()
         {
 
-            var employees = await _unitOfWork.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee) && !x.IsSuspended, includeProperties: "Grades");
+            var users = await _unitOfWork.Users.GetAllAsync(x => x.SystemRoles.Contains(SystemRoles.Employee) && !x.IsDismissed, includeProperties: "Grades");
 
-            foreach (var employee in employees)
+            foreach (var user in users)
             {
                 try
                 {
-                    if(employee.ServiceNumber == 7587 || employee.ServiceNumber == 3202)
-                    {
-                        var l = 2;
-                    }
+                    var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
 
-                    var lastGrade = employee.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-
-                    if (lastGrade != null && ReadyForEmployeeApproval(employee, lastGrade))
+                    if (lastGrade != null && ReadyForEmployeeApproval(user, lastGrade))
                     {
                         lastGrade.GradeStatus = GradeStatuses.READY_FOR_EMPLOYEE_APPROVAL;
                         _unitOfWork.Grades.Update(lastGrade);
@@ -297,7 +292,7 @@ namespace KOP.Import.Services
 
                         continue;
                     }
-                    else if (lastGrade != null && ReadyForSupervisorEmployeeApproval(employee, lastGrade))
+                    else if (lastGrade != null && ReadyForSupervisorEmployeeApproval(user, lastGrade))
                     {
                         lastGrade.GradeStatus = GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL;
                         _unitOfWork.Grades.Update(lastGrade);
@@ -309,7 +304,7 @@ namespace KOP.Import.Services
                     {
                         continue;
                     }
-                    else if(!employee.ContractEndDate.HasValue)
+                    else if(!user.ContractEndDate.HasValue)
                     {
                         continue;
                     }
@@ -317,8 +312,8 @@ namespace KOP.Import.Services
                     var currentDay = TermManager.GetDate().Day;
                     var currentMonth = TermManager.GetDate().Month;
                     var currentYear = TermManager.GetDate().Year;
-                    var gradeStartMonth = employee.ContractEndDate.Value.AddMonths(-4).Month;
-                    var gradeStartYear = employee.ContractEndDate.Value.AddMonths(-4).Year;
+                    var gradeStartMonth = user.ContractEndDate.Value.AddMonths(-4).Month;
+                    var gradeStartYear = user.ContractEndDate.Value.AddMonths(-4).Year;
 
                     if (currentDay != 1 || currentMonth != gradeStartMonth || currentYear != gradeStartYear)
                     {
@@ -327,9 +322,9 @@ namespace KOP.Import.Services
 
                     var gradeNumber = 1;
 
-                    if (employee.Grades.Any())
+                    if (user.Grades.Any())
                     {
-                        gradeNumber = employee.Grades.Count();
+                        gradeNumber = user.Grades.Count();
                     }
 
                     var newGrade = new Grade
@@ -338,12 +333,12 @@ namespace KOP.Import.Services
                         StartDate = new DateOnly(TermManager.GetDate().Year - 1, 1, 1),
                         SystemStatus = SystemStatuses.PENDING,
                         GradeStatus = GradeStatuses.PENDING,
-                        UserId = employee.Id,
+                        UserId = user.Id,
                         Qualification = new Qualification
                         {
                             CurrentJobPositionName = string.Empty,
                             EmploymentContarctTerminations = "Отсутствуют",
-                            QualificationResult = $"{employee.FullName} прошел (ла) оценку соответствия (аттестацию) в Национальном Банке РБ и признана " +
+                            QualificationResult = $"{user.FullName} прошел (ла) оценку соответствия (аттестацию) в Национальном Банке РБ и признана " +
                             "соответствующей квалификационным требованиям и требованиям к деловой репутации:\r\n- к должности члена коллегиального исполнительного " +
                             "органа банка, небанковской кредитно-финансовой организации от _______дата № ______ (приложение __ к пояснительной записке) действительно " +
                             "до ________г.;\r\n- к должностному лицу, выполняющему ключевые функции в банке, небанковской кредитно-финансовой организации " +
@@ -357,7 +352,7 @@ namespace KOP.Import.Services
                             BehaviorToCorrect = "",
                             RecommendationsForDevelopment = "",
                         },
-                        QualificationConclusion = $"{employee.FullName} соответствует квалификационным требованиям и требованиям к деловой репутации.",
+                        QualificationConclusion = $"{user.FullName} соответствует квалификационным требованиям и требованиям к деловой репутации.",
                         StrategicTasksConclusion = "За оцениваемый период времени поставленные задачи выполнены в срок (согласно позадачнику).",
                     };
 
@@ -374,12 +369,12 @@ namespace KOP.Import.Services
                         {
                             Number = gradeNumber,
                             SystemStatus = SystemStatuses.PENDING,
-                            UserId = employee.Id,
+                            UserId = user.Id,
                             AssessmentTypeId = assessmentType.Id,
                             Grade = newGrade,
                         };
 
-                        var supervisor = await GetUserSupervisor(employee);
+                        var supervisor = await GetUserSupervisor(user);
 
                         if (supervisor != null)
                         {
@@ -396,7 +391,7 @@ namespace KOP.Import.Services
                         var newSelfAssessmentResult = new AssessmentResult
                         {
                             SystemStatus = SystemStatuses.PENDING,
-                            JudgeId = employee.Id,
+                            JudgeId = user.Id,
                             Type = AssessmentResultTypes.SelfAssessment,
                         };
 
@@ -516,7 +511,7 @@ namespace KOP.Import.Services
                     if (!usersFromExcel.Any(x => x.ServiceNumber == dbUser.ServiceNumber))
                     {
                         dbUser.Email = string.Empty;
-                        dbUser.IsSuspended = true;
+                        dbUser.IsDismissed = true;
                         dbUser.ParentSubdivisionId = null;
 
                         _unitOfWork.Users.Update(dbUser);

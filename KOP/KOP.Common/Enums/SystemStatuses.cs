@@ -2,7 +2,7 @@
 {
     public enum SystemStatuses
     {
-        SUSPENDED = 0,
+        DISMISSED = 0,
         PENDING = 1,
         COMPLETED = 2,
     }
