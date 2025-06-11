@@ -33,115 +33,100 @@ else
                 </div>
                 <div class="description">Заполните 2-5 ключевых стратегических и/или тактических задач за оцениваемый период</div>
             </div>
-            <table class="table_popup">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>Срок</th>
-                        <th></th>
-                        <th>Результат</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <th>Название проекта / стратегической задачи</th>
-                        <th>Цель проекта / стратегической задачи</th>
-                        <th>План (дата)</th>
-                        <th>Факт (дата)</th>
-                        <th>План</th>
-                        <th>Факт</th>
-                        <th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</th>
-                    </tr>
-                </thead>
-                <tbody id="rowContainer">
-                    @for (int i = 0; i < Model.StrategicTaskDtoList.Count; i++)
-                    {
-                        var strategicTask = Model.StrategicTaskDtoList[i];
-                        var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
-                        var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
 
-                        <tr>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Name">@strategicTask.Name</textarea>
-                                }
-                                else
-                                {
-                                    @strategicTask.Name
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Purpose">@strategicTask.Purpose</textarea>
-                                }
-                                else
-                                {
-                                    @strategicTask.Purpose
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <input type="date" asp-for="StrategicTaskDtoList[i].PlanDateTime" value="@planDateTime" required min="1994-01-01" />
-                                }
-                                else
-                                {
-                                    @planDateTime
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <input type="date" asp-for="StrategicTaskDtoList[i].FactDateTime" value="@factDateTime" required min="1994-01-01" />
-                                }
-                                else
-                                {
-                                    @factDateTime
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <input type="text" asp-for="StrategicTaskDtoList[i].PlanResult" value="@strategicTask.PlanResult" required />
-                                }
-                                else
-                                {
-                                    @strategicTask.PlanResult
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <input type="text" asp-for="StrategicTaskDtoList[i].FactResult" value="@strategicTask.FactResult" required />
-                                }
-                                else
-                                {
-                                    @strategicTask.FactResult
-                                }
-                            </td>
-                            <td>
-                                @if (Model.EditAccess)
-                                {
-                                    <textarea type="text" asp-for="StrategicTaskDtoList[i].Remark">@strategicTask.Remark</textarea>
-                                }
-                                else
-                                {
-                                    @strategicTask.Remark
-                                }
-                            </td>
+            <div id="rowContainer" class="startegic_content">
+                @for (int i = 0; i < Model.StrategicTaskDtoList.Count; i++)
+                {
+                    var strategicTask = Model.StrategicTaskDtoList[i];
+                    var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
+                    var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
+                    <div class="startegic_items_list">
+                        <div class="startegic_item">
+                            <div class="mid_title">Название проекта / стратегической задачи</div>
                             @if (Model.EditAccess)
                             {
-                                <td>
-                                    <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteStrategicTask(@Model.StrategicTaskDtoList[i].Id, @Model.GradeId)"></i>
-                                </td>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Name">@strategicTask.Name</textarea>
                             }
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            else
+                            {
+                                @strategicTask.Name
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Цель проекта / стратегической задачи</div>
+                            @if (Model.EditAccess)
+                            {
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Purpose">@strategicTask.Purpose</textarea>
+                            }
+                            else
+                            {
+                                @strategicTask.Purpose
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">План (дата)</div>
+                            @if (Model.EditAccess)
+                            {
+                                <input type="date" asp-for="StrategicTaskDtoList[i].PlanDateTime" value="@planDateTime" required min="1994-01-01" />
+                            }
+                            else
+                            {
+                                @planDateTime
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Факт (дата)</div>
+                            @if (Model.EditAccess)
+                            {
+                                <input type="date" asp-for="StrategicTaskDtoList[i].FactDateTime" value="@factDateTime" required min="1994-01-01" />
+                            }
+                            else
+                            {
+                                @factDateTime
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">План</div>
+                            @if (Model.EditAccess)
+                            {
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].PlanResult" required>@strategicTask.PlanResult</textarea>
+                            }
+                            else
+                            {
+                                @strategicTask.PlanResult
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Факт</div>
+                            @if (Model.EditAccess)
+                            {
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].FactResult" required>@strategicTask.FactResult</textarea>
+                            }
+                            else
+                            {
+                                @strategicTask.FactResult
+                            }
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</div>
+                            @if (Model.EditAccess)
+                            {
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Remark">@strategicTask.Remark</textarea>
+                            }
+                            else
+                            {
+                                @strategicTask.Remark
+                            }
+                        </div>
+                        @if (Model.EditAccess)
+                        {
+
+                            <div class="add_row_btn red add_project" onclick="deleteStrategicTask(@Model.StrategicTaskDtoList[i].Id, @Model.GradeId)"><i class="fa-solid fa-trash" style="color: #db1a1a;"></i> Удалить</div>
+                        }
+                    </div>
+                    
+                }
+            </div>
             @if (Model.EditAccess)
             {
                 <div class="add_row_btn add_project" onclick="addRow(this,'strategy')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
