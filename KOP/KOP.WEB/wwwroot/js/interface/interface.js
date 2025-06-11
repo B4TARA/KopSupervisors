@@ -63,7 +63,6 @@ function toggleSelectButton(button) {
 
 /******POPUP ALERT*******/
 function closeBtnPopup(item, isReload) {
-    console.log(item)
     // Проверяем, является ли переданный элемент тем, который нужно обработать
     if (item && item.id === 'disagreeBtnConfirm') {
         // Находим родительский элемент с классом 'section_popup'
@@ -136,7 +135,7 @@ function popupResult(text, isReload) {
 function addRow(elem, type, id) {
 
     const rowContainer = document.getElementById("rowContainer");
-    
+
     const rowContainerEducation = document.getElementById("rowContainerEducation");
     let newIndex;
 
@@ -244,16 +243,16 @@ function addRow(elem, type, id) {
                 <input type="date" name="Projects[${newIndex}].EndDateTime" required min="1994-01-01"/>
             </div>      
             <div>
-                Коэффициент успешности проекта
-                <input type="number"  name="Projects[${newIndex}].SuccessRate" required /> %
+                Коэффициент успешности проекта, % =
+                <input type="text"  name="Projects[${newIndex}].SuccessRate" required />
             </div>
             <div>
-                Cредний KPI проекта
-                <input type="number"  name="Projects[${newIndex}].AverageKpi" required /> %
+                Cредний KPI проекта, % =
+                <input type="text"  name="Projects[${newIndex}].AverageKpi" required />
             </div>
             <div>
-                Оценка реализации проекта SP 
-                <input type="number"  name="Projects[${newIndex}].SP" required /> %
+                Оценка реализации проекта SP, % =
+                <input type="text"  name="Projects[${newIndex}].SP" required />
             </div>
             <i class="fa-solid fa-trash delete_item" style="color: #db1a1a;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>         
         </div>
@@ -266,13 +265,13 @@ function addRow(elem, type, id) {
         row.innerHTML = `
            <div>
                     c
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].StartDateTime" required min="1970-01-01"/>
+                    <input type="date" name="PreviousJobs[${newIndex}].StartDateTime" required min="1970-01-01"/>
                     по
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
+                    <input type="date" name="PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" required placeholder="Организация" />
+                    <input type="text" name="PreviousJobs[${newIndex}].OrganizationName" required placeholder="Организация" />
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" required placeholder="Должность"/>
+                    <input type="text" name="PreviousJobs[${newIndex}].PositionName" required placeholder="Должность"/>
                     ;
                        
                 </div>
@@ -303,15 +302,15 @@ function addRow(elem, type, id) {
         row.classList.add('experience_item')
         row.innerHTML = `
            <div>
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Education" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].Education" required />
                     , специальность
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Speciality" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].Speciality" required />
                     , квалификация
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].QualificationName" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].QualificationName" required />
                     , период обучения c
-                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].StartDateTime" required min="1970-01-01"/>
+                    <input type="date" name="HigherEducations[${newIndexEducation}].StartDateTime" required min="1970-01-01"/>
                     по
-                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].EndDateTime" required min="1970-01-01"/>
+                    <input type="date" name="HigherEducations[${newIndexEducation}].EndDateTime" required min="1970-01-01"/>
                     ;
                        
                 </div>
@@ -347,7 +346,7 @@ function updateIndices(type) {
             row.querySelector('input[name^="Kpis["][name$=".CalculationMethod"]').name = `Kpis[${index}].CalculationMethod`;
         });
 
-        
+
     }
 
     // Обновляем индексы для стратегий
@@ -486,7 +485,7 @@ function updateIndices(type) {
 
 
     // Обновляем индексы для образования
-     if (type === 'education') {
+    if (type === 'education') {
         const educationRows = rowContainerEducation.querySelectorAll('.experience_item');
         educationRows.forEach((row, index) => {
             row.querySelector('input[name^="Qualification.HigherEducations["][name$=".Education"]').name = `Qualification.HigherEducations[${index}].Education`;
@@ -502,7 +501,7 @@ function updateIndices(type) {
 // StrategicTasks
 async function getStrategicTasksPopup(gradeId) {
     try {
-        let response = await fetch(`/StrategicTask/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/StrategicTask/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
@@ -512,8 +511,7 @@ async function getStrategicTasksPopup(gradeId) {
     }
 }
 function deleteStrategicTask(id, gradeId) {
-
-    fetch(`/StrategicTask/Delete/${id}`, {
+    fetch(`/supervisors/StrategicTask/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -546,7 +544,7 @@ function saveStrategicTasksAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/StrategicTask/EditAll`, {
+            fetch(`/supervisors/StrategicTask/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -573,11 +571,7 @@ function saveStrategicTasksAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-        
-    
-
 }
 function saveStrategicTasksAsFinal(gradeId, employeeId) {
 
@@ -588,14 +582,11 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
     confirmationBtnsWrapper.addEventListener('click', async (event) => {
 
         if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
-
             const form = document.getElementById('popupForm');
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-
-
-            fetch(`/StrategicTask/EditAll`, {
+            fetch(`/supervisors/StrategicTask/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -623,29 +614,22 @@ function saveStrategicTasksAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
 // Projects
 async function getProjectsPopup(gradeId) {
     try {
-        let response = await fetch(`/Project/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Project/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
-
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteProject(id, gradeId) {
-    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-    //    return;
-    //}
-
-    fetch(`/Project/Delete/${id}`, {
+    fetch(`/supervisors/Project/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -662,7 +646,6 @@ function deleteProject(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveProjectsAsDraft(gradeId, employeeId) {
@@ -681,7 +664,7 @@ function saveProjectsAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Project/EditAll`, {
+            fetch(`/supervisors/Project/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -703,13 +686,10 @@ function saveProjectsAsDraft(gradeId, employeeId) {
                 })
                 .catch(error => {
                 });
-
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-
 }
 function saveProjectsAsFinal(gradeId, employeeId) {
 
@@ -725,7 +705,7 @@ function saveProjectsAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Project/EditAll`, {
+            fetch(`/supervisors/Project/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -749,31 +729,25 @@ function saveProjectsAsFinal(gradeId, employeeId) {
                 });
         }
         else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
-                closeBtnPopup(event.target, false)
-            }
-
-        })
+            closeBtnPopup(event.target, false)
+        }
+    })
 }
 
 // Kpis
 async function getKpisPopup(gradeId) {
     try {
-        let response = await fetch(`/Kpi/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Kpi/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteKpi(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
-
-    fetch(`/Kpi/Delete/${id}`, {
+    fetch(`/supervisors/Kpi/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -790,7 +764,6 @@ function deleteKpi(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveKpisAsDraft(gradeId, employeeId) {
@@ -810,7 +783,7 @@ function saveKpisAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Kpi/EditAll`, {
+            fetch(`/supervisors/Kpi/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -835,7 +808,6 @@ function saveKpisAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveKpisAsFinal(gradeId, employeeId) {
@@ -852,7 +824,7 @@ function saveKpisAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Kpi/EditAll`, {
+            fetch(`/supervisors/Kpi/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -879,26 +851,23 @@ function saveKpisAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
 // Marks
 async function getMarksPopup(gradeId) {
     try {
-        let response = await fetch(`/Mark/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Mark/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function deleteMark(id, gradeId) {
-
-    fetch(`/Mark/Delete/${id}`, {
+    fetch(`/supervisors/Mark/Delete/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -915,7 +884,6 @@ function deleteMark(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveMarksAsDraft(gradeId, employeeId) {
@@ -928,13 +896,13 @@ function saveMarksAsDraft(gradeId, employeeId) {
 
         if (event.target.getAttribute('id') == 'agreeBtnConfirm') {
 
-        const form = document.getElementById('popupForm');
-        form.setAttribute('novalidate', 'true')
+            const form = document.getElementById('popupForm');
+            form.setAttribute('novalidate', 'true')
 
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/Mark/EditAll`, {
+            fetch(`/supervisors/Mark/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -961,9 +929,7 @@ function saveMarksAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
-    
 }
 function saveMarksAsFinal(gradeId, employeeId) {
 
@@ -979,7 +945,7 @@ function saveMarksAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Mark/EditAll`, {
+            fetch(`/supervisors/Mark/EditAll`, {
                 method: 'POST',
                 body: formData
             })
@@ -1005,21 +971,19 @@ function saveMarksAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
 // Qualification
 async function getQualificationPopup(gradeId) {
     try {
-        let response = await fetch(`/Qualification/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/Qualification/GetPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function addEducationRow() {
@@ -1053,11 +1017,7 @@ function addEducationRow() {
     rowContainer.appendChild(row)
 }
 function deletePreviousJob(id, gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        return;
-    }
-
-    fetch(`/Qualification/DeletePreviousJob/${id}`, {
+    fetch(`/supervisors/Qualification/DeletePreviousJob/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -1074,15 +1034,10 @@ function deletePreviousJob(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function deleteHigherEducation(id, gradeId) {
-    //if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-    //    return;
-    //}
-
-    fetch(`/Qualification/DeleteHigherEducation/${id}`, {
+    fetch(`/supervisors/Qualification/DeleteHigherEducation/${id}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -1099,7 +1054,6 @@ function deleteHigherEducation(id, gradeId) {
         })
         .catch(error => {
             console.error('Произошла ошибка:', error);
-            popupResult('Ошибка: ' + error.message, false);
         });
 }
 function saveQualificationAsDraft(gradeId, employeeId) {
@@ -1121,7 +1075,7 @@ function saveQualificationAsDraft(gradeId, employeeId) {
                 console.log(`${key}: ${value}`);
             });
 
-            fetch(`/Qualification/Edit`, {
+            fetch(`/supervisors/Qualification/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1148,7 +1102,6 @@ function saveQualificationAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveQualificationAsFinal(gradeId, employeeId) {
@@ -1165,7 +1118,7 @@ function saveQualificationAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/Qualification/Edit`, {
+            fetch(`/supervisors/Qualification/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1199,14 +1152,13 @@ function saveQualificationAsFinal(gradeId, employeeId) {
 // ValueJudgment
 async function getValueJudgmentPopup(gradeId) {
     try {
-        let response = await fetch(`/ValueJudgment/getPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/ValueJudgment/getPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 function saveValueJudgmentAsDraft(gradeId, employeeId) {
@@ -1225,7 +1177,7 @@ function saveValueJudgmentAsDraft(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', false);
 
-            fetch(`/ValueJudgment/Edit`, {
+            fetch(`/supervisors/ValueJudgment/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1252,7 +1204,6 @@ function saveValueJudgmentAsDraft(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 function saveValueJudgmentAsFinal(gradeId, employeeId) {
@@ -1269,7 +1220,7 @@ function saveValueJudgmentAsFinal(gradeId, employeeId) {
             const formData = new FormData(form);
             formData.append('IsFinalized', true);
 
-            fetch(`/ValueJudgment/Edit`, {
+            fetch(`/supervisors/ValueJudgment/Edit`, {
                 method: 'POST',
                 body: formData
             })
@@ -1296,59 +1247,46 @@ function saveValueJudgmentAsFinal(gradeId, employeeId) {
         } else if (event.target.getAttribute('id') == 'disagreeBtnConfirm') {
             closeBtnPopup(event.target, false)
         }
-
     })
 }
 
 // ManagmentCompetencies
-async function getManagmentCompetenciesPopup(employeeId, gradeId) {
+async function getManagmentCompetenciesPopup(gradeId) {
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Assessment/GetManagmentCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
-
-        // Получаем текстовый HTML-контент из ответа
+        let response = await fetch(`/supervisors/Assessment/GetManagmentCompetenciesPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
 // CorporateCompetencies
-async function getCorporateCompetenciesPopup(employeeId, gradeId) {
+async function getCorporateCompetenciesPopup(gradeId) {
     try {
-        // Выполняем fetch запрос
-        let response = await fetch(`/Assessment/GetCorporateCompetenciesPopup?employeeId=${encodeURIComponent(employeeId)}&gradeId=${encodeURIComponent(gradeId)}`);
 
-        // Получаем текстовый HTML-контент из ответа
+        let response = await fetch(`/supervisors/Assessment/GetCorporateCompetenciesPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
-        // Вставляем HTML-контент в нужный элемент
-        //document.getElementById('popup').innerHTML = htmlContent;
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
 // TrainingEvents
 async function getTrainingEventsPopup(gradeId) {
     try {
-        let response = await fetch(`/TrainingEvent/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
+        let response = await fetch(`/supervisors/TrainingEvent/GetTrainingEventsPopup?gradeId=${encodeURIComponent(gradeId)}`);
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        //alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 

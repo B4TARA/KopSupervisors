@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
 using KOP.WEB.Models.RequestModels;
@@ -7,6 +6,7 @@ using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -22,20 +22,26 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public IActionResult GetEmployeeLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
             var currentUserFullName = User.FindFirstValue("FullName") ?? "-";
 
+            var viewModel = new EmployeeLayoutViewModel
+            {
+                Id = currentUserId,
+                FullName = currentUserFullName,
+            };
+
             HttpContext.Session.SetString("SelectedUserFullName", currentUserFullName);
             HttpContext.Session.SetInt32("SelectedUserId", currentUserId);
 
-            return View("EmployeeLayout", currentUserId);
+            return View("EmployeeLayout", viewModel);
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
@@ -52,78 +58,32 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetGradeLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+            var currentUser = await _userService.GetUser(currentUserId);   
 
-            var userDto = await _userService.GetUser(currentUserId);
-
-            var viewModel = new GradeLayoutViewModel
-            {
-                Id = userDto.Id,
-                FullName = userDto.FullName,
-                Position = userDto.Position,
-                SubdivisionFromFile = userDto.SubdivisionFromFile,
-                GradeGroup = userDto.GradeGroup,
-                WorkPeriod = userDto.WorkPeriod,
-                ContractEndDate = userDto.ContractEndDate,
-                ImagePath = userDto.ImagePath,
-                LastGradeDto = userDto.LastGrade,
-            };
-
-            if (userDto.LastGrade == null)
-            {
-                viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
-                return PartialView("_GradeLayoutPartial", viewModel);
-            }
-
-            viewModel.GradeStatus = userDto.LastGrade.GradeStatus;
-
-            foreach (var dto in userDto.LastGrade.AssessmentDtoList)
-            {
-                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
-
-                if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                {
-                    viewModel.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                }
-                else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                {
-                    viewModel.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                }
-            }
-
-            return View("_GradeLayoutPartial", viewModel);
+            return View("_GradeLayoutPartial", currentUser);
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetColleaguesAssessment()
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> GetColleaguesAssessmentResultsForAssessment()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-            var response = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
-
-            if (!response.HasData)
-            {
-                return View("Error", new ErrorViewModel
-                {
-                    StatusCode = response.StatusCode,
-                    Message = response.Description,
-                });
-            }
+            var assessmentResultDtoList = await _userService.GetColleaguesAssessmentResultsForAssessment(currentUserId);
 
             var viewModel = new ColleagueAssessmentViewModel
             {
-                ColleagueAssessmentResultDtoList = response.Data,
+                ColleagueAssessmentResultDtoList = assessmentResultDtoList,
             };
 
             return PartialView("_ColleaguesAssessmentPartial", viewModel);
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessment(int assessmentId)
         {
             try
@@ -144,23 +104,22 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> GetSelfAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-
-            var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(currentUserId, currentUserId);
+            var assessments = await _userService.GetLastGradeAssessmentsForUser(currentUserId);
 
             var viewModel = new SelfAssessmentLayoutViewModel
             {
-                LastAssessmentDtoList = lastAssessmentOfEachType,
+                LastGradeAssessmentDtoList = assessments,
             };
 
             return PartialView("_SelfAssessmentLayoutPartial", viewModel);
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Employee")]
         public async Task<IActionResult> AssessUser([FromBody] AssessUserRequestModel requestModel)
         {
             var assessUserDTO = new AssessUserDto
@@ -175,7 +134,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> ApproveGrade([FromBody] int gradeId)
         {
             try
@@ -195,14 +154,14 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetGrades(int userId)
         {
             try
             {
-                var gradeSummaryDtoList = await _userService.GetUserGradesSummaries(userId);
+                var grades = await _userService.GetGradesForUser(userId);
 
-                return View("EmployeeGrades", gradeSummaryDtoList);
+                return View("EmployeeGrades", grades);
             }
             catch
             {

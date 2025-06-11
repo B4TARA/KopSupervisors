@@ -2,55 +2,175 @@
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
+using KOP.DAL;
 using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats.Wordprocessing;
+using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
 
 namespace KOP.BLL.Services
 {
     public class ReportService : IReportService
     {
+        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGradeService _gradeService;
         private readonly IAssessmentService _assessmentService;
+        private readonly IRecommendationService _recommendationService;
+        private readonly ISupervisorService _supervisorService;
 
-        public ReportService(IUnitOfWork unitOfWork, IGradeService gradeService, IAssessmentService assessmentService)
+        public ReportService(ApplicationDbContext context, IUnitOfWork unitOfWork, IAssessmentService assessmentService,
+            IRecommendationService recommendationService, ISupervisorService supervisorService)
         {
+            _context = context;
             _unitOfWork = unitOfWork;
-            _gradeService = gradeService;
             _assessmentService = assessmentService;
+            _recommendationService = recommendationService;
+            _supervisorService = supervisorService;
         }
 
-        public async Task<byte[]> GenerateGradeWordDocument(int gradeId)
+        public async Task<byte[]> GenerateGradesReport(int gradeId)
         {
-            var gradeDto = await _gradeService.GetGradeDto(gradeId,
-                new List<GradeEntities>
+            var grade = await _context.Grades
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Where(x => x.Id == gradeId)
+            .Select(x => new GradeExtendedDto
+            {
+                Qn2 = x.Qn2,
+                UserId = x.UserId,
+                EndDate = x.EndDate,
+                StartDate = x.StartDate,
+                KPIsConclusion = x.KPIsConclusion,
+                QualificationConclusion = x.QualificationConclusion,
+                StrategicTasksConclusion = x.StrategicTasksConclusion,
+                ManagmentCompetenciesConclusion = x.ManagmentCompetenciesConclusion,
+                CorporateCompetenciesConclusion = x.CorporateCompetenciesConclusion,
+
+                ManagmentCompetenciesId = x.Assessments
+                    .Where(a => a.AssessmentType.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
+                    .Select(a => a.Id)
+                    .FirstOrDefault(),
+
+                QualificationDto = x.Qualification == null ? null : new QualificationDto
                 {
-                        GradeEntities.Marks,
-                        GradeEntities.Qualification,
-                        GradeEntities.StrategicTasks,
-                        GradeEntities.Kpis,
-                        GradeEntities.TrainingEvents,
-                        GradeEntities.Projects,
-                        GradeEntities.ValueJudgment,
-                        GradeEntities.Assessments,
-                }
-            );
+                    QualificationResult = x.Qualification.QualificationResult,
+                    CurrentExperienceYears = x.Qualification.CurrentExperienceYears,
+                    CurrentJobPositionName = x.Qualification.CurrentJobPositionName,
+                    CurrentExperienceMonths = x.Qualification.CurrentExperienceMonths,
+                    EmploymentContarctTerminations = x.Qualification.EmploymentContarctTerminations,
+                    CurrentStatusDate = x.Qualification.CurrentStatusDate,
+                    CurrentJobStartDate = x.Qualification.CurrentJobStartDate,
+                    PreviousJobs = x.Qualification.PreviousJobs
+                        .OrderBy(pj => pj.StartDate)
+                        .Select(pj => new PreviousJobDto
+                        {
+                            PositionName = pj.PositionName,
+                            OrganizationName = pj.OrganizationName,
+                            EndDate = pj.EndDate,
+                            StartDate = pj.StartDate,
+                        })
+                        .ToList(),
+                    HigherEducations = x.Qualification.HigherEducations
+                        .OrderBy(he => he.StartDate)
+                        .Select(he => new HigherEducationDto
+                        {
+                            Education = he.Education,
+                            Speciality = he.Speciality,
+                            QualificationName = he.QualificationName,
+                            EndDate = he.EndDate,
+                            StartDate = he.StartDate,
+                        })
+                        .ToList(),
+                },
 
-            var user = await _unitOfWork.Users.GetAsync(x => x.Id == gradeDto.UserId);
-            if (user is null)
-            {
-                throw new Exception($"User with ID {gradeDto.UserId} not found.");
-            }
+                ValueJudgmentDto = x.ValueJudgment == null ? null : new ValueJudgmentDto
+                {
+                    Strengths = x.ValueJudgment.Strengths,
+                    BehaviorToCorrect = x.ValueJudgment.BehaviorToCorrect,
+                    RecommendationsForDevelopment = x.ValueJudgment.RecommendationsForDevelopment,
+                },
 
-            var managmentAssessment = gradeDto.AssessmentDtoList.FirstOrDefault(x => x.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies);
-            if (managmentAssessment is null)
-            {
-                throw new Exception($"ManagmentAssessment with GradeId {gradeDto.Id} not found.");
-            }
+                MarkTypeDtoList = x.Marks
+                    .Select(m => m.MarkType)
+                    .Distinct()
+                    .Select(mt => new MarkTypeDto
+                    {
+                        Name = mt.Name,
+                        Description = mt.Description,
+                        Marks = x.Marks
+                            .Where(m => m.MarkTypeId == mt.Id)
+                            .Select(m => new MarkDto
+                            {
+                                Period = m.Period,
+                                PercentageValue = m.PercentageValue,
+                            })
+                            .ToList(),
+                    })
+                    .ToList(),
 
-            var managmentSummaryDto = await _assessmentService.GetAssessmentSummary(managmentAssessment.Id);
+                KpiDtoList = x.Kpis
+                    .Select(k => new KpiDto
+                    {
+                        Name = k.Name,
+                        CalculationMethod = k.CalculationMethod,
+                        CompletionPercentage = k.CompletionPercentage,
+                        PeriodEndDateTime = k.PeriodEndDate.ToDateTime(TimeOnly.MinValue),
+                        PeriodStartDateTime = k.PeriodStartDate.ToDateTime(TimeOnly.MinValue),
+                    })
+                    .ToList(),
+
+                ProjectDtoList = x.Projects
+                    .Select(p => new ProjectDto
+                    {
+                        SP = p.SP,
+                        Name = p.Name,
+                        Stage = p.Stage,
+                        UserRole = p.UserRole,
+                        AverageKpi = p.AverageKpi,
+                        SuccessRate = p.SuccessRate,
+                        EndDateTime = p.EndDate.ToDateTime(TimeOnly.MinValue),
+                        StartDateTime = p.StartDate.ToDateTime(TimeOnly.MinValue),
+                    })
+                    .ToList(),
+
+                StrategicTaskDtoList = x.StrategicTasks
+                    .Select(s => new StrategicTaskDto
+                    {
+                        Name = s.Name,
+                        Remark = s.Remark,
+                        Purpose = s.Purpose,
+                        PlanResult = s.PlanResult,
+                        FactResult = s.FactResult,
+                        PlanDateTime = s.PlanDate.ToDateTime(TimeOnly.MinValue),
+                        FactDateTime = s.FactDate.ToDateTime(TimeOnly.MinValue),
+                    })
+                    .ToList(),
+
+                TrainingEventDtoList = x.TrainingEvents
+                    .Select(t => new TrainingEventDto
+                    {
+                        Name = t.Name,
+                        Status = t.Status,
+                        EndDate = t.EndDate,
+                        StartDate = t.StartDate,
+                        Competence = t.Competence,
+                    })
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync();
+
+            if (grade == null)
+                throw new Exception($"Grade with ID {gradeId} not found.");
+
+            var user = await _unitOfWork.Users
+                .GetAsync(x => x.Id == grade.UserId);
+
+            if (user == null)
+                throw new Exception($"User with ID {grade.UserId} not found.");
+
+            var managmentSummary = await _assessmentService.GetAssessmentSummary(grade.ManagmentCompetenciesId);
 
             using var memoryStream = new MemoryStream();
             using var document = new XWPFDocument();
@@ -63,8 +183,8 @@ namespace KOP.BLL.Services
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем главную таблицу «Общие сведения об оцениваемом Руководителе» (11 строк, 3 столбца)
-            var generalInfoTable = document.CreateTable(11, 3);
-            FillGeneralInfoTable(generalInfoTable, user, gradeDto);
+            var generalInfoTable = document.CreateTable(12, 3);
+            FillGeneralInfoTable(generalInfoTable, managmentSummary, user, grade);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.1
@@ -73,8 +193,8 @@ namespace KOP.BLL.Services
             AddParagraph(document, "Таблица 1.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
             // Добавляем таблицу для пункта 2.1 "Подзадачник"
-            var strategicTasksTable = document.CreateTable(2 + gradeDto.StrategicTaskDtoList.Count, 7);
-            FillStrategicTasksTable(strategicTasksTable, gradeDto);
+            var strategicTasksTable = document.CreateTable(2 + grade.StrategicTaskDtoList.Count, 7);
+            FillStrategicTasksTable(strategicTasksTable, grade);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.2
@@ -82,9 +202,9 @@ namespace KOP.BLL.Services
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем строку с описанием показателя Qn2 по всем проектам
-            if (gradeDto.ProjectDtoList.Any())
+            if (grade.ProjectDtoList.Any())
             {
-                AddParagraph(document, $"Выполнение стратегических проектов за отчетный период, Qn2 {gradeDto.Qn2} %", true, "Cambria", 10, ParagraphAlignment.LEFT);
+                AddParagraph(document, $"Выполнение стратегических проектов за отчетный период, Qn2 = {grade.Qn2} %", true, "Cambria", 10, ParagraphAlignment.LEFT);
             }
             else
             {
@@ -93,29 +213,38 @@ namespace KOP.BLL.Services
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем "Проекты"
-            foreach (var project in gradeDto.ProjectDtoList)
+            foreach (var project in grade.ProjectDtoList)
             {
                 AddParagraph(document, $"{user.FullName} является {project.UserRole} стратегического проекта \"{project.Name}\".", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
                 AddParagraph(document, $" Проект {project.Stage}.", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
                 AddParagraph(document, $"Дата открытия проекта {project.StartDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
                 AddParagraph(document, $"Дата окончания проекта(план) {project.EndDate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, $"Коэффициент успешности проекта {project.SuccessRate} %", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, $"Средний KPI проекта {project.AverageKpi} %", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
-                AddParagraph(document, $"Оценка реализации проекта SP {project.SP} %", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                AddParagraph(document, $"Коэффициент успешности проекта, % = {project.SuccessRate}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                AddParagraph(document, $"Средний KPI проекта, % = {project.AverageKpi}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
+                AddParagraph(document, $"Оценка реализации проекта SP, % = {project.SP}", false, "Times New Roman", 10, ParagraphAlignment.LEFT);
             }
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.3
             AddParagraph(document, "2.3. Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей.", true, "Cambria", 10, ParagraphAlignment.LEFT);
-            AddParagraph(document, $"Исполнение ключевых показателей эффективности деятельности (KPI по ТС за {gradeDto.StartDate} по {gradeDto.EndDate}).", false, "Cambria", 10, ParagraphAlignment.LEFT);
+            AddParagraph(document, $"Исполнение ключевых показателей эффективности деятельности (KPI по ТС за {grade.StartDate} по {grade.EndDate}).", false, "Cambria", 10, ParagraphAlignment.LEFT);
             AddParagraph(document, "Таблица 2.", false, "Cambria", 10, ParagraphAlignment.RIGHT);
 
             // Добавляем таблицу для пункта 2.3 "KPI"
-            var kpiPeriods = gradeDto.KpiDtoList
-                .GroupBy(kpi => $"{kpi.PeriodStartDate.ToShortDateString()} - {kpi.PeriodEndDate.ToShortDateString()}")
-                .Select(group => new KpiPeriod(group.Key, group.ToList())).ToList();
-            var kpiTable = document.CreateTable(2 + gradeDto.KpiDtoList.Count + kpiPeriods.Count(), 7);
-            FillKpiTable(kpiTable, gradeDto, kpiPeriods);
+            var kpiPeriods = grade.KpiDtoList
+            .GroupBy(kpi => new
+            {
+                StartDate = kpi.PeriodStartDate,  // Группируем по датам без времени
+                EndDate = kpi.PeriodEndDate
+            })
+            .Select(group => new KpiPeriod(
+                $"{group.Key.StartDate:dd.MM.yyyy} - {group.Key.EndDate:dd.MM.yyyy}",
+                group.ToList()
+            ))
+            .ToList();
+
+            var kpiTable = document.CreateTable(2 + grade.KpiDtoList.Count + kpiPeriods.Count(), 4);
+            FillKpiTable(kpiTable, grade, kpiPeriods);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.4
@@ -124,7 +253,7 @@ namespace KOP.BLL.Services
 
             // Добавляем таблицу для пункта 2.4 "УК" (9 строк, 6 столбцов)
             var competenciesTable = document.CreateTable(9, 6);
-            await FillCompetenciesTable(competenciesTable, managmentSummaryDto);
+            await FillCompetenciesTable(competenciesTable, managmentSummary);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем заголовок пункта 2.5
@@ -132,19 +261,72 @@ namespace KOP.BLL.Services
 
             // Добавляем таблицу для пункта 2.5 "Квалификация руководителя" (1 строка, 3 столбца)
             var qualificationTable = document.CreateTable(1, 3);
-            FillQualificationTable(qualificationTable, user, gradeDto);
+            FillQualificationTable(qualificationTable, user, grade);
             AddParagraph(document, string.Empty, false, "Times New Roman", 10, ParagraphAlignment.LEFT); // Отступ
 
             // Добавляем таблицу «Общий вывод по оценке Руководителя» (2 строки, 1 столбец)
             var conclusionTable = document.CreateTable(2, 1);
-            FillConclusionTable(conclusionTable, managmentSummaryDto, user);
+            await FillConclusionTable(conclusionTable, managmentSummary, user, gradeId);
 
             // Сохраняем документ в MemoryStream
             document.Write(memoryStream);
 
             return memoryStream.ToArray();
-
         }
+
+        public async Task<byte[]> GenerateUpcomingGradesReport(int supervisorId)
+        {
+            // Получаем данные
+            var users = await _supervisorService.GetUsersWithAnyUpcomingGradeForSupervisor(supervisorId);
+
+            using var memoryStream = new MemoryStream();
+
+            // Создание новой рабочей книги
+            using var workbook = new XSSFWorkbook();
+
+            // Создание нового листа
+            var sheet = workbook.CreateSheet("Sheet1");
+
+            // Создаем стиль для заголовков
+            var headerStyle = workbook.CreateCellStyle();
+            var headerFont = workbook.CreateFont();
+            headerFont.IsBold = true;
+            headerStyle.SetFont(headerFont);
+
+            // Добавление заголовков
+            var headerRow = sheet.CreateRow(0);
+            var headers = new[] { "ФИО", "Подразделение", "Должность", "Дата окончания контракта", "Дата предстоящей оценки" };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = headerRow.CreateCell(i);
+                cell.SetCellValue(headers[i]);
+                cell.CellStyle = headerStyle;
+            }
+
+            // Добавление данных
+            var rowCount = 1;
+            foreach (var user in users)
+            {
+                var row = sheet.CreateRow(rowCount++);
+
+                row.CreateCell(0).SetCellValue(user.FullName);
+                row.CreateCell(1).SetCellValue(user.SubdivisionFromFile);
+                row.CreateCell(2).SetCellValue(user.Position);
+                row.CreateCell(3).SetCellValue(user.ContractEndDate);
+                row.CreateCell(4).SetCellValue(user.NextGradeStartDate);
+            }
+
+            // Авто-размер колонок
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sheet.AutoSizeColumn(i);
+            }
+
+            workbook.Write(memoryStream);
+            return memoryStream.ToArray();
+        }
+
         private void SetLandscapeOrientation(XWPFDocument document)
         {
             var section = new CT_SectPr();
@@ -163,8 +345,11 @@ namespace KOP.BLL.Services
             run.FontSize = fontSize;
             run.SetText(text);
         }
-        private void FillGeneralInfoTable(XWPFTable table, User user, GradeDto gradeDto)
+        private void FillGeneralInfoTable(XWPFTable table, AssessmentSummaryDto summaryDto, User user, GradeExtendedDto gradeDto)
         {
+            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "-";
+            var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить интерпретацию";
+
             // Строка 0: объединяем ячейки 1 и 2 для двухколоночного вида
             table.GetRow(0).MergeCells(1, 2);
 
@@ -187,62 +372,66 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(table.GetRow(3).GetCell(1), "Должность", false, ParagraphAlignment.LEFT);
             AddTextToCellWithFormatting(table.GetRow(3).GetCell(2), user.Position, false, ParagraphAlignment.LEFT);
 
-            // Строка 4: Оцениваемый период
+            // Строка 4: Подразделение
             AddTextToCellWithFormatting(table.GetRow(4).GetCell(0), "1.4.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(4).GetCell(1), "Оцениваемый период", false, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(4).GetCell(2), $"{gradeDto.StartDate} по {gradeDto.EndDate}", false, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(4).GetCell(1), "Подразделение", false, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(4).GetCell(2), user.SubdivisionFromFile, false, ParagraphAlignment.LEFT);
 
-            // Строка 5: Критерии оценки и краткие выводы
-            AddTextToCellWithFormatting(table.GetRow(5).GetCell(0), "2.", true, ParagraphAlignment.CENTER, "#F2F4F0");
-            AddTextToCellWithFormatting(table.GetRow(5).GetCell(1), "Критерии Оценки:", true, ParagraphAlignment.CENTER, "#F2F4F0");
-            AddTextToCellWithFormatting(table.GetRow(5).GetCell(2), "Краткие выводы:", true, ParagraphAlignment.LEFT, "#F2F4F0");
+            // Строка 5: Оцениваемый период
+            AddTextToCellWithFormatting(table.GetRow(5).GetCell(0), "1.5.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(5).GetCell(1), "Оцениваемый период", false, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(5).GetCell(2), $"{gradeDto.StartDate} по {gradeDto.EndDate}", false, ParagraphAlignment.LEFT);
 
-            // Строка 6: Вывод по стратегическим задачам
-            AddTextToCellWithFormatting(table.GetRow(6).GetCell(0), "2.1.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(6).GetCell(1), "Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей. (Таблица 1)", true, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(6).GetCell(2), gradeDto.StrategicTasksConclusion, false, ParagraphAlignment.LEFT);
+            // Строка 6: Критерии оценки и краткие выводы
+            AddTextToCellWithFormatting(table.GetRow(6).GetCell(0), "2.", true, ParagraphAlignment.CENTER, "#F2F4F0");
+            AddTextToCellWithFormatting(table.GetRow(6).GetCell(1), "Критерии Оценки:", true, ParagraphAlignment.CENTER, "#F2F4F0");
+            AddTextToCellWithFormatting(table.GetRow(6).GetCell(2), "Краткие выводы:", true, ParagraphAlignment.LEFT, "#F2F4F0");
 
-            // Строка 7: Стратегические проекты
-            AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты выполнения стратегических проектов.", true, ParagraphAlignment.LEFT);
+            // Строка 7: Вывод по стратегическим задачам
+            AddTextToCellWithFormatting(table.GetRow(7).GetCell(0), "2.1.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(7).GetCell(1), "Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей. (Таблица 1)", true, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), gradeDto.StrategicTasksConclusion, false, ParagraphAlignment.LEFT);
+
+            // Строка 8: Стратегические проекты
+            AddTextToCellWithFormatting(table.GetRow(8).GetCell(0), "2.2.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(8).GetCell(1), "Результаты выполнения стратегических проектов.", true, ParagraphAlignment.LEFT);
             if (gradeDto.ProjectDtoList.Any())
             {
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Выполнение стратегических проектов за отчетный период, Qn2 {gradeDto.Qn2} %", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Выполнение стратегических проектов за отчетный период, Qn2 = {gradeDto.Qn2} %", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
             else
             {
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"За оцениваемый период {user.FullName} не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"За оцениваемый период {user.FullName} не являлся (лась) заказчиком или руководителем какого-либо стратегического проекта", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
             foreach (var project in gradeDto.ProjectDtoList)
             {
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата открытия проекта {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Дата окончания проекта (план) {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Коэффициент успешности проекта {project.SuccessRate}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Средний KPI проекта - {project.AverageKpi}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
-                AddTextToCellWithFormatting(table.GetRow(7).GetCell(2), $"Оценка реализации проекта {project.SP}%", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"{user.FullName} является {project.UserRole} стратегического проекта {project.Name}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Проект {project.Stage}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Дата открытия проекта {project.StartDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Дата окончания проекта (план) {project.EndDate}.", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Коэффициент успешности проекта, % = {project.SuccessRate}", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Средний KPI проекта, % = {project.AverageKpi}", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), $"Оценка реализации проекта, % = {project.SP}", alignment: ParagraphAlignment.LEFT, removePreviousParagraph: false);
             }
 
-            // Строка 8: Вывод по KPI
-            AddTextToCellWithFormatting(table.GetRow(8).GetCell(0), "2.3.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(8).GetCell(1), "Результаты выполнения ключевых показателей эффективности деятельности. (Таблица 2)", true, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(8).GetCell(2), gradeDto.KPIsConclusion, false, ParagraphAlignment.LEFT);
+            // Строка 9: Вывод по KPI
+            AddTextToCellWithFormatting(table.GetRow(9).GetCell(0), "2.3.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(9).GetCell(1), "Результаты выполнения ключевых показателей эффективности деятельности. (Таблица 2)", true, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(9).GetCell(2), gradeDto.KPIsConclusion, false, ParagraphAlignment.LEFT);
 
-            // Строка 9: Управленческие компетенции
-            AddTextToCellWithFormatting(table.GetRow(9).GetCell(0), "2.4.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(9).GetCell(1), "Оценка управленческих компетенций (Таблица 3)", true, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(9).GetCell(2), gradeDto.ManagmentCompetenciesConclusion, false, ParagraphAlignment.LEFT);
+            // Строка 10: Управленческие компетенции
+            AddTextToCellWithFormatting(table.GetRow(10).GetCell(0), "2.4.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(10).GetCell(1), "Оценка управленческих компетенций (Таблица 3)", true, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(10).GetCell(2), $"Уровень управленческих компетенций – {interpretationLevel}. {interpretationCompetence}", false, ParagraphAlignment.LEFT);
 
-            // Строка 10: Квалификация руководителя
-            AddTextToCellWithFormatting(table.GetRow(10).GetCell(0), "2.5.", false, ParagraphAlignment.CENTER);
-            AddTextToCellWithFormatting(table.GetRow(10).GetCell(1), "Квалификация Руководителя", true, ParagraphAlignment.LEFT);
-            AddTextToCellWithFormatting(table.GetRow(10).GetCell(2), gradeDto.QualificationConclusion, false, ParagraphAlignment.LEFT);
+            // Строка 11: Квалификация руководителя
+            AddTextToCellWithFormatting(table.GetRow(11).GetCell(0), "2.5.", false, ParagraphAlignment.CENTER);
+            AddTextToCellWithFormatting(table.GetRow(11).GetCell(1), "Квалификация Руководителя", true, ParagraphAlignment.LEFT);
+            AddTextToCellWithFormatting(table.GetRow(11).GetCell(2), gradeDto.QualificationConclusion, false, ParagraphAlignment.LEFT);
         }
 
-        private void FillStrategicTasksTable(XWPFTable table, GradeDto gradeDto)
+        private void FillStrategicTasksTable(XWPFTable table, GradeExtendedDto gradeDto)
         {
-
             // Вертикальное объединение для столбцов 0, 1 и 4 на 2 строки
             SetVerticalMerge(table, 0, 0, 2);
             SetVerticalMerge(table, 0, 1, 2);
@@ -271,48 +460,41 @@ namespace KOP.BLL.Services
             foreach (var strategicTask in gradeDto.StrategicTaskDtoList)
             {
                 var row = table.GetRow(rowCounter);
-                AddTextToCellWithFormatting(row.GetCell(0), $"{strategicTask.Name}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(1), $"{strategicTask.Purpose}", false, ParagraphAlignment.LEFT);
+                AddTextToCellWithFormatting(row.GetCell(0), strategicTask.Name, false, ParagraphAlignment.LEFT);
+                AddTextToCellWithFormatting(row.GetCell(1), strategicTask.Purpose, false, ParagraphAlignment.LEFT);
                 AddTextToCellWithFormatting(row.GetCell(2), $"{strategicTask.PlanDate}", false, ParagraphAlignment.LEFT);
                 AddTextToCellWithFormatting(row.GetCell(3), $"{strategicTask.FactDate}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(4), $"{strategicTask.PlanResult}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(5), $"{strategicTask.FactResult}", false, ParagraphAlignment.LEFT);
-                AddTextToCellWithFormatting(row.GetCell(6), $"{strategicTask.Remark}", false, ParagraphAlignment.LEFT);
+                AddTextToCellWithFormatting(row.GetCell(4), strategicTask.PlanResult, false, ParagraphAlignment.LEFT);
+                AddTextToCellWithFormatting(row.GetCell(5), strategicTask.FactResult, false, ParagraphAlignment.LEFT);
+
+                if (!string.IsNullOrEmpty(strategicTask.Remark))
+                {
+                    foreach (var newline in strategicTask.Remark.Split("\r\n"))
+                    {
+                        AddTextToCellWithFormatting(row.GetCell(6), newline, false, ParagraphAlignment.LEFT, removePreviousParagraph: false);
+                    }
+                }
+
                 rowCounter++;
             }
         }
 
-        private void FillKpiTable(XWPFTable table, GradeDto gradeDto, List<KpiPeriod> kpiPeriods)
+        private void FillKpiTable(XWPFTable table, GradeExtendedDto gradeDto, List<KpiPeriod> kpiPeriods)
         {
-            // Вертикальное объединение для столбцов 0 и 1 на 2 строки
-            SetVerticalMerge(table, 0, 0, 2);
-            SetVerticalMerge(table, 0, 1, 2);
-            SetVerticalMerge(table, 0, 6, 2);
-
-            // Горизонтальное объединение ячеек для «Исполнения»
-            table.GetRow(0).MergeCells(2, 5);
-
             // Строка 0: Заголовок таблицы
             var row0 = table.GetRow(0);
             AddTextToCellWithFormatting(row0.GetCell(0), "№", true, ParagraphAlignment.LEFT, "#F2F4F0");
             AddTextToCellWithFormatting(row0.GetCell(1), "Показатель KPI", true, ParagraphAlignment.LEFT, "#F2F4F0");
-            AddTextToCellWithFormatting(row0.GetCell(2), "Исполнение", true, ParagraphAlignment.LEFT, "#F2F4F0");
+            AddTextToCellWithFormatting(row0.GetCell(2), "% выполнения", true, ParagraphAlignment.CENTER, "#F2F4F0");
             AddTextToCellWithFormatting(row0.GetCell(3), "Расчеты показателя", true, ParagraphAlignment.CENTER, "#F2F4F0");
 
-            // Строка 1: Подзаголовки для объединённых ячеек
-            var row1 = table.GetRow(1);
-            AddTextToCellWithFormatting(row1.GetCell(2), "ед. изм.", true, ParagraphAlignment.CENTER, "#F2F4F0");
-            AddTextToCellWithFormatting(row1.GetCell(3), "План", true, ParagraphAlignment.CENTER, "#F2F4F0");
-            AddTextToCellWithFormatting(row1.GetCell(4), "Факт", true, ParagraphAlignment.CENTER, "#F2F4F0");
-            AddTextToCellWithFormatting(row1.GetCell(5), "% выполнения", true, ParagraphAlignment.CENTER, "#F2F4F0");
-
-            var rowIndex = 2;
+            var rowIndex = 1;
             var kpiIndex = 1;
             foreach (var date in kpiPeriods)
             {
                 // Строка с названием месяца и года (объединённая на всю ширину)
                 var periodRow = table.GetRow(rowIndex);
-                table.GetRow(rowIndex).MergeCells(0, 6);
+                table.GetRow(rowIndex).MergeCells(0, 3);
                 AddTextToCellWithFormatting(periodRow.GetCell(0), date.Period, true);
                 rowIndex++;
 
@@ -322,11 +504,8 @@ namespace KOP.BLL.Services
                     var dataRow = table.GetRow(rowIndex);
                     AddTextToCellWithFormatting(dataRow.GetCell(0), $"{kpiIndex}");
                     AddTextToCellWithFormatting(dataRow.GetCell(1), $"{kpi.Name}");
-                    AddTextToCellWithFormatting(dataRow.GetCell(2), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(3), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(4), $"-");
-                    AddTextToCellWithFormatting(dataRow.GetCell(5), $"{kpi.CompletionPercentage}");
-                    AddTextToCellWithFormatting(dataRow.GetCell(6), $"{kpi.CalculationMethod}");
+                    AddTextToCellWithFormatting(dataRow.GetCell(2), $"{kpi.CompletionPercentage}");
+                    AddTextToCellWithFormatting(dataRow.GetCell(3), $"{kpi.CalculationMethod}");
                     rowIndex++;
                     kpiIndex++;
                 }
@@ -417,7 +596,7 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(table.GetRow(8).GetCell(3), summaryDto.SupervisorAssessmentResultValues?.Sum(x => x.Value).ToString());
         }
 
-        private void FillQualificationTable(XWPFTable table, User user, GradeDto gradeDto)
+        private void FillQualificationTable(XWPFTable table, User user, GradeExtendedDto gradeDto)
         {
             var qualification = gradeDto.QualificationDto;
             var row = table.GetRow(0);
@@ -450,7 +629,8 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(cell3, $"инициативе нанимателя в случае совершения лицом виновных действий, являющихся основаниями для", removePreviousParagraph: false);
             AddTextToCellWithFormatting(cell3, $"утраты доверия к нему со стороны нанимателя", removePreviousParagraph: false);
             AddTextToCellWithFormatting(cell3, $"", removePreviousParagraph: false);
-            AddTextToCellWithFormatting(cell3, $"{user.FullName} соответствует квалификационным требованиям и требованиям к деловой репутации.", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(cell3, $"4. {qualification?.QualificationResult}", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(cell3, gradeDto.QualificationConclusion, removePreviousParagraph: false);
         }
 
         private void AddTextToCellWithFormatting(XWPFTableCell cell, string? text, bool bold = false, ParagraphAlignment alignment = ParagraphAlignment.LEFT, string? color = null, bool removePreviousParagraph = true, bool underline = false)
@@ -474,6 +654,7 @@ namespace KOP.BLL.Services
             paragraph.IndentationLeft = 50;
             paragraph.Alignment = alignment;
 
+
             var run = paragraph.CreateRun();
             run.IsBold = bold;
             if (underline)
@@ -489,12 +670,17 @@ namespace KOP.BLL.Services
             }
         }
 
-        private void FillConclusionTable(XWPFTable table, AssessmentSummaryDto summaryDto, User user)
+        private async Task FillConclusionTable(XWPFTable table, AssessmentSummaryDto summaryDto, User user, int gradeId)
         {
+            var courseRecommendations = await _recommendationService.GetCourseRecommendationsForGrade(gradeId);
+            var seminarRecommendations = await _recommendationService.GetSeminarRecommendationsForGrade(gradeId);
+            var competenceRecommendations = await _recommendationService.GetCompetenceRecommendationsForGrade(gradeId);
+            var literatureRecommendations = await _recommendationService.GetLiteratureRecommendationsForGrade(gradeId);
+
             var selfAssessmentSum = summaryDto.SelfAssessmentResultValues.Sum(x => x.Value);
             var supervisorAssessmentSum = summaryDto.SupervisorAssessmentResultValues.Sum(x => x.Value);
-            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "-";
-            var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить интерпретацию";
+            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "Не удалось определить уровень.";
+            var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить компетенцию";
 
             // Row 0: Заголовок с выравниванием по центру
             AddTextToCellWithFormatting(table.GetRow(0).GetCell(0), "Общий вывод по оценке Руководителя", true, ParagraphAlignment.CENTER, "#F2F4F0");
@@ -510,15 +696,10 @@ namespace KOP.BLL.Services
 
             // Компетенции, которые стоит поддерживать
             AddTextToCellWithFormatting(row1.GetCell(0), "Вместе с тем, следует поддерживать на должном лидерском уровне следующие компетенции:", removePreviousParagraph: false);
-            string[] competencies = {
-                "Компетенция 1",
-                "Компетенция 2",
-                "Компетенция 3",
-            };
 
-            foreach (var competence in competencies)
+            foreach (var competence in competenceRecommendations)
             {
-                AddTextToCellWithFormatting(row1.GetCell(0), "- " + competence, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(row1.GetCell(0), "- " + competence.Value, removePreviousParagraph: false);
             }
 
             AddTextToCellWithFormatting(row1.GetCell(0), string.Empty, removePreviousParagraph: false); // Отступ
@@ -526,38 +707,26 @@ namespace KOP.BLL.Services
 
             // Рекомендации: бизнес-литература
             AddTextToCellWithFormatting(row1.GetCell(0), "Изучение бизнес-литературы:", true, removePreviousParagraph: false);
-            string[] literature = {
-                "Литература 1",
-                "Литература 2",
-                "Литература 3",
-            };
-            foreach (var item in literature)
+
+            foreach (var literature in literatureRecommendations)
             {
-                AddTextToCellWithFormatting(row1.GetCell(0), "- " + item, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(row1.GetCell(0), "- " + literature.Value, removePreviousParagraph: false);
             }
 
             // Рекомендации: электронный курс
             AddTextToCellWithFormatting(row1.GetCell(0), "Электронный курс на Корпоративном Портале МТSpace:", true, removePreviousParagraph: false);
-            string[] courses = {
-                "Курс 1",
-                "Курс 2",
-                "Курс 3"
-            };
-            foreach (var course in courses)
+
+            foreach (var course in courseRecommendations)
             {
-                AddTextToCellWithFormatting(row1.GetCell(0), "- " + course, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(row1.GetCell(0), "- " + course.Value, removePreviousParagraph: false);
             }
 
             // Рекомендации: семинары и тренинги
             AddTextToCellWithFormatting(row1.GetCell(0), "Семинары, тренинги, курсы, конференции и иное:", true, removePreviousParagraph: false);
-            string[] events = {
-                "Семинар 1",
-                "Семинар 2",
-                "Семинар 3"
-            };
-            foreach (var ev in events)
+
+            foreach (var seminar in seminarRecommendations)
             {
-                AddTextToCellWithFormatting(row1.GetCell(0), "- " + ev, removePreviousParagraph: false);
+                AddTextToCellWithFormatting(row1.GetCell(0), "- " + seminar.Value, removePreviousParagraph: false);
             }
 
             AddTextToCellWithFormatting(row1.GetCell(0), "2. Продление трудовых отношений:", removePreviousParagraph: false, underline: true);

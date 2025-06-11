@@ -1,18 +1,14 @@
-﻿using NLog;
-
-namespace KOP.Import.Utils
+﻿namespace KOP.Import.Utils
 {
     public static class ImageUtilities
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
         public static string SaveBase64Image(string? base64String, string fileName, string userImgDownloadPath)
         {
             try
             {
-                if(string.IsNullOrEmpty(base64String))
+                if (string.IsNullOrEmpty(base64String))
                 {
-                    return "../UserImages/default_profile_icon.svg";
+                    return "../users_images/default_profile_icon.svg";
                 }
 
                 var file = Path.Combine(userImgDownloadPath, $"{fileName}.jpg");
@@ -25,13 +21,11 @@ namespace KOP.Import.Utils
                     fileStream.Flush();
                 }
 
-                return Path.Combine("../UserImages/", $"{fileName}.jpg");
+                return Path.Combine("../users_images/", $"{fileName}.jpg");
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
-
-                return "../UserImages/default_profile_icon.svg";
+                return "../users_images/default_profile_icon.svg";
             }
         }
     }

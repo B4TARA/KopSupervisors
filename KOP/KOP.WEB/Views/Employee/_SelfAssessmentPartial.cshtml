@@ -7,8 +7,7 @@
 
 <div class="assessment_user_tab_container popup_assessment_table">
 	<div class="choose_assessment_user_container margin_container_bottom">
-
-		@if (Model.SelfAssessmentResultSystemStatus == SystemStatuses.NOT_EXIST)
+		@if (!Model.HasSelfAssessmentResult)
 		{
 			<div class="undefined_page_wrapper">
 

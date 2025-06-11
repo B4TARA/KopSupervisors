@@ -15,19 +15,19 @@ namespace KOP.DAL.Repositories
             _entitySet = _dbContext.Set<T>();
         }
 
-
-
         public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
-            => await _dbContext.AddAsync(entity, cancellationToken);
-
+        {
+            await _dbContext.AddAsync(entity, cancellationToken);
+        }
         public async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
-            => await _dbContext.AddRangeAsync(entities, cancellationToken);
-
-
+        {
+            await _dbContext.AddRangeAsync(entities, cancellationToken);
+        }
 
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
-            => await _entitySet.ToListAsync(cancellationToken);
-
+        {
+            return await _entitySet.ToListAsync(cancellationToken);
+        }
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default, params string[] includeProperties)
         {
             IQueryable<T> query = _entitySet;
@@ -39,10 +39,10 @@ namespace KOP.DAL.Repositories
 
             return await query.ToListAsync(cancellationToken);
         }
-
         public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
-            => await _entitySet.Where(expression).ToListAsync(cancellationToken);
-
+        {
+            return await _entitySet.Where(expression).ToListAsync(cancellationToken);
+        }
         public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default, params string[] includeProperties)
         {
             IQueryable<T> query = _entitySet;
@@ -55,11 +55,10 @@ namespace KOP.DAL.Repositories
             return await query.Where(expression).ToListAsync(cancellationToken);
         }
 
-
-
         public async Task<T> GetAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
-            => await _entitySet.FirstOrDefaultAsync(expression, cancellationToken);
-
+        {
+            return await _entitySet.FirstOrDefaultAsync(expression, cancellationToken);
+        }
         public async Task<T> GetAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default, params string[] includeProperties)
         {
             IQueryable<T> query = _entitySet;
@@ -72,20 +71,22 @@ namespace KOP.DAL.Repositories
             return await query.FirstOrDefaultAsync(expression, cancellationToken);
         }
 
-
-
         public void Remove(T entity)
-            => _dbContext.Remove(entity);
-
+        {
+            _dbContext.Remove(entity);
+        }
         public void RemoveRange(IEnumerable<T> entities)
-            => _dbContext.RemoveRange(entities);
-
-
+        {
+            _dbContext.RemoveRange(entities);
+        }
 
         public void Update(T entity)
-            => _dbContext.Update(entity);
-
+        {
+            _dbContext.Update(entity);
+        }
         public void UpdateRange(IEnumerable<T> entities)
-            => _dbContext.UpdateRange(entities);
+        {
+            _dbContext.UpdateRange(entities);
+        }
     }
 }

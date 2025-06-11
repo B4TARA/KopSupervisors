@@ -1,0 +1,48 @@
+﻿@model List<KOP.Common.Dtos.UserDtos.UserDto>
+
+<div class="home-content">
+    <div class="home_content_info">
+        <div class="home_content_info_icon">
+            <i class="fa-solid fa-folder"></i>
+        </div>
+        <div class="mid_title">
+            Отчетность
+        </div>
+    </div>
+</div>
+<div class="main_container_content" id="main_container_content">
+    <section class="tab_filter_search_container margin_container_bottom_small">
+        <div class="searchbox_main_wrapper">
+            <input type="text" class="searchbox" id="searchbox" placeholder="Введите ФИО или должность" onkeyup="searchBoxKeyUpReport(this,'classicTable')">
+            <i class="fa-solid fa-magnifying-glass searchbox_icon"></i>
+        </div>
+    </section>
+    <section class="list_users_archive_container">
+        <div class="list_division_users_wrapper archive">
+            <div class="d-table table_users">
+                <div class="d-tr-th table_header">
+                    <div class="d-th table_header_elem number">#</div>
+                    <div class="d-th table_header_elem">ФИО</div>
+                    <div class="d-th table_header_elem">Подразделение</div>
+                    <div class="d-th table_header_elem">Должность</div>
+                </div>
+
+                @{
+                    int count = 1;
+                }
+
+                <div class="d-tbody">
+                    @foreach (var user in Model)
+                    {
+                        <a asp-area="" asp-controller="Employee" asp-action="GetGrades" asp-route-userId=@user.Id class="d-tr">
+                            <div class="d-td number">@(count++)</div>
+                            <div class="d-td fullname">@user.FullName</div>
+                            <div class="d-td">@user.SubdivisionFromFile</div>
+                            <div class="d-td">@user.Position</div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

@@ -22,7 +22,7 @@ namespace KOP.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.Assessment", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Assessment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,7 +60,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Assessments");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentInterpretation", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentInterpretation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,7 +96,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentInterpretations");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrix", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentMatrix", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +118,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentMatrices");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrixElement", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentMatrixElement", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -150,7 +150,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentMatrixElements");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentRange", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentRange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -172,7 +172,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentRanges");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentResult", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentResult", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +210,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentResults");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentResultValue", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentResultValue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -237,7 +237,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentResultValues");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentType", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -262,7 +262,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("AssessmentTypes");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Grade", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Grade", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -352,7 +352,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Grades");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.HigherEducation", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.HigherEducation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -388,10 +388,10 @@ namespace KOP.DAL.Migrations
 
                     b.HasIndex("QualificationId");
 
-                    b.ToTable("HigherEducation");
+                    b.ToTable("HigherEducations");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Kpi", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Kpi", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -430,7 +430,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Kpis");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Mark", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Mark", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -463,7 +463,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Marks");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.MarkType", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.MarkType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -487,7 +487,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("MarkTypes");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.PreviousJob", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.PreviousJob", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -522,7 +522,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("PreviousJobs");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Project", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -530,8 +530,9 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("AverageKpi")
-                        .HasColumnType("double precision");
+                    b.Property<string>("AverageKpi")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateOnly>("DateOfCreation")
                         .HasColumnType("date");
@@ -546,8 +547,9 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("SP")
-                        .HasColumnType("double precision");
+                    b.Property<string>("SP")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -556,8 +558,9 @@ namespace KOP.DAL.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<double>("SuccessRate")
-                        .HasColumnType("double precision");
+                    b.Property<string>("SuccessRate")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserRole")
                         .IsRequired()
@@ -570,7 +573,7 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Qualification", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Qualification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -613,7 +616,38 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Qualifications");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.StrategicTask", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Recommendation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DateOfModification")
+                        .HasColumnType("date");
+
+                    b.Property<int>("GradeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GradeId");
+
+                    b.ToTable("Recommendation");
+                });
+
+            modelBuilder.Entity("KOP.DAL.Entities.StrategicTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -659,7 +693,32 @@ namespace KOP.DAL.Migrations
                     b.ToTable("StrategicTasks");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.TrainingEvent", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Subdivision", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("NestingLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Subdivisions");
+                });
+
+            modelBuilder.Entity("KOP.DAL.Entities.TrainingEvent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -698,86 +757,6 @@ namespace KOP.DAL.Migrations
                     b.ToTable("TrainingEvents");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.ValueJudgment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BehaviorToCorrect")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly>("DateOfCreation")
-                        .HasColumnType("date");
-
-                    b.Property<int>("GradeId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RecommendationsForDevelopment")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Strengths")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ValueJudgments");
-                });
-
-            modelBuilder.Entity("KOP.DAL.Entities.Mail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Code")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Mails");
-                });
-
-            modelBuilder.Entity("KOP.DAL.Entities.Subdivision", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("NestingLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("Subdivisions");
-                });
-
             modelBuilder.Entity("KOP.DAL.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -786,11 +765,15 @@ namespace KOP.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("ContractEndDate")
+                    b.Property<DateOnly?>("ContractEndDate")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("ContractStartDate")
+                    b.Property<DateOnly?>("ContractStartDate")
                         .HasColumnType("date");
+
+                    b.Property<string>("DepartmentFromFile")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -804,7 +787,7 @@ namespace KOP.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly>("HireDate")
+                    b.Property<DateOnly?>("HireDate")
                         .HasColumnType("date");
 
                     b.Property<string>("ImagePath")
@@ -854,6 +837,40 @@ namespace KOP.DAL.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("KOP.DAL.Entities.ValueJudgment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BehaviorToCorrect")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("DateOfCreation")
+                        .HasColumnType("date");
+
+                    b.Property<int>("GradeId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsFinalized")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RecommendationsForDevelopment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Strengths")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ValueJudgments");
+                });
+
             modelBuilder.Entity("SubdivisionUser", b =>
                 {
                     b.Property<int>("SubordinateSubdivisionsId")
@@ -869,15 +886,15 @@ namespace KOP.DAL.Migrations
                     b.ToTable("SubdivisionUser");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.Assessment", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Assessment", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.AssessmentType", "AssessmentType")
+                    b.HasOne("KOP.DAL.Entities.AssessmentType", "AssessmentType")
                         .WithMany("Assessments")
                         .HasForeignKey("AssessmentTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
                         .WithMany("Assessments")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -896,9 +913,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentInterpretation", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentInterpretation", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.AssessmentType", "AssessmentType")
+                    b.HasOne("KOP.DAL.Entities.AssessmentType", "AssessmentType")
                         .WithMany("AssessmentInterpretations")
                         .HasForeignKey("AssessmentTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -907,9 +924,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("AssessmentType");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrixElement", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentMatrixElement", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrix", "Matrix")
+                    b.HasOne("KOP.DAL.Entities.AssessmentMatrix", "Matrix")
                         .WithMany("Elements")
                         .HasForeignKey("MatrixId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -918,9 +935,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Matrix");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentResult", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentResult", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.Assessment", "Assessment")
+                    b.HasOne("KOP.DAL.Entities.Assessment", "Assessment")
                         .WithMany("AssessmentResults")
                         .HasForeignKey("AssessmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -937,9 +954,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Judge");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentResultValue", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentResultValue", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.AssessmentResult", "AssessmentResult")
+                    b.HasOne("KOP.DAL.Entities.AssessmentResult", "AssessmentResult")
                         .WithMany("AssessmentResultValues")
                         .HasForeignKey("AssessmentResultId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -948,9 +965,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("AssessmentResult");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentType", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentType", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrix", "AssessmentMatrix")
+                    b.HasOne("KOP.DAL.Entities.AssessmentMatrix", "AssessmentMatrix")
                         .WithMany("AssessmentTypes")
                         .HasForeignKey("AssessmentMatrixId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -959,11 +976,11 @@ namespace KOP.DAL.Migrations
                     b.Navigation("AssessmentMatrix");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Grade", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Grade", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Qualification", "Qualification")
+                    b.HasOne("KOP.DAL.Entities.Qualification", "Qualification")
                         .WithOne("Grade")
-                        .HasForeignKey("KOP.DAL.Entities.GradeEntities.Grade", "QualificationId")
+                        .HasForeignKey("KOP.DAL.Entities.Grade", "QualificationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -973,9 +990,9 @@ namespace KOP.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.ValueJudgment", "ValueJudgment")
+                    b.HasOne("KOP.DAL.Entities.ValueJudgment", "ValueJudgment")
                         .WithOne("Grade")
-                        .HasForeignKey("KOP.DAL.Entities.GradeEntities.Grade", "ValueJudgmentId")
+                        .HasForeignKey("KOP.DAL.Entities.Grade", "ValueJudgmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -986,9 +1003,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("ValueJudgment");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.HigherEducation", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.HigherEducation", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Qualification", "Qualification")
+                    b.HasOne("KOP.DAL.Entities.Qualification", "Qualification")
                         .WithMany("HigherEducations")
                         .HasForeignKey("QualificationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -997,9 +1014,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Qualification");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Kpi", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Kpi", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
                         .WithMany("Kpis")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1008,15 +1025,15 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Grade");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Mark", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Mark", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
                         .WithMany("Marks")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.MarkType", "MarkType")
+                    b.HasOne("KOP.DAL.Entities.MarkType", "MarkType")
                         .WithMany("Marks")
                         .HasForeignKey("MarkTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1027,9 +1044,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("MarkType");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.PreviousJob", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.PreviousJob", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Qualification", "Qualification")
+                    b.HasOne("KOP.DAL.Entities.Qualification", "Qualification")
                         .WithMany("PreviousJobs")
                         .HasForeignKey("QualificationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1038,9 +1055,9 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Qualification");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Project", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Project", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
                         .WithMany("Projects")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1049,10 +1066,10 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Grade");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.StrategicTask", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Recommendation", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
-                        .WithMany("StrategicTasks")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
+                        .WithMany("Recommendations")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1060,10 +1077,10 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Grade");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.TrainingEvent", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.StrategicTask", b =>
                 {
-                    b.HasOne("KOP.DAL.Entities.GradeEntities.Grade", "Grade")
-                        .WithMany("TrainingEvents")
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
+                        .WithMany("StrategicTasks")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1078,6 +1095,17 @@ namespace KOP.DAL.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("KOP.DAL.Entities.TrainingEvent", b =>
+                {
+                    b.HasOne("KOP.DAL.Entities.Grade", "Grade")
+                        .WithMany("TrainingEvents")
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Grade");
                 });
 
             modelBuilder.Entity("KOP.DAL.Entities.User", b =>
@@ -1104,31 +1132,31 @@ namespace KOP.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.Assessment", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Assessment", b =>
                 {
                     b.Navigation("AssessmentResults");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentMatrix", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentMatrix", b =>
                 {
                     b.Navigation("AssessmentTypes");
 
                     b.Navigation("Elements");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentResult", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentResult", b =>
                 {
                     b.Navigation("AssessmentResultValues");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.AssessmentEntities.AssessmentType", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.AssessmentType", b =>
                 {
                     b.Navigation("AssessmentInterpretations");
 
                     b.Navigation("Assessments");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Grade", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Grade", b =>
                 {
                     b.Navigation("Assessments");
 
@@ -1138,17 +1166,19 @@ namespace KOP.DAL.Migrations
 
                     b.Navigation("Projects");
 
+                    b.Navigation("Recommendations");
+
                     b.Navigation("StrategicTasks");
 
                     b.Navigation("TrainingEvents");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.MarkType", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.MarkType", b =>
                 {
                     b.Navigation("Marks");
                 });
 
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.Qualification", b =>
+            modelBuilder.Entity("KOP.DAL.Entities.Qualification", b =>
                 {
                     b.Navigation("Grade")
                         .IsRequired();
@@ -1156,12 +1186,6 @@ namespace KOP.DAL.Migrations
                     b.Navigation("HigherEducations");
 
                     b.Navigation("PreviousJobs");
-                });
-
-            modelBuilder.Entity("KOP.DAL.Entities.GradeEntities.ValueJudgment", b =>
-                {
-                    b.Navigation("Grade")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("KOP.DAL.Entities.Subdivision", b =>
@@ -1176,6 +1200,12 @@ namespace KOP.DAL.Migrations
                     b.Navigation("Assessments");
 
                     b.Navigation("Grades");
+                });
+
+            modelBuilder.Entity("KOP.DAL.Entities.ValueJudgment", b =>
+                {
+                    b.Navigation("Grade")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

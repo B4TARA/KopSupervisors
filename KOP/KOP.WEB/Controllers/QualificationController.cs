@@ -1,7 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.Enums;
-using KOP.WEB.Models.ViewModels.Shared;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.WEB.Models.ViewModels;
+using KOP.WEB.Models.ViewModels.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
@@ -10,17 +10,17 @@ namespace KOP.WEB.Controllers
 {
     public class QualificationController : Controller
     {
-        private readonly IGradeService _gradeService;
+        private readonly IQualificationService _qualificationService;
         private readonly ILogger<QualificationController> _logger;
 
-        public QualificationController(IGradeService gradeService, ILogger<QualificationController> logger)
+        public QualificationController(IQualificationService qualificationService, ILogger<QualificationController> logger)
         {
-            _gradeService = gradeService;
+            _qualificationService = qualificationService;
             _logger = logger;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Employee")]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
             if (gradeId <= 0)
@@ -46,24 +46,28 @@ namespace KOP.WEB.Controllers
                     return BadRequest("Selected user FullName is not valid.");
                 }
 
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.Qualification });
-
-                if (gradeDto.QualificationDto == null)
-                {
-                    throw new Exception($"Qualification is null for Grade with ID {gradeId}.");
-                }
-
+                var qualification = await _qualificationService.GetQualificationForGrade(gradeId);
                 var conclusionEditAccess = User.IsInRole("Urp");
                 var editAccess = User.IsInRole("Urp");
-                var viewAccess = gradeDto.IsQualificationFinalized || editAccess;
+                var viewAccess = qualification.IsFinalized || editAccess;
 
                 var viewModel = new QualificationViewModel
                 {
-                    GradeId = gradeId,
-                    SelectedUserFullName = selectedUserFullName,
+                    Id = qualification.Id,
+                    GradeId = qualification.GradeId,
                     SelectedUserId = selectedUserId.Value,
-                    Conclusion = gradeDto.QualificationConclusion,
-                    Qualification = gradeDto.QualificationDto,
+                    SelectedUserFullName = selectedUserFullName,
+                    CurrentStatusDate = qualification.CurrentStatusDate,
+                    CurrentExperienceYears = qualification.CurrentExperienceYears,
+                    CurrentExperienceMonths = qualification.CurrentExperienceMonths,
+                    CurrentJobStartDate = qualification.CurrentJobStartDate,
+                    CurrentJobPositionName = qualification.CurrentJobPositionName,
+                    EmploymentContarctTerminations = qualification.EmploymentContarctTerminations,
+                    QualificationResult = qualification.QualificationResult,
+                    IsFinalized = qualification.IsFinalized,
+                    Conclusion = qualification.Conclusion,
+                    PreviousJobs = qualification.PreviousJobs,
+                    HigherEducations = qualification.HigherEducations,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                     ConclusionEditAccess = conclusionEditAccess,
@@ -71,7 +75,7 @@ namespace KOP.WEB.Controllers
 
                 return View("_QualificationPartial", viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "[QualificationController.GetPopup] : ");
                 return View("Error", new ErrorViewModel
@@ -83,7 +87,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Urp")]
         public async Task<IActionResult> Edit(QualificationViewModel viewModel)
         {
             if (viewModel.GradeId <= 0)
@@ -93,13 +97,24 @@ namespace KOP.WEB.Controllers
             }
             try
             {
-                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.Qualification });
+                var qualificationDto = new QualificationDto
+                {
+                    Id = viewModel.Id,
+                    GradeId = viewModel.GradeId,
+                    Conclusion = viewModel.Conclusion,
+                    CurrentStatusDate = viewModel.CurrentStatusDate,
+                    CurrentExperienceYears = viewModel.CurrentExperienceYears,
+                    CurrentExperienceMonths = viewModel.CurrentExperienceMonths,
+                    CurrentJobStartDate = viewModel.CurrentJobStartDate,
+                    CurrentJobPositionName = viewModel.CurrentJobPositionName,
+                    EmploymentContarctTerminations = viewModel.EmploymentContarctTerminations,
+                    QualificationResult = viewModel.QualificationResult,
+                    IsFinalized = viewModel.IsFinalized,
+                    PreviousJobs = viewModel.PreviousJobs,
+                    HigherEducations = viewModel.HigherEducations,
+                };
 
-                gradeDto.QualificationDto = viewModel.Qualification;
-                gradeDto.QualificationConclusion = viewModel.Conclusion;
-                gradeDto.IsQualificationFinalized = viewModel.IsFinalized;
-
-                await _gradeService.EditGrade(gradeDto);
+                await _qualificationService.EditQualification(qualificationDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }
@@ -115,7 +130,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Urp")]
         public async Task<IActionResult> DeletePreviousJob(int id)
         {
             if (id <= 0)
@@ -125,7 +140,7 @@ namespace KOP.WEB.Controllers
             }
             try
             {
-                await _gradeService.DeletePreviousJob(id);
+                await _qualificationService.DeletePreviousJob(id);
 
                 return Ok("Удаление прошло успешно");
             }
@@ -141,7 +156,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Urp")]
         public async Task<IActionResult> DeleteHigherEducation(int id)
         {
             if (id <= 0)
@@ -151,7 +166,7 @@ namespace KOP.WEB.Controllers
             }
             try
             {
-                await _gradeService.DeleteHigherEducation(id);
+                await _qualificationService.DeleteHigherEducation(id);
 
                 return Ok("Удаление прошло успешно");
             }

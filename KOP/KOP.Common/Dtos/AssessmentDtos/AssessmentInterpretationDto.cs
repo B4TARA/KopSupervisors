@@ -2,10 +2,10 @@
 {
     public class AssessmentInterpretationDto
     {
-        public int MinValue { get; set; }
-        public int MaxValue { get; set; }
-        public string Level { get; set; }
-        public string Competence { get; set; }
-        public string HtmlClassName { get; set; }
+        public int MinValue { get; init; }
+        public int MaxValue { get; init; }
+        public string Level { get; init; }
+        public string Competence { get; init; }
+        public string HtmlClassName { get; init; }
     }
 }

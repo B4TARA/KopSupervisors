@@ -2,7 +2,6 @@
 {
     public enum GradeEntities
     {
-        Kpis,
         Marks,
         MarkTypes,
         Projects,
@@ -11,5 +10,6 @@
         Qualification,
         ValueJudgment,
         Assessments,
+        Kpis,
     }
 }

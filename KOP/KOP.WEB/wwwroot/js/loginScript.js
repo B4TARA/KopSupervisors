@@ -21,148 +21,77 @@ document.getElementById('remindPasswordForm').onsubmit = function (event) {
     sendRemindPasswordRequest();
 }
 
-async function sendRemindPasswordRequest() {
-    try {
-        const url = '/Account/RemindPassword';
-        const jsonToSend = {};
-        jsonToSend.Login = document.getElementById('loginRemindPassword').value;
+function sendRemindPasswordRequest() {
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(jsonToSend)
+    const jsonToSend = {
+        Login: document.getElementById('loginRemindPassword').value
+    };
+
+    fetch('/supervisors/Account/RemindPassword', {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        method: 'POST',
+        body: JSON.stringify(jsonToSend)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Неизвестная ошибка');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Скрываем текст ошибки, если он был показан
+            document.getElementById('remindPasswordErrorMessage').textContent = '';
+            document.getElementById('remindPasswordErrorValidationText').style.display = 'none';
+
+            // Отображаем успешное сообщение
+            document.getElementById('remindPasswordSuccessMessage').textContent = data.message;
+            document.getElementById('remindPasswordSuccessValidationText').style.display = 'inline-flex';
+        })
+        .catch(error => {
+            // Скрываем текст успешного сообщения, если он был показан
+            document.getElementById('remindPasswordSuccessMessage').textContent = '';
+            document.getElementById('remindPasswordSuccessValidationText').style.display = 'none';
+
+            // Отображаем сообщение об ошибке
+            console.error('Произошла ошибка:', error);
+            document.getElementById('remindPasswordErrorMessage').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('remindPasswordErrorValidationText').style.display = 'inline-flex';
         });
-
-        let data = await response.json();
-
-        alert(data.description);
-
-        if (data.statusCode == 200) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert(error);
-    }
 }
 
-async function sendLoginRequest() {
-    try {
-        const url = '/Account/Login';
-        const jsonToSend = {};
-        jsonToSend.Login = document.getElementById('login').value;
-        jsonToSend.Password = document.getElementById('password').value;
+function sendLoginRequest() {
 
-        const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            method: 'POST',
-            body: JSON.stringify(jsonToSend)
-        });
+    const jsonToSend = {
+        Login: document.getElementById('login').value,
+        Password: document.getElementById('password').value
+    };
 
-        let data = await response.json();
-
-        if (data.statusCode == 200) {
-            location.href = '/Home/Index';
-        }
-        else if (data.statusCode == 210) {
-            showProjectPopup();
-        }
-        else if (data.statusCode == 300) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'https://kop.mtb.minsk.by/Account/Login';
-
-            for (const key in jsonToSend) {
-                if (jsonToSend.hasOwnProperty(key)) {
-                    const hiddenField = document.createElement('input');
-                    hiddenField.type = 'hidden';
-                    hiddenField.name = key;
-                    hiddenField.value = jsonToSend[key];
-
-                    form.appendChild(hiddenField);
-                }
+    fetch('/supervisors/Account/Login', {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        method: 'POST',
+        body: JSON.stringify(jsonToSend)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Неизвестная ошибка');
+                });
             }
 
-            document.body.appendChild(form);
-            form.submit();
-        }
-        else {
-            //let validationTextElem = document.getElementById('validationText');
-            //validationTextElem.innerText = data.description;
+            location.href = '/supervisors/Home/Index';
+        })
+        .catch(error => {
+            console.error('Произошла ошибка:', error);
+            const validationText = document.getElementById('loginValidationText');
+            const errorMessage = document.getElementById('loginErrorMessage');
 
-            alert(data.description);
-            console.error(data.description);
-        }
-    } catch (error) {
-        console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
-    }
+            errorMessage.textContent = 'Ошибка: ' + error.message;
+            validationText.style.display = 'inline-flex';
+        });
 }
-
-function showProjectPopup() {
-    document.getElementById('projectPopup').style.display = 'flex';
-    document.getElementById('overlay').style.display = 'block';
-}
-
-function hideProjectPopup() {
-    document.getElementById('projectPopup').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-}
-
-document.getElementById('heavenSection').addEventListener('click', function () {
-    const jsonToSend = {};
-    jsonToSend.Login = document.getElementById('login').value;
-    jsonToSend.Password = document.getElementById('password').value;
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://10.117.11.77:44305/Account/LoginNow';
-
-    for (const key in jsonToSend) {
-        if (jsonToSend.hasOwnProperty(key)) {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = key;
-            hiddenField.value = jsonToSend[key];
-
-            form.appendChild(hiddenField);
-        }
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-
-    hideProjectPopup();
-});
-
-document.getElementById('hellSection').addEventListener('click', function () {
-    const jsonToSend = {};
-    jsonToSend.Login = document.getElementById('login').value;
-    jsonToSend.Password = document.getElementById('password').value;
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://kop.mtb.minsk.by/Account/Login';
-
-    for (const key in jsonToSend) {
-        if (jsonToSend.hasOwnProperty(key)) {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = key;
-            hiddenField.value = jsonToSend[key];
-
-            form.appendChild(hiddenField);
-        }
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-
-    hideProjectPopup();
-});
-
-document.getElementById('overlay').addEventListener('click', function () {
-    hideProjectPopup();
-});

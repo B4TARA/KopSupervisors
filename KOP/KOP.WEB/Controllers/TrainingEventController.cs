@@ -20,7 +20,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Employee, Curator, Uop")]
         public async Task<IActionResult> GetTrainingEventsPopup(int gradeId)
         {
             if (gradeId <= 0)

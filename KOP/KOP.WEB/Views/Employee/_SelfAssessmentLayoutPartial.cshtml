@@ -4,14 +4,14 @@
     Layout = null;
 }
 
-@if (Model.LastAssessmentDtoList.Any())
+@if (Model.LastGradeAssessmentDtoList.Any())
 {
     <div class="list_menu_container self_assesment header">
         <ul class="list_menu_wrapper nav">
-            @for (int i = 0; i < Model.LastAssessmentDtoList.Count; i++)
+            @for (int i = 0; i < Model.LastGradeAssessmentDtoList.Count; i++)
             {
-                var assessment = Model.LastAssessmentDtoList[i];
-                <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
+                var assessment = Model.LastGradeAssessmentDtoList[i];
+                <li class="@(assessment.IsActiveAssessment ? "item_menu active" : "item_menu")">
                     <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getAssessment(@assessment.Id)">
                         @assessment.AssessmentTypeName
                     </button>
@@ -22,11 +22,13 @@
             }
         </ul>
     </div>
+
+    <!-- Скрытое поле для хранения ID первого элемента -->
+    <input type="hidden" id="firstAssessmentId" value="@Model.LastGradeAssessmentDtoList.FirstOrDefault()?.Id" />
 }
 else
 {
     <div class="undefined_page_wrapper">
-
         <div class="container_description">
             <div class="title">
                 Самооценка не назначена

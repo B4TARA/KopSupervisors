@@ -1,22 +1,40 @@
-﻿using KOP.Common.Dtos;
+﻿using KOP.BLL.Interfaces;
+using KOP.Common.Dtos;
 using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Enums;
+using KOP.DAL;
 using KOP.DAL.Interfaces;
+using KOP.WEB.Models.RequestModels;
 using KOP.WEB.Models.ViewModels;
 using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
 
 namespace KOP.WEB.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
+        private readonly IGradeService _gradeService;
+        private readonly IAssessmentResultService _assessmentResultService;
+        private readonly IAssessmentService _assessmentService;
+        private readonly IRecommendationService _recommendationService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IUnitOfWork unitOfWork, ILogger<AdminController> logger)
+        public AdminController(ApplicationDbContext context, IUserService userService, IGradeService gradeService, 
+            IAssessmentResultService assessmentResultService, IAssessmentService assessmentService, IRecommendationService recommendationService,
+            IUnitOfWork unitOfWork, ILogger<AdminController> logger)
         {
+            _context = context;
+            _userService = userService;
+            _gradeService = gradeService;
+            _assessmentResultService = assessmentResultService;
+            _assessmentService = assessmentService;
+            _recommendationService = recommendationService;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -27,20 +45,88 @@ namespace KOP.WEB.Controllers
         {
             try
             {
-                var allUsers = await _unitOfWork.Users.GetAllAsync();
-                var allUsersSummariesDtos = allUsers.Select(user => new UserSummaryDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Position = user.Position,
-                    SubdivisionFromFile = user.SubdivisionFromFile,
-                }).ToList();
+                var users = await _userService.GetAllUsers();
 
-                return View("Users", allUsersSummariesDtos.OrderBy(x => x.FullName).ToList());
+                return View("Users", users);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[AdminController.GetUsers] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Urp, Uop")]
+        public async Task<IActionResult> GetUsersWithAnyPendingGrade()
+        {
+            try
+            {
+                var users = await _userService.GetUsersWithAnyPendingGrade();
+
+                return View("UsersWithAnyPendingGrade", users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[AdminController.GetUsersWithAnyPendingGrade] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Urp, Uop")]
+        public async Task<IActionResult> GetUserRecommendations(int userId)
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("Invalid userId: {userId}", userId);
+                return BadRequest("Invalid user ID.");
+            }
+
+            try
+            {
+                var latestGrade = await _gradeService.GetLatestGradeForUser(userId);
+
+                if (latestGrade == null)
+                    throw new Exception($"LatestGrade for user with ID {userId} not found.");
+
+                var courseRecommendations = await _recommendationService.GetCourseRecommendationsForGrade(latestGrade.Id);
+                var seminarRecommendations = await _recommendationService.GetSeminarRecommendationsForGrade(latestGrade.Id);
+                var competenceRecommendations = await _recommendationService.GetCompetenceRecommendationsForGrade(latestGrade.Id);
+                var literatureRecommendations = await _recommendationService.GetLiteratureRecommendationsForGrade(latestGrade.Id);
+
+                var selfAssessmentResult = await _assessmentResultService.GetManagementSelfAssessmentResultForGrade(latestGrade.Id);
+                var supervisorAssessmentResult = await _assessmentResultService.GetManagementSupervisorAssessmentResultForGrade(latestGrade.Id);
+                var managementInterpretation = await _assessmentService.GetManagementAssessmentInterpretationForGrade(latestGrade.Id);
+
+                var viewModel = new UserRecommendationsViewModel
+                {
+                    UserId = userId,
+                    GradeId = latestGrade.Id,
+                    SelfAssessmentSum = selfAssessmentResult?.Sum ?? 0,
+                    SupervisorAssessmentSum = supervisorAssessmentResult?.Sum ?? 0,
+                    AssessmentInterpretation = managementInterpretation,
+                    CourseRecommendations = courseRecommendations,
+                    SeminarRecommendations = seminarRecommendations,
+                    CompetenceRecommendations = competenceRecommendations,
+                    LiteratureRecommendations = literatureRecommendations,
+                };
+
+                return View("UserRecommendations", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[AdminController.GetUserRecommendations] : ");
 
                 return View("Error", new ErrorViewModel
                 {
@@ -62,7 +148,7 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
                 if (user == null)
                 {
@@ -110,7 +196,7 @@ namespace KOP.WEB.Controllers
                     return BadRequest($"User with ID {userId} not found.");
                 }
 
-                var allsubdivisions  = await _unitOfWork.Subdivisions.GetAllAsync();
+                var allsubdivisions = await _unitOfWork.Subdivisions.GetAllAsync();
                 var userSubdivisions = user.SubordinateSubdivisions;
 
                 var viewModel = new UserSubordinatesViewModel
@@ -118,7 +204,7 @@ namespace KOP.WEB.Controllers
                     UserId = user.Id,
                 };
 
-                foreach(var subdivision in allsubdivisions)
+                foreach (var subdivision in allsubdivisions)
                 {
                     viewModel.Subdivisions.Add(new SubdivisionSummaryDto
                     {
@@ -370,7 +456,7 @@ namespace KOP.WEB.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Urp")]
-        public async Task<IActionResult> UpdateUserSubordinates([FromBody]UserSubordinatesViewModel viewModel)
+        public async Task<IActionResult> UpdateUserSubordinates([FromBody] UserSubordinatesViewModel viewModel)
         {
             if (viewModel.UserId <= 0)
             {
@@ -392,10 +478,17 @@ namespace KOP.WEB.Controllers
                 foreach (var id in viewModel.SubordinateSubdivisionsIds)
                 {
                     var dbSubdivision = await _unitOfWork.Subdivisions.GetAsync(x => x.Id == id);
-                    if(dbSubdivision == null)
+                    if (dbSubdivision == null)
                     {
                         _logger.LogWarning($"Subdivision with ID {id} not found.");
                         continue;
+                    }
+
+                    // Работает только с одним уровнем вложенности
+                    // Проверяем, есть ли ParentId в списке SubordinateSubdivisionsIds
+                    if (dbSubdivision.ParentId.HasValue && viewModel.SubordinateSubdivisionsIds.Contains(dbSubdivision.ParentId.Value))
+                    {
+                        continue; // Пропускаем добавление
                     }
 
                     user.SubordinateSubdivisions.Add(dbSubdivision);
@@ -414,6 +507,25 @@ namespace KOP.WEB.Controllers
                     error = "Произошла ошибка при сохранении.",
                     details = ex.Message
                 });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Urp, Uop")]
+        public async Task<IActionResult> UpdateRecommendations([FromBody] UpdateRecommendationsRequestModel requestModel)
+        {
+            try
+            {
+                await _recommendationService.ProcessRecommendations(requestModel.Competences, RecommendationTypes.Сompetence);
+                await _recommendationService.ProcessRecommendations(requestModel.Literature, RecommendationTypes.Literature);
+                await _recommendationService.ProcessRecommendations(requestModel.Courses, RecommendationTypes.Course);
+                await _recommendationService.ProcessRecommendations(requestModel.Seminars, RecommendationTypes.Seminar);
+
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
             }
         }
     }

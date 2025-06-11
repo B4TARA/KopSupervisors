@@ -1,7 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.WEB.Models.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -16,25 +16,51 @@ namespace KOP.WEB.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> GenerateGradeWordDocument([FromBody] GenerateGradeWordDocumentRequestModel requestModel)
+        [HttpGet]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
+        public async Task<IActionResult> GetGradesReport(int gradeId)
         {
-            if (requestModel.gradeId <= 0)
+            if (gradeId <= 0)
             {
-                _logger.LogWarning("Invalid gradeId: {id}", requestModel.gradeId);
+                _logger.LogWarning("Invalid gradeId: {id}", gradeId);
                 return BadRequest("Invalid grade ID.");
             }
             try
             {
-                var document = await _reportService.GenerateGradeWordDocument(requestModel.gradeId);
-                var fileName = $"Report_Grade_{requestModel.gradeId}.docx";
-
-                return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+                var document = await _reportService.GenerateGradesReport(gradeId);
+                return File(document, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "[ReportController.GenerateGradeWordDocument] : ");
+                _logger.LogError(ex, "[ReportController.GetGradesReport] : ");
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при генерации документа.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
+        public async Task<IActionResult> GetUpcomingGradesReport()
+        {
+            try
+            {
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
+                var document = await _reportService.GenerateUpcomingGradesReport(currentUserId);
+                return File(document, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ReportController.GetUpcomingGradesReport] : ");
                 return BadRequest(new
                 {
                     error = "Произошла ошибка при генерации документа.",

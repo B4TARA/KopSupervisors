@@ -1,17 +1,12 @@
 ﻿using FluentValidation;
 using KOP.DAL.Entities;
-using KOP.DAL.Interfaces;
 
 namespace KOP.Import.Utils
 {
     public class UserValidator : AbstractValidator<User>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UserValidator(IUnitOfWork unitOfWork)
+        public UserValidator()
         {
-            _unitOfWork = unitOfWork;
-
             RuleFor(e => e.ServiceNumber)
                 .NotEmpty().WithMessage("ServiceNumber поле является обязательным");
             //.MustAsync(IsServiceNumberUniqueAsync).WithMessage("ServiceNumber поле является уникальным");
@@ -45,11 +40,6 @@ namespace KOP.Import.Utils
 
             RuleFor(e => e.Email)
                 .NotEmpty().WithMessage("Email поле является обязательным");
-        }
-
-        private async Task<bool> IsServiceNumberUniqueAsync(int serviceNumber, CancellationToken cancellationToken)
-        {
-            return await _unitOfWork.Users.IsServiceNumberUniqueAsync(serviceNumber);
         }
     }
 }

@@ -2,10 +2,6 @@
 
 @{
     Layout = null;
-
-    var strengths = Model.ValueJudgmentDto.Strengths;
-    var behaviorToCorrect = Model.ValueJudgmentDto.BehaviorToCorrect;
-    var recommendations = Model.ValueJudgmentDto.RecommendationsForDevelopment;
 }
 
 @if (!Model.ViewAccess)
@@ -22,12 +18,8 @@
 else
 {
     <form id="popupForm">
+        <input type="hidden" asp-for="Id">
         <input type="hidden" asp-for="GradeId">
-        <input type="hidden" asp-for="ValueJudgmentDto.Id">
-        <div asp-validation-summary="All">
-            <!-- Ошибки валидации будут отображаться тут-->
-        </div>
-
         <div class="popup_content">
             <div class="popup_content_header margin_container_bottom_middle">
                 <div class="title">
@@ -39,39 +31,36 @@ else
                     Сильные стороны работника:
                     @if (Model.EditAccess)
                     {
-                        <textarea asp-for="ValueJudgmentDto.Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@strengths</textarea>
+                        <textarea asp-for="Strengths" disabled="@(Model.EditAccess ? null : "disabled")">@Model.Strengths</textarea>
                     }
                     else
                     {
-                        <b>@strengths</b>
+                        <b>@Model.Strengths</b>
                     }
                 </div>
                 <div class="project_info_content-item column">
                     Зоны деятельности / поведение работника, требующие корректировки:
                     @if (Model.EditAccess)
                     {
-                        <textarea asp-for="ValueJudgmentDto.BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@behaviorToCorrect</textarea>
+                        <textarea asp-for="BehaviorToCorrect" disabled="@(Model.EditAccess ? null : "disabled")">@Model.BehaviorToCorrect</textarea>
                     }
                     else
                     {
-                        <b>@behaviorToCorrect</b>
+                        <b>@Model.BehaviorToCorrect</b>
                     }
-
                 </div>
                 <div class="project_info_content-item column">
                     Рекомендации по развитию работника:
                     @if (Model.EditAccess)
                     {
-                        <textarea asp-for="ValueJudgmentDto.RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@recommendations</textarea>
+                        <textarea asp-for="RecommendationsForDevelopment" disabled="@(Model.EditAccess ? null : "disabled")">@Model.RecommendationsForDevelopment</textarea>
                     }
                     else
                     {
-                        <b>@recommendations</b>
+                        <b>@Model.RecommendationsForDevelopment</b>
                     }
-
                 </div>
             </div>
-
         </div>
         @if (Model.EditAccess)
         {

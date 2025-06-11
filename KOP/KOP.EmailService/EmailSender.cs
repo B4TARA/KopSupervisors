@@ -1,80 +1,83 @@
 ﻿using MailKit.Net.Smtp;
-using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Utils;
+using Serilog;
 
 namespace KOP.EmailService
 {
     public class EmailSender : IEmailSender
     {
         private readonly EmailConfiguration _emailConfig;
-        private readonly ILogger<EmailSender> _logger;
+        private readonly ILogger _logger;
+        private readonly string _emailTemplate;
+        private const string _projectUrl = "https://kop.mtb.minsk.by/supervisors";
+        private const string _emailIconPath = "C:/PROJECTS/KopSupervisors/Files/templates/logo.png";
 
-        public EmailSender(ILogger<EmailSender> logger)
+        public EmailSender(ILogger logger)
         {
             _logger = logger;
             _emailConfig = new EmailConfiguration
             {
-                From = "KOPSender",
+                From = "KOPSender@mtbank.by",
                 SmtpServer = "LDGate.mtb.minsk.by",
                 Port = 25,
-                EmailIconPath = "C:\\PROJECTS\\KopSupervisors\\Import\\Attachments\\logo.png",
             };
+            _emailTemplate = LoadEmailTemplate();
+        }
+
+        private string LoadEmailTemplate()
+        {
+            var templatePath = Path.Combine("C:", "PROJECTS", "KopSupervisors", "Files", "templates", "EmailTemplate.html");
+            if (!File.Exists(templatePath))
+            {
+                _logger.Error($"Email template not found at path: {templatePath}");
+                throw new FileNotFoundException("Email template not found.", templatePath);
+            }
+
+            return File.ReadAllText(templatePath);
         }
 
         public async Task SendEmailAsync(Message message)
         {
-            var emailIconPath = _emailConfig.EmailIconPath;
-            var mailMessage = CreateEmailMessage(message, emailIconPath);
+            //// Добавляем Сакирину
+            //message.To.AddRange(new List<string> { "nsakirina@mtb.minsk.by" }.Select(x => new MailboxAddress(x, x)));
 
-            await SendAsync(mailMessage, message);
+            // Только самому себе - ebaturel@mtb.minsk.by
+            //message.To = new List<string> { "ebaturel@mtb.minsk.by" }.Select(x => new MailboxAddress(x, x)).ToList();
+
+            var mimeMessage = CreateEmailMessage(message);
+
+            await SendAsync(mimeMessage, message);
         }
 
-        private MimeMessage CreateEmailMessage(Message message, string emailIconPath)
+        private MimeMessage CreateEmailMessage(Message message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress(_emailConfig.From, _emailConfig.From));
+            emailMessage.From.Add(new MailboxAddress(_emailConfig.From.Split('@').FirstOrDefault() ?? _emailConfig.From, _emailConfig.From));
             emailMessage.To.AddRange((IEnumerable<InternetAddress>)message.To);
-
-            // TEST CASE //
-            //var stringList = new string[] { "ebaturel@mtb.minsk.by", "nsakirina@mtb.minsk.by" };
-            //List<MailboxAddress> mailboxAddressesList = stringList.Select(x => new MailboxAddress(x, x)).ToList();
-            //emailMessage.To.AddRange((IEnumerable<InternetAddress>)mailboxAddressesList);
-            //    //    // 
-
+            emailMessage.Bcc.AddRange(message.To);
             emailMessage.Subject = message.Subject;
 
             var bodyBuilder = new BodyBuilder();
-            var image = bodyBuilder.LinkedResources.Add(emailIconPath ?? "");
+
+            // Добавление иконки
+            var image = bodyBuilder.LinkedResources.Add(_emailIconPath);
             image.IsAttachment = false;
             image.ContentId = MimeUtils.GenerateMessageId();
 
-            // Форматирование HTML-тела письма
-            bodyBuilder.HtmlBody = $@"
-            <center>
-                <div style='border: 15px solid #EDF4FF; width:700px; border-radius: 16px;'>
-                    <div style='padding:15px; font-family:Tahoma; border-radius: 16px;'>	
-                        <span style='width:50px; height:50px;'>
-                            <img style='width:50px; height:50px;' src='cid:{image.ContentId}'>
-                        </span>
-                        <center>			
-                            <div style='text-align: left; padding: 0px 10px 10px 10px; color: #1B74FD;'>
-                                <h3><b>Уважаемый(ая)</b></h3>
-                                <h2><b>{message.AddresseeName}</b></h2>                              
-                                <div style='color:#333;'>
-                                    <br>
-                                    <div class='MAIN_BLOCKMESSAGE'>
-                                        {message.Content}
-                                    </div>						            	
-                                    <br>
-                                </div>
-                            </div>
-                        </center>
-                    </div>
-                </div>
-            </center>";
+            // Замена плейсхолдеров
+            var template = _emailTemplate
+                .Replace("{AddresseeName}", message.AddresseeName)
+                .Replace("{Content}", message.Content)
+                .Replace("{ProjectUrl}", _projectUrl)
+                .Replace("{CidImageContentId}", $"cid:{image.ContentId}");
 
+            // Установка HTML-содержимого в тело письма
+            bodyBuilder.HtmlBody = template;
+
+            // Присоединение тела к сообщению
             emailMessage.Body = bodyBuilder.ToMessageBody();
+
             return emailMessage;
         }
 
@@ -87,11 +90,11 @@ namespace KOP.EmailService
                     await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port);
                     await client.SendAsync(mailMessage);
 
-                    _logger.LogWarning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
+                    _logger.Warning($"Уведомление успешно отправлено cотруднику {message.AddresseeName}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
+                    _logger.Warning($"Не удалось отправить уведомление cотруднику {message.AddresseeName} : {ex.Message}");
                 }
             }
         }

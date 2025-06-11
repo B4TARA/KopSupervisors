@@ -1,4 +1,6 @@
-﻿namespace KOP.Common.Dtos
+﻿using KOP.Common.Dtos.UserDtos;
+
+namespace KOP.Common.Dtos
 {
     public class SubdivisionDto
     {

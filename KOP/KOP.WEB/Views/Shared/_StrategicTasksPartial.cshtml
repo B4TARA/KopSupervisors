@@ -1,67 +1,65 @@
 ﻿@model KOP.WEB.Models.ViewModels.Shared.StrategicTasksViewModel
 
 @{
-	Layout = null;
+    Layout = null;
 }
 
 @if (!Model.ViewAccess)
 {
-	<div class="undefined_page_wrapper">
-		<div class="title">
-			Результаты деятельности руководителя не заполнены
-		</div>
-		<div class="empty_state_image_wrapper_middle">
-			<img src="/image/EmptyState.png" alt="default_page">
-		</div>
-	</div>
+    <div class="undefined_page_wrapper">
+        <div class="title">
+            Результаты деятельности руководителя не заполнены
+        </div>
+        <div class="empty_state_image_wrapper_middle">
+            <img src="/image/EmptyState.png" alt="default_page">
+        </div>
+    </div>
 }
 else
 {
-	<form id="popupForm">
-		<input type="hidden" asp-for="GradeId">
-		<div class="popup_content">
-			<div class="popup_content_header margin_container_bottom_middle" >
-				<div class="title">
-					Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
-				</div>
+    <form id="popupForm">
+        <input type="hidden" asp-for="GradeId">
+        <div class="popup_content">
+            <div class="popup_content_header margin_container_bottom_middle">
+                <div class="title">
+                    Результаты деятельности руководителя, достигнутые им при исполнении должностных обязанностей
+                </div>
+                <div class="conclusion-popup-wrapper">
+                    <div class="title">
+                        <i class="fa-solid fa-list"></i>
+                        Вывод
+                    </div>
+                    <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
+                </div>
                 <div class="description">Заполните 2-5 ключевых стратегических и/или тактических задач за оцениваемый период</div>
-
-				@if (!string.IsNullOrEmpty(Model.Conclusion))
-				{
-					<div class="description">
-						<input type="text" asp-for="Conclusion" value="@Model.Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")">
-					</div>
-				}
-				
-				
-			</div>
-			<table class="table_popup">
-				<thead>
-					<tr>
-						<th></th>
-						<th></th>
-						<th>Срок</th>
-						<th></th>
-						<th>Результат</th>
-						<th></th>
-						<th></th>
-					</tr>
-					<tr>
-						<th>Название проекта / стратегической задачи</th>
-						<th>Цель проекта / стратегической задачи</th>
-						<th>План (дата)</th>
-						<th>Факт (дата)</th>
-						<th>План</th>
-						<th>Факт</th>
-						<th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</th>
-					</tr>
-				</thead>
-				<tbody id="rowContainer">
-					@for (int i = 0; i < Model.StrategicTaskDtoList.Count; i++)
-					{
+            </div>
+            <table class="table_popup">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>Срок</th>
+                        <th></th>
+                        <th>Результат</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>Название проекта / стратегической задачи</th>
+                        <th>Цель проекта / стратегической задачи</th>
+                        <th>План (дата)</th>
+                        <th>Факт (дата)</th>
+                        <th>План</th>
+                        <th>Факт</th>
+                        <th>Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</th>
+                    </tr>
+                </thead>
+                <tbody id="rowContainer">
+                    @for (int i = 0; i < Model.StrategicTaskDtoList.Count; i++)
+                    {
                         var strategicTask = Model.StrategicTaskDtoList[i];
-						var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
-						var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
+                        var planDateTime = strategicTask.PlanDateTime.ToString("yyyy-MM-dd");
+                        var factDateTime = strategicTask.FactDateTime.ToString("yyyy-MM-dd");
 
                         <tr>
                             <td>
@@ -81,7 +79,7 @@ else
                                 }
                                 else
                                 {
-                                   @strategicTask.Purpose
+                                    @strategicTask.Purpose
                                 }
                             </td>
                             <td>
@@ -141,18 +139,18 @@ else
                                 </td>
                             }
                         </tr>
-					}
-				</tbody>
-			</table>
-			@if (Model.EditAccess)
-			{
+                    }
+                </tbody>
+            </table>
+            @if (Model.EditAccess)
+            {
                 <div class="add_row_btn add_project" onclick="addRow(this,'strategy')"><i class="fa-solid fa-circle-plus"></i> Добавить</div>
-			}
-		</div>
-		@if (Model.EditAccess)
-		{
+            }
+        </div>
+        @if (Model.EditAccess)
+        {
             <button type="button" class="add_row_btn" onclick="saveStrategicTasksAsDraft(@Model.GradeId, @Model.SelectedUserId)">Сохранить как черновик</button>
-			<button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
-		}
-	</form>
+            <button type="button" class="add_row_btn" onclick="saveStrategicTasksAsFinal(@Model.GradeId, @Model.SelectedUserId)">Сохранить</button>
+        }
+    </form>
 }

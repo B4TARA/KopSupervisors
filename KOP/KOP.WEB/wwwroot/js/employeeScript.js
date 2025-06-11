@@ -1,7 +1,7 @@
 ﻿
 async function getGradeLayout() {
     try {
-        let response = await fetch(`/Employee/GetGradeLayout`);
+        let response = await fetch(`/supervisors/Employee/GetGradeLayout`);
         let htmlContent = await response.text();
         document.getElementById('gradeLayout').innerHTML = htmlContent;
     } catch (error) {
@@ -12,7 +12,7 @@ async function getGradeLayout() {
 
 async function getEmployeeLayout() {
     try {
-        let response = await fetch(`/Employee/GetGradeLayout`);
+        let response = await fetch(`/supervisors/Employee/GetGradeLayout`);
         let htmlContent = await response.text();
         document.getElementById('gradeLayout').innerHTML = htmlContent;
     } catch (error) {
@@ -23,7 +23,7 @@ async function getEmployeeLayout() {
 
 async function getEmployeeAssessmentLayout() {
     try {
-        let response = await fetch(`/Employee/GetAssessmentLayout`);
+        let response = await fetch(`/supervisors/Employee/GetAssessmentLayout`);
         let htmlContent = await response.text();
         document.getElementById('assessmentLayout').innerHTML = htmlContent;
 
@@ -42,7 +42,7 @@ async function getColleaguesAssessment() {
         selfAssessmentLinkItem.classList.remove("active");
         colleaguesAssessmentLinkItem.classList.add("active");
 
-        let response = await fetch(`/Employee/GetColleaguesAssessment`);
+        let response = await fetch(`/supervisors/Employee/GetColleaguesAssessmentResultsForAssessment`);
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
     } catch (error) {
@@ -51,7 +51,7 @@ async function getColleaguesAssessment() {
     }
 }
 
-async function getSelfAssessment(assessmentId, userId) {   
+async function getSelfAssessment() {
     try {
         let colleaguesAssessmentLinkItem = document.getElementById('colleagues_assessment_link_item');
         let selfAssessmentLinkItem = document.getElementById('self_assessment_link_item');
@@ -59,28 +59,22 @@ async function getSelfAssessment(assessmentId, userId) {
         selfAssessmentLinkItem.classList.add("active");
         colleaguesAssessmentLinkItem.classList.remove("active");
 
-        let response = await fetch(`/Employee/GetSelfAssessmentLayout`);
+        let response = await fetch(`/supervisors/Employee/GetSelfAssessmentLayout`);
+
+        if (!response.ok) {
+            throw new Error(`Ошибка при загрузке оценки сотрудника: ${response.status} ${response.statusText}`);
+        }
+
         let htmlContent = await response.text();
         document.getElementById('infoblock_main_container').innerHTML = htmlContent;
 
-        let response2 = await fetch(`/Assessment/GetLastAssessments?userId=${encodeURIComponent(userId)}`);
-        let jsonResponse = await response2.json();
-        if (!jsonResponse.success) {
-            console.error('Произошла ошибка:', jsonResponse.message);
-            return;
+        let firstAssessmentId = document.getElementById('firstAssessmentId').value;
+
+        if (firstAssessmentId && firstAssessmentId > 0) {
+            await getAssessment(firstAssessmentId);
         }
-        const lastAssessments = jsonResponse.data;
-        if (lastAssessments && lastAssessments.length > 0) {
-            if (assessmentId !== undefined) {
-                await getAssessment(assessmentId);
-            }
-            else {
-                await getAssessment(lastAssessments[0].id);
-            }
-        }        
     } catch (error) {
         console.error('Произошла ошибка:', error);
-        alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
 
@@ -94,16 +88,14 @@ async function getAssessment(assessmentId) {
             });
         });
 
-        let response = await fetch(`/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
+        let response = await fetch(`/supervisors/Employee/GetSelfAssessment?assessmentId=${encodeURIComponent(assessmentId)}`);
         let htmlContent = await response.text();
-        document.getElementById('lastAssessment').innerHTML = htmlContent;       
+        document.getElementById('lastAssessment').innerHTML = htmlContent;
     } catch (error) {
         console.error('Произошла ошибка:', error);
         alert('Не удалось выполнить действие. Попробуйте снова.');
     }
 }
-
-
 
 function validationFormAssessment(item, type) {
     item.style.color = "#f00";
@@ -125,7 +117,7 @@ function validationFormAssessment(item, type) {
 
 async function approveGrade(gradeId) {
     try {
-        let response = await fetch('/Employee/ApproveGrade', {
+        let response = await fetch('/supervisors/Employee/ApproveGrade', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'

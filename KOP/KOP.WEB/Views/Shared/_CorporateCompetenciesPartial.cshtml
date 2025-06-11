@@ -29,7 +29,6 @@
 
         @if (Model.AssessmentSummaryDto.AverageAssessmentInterpretation != null)
         {
-            <!-- УКАЗАТЬ КЛАСС ДЛЯ РЕАЛИЗАЦИИ ЦВЕТА СТРОКИ С ПОМОЩЬЮ Model.Assessment.AverageAssessmentInterpretation.HtmlClassName -->
             <tr class="@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.HtmlClassName">
                 <td class="table_value">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MinValue -@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.MaxValue</td>
                 <td class="table_level">@Model.AssessmentSummaryDto.AverageAssessmentInterpretation.Level</td>

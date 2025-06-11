@@ -2,9 +2,6 @@
 
 @{
     Layout = null;
-
-    var currentStatusDateTime = Model.Qualification.CurrentStatusDateTime.ToString("yyyy-MM-dd");
-    var currentJobStartDateTime = Model.Qualification.CurrentJobStartDateTime.ToString("yyyy-MM-dd");
 }
 
 @if (!Model.ViewAccess)
@@ -22,18 +19,19 @@ else
 {
     <form id="popupForm">
         <input type="hidden" asp-for="GradeId">
-        <input type="hidden" asp-for="Qualification.Id">
+        <input type="hidden" asp-for="Id">
         <div class="popup_content">
             <div class="popup_content_header margin_container_bottom_middle">
                 <div class="title">
                     Квалификация Руководителя
                 </div>
-                @if (!string.IsNullOrEmpty(Model.Conclusion))
-                {
-                    <div class="description">
-                        <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled") " required />
+                <div class="conclusion-popup-wrapper">
+                    <div class="title">
+                        <i class="fa-solid fa-list"></i>
+                        Вывод
                     </div>
-                }
+                    <input type="text" asp-for="Conclusion" disabled="@(Model.ConclusionEditAccess ? null : "disabled")" />
+                </div>
             </div>
             <div>
                 Соответствие
@@ -46,44 +44,44 @@ else
                 1. Высшее образование:
             </div>
             <div class="experience_list" id="rowContainerEducation">
-                @for (int i = 0; i < Model.Qualification.HigherEducations.Count; i++)
+                @for (int i = 0; i < Model.HigherEducations.Count; i++)
                 {
-                    var higherEducation = Model.Qualification.HigherEducations[i];
-                    var educationStartDateTime = higherEducation.StartDateTime.ToString("yyyy-MM-dd");
-                    var educationEndDateTime = higherEducation.EndDateTime.ToString("yyyy-MM-dd");
+                    var higherEducation = Model.HigherEducations[i];
+                    var educationStartDateTime = higherEducation.StartDate.ToString("yyyy-MM-dd");
+                    var educationEndDateTime = higherEducation.EndDate.ToString("yyyy-MM-dd");
 
                     <div class="experience_item">
 
                         @if (Model.EditAccess)
                         {
-                            <input type="text" asp-for="Qualification.HigherEducations[i].Education" />
+                            <input type="text" asp-for="HigherEducations[i].Education" />
                         }
                         else
                         {
-                            <b>@Model.Qualification.HigherEducations[i].Education</b>
+                            <b>@Model.HigherEducations[i].Education</b>
                         }
                         <span>, специальность</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="text" asp-for="Qualification.HigherEducations[i].Speciality" />
+                            <input type="text" asp-for="HigherEducations[i].Speciality" />
                         }
                         else
                         {
-                            <b>@Model.Qualification.HigherEducations[i].Speciality</b>
+                            <b>@Model.HigherEducations[i].Speciality</b>
                         }
                         <span>, квалификация</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="text" asp-for="Qualification.HigherEducations[i].QualificationName" />
+                            <input type="text" asp-for="HigherEducations[i].QualificationName" />
                         }
                         else
                         {
-                            <b>@Model.Qualification.HigherEducations[i].QualificationName</b>
+                            <b>@Model.HigherEducations[i].QualificationName</b>
                         }
                         <span>, период обучения c</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.HigherEducations[i].StartDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="HigherEducations[i].StartDate" min="1970-01-01" />
                         }
                         else
                         {
@@ -93,7 +91,7 @@ else
                         <span>по</span>
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.HigherEducations[i].EndDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="HigherEducations[i].EndDate" min="1970-01-01" />
                         }
                         else
                         {
@@ -103,7 +101,7 @@ else
                         @if (Model.EditAccess)
                         {
                             <div>
-                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.Qualification.HigherEducations[i].Id, @Model.GradeId)"></i>
+                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deleteHigherEducation(@Model.HigherEducations[i].Id, @Model.GradeId)"></i>
                             </div>
                         }
                     </div>
@@ -118,47 +116,47 @@ else
                 2. Стаж работы в банковской системе по состоянию на
                 @if (Model.EditAccess)
                 {
-                    <input type="date" asp-for="Qualification.CurrentStatusDateTime" min="1970-01-01" />
+                    <input type="date" asp-for="CurrentStatusDate" min="1970-01-01" />
                 }
                 else
                 {
-                    <b>@currentStatusDateTime</b>
+                    <b>@Model.CurrentStatusDate.ToString("yyyy-MM-dd")</b>
                 }
 
                 -
                 @if (Model.EditAccess)
                 {
-                    <input type="number" asp-for="Qualification.CurrentExperienceYears" />
+                    <input type="number" asp-for="CurrentExperienceYears" />
                 }
                 else
                 {
-                    <b>@Model.Qualification.CurrentExperienceYears</b>
+                    <b>@Model.CurrentExperienceYears</b>
                 }
 
                 лет
                 @if (Model.EditAccess)
                 {
-                    <input type="number" asp-for="Qualification.CurrentExperienceMonths" />
+                    <input type="number" asp-for="CurrentExperienceMonths" />
                 }
                 else
                 {
-                    <b>@Model.Qualification.CurrentExperienceMonths</b>
+                    <b>@Model.CurrentExperienceMonths</b>
                 }
 
                 мес., в т.ч.:
             </div>
             <div class="experience_list" id="rowContainer">
-                @for (int i = 0; i < Model.Qualification.PreviousJobs.Count; i++)
+                @for (int i = 0; i < Model.PreviousJobs.Count; i++)
                 {
-                    var previousJob = Model.Qualification.PreviousJobs[i];
-                    var jobStartDateTime = previousJob.StartDateTime.ToString("yyyy-MM-dd");
-                    var jobEndDateTime = previousJob.EndDateTime.ToString("yyyy-MM-dd");
+                    var previousJob = Model.PreviousJobs[i];
+                    var jobStartDateTime = previousJob.StartDate.ToString("yyyy-MM-dd");
+                    var jobEndDateTime = previousJob.EndDate.ToString("yyyy-MM-dd");
 
                     <div class="experience_item">
                         c
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.PreviousJobs[i].StartDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="PreviousJobs[i].StartDate" min="1970-01-01" />
                         }
                         else
                         {
@@ -168,7 +166,7 @@ else
                         по
                         @if (Model.EditAccess)
                         {
-                            <input type="date" asp-for="Qualification.PreviousJobs[i].EndDateTime" min="1970-01-01" />
+                            <input type="date" asp-for="PreviousJobs[i].EndDate" min="1970-01-01" />
                         }
                         else
                         {
@@ -179,28 +177,28 @@ else
                         @if (Model.EditAccess)
                         {
 
-                            <input type="text" asp-for="Qualification.PreviousJobs[i].OrganizationName" />
+                            <input type="text" asp-for="PreviousJobs[i].OrganizationName" />
                         }
                         else
                         {
-                            <b>@Model.Qualification.PreviousJobs[i].OrganizationName</b>
+                            <b>@Model.PreviousJobs[i].OrganizationName</b>
                         }
 
                         -
                         @if (Model.EditAccess)
                         {
-                            <input type="text" asp-for="Qualification.PreviousJobs[i].PositionName" />
+                            <input type="text" asp-for="PreviousJobs[i].PositionName" />
                         }
                         else
                         {
-                            <b>@Model.Qualification.PreviousJobs[i].PositionName</b>
+                            <b>@Model.PreviousJobs[i].PositionName</b>
                         }
 
                         ;
                         @if (Model.EditAccess)
                         {
                             <div>
-                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.Qualification.PreviousJobs[i].Id, @Model.GradeId)"></i>
+                                <i class="fa-solid fa-trash" style="color: #db1a1a;" onclick="deletePreviousJob(@Model.PreviousJobs[i].Id, @Model.GradeId)"></i>
                             </div>
                         }
                     </div>
@@ -218,32 +216,32 @@ else
                 с
                 @if (Model.EditAccess)
                 {
-                    <input type="date" asp-for="Qualification.CurrentJobStartDateTime" min="1994-01-01" />
+                    <input type="date" asp-for="CurrentJobStartDate" min="1994-01-01" />
                 }
                 else
                 {
-                    <b>@currentJobStartDateTime</b>
+                    <b>@Model.CurrentJobStartDate.ToString("yyyy-MM-dd")</b>
                 }
 
                 по настоящее время -
                 @if (Model.EditAccess)
                 {
-                    <input type="text" asp-for="Qualification.CurrentJobPositionName" placeholder="наименование текущей должности"  style="width:320px;"/>
+                    <input type="text" asp-for="CurrentJobPositionName" placeholder="наименование текущей должности"  style="width:320px;"/>
                 }
                 else
                 {
-                    <b>@Model.Qualification.CurrentJobPositionName</b>
+                    <b>@Model.CurrentJobPositionName</b>
                 }
             </div>
             <div class="popup_row_text">
                 3.
                 @if (Model.EditAccess)
                 {
-                    <input type="text" asp-for="Qualification.EmploymentContarctTerminations" placeholder="Отсутствуют" />
+                    <input type="text" asp-for="EmploymentContarctTerminations" placeholder="Отсутствуют" />
                 }
                 else
                 {
-                    <b>@Model.Qualification.EmploymentContarctTerminations</b>
+                    <b>@Model.EmploymentContarctTerminations</b>
                 }
 
                 в течение последних двух лет факты расторжения трудового договора (контракта) по
@@ -254,11 +252,11 @@ else
                 4.
                 @if (Model.EditAccess)
                 {
-                    <textarea type="text" asp-for="Qualification.QualificationResult" placeholder="" style="width:100%;"></textarea>
+                    <textarea type="text" asp-for="QualificationResult" placeholder="" style="width:100%;"></textarea>
                 }
                 else
                 {
-                    <b>@Model.Qualification.QualificationResult</b>
+                    <b>@Model.QualificationResult</b>
                 }
             </div>
         </div>

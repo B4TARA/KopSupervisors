@@ -1,7 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
-using KOP.Common.Enums;
-using KOP.WEB.Models.ViewModels.Shared;
+using KOP.Common.Dtos.GradeDtos;
 using KOP.WEB.Models.ViewModels;
+using KOP.WEB.Models.ViewModels.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatusCodes = KOP.Common.Enums.StatusCodes;
@@ -10,12 +10,12 @@ namespace KOP.WEB.Controllers
 {
     public class ValueJudgmentController : Controller
     {
-        private readonly IGradeService _gradeService;
+        private readonly IValueJudgmentService _valueJudgmentService;
         private readonly ILogger<ValueJudgmentController> _logger;
 
-        public ValueJudgmentController(IGradeService gradeService, ILogger<ValueJudgmentController> logger)
+        public ValueJudgmentController(IValueJudgmentService valueJudgmentService, ILogger<ValueJudgmentController> logger)
         {
-            _gradeService = gradeService;
+            _valueJudgmentService = valueJudgmentService;
             _logger = logger;
         }
 
@@ -39,21 +39,18 @@ namespace KOP.WEB.Controllers
                     return BadRequest("Selected user ID is not valid.");
                 }
 
-                var gradeDto = await _gradeService.GetGradeDto(gradeId, new List<GradeEntities> { GradeEntities.ValueJudgment });
-
-                if (gradeDto.ValueJudgmentDto == null)
-                {
-                    throw new Exception($"ValueJudgment is null for Grade with ID {gradeId}.");
-                }
-
-                var editAccess = (User.IsInRole("Supervisor") && !gradeDto.IsValueJudgmentFinalized) || User.IsInRole("Urp");
-                var viewAccess = gradeDto.IsValueJudgmentFinalized || editAccess;
+                var valueJudgment = await _valueJudgmentService.GetValueJudgmentForGrade(gradeId);
+                var editAccess = (User.IsInRole("Supervisor") && !valueJudgment.IsFinalized) || User.IsInRole("Urp");
+                var viewAccess = valueJudgment.IsFinalized || editAccess;
 
                 var viewModel = new ValueJudgmentViewModel
                 {
-                    GradeId = gradeId,
+                    Id = valueJudgment.Id,
+                    GradeId = valueJudgment.GradeId,
                     SelectedUserId = selectedUserId.Value,
-                    ValueJudgmentDto = gradeDto.ValueJudgmentDto,
+                    Strengths = valueJudgment.Strengths,
+                    BehaviorToCorrect = valueJudgment.BehaviorToCorrect,
+                    RecommendationsForDevelopment = valueJudgment.RecommendationsForDevelopment,
                     EditAccess = editAccess,
                     ViewAccess = viewAccess,
                 };
@@ -85,12 +82,17 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var gradeDto = await _gradeService.GetGradeDto(viewModel.GradeId, new List<GradeEntities> { GradeEntities.ValueJudgment });
+                var valueJudgmentDto = new ValueJudgmentDto
+                {
+                    Id = viewModel.Id,
+                    GradeId = viewModel.GradeId,
+                    Strengths = viewModel.Strengths,
+                    BehaviorToCorrect = viewModel.BehaviorToCorrect,
+                    RecommendationsForDevelopment = viewModel.RecommendationsForDevelopment,
+                    IsFinalized = viewModel.IsFinalized
+                };
 
-                gradeDto.ValueJudgmentDto = viewModel.ValueJudgmentDto;
-                gradeDto.IsValueJudgmentFinalized = viewModel.IsFinalized;
-
-                await _gradeService.EditGrade(gradeDto);
+                await _valueJudgmentService.EditValueJudgment(valueJudgmentDto);
 
                 return Ok(viewModel.IsFinalized ? "Окончательное сохранение прошло успешно" : "Сохранение черновика прошло успешно");
             }

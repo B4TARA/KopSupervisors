@@ -19,7 +19,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Employee")]
         public async Task<IActionResult> GetPopup(int gradeId)
         {
             if (gradeId <= 0)
@@ -64,7 +64,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Urp")]
         public async Task<IActionResult> EditAll(MarksViewModel viewModel)
         {
             if (viewModel.GradeId <= 0)
@@ -96,7 +96,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Urp")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)

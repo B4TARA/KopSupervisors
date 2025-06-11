@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
-using KOP.BLL.Interfaces;
+﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AccountDtos;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KOP.WEB.Controllers
 {
@@ -30,61 +31,58 @@ namespace KOP.WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            // Очищаем сессии
+            HttpContext.Session.Clear();
+
+            // Выходим из системы
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+            // Перенаправляем на страницу входа
             return RedirectToAction("Login", "Account");
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginNow(LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            if (ModelState.IsValid)
+            if (dto == null || string.IsNullOrEmpty(dto.Login) || string.IsNullOrEmpty(dto.Password))
             {
-                var response = await _accountService.LoginNow(dto);
-
-                if (response.HasData)
-                {
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(response.Data),
-                        new AuthenticationProperties { IsPersistent = true });
-
-                    return RedirectToAction("Index", "Home");
-                }
-
-                ModelState.AddModelError("", response.Description);
+                return BadRequest(new { error = "Логин и пароль не могут быть пустыми." });
             }
 
-            return View("Login", dto);
+            var loginResponse = await _accountService.Login(dto);
+
+            if (loginResponse.StatusCode != Common.Enums.StatusCodes.OK || loginResponse.Data == null)
+            {
+                return Unauthorized(new { error = loginResponse.Description });
+            }
+
+            var claimsPrincipal = loginResponse.Data;
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(loginResponse.Data),
+                new AuthenticationProperties { IsPersistent = true });
+
+            return Ok();
         }
 
         [HttpPost]
-        public async Task<JsonResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> RemindPassword([FromBody] LoginDto dto)
         {
-            var response = await _accountService.Login(dto);
+            var remindPasswordResponse = await _accountService.RemindPassword(dto);
 
-            if (response.StatusCode == Common.Enums.StatusCodes.Redirect)
+            if (remindPasswordResponse.StatusCode != Common.Enums.StatusCodes.OK)
             {
-                return Json(new { statusCode = (int)response.StatusCode });
+                return Unauthorized(new { error = remindPasswordResponse.Description });
             }
 
-            if (!response.HasData)
-            {
-                return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
-            }
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                   new ClaimsPrincipal(response.Data),
-                   new AuthenticationProperties { IsPersistent = true });
-
-            return Json(new { statusCode = (int)response.StatusCode });
+            return Ok(new { message = remindPasswordResponse.Description });
         }
 
-        [HttpPost]
-        public async Task<JsonResult> RemindPassword([FromBody] LoginDto dto)
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
         {
-            var response = await _accountService.RemindPassword(dto);
-
-            return Json(new { description = response.Description, statusCode = (int)response.StatusCode });
+            return View();
         }
     }
 }

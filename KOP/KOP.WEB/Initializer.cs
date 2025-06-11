@@ -1,11 +1,7 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.BLL.Services;
 using KOP.DAL.Interfaces;
-using KOP.DAL.Interfaces.AssessmentInterfaces;
-using KOP.DAL.Interfaces.GradeInterfaces;
 using KOP.DAL.Repositories;
-using KOP.DAL.Repositories.AssessmentRepositories;
-using KOP.DAL.Repositories.GradeRepositories;
 using KOP.EmailService;
 
 namespace KOP.WEB
@@ -14,9 +10,9 @@ namespace KOP.WEB
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IQualificationService, QualificationService>();
             services.AddScoped<IAssessmentInterpretationRepository, AssessmentInterpretationRepository>();
             services.AddScoped<IAssessmentRangeRepository, AssessmentRangeRepository>();
-            services.AddScoped<IMailRepository, MailRepository>();
             services.AddScoped<IAssessmentMatrixElementRepository, AssessmentMatrixElementRepository>();
             services.AddScoped<IAssessmentMatrixRepository, AssessmentMatrixRepository>();
             services.AddScoped<IAssessmentRepository, AssessmentRepository>();
@@ -41,7 +37,8 @@ namespace KOP.WEB
 
         public static void InitializeServices(this IServiceCollection services)
         {
-            services.AddScoped<ICommonService, CommonService>();
+            services.AddScoped<IRecommendationService, RecommendationService>();
+            services.AddScoped<IValueJudgmentService, ValueJudgmentService>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IGradeService, GradeService>();
@@ -50,6 +47,7 @@ namespace KOP.WEB
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISupervisorService, SupervisorService>();
             services.AddScoped<IAssessmentService, AssessmentService>();
+            services.AddScoped<IAssessmentResultService, AssessmentResultService>();
         }
     }
 }

@@ -3,7 +3,7 @@
         <i class="fa-solid fa-angle-left sidebar_btn"></i>
     </div>
     <div class="logo-details">
-        <img src="/logo.svg" alt="logo">
+        <img src="/supervisors/logo.svg" alt="logo">
         <span class="logo_name">КОП</span>
     </div>
     <ul class="nav-links">
@@ -58,11 +58,15 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Отчетность</a></li>
-                    <li><a asp-controller="Supervisor" asp-action="GetReportLayout">Сотрудники и оценки</a></li>
+                    <li><a asp-controller="Supervisor" asp-action="GetGradesReportLayout">Сотрудники и оценки</a></li>
+                </ul>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Отчетность</a></li>
+                    <li><a asp-controller="Supervisor" asp-action="GetUpcomingGradesReport">Предстоящие оценки</a></li>
                 </ul>
             </li>
         }
-        @if (User.IsInRole("Urp"))
+        @if (User.IsInRole("Urp") || User.IsInRole("Uop"))
         {
             <li>
                 <div class="iocn-link">
@@ -73,15 +77,21 @@
                     <i class="fa-solid fa-chevron-down arrow"></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a class="link_name" href="#">Адм.</a></li>
+                    <li><a class="link_name" href="#">Админ.</a></li>
+                    @if (User.IsInRole("Urp"))
+                    {
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetUsers">Сотрудники</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetCorporateMatrix">Матрица КК</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
+                        </li>
+                    }
                     <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetUsers">Сотрудники</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetCorporateMatrix">Матрица КК</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-controller="Admin" asp-action="GetManagmentMatrix">Матрица УК</a>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetUsersWithAnyPendingGrade">Рекомендации УК</a>
                     </li>
                 </ul>
             </li>

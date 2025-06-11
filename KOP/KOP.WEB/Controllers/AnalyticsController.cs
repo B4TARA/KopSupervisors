@@ -3,38 +3,42 @@ using KOP.Common.Dtos.AnalyticsDtos;
 using KOP.DAL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace KOP.WEB.Controllers
 {
     public class AnalyticsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRecommendationService _recommendationService;
         private readonly IAssessmentService _assessmentService;
 
-        public AnalyticsController(IUnitOfWork unitOfWork, IAssessmentService assessmentService)
+        public AnalyticsController(IUnitOfWork unitOfWork, IRecommendationService recommendationService, IAssessmentService assessmentService)
         {
             _unitOfWork = unitOfWork;
+            _recommendationService = recommendationService;
             _assessmentService = assessmentService;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetAssessmentAnalytics(int userId)
         {
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: "Grades.Assessments.AssessmentType");
-            if (user is null)
+
+            if (user == null)
             {
                 return NotFound(new { Message = $"Не удалось найти пользователя с ID {userId}" });
             }
 
             var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-            if (lastGrade is null)
+
+            if (lastGrade == null)
             {
                 return NotFound(new { Message = $"Не удалось найти последнюю оценку у пользователя с ID {userId}" });
             }
 
             var assessmentTypesAnalyticsList = new List<AssessmentTypeAnalyticsDto>();
+
             foreach (var assessment in lastGrade.Assessments)
             {
                 var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(assessment.Id);
@@ -46,66 +50,63 @@ namespace KOP.WEB.Controllers
                     SelfAvgValue = assessmentSummaryDto.AverageSelfValue,
                     SupervisorAvgValue = assessmentSummaryDto.AverageSupervisorValue,
                     ColleaguesAvgValue = assessmentSummaryDto.GetGeneralColleaguesValue(),
-
+                    SelfDataArray = new List<double>(),
+                    SupervisorDataArray = new List<double>(),
+                    ColleaguesDataArray = new List<double>(),
+                    LabelsArray = new List<string>()
                 };
-                var rowsWithElements = assessmentSummaryDto.RowsWithElements.OrderBy(x => x.Key);
-                var selfAssessmentValues = assessmentSummaryDto.SelfAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
-                var supervisorAssessmentValues = assessmentSummaryDto.SupervisorAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
-                var colleaguesAssessmentValues = assessmentSummaryDto.ColleaguesAssessmentResultValues.OrderBy(x => x.AssessmentMatrixRow);
 
-                foreach (var rowElementsGroup in rowsWithElements.Skip(1))
-                {
-                    var competenceNameElement = rowElementsGroup.OrderBy(x => x.Column).FirstOrDefault();
-                    if (competenceNameElement != null)
-                    {
-                        assessmentTypeAnalyticsDto.LabelsArray.Add(competenceNameElement.Value);
-                    }
-                    else
-                    {
-                        assessmentTypeAnalyticsDto.LabelsArray.Add("-");
-                    }
-                }
+                // Сортируем строки с элементами
+                var rowsWithElements = assessmentSummaryDto.RowsWithElements
+                    .OrderBy(x => x.Key)
+                    .ToList();
 
-                foreach (var selfValue in selfAssessmentValues)
-                {
-                    assessmentTypeAnalyticsDto.SelfDataArray.Add(selfValue.Value);
-                }
+                // Сортируем и добавляем значения самооценки
+                assessmentTypeAnalyticsDto.SelfDataArray.AddRange(
+                    assessmentSummaryDto.SelfAssessmentResultValues
+                    .OrderBy(x => x.AssessmentMatrixRow)
+                    .Select(value => value.Value)
+                    .ToList());
 
-                foreach (var supervisorValue in supervisorAssessmentValues)
-                {
-                    assessmentTypeAnalyticsDto.SupervisorDataArray.Add(supervisorValue.Value);
-                }
+                // Сортируем и добавляем значения оценки от руководителей
+                assessmentTypeAnalyticsDto.SupervisorDataArray.AddRange(
+                    assessmentSummaryDto.SupervisorAssessmentResultValues
+                    .OrderBy(x => x.AssessmentMatrixRow)
+                    .Select(value => value.Value)
+                    .ToList());
 
-                foreach (var colleagueValue in colleaguesAssessmentValues)
-                {
-                    assessmentTypeAnalyticsDto.ColleaguesDataArray.Add(colleagueValue.Value);
-                }
+                // Сортируем и добавляем значения оценки от коллег
+                assessmentTypeAnalyticsDto.ColleaguesDataArray.AddRange(
+                    assessmentSummaryDto.ColleaguesAssessmentResultValues
+                    .OrderBy(x => x.AssessmentMatrixRow)
+                    .Select(value => value.Value)
+                    .ToList());
+
+                // Добавляем названия компетенций в LabelsArray
+                assessmentTypeAnalyticsDto.LabelsArray = rowsWithElements
+                    .Skip(1)
+                    .Select(rowElementsGroup => rowElementsGroup.OrderBy(x => x.Column).FirstOrDefault()?.Value ?? "-")
+                    .ToList();
 
                 assessmentTypesAnalyticsList.Add(assessmentTypeAnalyticsDto);
             }
 
-            // Сериализация списка в JSON
-            var json = JsonConvert.SerializeObject(assessmentTypesAnalyticsList);
-
-            // Возврат JSON с типами assessment
             return Json(assessmentTypesAnalyticsList);
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetCompetenciesAnalytics(int userId)
         {
             var user = await _unitOfWork.Users.GetAsync(x => x.Id == userId, includeProperties: "Grades.Assessments.AssessmentType");
-            if (user is null)
-            {
+
+            if (user == null)
                 return NotFound(new { Message = $"Не удалось найти пользователя с ID {userId}" });
-            }
 
             var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-            if (lastGrade is null)
-            {
+
+            if (lastGrade == null)
                 return NotFound(new { Message = $"Не удалось найти последнюю оценку у пользователя с ID {userId}" });
-            }
 
             var competenciesAnalytics = new CompetenciesAnalyticsDto();
             var allCompetencies = new List<CompetenceDto>();
@@ -121,10 +122,9 @@ namespace KOP.WEB.Controllers
                 foreach (var value in averageValuesByRow)
                 {
                     var row = rowsWithElements.FirstOrDefault(x => x.Key == (value.AssessmentMatrixRow + 1)); // т.к 1-ый элемент - это заголовок
+
                     if (row == null)
-                    {
-                        continue; // Пропускаем, если строка не найдена
-                    }
+                        continue;
 
                     var competenceDto = new CompetenceDto
                     {
@@ -133,7 +133,7 @@ namespace KOP.WEB.Controllers
                         CompetenceDescription = row.ElementAtOrDefault(value.AssessmentMatrixRow)?.Value ?? "-"
                     };
 
-                    allCompetencies.Add(competenceDto); // Добавляем созданный объект в список
+                    allCompetencies.Add(competenceDto);
                 }
             }
 
@@ -148,6 +148,16 @@ namespace KOP.WEB.Controllers
                 .OrderBy(c => c.avgValue)
                 .Take(5)
                 .ToList();
+
+            var courseRecommendations = await _recommendationService.GetCourseRecommendationsForGrade(lastGrade.Id);
+            var seminarRecommendations = await _recommendationService.GetSeminarRecommendationsForGrade(lastGrade.Id);
+            var competenceRecommendations = await _recommendationService.GetCompetenceRecommendationsForGrade(lastGrade.Id);
+            var literatureRecommendations = await _recommendationService.GetLiteratureRecommendationsForGrade(lastGrade.Id);
+
+            competenciesAnalytics.CourseRecommendations = courseRecommendations;
+            competenciesAnalytics.SeminarRecommendations = seminarRecommendations;
+            competenciesAnalytics.CompetenceRecommendations = competenceRecommendations;
+            competenciesAnalytics.LiteratureRecommendations = literatureRecommendations;
 
             // Возврат JSON с типами assessment
             return Json(competenciesAnalytics);

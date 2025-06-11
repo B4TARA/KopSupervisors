@@ -1,4 +1,4 @@
-﻿using KOP.Common.Dtos.AssessmentDtos;
+﻿using KOP.Common.Dtos.AssessmentResultDtos;
 
 namespace KOP.WEB.Models.ViewModels.Employee
 {

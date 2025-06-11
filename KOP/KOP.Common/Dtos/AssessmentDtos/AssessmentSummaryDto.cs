@@ -15,13 +15,12 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
         public List<AssessmentResultValueDto> AverageValuesByRow { get; set; } = new();
 
+        public bool HasSelfAssessmentResult { get; set; }
         public int SelfAssessmentResultId { get; set; }
         public List<AssessmentResultValueDto> SelfAssessmentResultValues { get; set; } = new();
         public SystemStatuses SelfAssessmentResultSystemStatus { get; set; }
 
         public List<AssessmentResultValueDto> SupervisorAssessmentResultValues { get; set; } = new();
-        public SystemStatuses SupervisorAssessmentResultSystemStatus { get; set; }
-
         public List<AssessmentResultValueDto> ColleaguesAssessmentResultValues { get; set; } = new();
         public List<IGrouping<int, AssessmentMatrixElementDto>> RowsWithElements { get; set; } = new();
         public int SumResult { get; set; }

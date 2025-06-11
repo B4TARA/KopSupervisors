@@ -17,27 +17,25 @@ namespace KOP.WEB.Controllers
     public class SupervisorController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly ISupervisorService _supervisorService;
         private readonly IAssessmentService _assessmentService;
+        private readonly IAssessmentResultService _assessmentResultService;
         private readonly IUserService _userService;
-        private readonly ICommonService _commonService;
         private readonly ILogger<SupervisorController> _logger;
 
         public SupervisorController(IUnitOfWork unitOfWork, ISupervisorService supervisorService, IAssessmentService assessmentService,
-            IUserService userService, ICommonService commonService, ILogger<SupervisorController> logger)
+            IAssessmentResultService assessmentResultService, IUserService userService, ILogger<SupervisorController> logger)
         {
             _unitOfWork = unitOfWork;
-
             _supervisorService = supervisorService;
             _assessmentService = assessmentService;
+            _assessmentResultService = assessmentResultService;
             _userService = userService;
-            _commonService = commonService;
             _logger = logger;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public IActionResult GetSupervisorLayout()
         {
             try
@@ -65,7 +63,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetSubordinates(int supervisorId)
         {
             if (supervisorId <= 0)
@@ -77,13 +75,12 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var subordinateSubdivisionDtos = await _supervisorService.GetSubordinateSubdivisions(supervisorId);
-                var subordinateSubdivisionDtoList = subordinateSubdivisionDtos.ToList();
+                var subdivisions = await _supervisorService.GetSubdivisionsForSupervisor(supervisorId);
 
                 var viewModel = new SubordinatesViewModel
                 {
                     SupervisorId = supervisorId,
-                    Subdivisions = subordinateSubdivisionDtoList,
+                    Subdivisions = subdivisions,
                 };
 
                 return PartialView("_SubordinatesPartial", viewModel);
@@ -101,7 +98,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetEmployeeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -144,7 +141,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetEmployeeGradeLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -164,67 +161,26 @@ namespace KOP.WEB.Controllers
                     return BadRequest("Current user ID is not valid.");
                 }
 
-                var employee = await _unitOfWork.Users.GetAsync(x => x.Id == employeeId, includeProperties: "Grades");
-
-                if (employee == null)
-                {
-                    _logger.LogWarning($"User with ID {employeeId} not found.");
-                    return BadRequest($"User with ID {employeeId} not found.");
-                }
+                var employee = await _userService.GetUser(employeeId);
 
                 HttpContext.Session.SetString("SelectedUserFullName", employee.FullName);
                 HttpContext.Session.SetInt32("SelectedUserId", employee.Id);
 
-                var viewModel = new EmployeeGradeLayoutViewModel
+                if (employee.LastGrade?.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
                 {
-                    Id = employee.Id,
-                    FullName = employee.FullName,
-                    Position = employee.Position,
-                    SubdivisionFromFile = employee.SubdivisionFromFile,
-                    GradeGroup = employee.GradeGroup,
-                    WorkPeriod = employee.GetWorkPeriod,
-                    ContractEndDate = employee.ContractEndDate,
-                    ImagePath = employee.ImagePath,
-                };
-
-                var lastGrade = employee.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-
-                if (lastGrade == null)
-                {
-                    return PartialView("_EmployeeGradeLayoutPartial", viewModel);
+                    return PartialView("_EmployeeGradeLayoutPartial", employee);
                 }
 
-                viewModel.LastGrade = new GradeDto
-                {
-                    Id = lastGrade.Id,
-                    StartDate = lastGrade.StartDate,
-                    EndDate = lastGrade.EndDate,
-                    IsCorporateCompetenciesFinalized = lastGrade.IsCorporateCompetenciesFinalized,
-                    IsManagmentCompetenciesFinalized = lastGrade.IsManagmentCompetenciesFinalized,
-                    IsStrategicTasksFinalized = lastGrade.IsStrategicTasksFinalized,
-                    IsProjectsFinalized = lastGrade.IsProjectsFinalized,
-                    IsKpisFinalized = lastGrade.IsKpisFinalized,
-                    IsMarksFinalized = lastGrade.IsMarksFinalized,
-                    IsQualificationFinalized = lastGrade.IsQualificationFinalized,
-                    IsValueJudgmentFinalized = lastGrade.IsValueJudgmentFinalized,
-                    GradeStatus = lastGrade.GradeStatus,
-                };
+                var supervisor = await _userService.GetFirstSupervisorForUser(employeeId);
 
-                if (lastGrade.GradeStatus != GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL)
-                {
-                    return PartialView("_EmployeeGradeLayoutPartial", viewModel);
-                }
-
-                var supervisor = await _commonService.GetSupervisorForUser(employeeId);
                 if (supervisor == null)
                 {
-                    _logger.LogWarning($"Supervisor for user with ID {employeeId} not found.");
-                    return BadRequest($"Supervisor for user with ID {employeeId} not found.");
+                    return PartialView("_EmployeeGradeLayoutPartial", employee);
                 }
 
-                viewModel.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
+                ViewBag.AccessForSupervisorApproval = (currentUserId == supervisor.Id) || User.IsInRole("Urp");
 
-                return PartialView("_EmployeeGradeLayoutPartial", viewModel);
+                return PartialView("_EmployeeGradeLayoutPartial", employee);
             }
             catch (Exception ex)
             {
@@ -239,7 +195,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop")]
         public async Task<IActionResult> GetEmployeeAssessmentLayout(int employeeId)
         {
             if (employeeId <= 0)
@@ -251,22 +207,9 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+                var assessments = await _userService.GetLastGradeAssessmentsForUser(employeeId);
 
-                if (currentUserId <= 0)
-                {
-                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
-                    return BadRequest("Current user ID is not valid.");
-                }
-
-                var lastAssessmentOfEachType = await _userService.GetUserLastAssessmentsOfEachAssessmentType(employeeId, currentUserId);
-
-                var viewModel = new EmployeeAssessmentLayoutViewModel
-                {
-                    LastAssessments = lastAssessmentOfEachType,
-                };
-
-                return PartialView("_EmployeeAssessmentLayoutPartial", viewModel);
+                return PartialView("_EmployeeAssessmentLayoutPartial", assessments);
             }
             catch (Exception ex)
             {
@@ -281,7 +224,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop")]
         public async Task<IActionResult> GetEmployeeAssessment(int assessmentId)
         {
             if (assessmentId <= 0)
@@ -302,13 +245,8 @@ namespace KOP.WEB.Controllers
                 }
 
                 var assessment = await _assessmentService.GetAssessment(assessmentId);
-                if (assessment == null)
-                {
-                    _logger.LogWarning($"Assessment with ID {assessmentId} not found.");
-                    return NotFound("Assessment not found.");
-                }
 
-                var assessmentResult = await _assessmentService.GetAssessmentResult(currentUserId, assessmentId);
+                var assessmentResult = await _assessmentResultService.GetAssessmentResult(currentUserId, assessmentId);
 
                 var userRoles = User.Claims
                     .Where(c => c.Type == ClaimTypes.Role)
@@ -328,25 +266,23 @@ namespace KOP.WEB.Controllers
 
                 var userId = currentUserId;
                 int? supervisorId;
-                var requiredRoles = new HashSet<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor };
-                var excludedRole = SystemRoles.Curator;
+                var requiredRoles = new HashSet<SystemRoles> { SystemRoles.Employee, SystemRoles.Supervisor, SystemRoles.Curator };
 
                 var supervisorResult = assessment.AllAssessmentResults
                     .FirstOrDefault(x => x.Type == AssessmentResultTypes.SupervisorAssessment);
 
                 if (supervisorResult == null)
                 {
-                    var supervisorForCurrentUser = await _commonService.GetSupervisorForUser(userId);
+                    var supervisorForCurrentUser = await _userService.GetFirstSupervisorForUser(userId);
                     supervisorId = supervisorForCurrentUser?.Id;
-                 }
+                }
                 else
                 {
                     supervisorId = supervisorResult.Judge.Id;
                 }
 
                 var candidatesForJudges = await _unitOfWork.Users.GetAllAsync(x =>
-                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&
-                    !x.SystemRoles.Contains(excludedRole) &&
+                    x.SystemRoles.Any(r => requiredRoles.Contains(r)) &&               
                     x.Id != supervisorId &&
                     x.Id != userId);
 
@@ -385,7 +321,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
         public async Task<IActionResult> GetAnalyticsLayout()
         {
             try
@@ -398,9 +334,9 @@ namespace KOP.WEB.Controllers
                     return BadRequest("Current user ID is not valid.");
                 }
 
-                var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
+                var users = await _supervisorService.GetUsersWithAnyGradeForSupervisor(currentUserId);
 
-                return View("AnalyticsLayout", subordinateUsersSummariesHasGrades);
+                return View("AnalyticsLayout", users);
             }
             catch (Exception ex)
             {
@@ -415,8 +351,8 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetReportLayout()
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
+        public async Task<IActionResult> GetGradesReportLayout()
         {
             try
             {
@@ -428,9 +364,39 @@ namespace KOP.WEB.Controllers
                     return BadRequest("Current user ID is not valid.");
                 }
 
-                var subordinateUsersSummariesHasGrades = await _supervisorService.GetSubordinateUsersSummariesHasGrade(currentUserId);
+                var users = await _supervisorService.GetUsersWithAnyGradeForSupervisor(currentUserId);
 
-                return View("ReportLayout", subordinateUsersSummariesHasGrades.OrderBy(x => x.FullName).ToList());
+                return View("GradesReportLayout", users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SupervisorController.GetReportLayout] : ");
+
+                return View("Error", new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
+        public async Task<IActionResult> GetUpcomingGradesReport()
+        {
+            try
+            {
+                var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+
+                if (currentUserId <= 0)
+                {
+                    _logger.LogWarning("CurrentUserId is incorrect or not found in claims.");
+                    return BadRequest("Current user ID is not valid.");
+                }
+
+                var users = await _supervisorService.GetUsersWithAnyUpcomingGradeForSupervisor(currentUserId);
+
+                return View("UpcomingGradesReport", users);
             }
             catch (Exception ex)
             {
@@ -445,7 +411,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> AddJudges(AddJudgesRequestModel requestModel)
         {
             if (requestModel.assessmentId <= 0)
@@ -474,7 +440,7 @@ namespace KOP.WEB.Controllers
 
                 foreach (var judgeId in judgesIds)
                 {
-                    await _assessmentService.AddJudgeForAssessment(Convert.ToInt32(judgeId), requestModel.assessmentId, currentUserId);
+                    await _assessmentResultService.CreatePendingColleagueAssessmentResult(Convert.ToInt32(judgeId), requestModel.assessmentId, currentUserId);
                 }
 
                 return Ok("Сохранение прошло успешно");
@@ -492,7 +458,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> DeleteJudge([FromBody] int assessmentResultId)
         {
             if (assessmentResultId <= 0)
@@ -504,7 +470,7 @@ namespace KOP.WEB.Controllers
 
             try
             {
-                await _assessmentService.DeleteJudgeForAssessment(assessmentResultId);
+                await _assessmentResultService.DeletePendingAssessmentResult(assessmentResultId);
 
                 return Ok("Удаление прошло успешно");
             }
@@ -520,7 +486,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Supervisor, Urp, Curator")]
         public async Task<IActionResult> ApproveEmployeeGrade([FromBody] int gradeId)
         {
             if (gradeId <= 0)
@@ -539,6 +505,34 @@ namespace KOP.WEB.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[SupervisorController.ApproveEmployeeGrade({gradeId})] : ", gradeId);
+
+                return BadRequest(new
+                {
+                    error = "Произошла ошибка при завершении оценки.",
+                });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Urp")]
+        public async Task<IActionResult> SuspendUser([FromBody] int userId)
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("Invalid gradeId: {userId}", userId);
+
+                return BadRequest("Invalid user ID.");
+            }
+
+            try
+            {
+                await _supervisorService.SuspendUser(userId);
+
+                return Ok("Операция увольнения/перевода успешно завершена");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SupervisorController.SuspendUser({userId})] : ", userId);
 
                 return BadRequest(new
                 {
