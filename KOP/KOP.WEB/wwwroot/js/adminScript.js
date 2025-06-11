@@ -227,7 +227,7 @@ function addNewField(containerId, gradeId) {
     const div = document.createElement('div');
     div.className = 'input-group';
     div.innerHTML = `
-        <input type="text" class="form-control" placeholder="Введите рекомендацию" />
+        <textarea type="text" class="form-control" placeholder="Введите рекомендацию"></textarea>
         <input type="hidden" class="item-id" value="0" />
         <input type="hidden" class="grade-id" value="${gradeId}" />
         <input type="hidden" class="delete-flag" name="isDeleted" value="false" />
