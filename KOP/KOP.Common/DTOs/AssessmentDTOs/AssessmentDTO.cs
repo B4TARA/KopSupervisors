@@ -13,8 +13,8 @@ namespace KOP.Common.Dtos.AssessmentDtos
         public bool IsActiveAssessment { get; set; }
         public int SumValue { get; set; }
         public int AverageValue { get; set; }
-        public List<AssessmentResultDto> AllAssessmentResults { get; set; }
-        public List<AssessmentResultDto> CompletedAssessmentResults { get; set; }
+        public List<AssessmentResultDto> AllAssessmentResults { get; set; } = new();
+        public List<AssessmentResultDto> CompletedAssessmentResults { get; set; } = new();
         public AssessmentInterpretationDto? AverageAssessmentInterpretation { get; set; }
     }
 }

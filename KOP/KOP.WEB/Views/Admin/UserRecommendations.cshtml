@@ -63,7 +63,7 @@
                 @foreach (var item in Model.CompetenceRecommendations)
                 {
                     <div class="input-group">
-                        <input type="text" value="@item.Value" class="form-control" required />
+                        <input type="text" value="@item.Value" class="form-control" />
                         <input type="hidden" class="item-id" value="@item.Id" />
                         <input type="hidden" class="grade-id" value="@item.GradeId" />
                         <button type="button" class="remove-btn" onclick="removeField(this)"><i class="fa-solid fa-circle-xmark" style="color: #f92424;"></i></button>
@@ -80,7 +80,7 @@
                 @foreach (var item in Model.LiteratureRecommendations)
                 {
                     <div class="input-group">
-                        <input type="text" value="@item.Value" class="form-control" required />
+                        <input type="text" value="@item.Value" class="form-control" />
                         <input type="hidden" class="item-id" value="@item.Id" />
                         <input type="hidden" class="grade-id" value="@item.GradeId" />
                         <button type="button" class="remove-btn" onclick="removeField(this)"><i class="fa-solid fa-circle-xmark" style="color: #f92424;"></i></button>
@@ -114,7 +114,7 @@
                 @foreach (var item in Model.SeminarRecommendations)
                 {
                     <div class="input-group">
-                        <input type="text" value="@item.Value" class="form-control" required />
+                        <input type="text" value="@item.Value" class="form-control" />
                         <input type="hidden" class="item-id" value="@item.Id" />
                         <input type="hidden" class="grade-id" value="@item.GradeId" />
                         <button type="button" class="remove-btn" onclick="removeField(this)"><i class="fa-solid fa-circle-xmark" style="color: #f92424;"></i></button>
