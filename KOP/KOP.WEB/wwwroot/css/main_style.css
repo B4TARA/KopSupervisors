@@ -3856,6 +3856,15 @@ button.show-modal,
             color: #fff;
         }
 
+    .add_row_btn.red:hover {
+        background-color: #db1a1a;
+        color: #fff;
+    }
+
+        .add_row_btn.red:hover i {
+            color: #fff!important;
+        }
+
 .experience_item {
     margin: 10px 0px;
     display: flex;
@@ -4329,3 +4338,32 @@ button.show-modal,
     flex-direction: column;
     gap: 10px;
 }
+
+.startegic_content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.startegic_items_list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid #697388;
+    padding-bottom: 20px;
+}
+
+    .startegic_items_list:last-child {
+        border-bottom: none;
+    }
+
+    .popup_content div.startegic_item textarea {
+        width: 100%;
+        height:200px;
+    }
+
+.popup_content div.startegic_item input{
+    width:100%;
+}
+

@@ -151,6 +151,8 @@ function addRow(elem, type, id) {
 
     const tablePopup = document.querySelector(' table tbody');
     const projectsInfoList = document.querySelector('.project_info_list');
+    const startegicContent = document.querySelector('.startegic_content');
+    
 
     if (type === 'kpi') {
         const row = document.createElement('tr');
@@ -188,32 +190,42 @@ function addRow(elem, type, id) {
     }
     else if (type === 'strategy') {
 
-        const row = document.createElement('tr');
+        const row = document.createElement('div');
         row.innerHTML = `
-              <td>
-                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Name" placeholder="Название"></textarea>
-                        </td>
-                        <td>
+
+                <div class="startegic_items_list">
+                        <div class="startegic_item">
+                            <div class="mid_title">Название проекта / стратегической задачи</div>
+                           <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Name" placeholder="Название"></textarea>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Цель проекта / стратегической задачи</div>
                             <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Purpose" placeholder="Цель"></textarea>
-                        </td>
-                        <td>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">План (дата)</div>
                             <input type="date" name="StrategicTaskDtoList[${newIndex}].PlanDateTime" required min="1994-01-01"/>
-                        </td>
-                        <td>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Факт (дата)</div>
                             <input type="date" name="StrategicTaskDtoList[${newIndex}].FactDateTime" required min="1994-01-01"/>
-                        </td>
-                        <td>
-                            <input type="text" name="StrategicTaskDtoList[${newIndex}].PlanResult" placeholder="План" required />
-                        </td>
-                        <td>
-                            <input type="text" name="StrategicTaskDtoList[${newIndex}].FactResult" placeholder="Факт" required />
-                        </td>
-                        <td>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">План</div>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].PlanResult" placeholder="План" required></textarea>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Факт</div>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].FactResult" placeholder="Факт" required></textarea>
+                        </div>
+                        <div class="startegic_item">
+                            <div class="mid_title">Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</div>
                             <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Remark" placeholder="Примечание"></textarea>
-                        </td>
-                <i class="fa-solid fa-trash delete_item" style="color: #db1a1a; margin-left:15px; margin-top:15px;" class="delete_row" onclick="deleteRow(this,'${type}')"></i>
+                        </div>
+                        <div class="add_row_btn red add_project" onclick="deleteRow(this,'${type}')" ><i class="fa-solid fa-trash" style="color: #db1a1a;"></i> Удалить</div>
+                    </div>
                 `
-        tablePopup.appendChild(row)
+        startegicContent.appendChild(row)
     }
     else if (type === 'project') {
         var selectedUserFullName = document.getElementById("SelectedUserFullName").value;
