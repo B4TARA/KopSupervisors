@@ -20,23 +20,20 @@ namespace KOP.WEB.Controllers
         private readonly IUserService _userService;
         private readonly IGradeService _gradeService;
         private readonly IAssessmentResultService _assessmentResultService;
+        private readonly IAssessmentService _assessmentService;
         private readonly IRecommendationService _recommendationService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(
-            ApplicationDbContext context,
-            IUserService userService,
-            IGradeService gradeService,
-            IAssessmentResultService assessmentResultService,
-            IRecommendationService recommendationService,
-            IUnitOfWork unitOfWork,
-            ILogger<AdminController> logger)
+        public AdminController(ApplicationDbContext context, IUserService userService, IGradeService gradeService, 
+            IAssessmentResultService assessmentResultService, IAssessmentService assessmentService, IRecommendationService recommendationService,
+            IUnitOfWork unitOfWork, ILogger<AdminController> logger)
         {
             _context = context;
             _userService = userService;
             _gradeService = gradeService;
             _assessmentResultService = assessmentResultService;
+            _assessmentService = assessmentService;
             _recommendationService = recommendationService;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -110,6 +107,7 @@ namespace KOP.WEB.Controllers
 
                 var selfAssessmentResult = await _assessmentResultService.GetManagementSelfAssessmentResultForGrade(latestGrade.Id);
                 var supervisorAssessmentResult = await _assessmentResultService.GetManagementSupervisorAssessmentResultForGrade(latestGrade.Id);
+                var managementInterpretation = await _assessmentService.GetManagementAssessmentInterpretationForGrade(latestGrade.Id);
 
                 var viewModel = new UserRecommendationsViewModel
                 {
@@ -117,6 +115,7 @@ namespace KOP.WEB.Controllers
                     GradeId = latestGrade.Id,
                     SelfAssessmentSum = selfAssessmentResult?.Sum ?? 0,
                     SupervisorAssessmentSum = supervisorAssessmentResult?.Sum ?? 0,
+                    AssessmentInterpretation = managementInterpretation,
                     CourseRecommendations = courseRecommendations,
                     SeminarRecommendations = seminarRecommendations,
                     CompetenceRecommendations = competenceRecommendations,
@@ -512,7 +511,7 @@ namespace KOP.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Urp")]
+        [Authorize(Roles = "Urp, Uop")]
         public async Task<IActionResult> UpdateRecommendations([FromBody] UpdateRecommendationsRequestModel requestModel)
         {
             try

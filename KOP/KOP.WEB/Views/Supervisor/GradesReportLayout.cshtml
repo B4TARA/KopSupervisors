@@ -1,4 +1,4 @@
-﻿@model List<KOP.Common.Dtos.UserDtos.UserReducedDto>
+﻿@model List<KOP.Common.Dtos.UserDtos.UserDto>
 
 <div class="home-content">
     <div class="home_content_info">
@@ -34,7 +34,7 @@
                 <div class="d-tbody">
                     @foreach (var user in Model)
                     {
-                        <a asp-area="" asp-controller="Employee" asp-action="GetGrades" asp-route-userId=@user.Id asp-route-userFullName='@user.FullName' class="d-tr">
+                        <a asp-area="" asp-controller="Employee" asp-action="GetGrades" asp-route-userId=@user.Id class="d-tr">
                             <div class="d-td number">@(count++)</div>
                             <div class="d-td fullname">@user.FullName</div>
                             <div class="d-td">@user.SubdivisionFromFile</div>

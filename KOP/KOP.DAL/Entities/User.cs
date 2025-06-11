@@ -25,12 +25,27 @@ namespace KOP.DAL.Entities
         public Subdivision? ParentSubdivision { get; set; }
         public int? ParentSubdivisionId { get; set; }
 
-        public List<Subdivision> SubordinateSubdivisions { get; set; } = new();
         public List<SystemRoles> SystemRoles { get; set; } = new();
+        public List<Subdivision> SubordinateSubdivisions { get; set; } = new();
         public List<Grade> Grades { get; set; } = new();
         public List<Assessment> Assessments { get; set; } = new();
 
         public DateTime? LastLogin { get; set; }
+
+        public string GetContractEndDate
+        {
+            get
+            {
+                if (!ContractEndDate.HasValue)
+                {
+                    return "Дата окончания контракта не установлена";
+                }        
+
+                var contractEndDate = ContractEndDate.Value.ToString("dd.MM.yyyy");
+
+                return contractEndDate;
+            }
+        }
 
         public string GetWorkPeriod
         {
@@ -98,21 +113,20 @@ namespace KOP.DAL.Entities
             }
         }
 
-
-        public string GetNextGradeStartDate
+        public (string Value, bool HasDateValue) GetNextGradeStartDate
         {
             get
             {
                 // Проверяем, установлено ли значение ContractEndDate
                 if (!ContractEndDate.HasValue)
                 {
-                    return "Дата окончания контракта не установлена";
+                    return ("Дата окончания контракта не установлена", false);
                 }
 
                 // Проверяем, закончился ли контракт
                 if (ContractEndDate < DateOnly.FromDateTime(DateTime.Today))
                 {
-                    return "Вероятно, контракт уже закончился";
+                    return ("Вероятно, контракт уже закончился", false);
                 }
 
                 var tempDate = ContractEndDate.Value.AddMonths(-4);
@@ -122,12 +136,11 @@ namespace KOP.DAL.Entities
                 // До этой даты оценки не начинались
                 if (nextGradeStartDate < new DateOnly(2025, 4, 1))
                 {
-                    return "-";
+                    return ("-", false);
                 }
 
-                return nextGradeStartDate.ToString("dd.MM.yyyy");
+                return (nextGradeStartDate.ToString("dd.MM.yyyy"), true);
             }
         }
-
     }
 }

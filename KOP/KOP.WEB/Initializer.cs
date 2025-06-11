@@ -10,6 +10,7 @@ namespace KOP.WEB
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IQualificationService, QualificationService>();
             services.AddScoped<IAssessmentInterpretationRepository, AssessmentInterpretationRepository>();
             services.AddScoped<IAssessmentRangeRepository, AssessmentRangeRepository>();
             services.AddScoped<IAssessmentMatrixElementRepository, AssessmentMatrixElementRepository>();
@@ -38,7 +39,6 @@ namespace KOP.WEB
         {
             services.AddScoped<IRecommendationService, RecommendationService>();
             services.AddScoped<IValueJudgmentService, ValueJudgmentService>();
-            services.AddScoped<ICommonService, CommonService>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IGradeService, GradeService>();

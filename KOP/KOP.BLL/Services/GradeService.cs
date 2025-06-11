@@ -144,51 +144,6 @@ namespace KOP.BLL.Services
                 }
             }
 
-            if (dto.ValueJudgmentDto != null)
-            {
-                grade.ValueJudgment.Strengths = dto.ValueJudgmentDto.Strengths ?? "";
-                grade.ValueJudgment.BehaviorToCorrect = dto.ValueJudgmentDto.BehaviorToCorrect ?? "";
-                grade.ValueJudgment.RecommendationsForDevelopment = dto.ValueJudgmentDto.RecommendationsForDevelopment ?? "";
-            }
-
-            if (dto.QualificationDto != null)
-            {
-                grade.Qualification.CurrentStatusDate = dto.QualificationDto.CurrentStatusDate;
-                grade.Qualification.CurrentExperienceYears = dto.QualificationDto.CurrentExperienceYears;
-                grade.Qualification.CurrentExperienceMonths = dto.QualificationDto.CurrentExperienceMonths;
-                grade.Qualification.CurrentJobStartDate = dto.QualificationDto.CurrentJobStartDate;
-                grade.Qualification.CurrentJobPositionName = dto.QualificationDto.CurrentJobPositionName ?? "";
-                grade.Qualification.EmploymentContarctTerminations = dto.QualificationDto.EmploymentContarctTerminations ?? "";
-                grade.Qualification.QualificationResult = dto.QualificationDto.QualificationResult ?? "";
-
-                grade.Qualification.PreviousJobs.Clear();
-                foreach (var previousJob in dto.QualificationDto.PreviousJobs)
-                {
-                    grade.Qualification.PreviousJobs.Add(new PreviousJob
-                    {
-                        StartDate = previousJob.StartDate,
-                        EndDate = previousJob.EndDate,
-                        OrganizationName = previousJob.OrganizationName ?? "",
-                        PositionName = previousJob.PositionName ?? "",
-                    });
-                }
-
-                grade.Qualification.HigherEducations.Clear();
-                foreach (var higherEducation in dto.QualificationDto.HigherEducations)
-                {
-                    grade.Qualification.HigherEducations.Add(new HigherEducation
-                    {
-                        Education = higherEducation.Education ?? "",
-                        Speciality = higherEducation.Speciality ?? "",
-                        QualificationName = higherEducation.QualificationName ?? "",
-                        StartDate = higherEducation.StartDate,
-                        EndDate = higherEducation.EndDate,
-                    });
-                }
-
-                grade.QualificationConclusion = dto.QualificationConclusion;
-            }
-
             grade.StrategicTasks = strategicTasks;
             grade.StrategicTasksConclusion = dto.StrategicTasksConclusion;
             grade.Kpis = kpis;
@@ -201,7 +156,6 @@ namespace KOP.BLL.Services
             grade.IsStrategicTasksFinalized = dto.IsStrategicTasksFinalized;
             grade.IsKpisFinalized = dto.IsKpisFinalized;
             grade.IsMarksFinalized = dto.IsMarksFinalized;
-            grade.IsQualificationFinalized = dto.IsQualificationFinalized;
 
             _context.Grades.Update(grade);
             await _context.SaveChangesAsync();
@@ -257,51 +211,43 @@ namespace KOP.BLL.Services
 
             _context.Marks.Remove(markToDelete);
             await _context.SaveChangesAsync();
-        }
+        }     
 
-        public async Task DeletePreviousJob(int id)
-        {
-            var previousJobToDelete = await _context.PreviousJobs.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (previousJobToDelete == null)
-            {
-                throw new Exception($"PreviousJob with ID {id} not found.");
-            }
-
-            _context.PreviousJobs.Remove(previousJobToDelete);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteHigherEducation(int id)
-        {
-            var higherEducationToDelete = await _context.HigherEducations.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (higherEducationToDelete == null)
-            {
-                throw new Exception($"HigherEducation with ID {id} not found.");
-            }
-
-            _context.HigherEducations.Remove(higherEducationToDelete);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<GradeReducedDto?> GetLatestGradeForUser(int userId)
+        public async Task<GradeDto?> GetLatestGradeForUser(int userId)
         {
             var latestGrade = await _context.Grades
                 .AsNoTracking()
                 .Where(g => g.UserId == userId)
                 .OrderByDescending(g => g.Number)
-                .Select(g => new GradeReducedDto
+                .Select(g => new GradeDto
                 {
                     Id = g.Id,
                     Number = g.Number,
-                    StartDate = g.StartDate,
-                    EndDate = g.EndDate,
-                    DateOfCreation = g.DateOfCreation,
+                    Period = $"{g.StartDate.ToString("dd.MM.yyyy")} - {g.EndDate.ToString("dd.MM.yyyy")}",
+                    DateOfCreation = g.DateOfCreation.ToString("dd.MM.yyyy"),
                 })
                 .FirstOrDefaultAsync();
 
             return latestGrade;
+        }
+
+        public int CalculateCompletedCriteriaCount(Grade grade)
+        {
+            var count = 0;
+
+            // Т.к. мероприятия не заполняются, а экспортируются из excel
+            count++;
+
+            if (grade.IsKpisFinalized) count++;
+            if (grade.IsCorporateCompetenciesFinalized) count++;
+            if (grade.IsManagmentCompetenciesFinalized) count++;
+            if (grade.IsMarksFinalized) count++;
+            if (grade.IsProjectsFinalized) count++;
+            if (grade.IsQualificationFinalized) count++;
+            if (grade.IsStrategicTasksFinalized) count++;
+            if (grade.IsValueJudgmentFinalized) count++;
+
+            return count; 
         }
     }
 }

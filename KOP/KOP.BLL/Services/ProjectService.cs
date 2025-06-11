@@ -3,17 +3,16 @@ using KOP.Common.Dtos.GradeDtos;
 using KOP.DAL;
 using KOP.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace KOP.BLL.Services
 {
     public class ProjectService : IProjectService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
 
-        public ProjectService(ApplicationDbContext dbContext)
+        public ProjectService(ApplicationDbContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
         public async Task<List<ProjectDto>> GetProjectDtoListByGradeId(int gradeId)
@@ -21,7 +20,7 @@ namespace KOP.BLL.Services
             if (gradeId == 0)
                 throw new ArgumentException("gradeId cannot be 0", nameof(gradeId));
 
-            var projectDtoList = await _dbContext.Projects
+            var projectDtoList = await _context.Projects
                 .AsNoTracking()
                 .Where(x => x.GradeId == gradeId)
                 .OrderByDescending(x => x.DateOfCreation)
@@ -49,8 +48,8 @@ namespace KOP.BLL.Services
             else if (projectDto.Id == 0)
                 throw new ArgumentException("projectDto.Id cannot be 0", nameof(projectDto));
 
-            var project = await _dbContext.Projects
-                .SingleOrDefaultAsync(x => x.Id == projectDto.Id);
+            var project = await _context.Projects
+                .FirstOrDefaultAsync(x => x.Id == projectDto.Id);
 
             if (project == null)
                 throw new KeyNotFoundException($"project with ID {projectDto.Id} not found.");
@@ -64,7 +63,7 @@ namespace KOP.BLL.Services
             project.AverageKpi = projectDto.AverageKpi;
             project.SP = projectDto.SP;
 
-            await _dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task CreateProject(ProjectDto projectDto)
@@ -84,8 +83,8 @@ namespace KOP.BLL.Services
                 SP = projectDto.SP
             };
 
-            await _dbContext.Projects.AddAsync(project);
-            await _dbContext.SaveChangesAsync();
+            await _context.Projects.AddAsync(project);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteProjectById(int projectId)
@@ -93,14 +92,14 @@ namespace KOP.BLL.Services
             if (projectId == 0)
                 throw new ArgumentException("projectId cannot be 0", nameof(projectId));
 
-            var project = await _dbContext.Projects
-                .SingleOrDefaultAsync(x => x.Id == projectId);
+            var project = await _context.Projects
+                .FirstOrDefaultAsync(x => x.Id == projectId);
 
             if (project == null)
                 throw new KeyNotFoundException($"project with ID {projectId} not found.");
 
-            _dbContext.Projects.Remove(project);    
-            await _dbContext.SaveChangesAsync();
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
         }
     }
 }

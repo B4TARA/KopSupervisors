@@ -7,6 +7,7 @@ using KOP.DAL.Entities;
 using KOP.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats.Wordprocessing;
+using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
 
 namespace KOP.BLL.Services
@@ -17,16 +18,19 @@ namespace KOP.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAssessmentService _assessmentService;
         private readonly IRecommendationService _recommendationService;
+        private readonly ISupervisorService _supervisorService;
 
-        public ReportService(ApplicationDbContext context, IUnitOfWork unitOfWork, IAssessmentService assessmentService, IRecommendationService recommendationService)
+        public ReportService(ApplicationDbContext context, IUnitOfWork unitOfWork, IAssessmentService assessmentService,
+            IRecommendationService recommendationService, ISupervisorService supervisorService)
         {
             _context = context;
             _unitOfWork = unitOfWork;
             _assessmentService = assessmentService;
             _recommendationService = recommendationService;
+            _supervisorService = supervisorService;
         }
 
-        public async Task<byte[]> GenerateGradeWordDocument(int gradeId)
+        public async Task<byte[]> GenerateGradesReport(int gradeId)
         {
             var grade = await _context.Grades
             .AsNoTracking()
@@ -56,16 +60,16 @@ namespace KOP.BLL.Services
                     CurrentJobPositionName = x.Qualification.CurrentJobPositionName,
                     CurrentExperienceMonths = x.Qualification.CurrentExperienceMonths,
                     EmploymentContarctTerminations = x.Qualification.EmploymentContarctTerminations,
-                    CurrentStatusDateTime = x.Qualification.CurrentStatusDate.ToDateTime(TimeOnly.MinValue),
-                    CurrentJobStartDateTime = x.Qualification.CurrentJobStartDate.ToDateTime(TimeOnly.MinValue),
+                    CurrentStatusDate = x.Qualification.CurrentStatusDate,
+                    CurrentJobStartDate = x.Qualification.CurrentJobStartDate,
                     PreviousJobs = x.Qualification.PreviousJobs
                         .OrderBy(pj => pj.StartDate)
                         .Select(pj => new PreviousJobDto
                         {
                             PositionName = pj.PositionName,
                             OrganizationName = pj.OrganizationName,
-                            EndDateTime = pj.EndDate.ToDateTime(TimeOnly.MinValue),
-                            StartDateTime = pj.StartDate.ToDateTime(TimeOnly.MinValue),
+                            EndDate = pj.EndDate,
+                            StartDate = pj.StartDate,
                         })
                         .ToList(),
                     HigherEducations = x.Qualification.HigherEducations
@@ -75,8 +79,8 @@ namespace KOP.BLL.Services
                             Education = he.Education,
                             Speciality = he.Speciality,
                             QualificationName = he.QualificationName,
-                            EndDateTime = he.EndDate.ToDateTime(TimeOnly.MinValue),
-                            StartDateTime = he.StartDate.ToDateTime(TimeOnly.MinValue),
+                            EndDate = he.EndDate,
+                            StartDate = he.StartDate,
                         })
                         .ToList(),
                 },
@@ -269,6 +273,60 @@ namespace KOP.BLL.Services
 
             return memoryStream.ToArray();
         }
+
+        public async Task<byte[]> GenerateUpcomingGradesReport(int supervisorId)
+        {
+            // Получаем данные
+            var users = await _supervisorService.GetUsersWithAnyUpcomingGradeForSupervisor(supervisorId);
+
+            using var memoryStream = new MemoryStream();
+
+            // Создание новой рабочей книги
+            using var workbook = new XSSFWorkbook();
+
+            // Создание нового листа
+            var sheet = workbook.CreateSheet("Sheet1");
+
+            // Создаем стиль для заголовков
+            var headerStyle = workbook.CreateCellStyle();
+            var headerFont = workbook.CreateFont();
+            headerFont.IsBold = true;
+            headerStyle.SetFont(headerFont);
+
+            // Добавление заголовков
+            var headerRow = sheet.CreateRow(0);
+            var headers = new[] { "ФИО", "Подразделение", "Должность", "Дата окончания контракта", "Дата предстоящей оценки" };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = headerRow.CreateCell(i);
+                cell.SetCellValue(headers[i]);
+                cell.CellStyle = headerStyle;
+            }
+
+            // Добавление данных
+            var rowCount = 1;
+            foreach (var user in users)
+            {
+                var row = sheet.CreateRow(rowCount++);
+
+                row.CreateCell(0).SetCellValue(user.FullName);
+                row.CreateCell(1).SetCellValue(user.SubdivisionFromFile);
+                row.CreateCell(2).SetCellValue(user.Position);
+                row.CreateCell(3).SetCellValue(user.ContractEndDate);
+                row.CreateCell(4).SetCellValue(user.NextGradeStartDate);
+            }
+
+            // Авто-размер колонок
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sheet.AutoSizeColumn(i);
+            }
+
+            workbook.Write(memoryStream);
+            return memoryStream.ToArray();
+        }
+
         private void SetLandscapeOrientation(XWPFDocument document)
         {
             var section = new CT_SectPr();
@@ -621,8 +679,8 @@ namespace KOP.BLL.Services
 
             var selfAssessmentSum = summaryDto.SelfAssessmentResultValues.Sum(x => x.Value);
             var supervisorAssessmentSum = summaryDto.SupervisorAssessmentResultValues.Sum(x => x.Value);
-            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "-";
-            var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить интерпретацию";
+            var interpretationLevel = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Level : "Не удалось определить уровень.";
+            var interpretationCompetence = summaryDto.AverageAssessmentInterpretation != null ? summaryDto.AverageAssessmentInterpretation.Competence : "Не удалось определить компетенцию";
 
             // Row 0: Заголовок с выравниванием по центру
             AddTextToCellWithFormatting(table.GetRow(0).GetCell(0), "Общий вывод по оценке Руководителя", true, ParagraphAlignment.CENTER, "#F2F4F0");
@@ -633,7 +691,7 @@ namespace KOP.BLL.Services
             AddTextToCellWithFormatting(row1.GetCell(0), $"- Самооценка – {selfAssessmentSum} балл;", removePreviousParagraph: false);
             AddTextToCellWithFormatting(row1.GetCell(0), $"- Оценка руководителя – {supervisorAssessmentSum} балл.", removePreviousParagraph: false);
             AddTextToCellWithFormatting(row1.GetCell(0), "Интерпретация результатов:", removePreviousParagraph: false, underline: true);
-            AddTextToCellWithFormatting(row1.GetCell(0), $"Уровень управленческих компетенций – {interpretationLevel}. {interpretationCompetence}", removePreviousParagraph: false);
+            AddTextToCellWithFormatting(row1.GetCell(0), $"Уровень управленческих компетенций – {interpretationLevel} {interpretationCompetence}", removePreviousParagraph: false);
             AddTextToCellWithFormatting(row1.GetCell(0), $"По итогам самооценки и оценки руководителя все управленческие компетенции {user.FullName} находятся на ___ уровне развития.", removePreviousParagraph: false);
 
             // Компетенции, которые стоит поддерживать

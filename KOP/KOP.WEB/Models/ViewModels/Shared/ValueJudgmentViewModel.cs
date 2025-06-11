@@ -1,12 +1,13 @@
-﻿using KOP.Common.Dtos.GradeDtos;
-
-namespace KOP.WEB.Models.ViewModels.Shared
+﻿namespace KOP.WEB.Models.ViewModels.Shared
 {
     public class ValueJudgmentViewModel
     {
+        public int Id { get; set; }
         public int GradeId { get; set; }
         public int SelectedUserId { get; set; }
-        public ValueJudgmentDto ValueJudgmentDto { get; set; } = new();
+        public string Strengths { get; set; }
+        public string BehaviorToCorrect { get; set; }
+        public string RecommendationsForDevelopment { get; set; }
         public bool IsFinalized { get; set; }
 
         public bool ViewAccess { get; set; }

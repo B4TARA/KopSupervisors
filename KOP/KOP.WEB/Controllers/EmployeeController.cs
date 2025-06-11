@@ -62,45 +62,9 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> GetGradeLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
+            var currentUser = await _userService.GetUser(currentUserId);   
 
-            var userDto = await _userService.GetUserDto(currentUserId);
-
-            var viewModel = new GradeLayoutViewModel
-            {
-                Id = userDto.Id,
-                FullName = userDto.FullName,
-                Position = userDto.Position,
-                SubdivisionFromFile = userDto.SubdivisionFromFile,
-                GradeGroup = userDto.GradeGroup,
-                WorkPeriod = userDto.WorkPeriod,
-                ContractEndDate = userDto.ContractEndDate,
-                ImagePath = userDto.ImagePath,
-                LastGradeDto = userDto.LastGrade,
-            };
-
-            if (userDto.LastGrade == null)
-            {
-                viewModel.GradeStatus = GradeStatuses.GRADE_NOT_FOUND;
-                return PartialView("_GradeLayoutPartial", viewModel);
-            }
-
-            viewModel.GradeStatus = userDto.LastGrade.GradeStatus;
-
-            foreach (var dto in userDto.LastGrade.AssessmentDtoList)
-            {
-                var assessmentSummaryDto = await _assessmentService.GetAssessmentSummary(dto.Id);
-
-                if (dto.SystemAssessmentType == SystemAssessmentTypes.СorporateСompetencies)
-                {
-                    viewModel.IsCorporateCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                }
-                else if (dto.SystemAssessmentType == SystemAssessmentTypes.ManagementCompetencies)
-                {
-                    viewModel.IsManagmentCompetenciesFinalized = assessmentSummaryDto.IsFinalized;
-                }
-            }
-
-            return View("_GradeLayoutPartial", viewModel);
+            return View("_GradeLayoutPartial", currentUser);
         }
 
         [HttpGet]
@@ -144,11 +108,11 @@ namespace KOP.WEB.Controllers
         public async Task<IActionResult> GetSelfAssessmentLayout()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue("Id"));
-            var userLastGradeAssessmentsDtos = await _userService.GetUserLastGradeAssessmentDtoList(currentUserId);
+            var assessments = await _userService.GetLastGradeAssessmentsForUser(currentUserId);
 
             var viewModel = new SelfAssessmentLayoutViewModel
             {
-                LastGradeAssessmentDtoList = userLastGradeAssessmentsDtos,
+                LastGradeAssessmentDtoList = assessments,
             };
 
             return PartialView("_SelfAssessmentLayoutPartial", viewModel);
@@ -191,16 +155,13 @@ namespace KOP.WEB.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Supervisor, Urp, Curator, Uop, Umst, Cup")]
-        public async Task<IActionResult> GetGrades(int userId, string userFullName)
+        public async Task<IActionResult> GetGrades(int userId)
         {
             try
             {
-                var gradeSummaryDtoList = await _userService.GetUserGradeSummaryDtoList(userId);
-                var viewModel = new EmployeeGradesViewModel();
-                viewModel.EmployeeName = userFullName;
-                viewModel.GradeReducedDtoList = gradeSummaryDtoList;
+                var grades = await _userService.GetGradesForUser(userId);
 
-                return View("EmployeeGrades", viewModel);
+                return View("EmployeeGrades", grades);
             }
             catch
             {

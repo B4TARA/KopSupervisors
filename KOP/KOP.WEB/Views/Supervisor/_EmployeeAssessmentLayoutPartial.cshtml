@@ -1,16 +1,16 @@
-﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeAssessmentLayoutViewModel
+﻿@model List<KOP.Common.Dtos.AssessmentDtos.AssessmentDto>
 
 @{
     Layout = null;
 }
 
-@if (Model.LastGradeAssessmentDtoList.Any())
+@if (Model.Any())
 {
     <div class="list_menu_container self_assesment header">
         <ul class="list_menu_wrapper nav">
-            @for (int i = 0; i < Model.LastGradeAssessmentDtoList.Count; i++)
+            @for (int i = 0; i < Model.Count; i++)
             {
-                var assessment = Model.LastGradeAssessmentDtoList[i];
+                var assessment = Model[i];
                 <li class="@(assessment.IsActiveAssessment ? " item_menu active" : "item_menu")">
                     <button class="link_menu description @(i == 0 ? "active" : "")" onclick="getEmployeeAssessment(@assessment.Id)">
                         @assessment.AssessmentTypeName
@@ -24,11 +24,10 @@
     </div>
 
     <!-- Скрытое поле для хранения ID первого элемента -->
-    <input type="hidden" id="firstAssessmentId" value="@Model.LastGradeAssessmentDtoList.FirstOrDefault()?.Id" />
+    <input type="hidden" id="firstAssessmentId" value="@Model.FirstOrDefault()?.Id" />
 }
 else
 {
-
     <div class="undefined_page_wrapper">
 
         <div class="container_description">

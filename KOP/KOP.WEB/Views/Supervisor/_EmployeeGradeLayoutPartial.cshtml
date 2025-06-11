@@ -1,4 +1,4 @@
-﻿@model KOP.WEB.Models.ViewModels.Supervisor.EmployeeGradeLayoutViewModel
+﻿@model KOP.Common.Dtos.UserDtos.UserDto;
 @using GradeStatuses = KOP.Common.Enums.GradeStatuses
 
 @{
@@ -29,14 +29,12 @@
 	<div class="user_image_wrapper">
 		<div class="user_image" style="background-image:url('@Model.ImagePath');"></div>
 	</div>
-
 </div>
 <div class="user_info_container user_info_block  margin_container_bottom_small">
 	<div class="user_info extra_info">
 		<div class="mid_title header_info_block">
 			Общая информация
 		</div>
-
 		<div class="description_wrapper">
 			<div class="description">Подразделение</div>
 			<div class="mid_title">
@@ -57,39 +55,18 @@
 		</div>
 		<div class="description_wrapper">
 			<div class="description">Дата окончания контракта</div>
-			@if (Model.ContractEndDate.HasValue)
-			{
-				<div class="mid_title ">
-					@Model.ContractEndDate.Value.ToString("dd.MM.yyyy")
-				</div>
-			}
-			else
-			{
-				<div class="mid_title ">
-					Нет данных
-				</div>
-			}
+			<div class="mid_title ">
+				@Model.ContractEndDate
+			</div>
 		</div>
 		<div class="description_wrapper">
 			<div class="description">Период оценки</div>
-			@if (Model.LastGrade != null)
-			{
-				<div class="mid_title ">
-					@Model.LastGrade.StartDate.ToString("dd.MM.yyyy") -  @Model.LastGrade.EndDate.ToString("dd.MM.yyyy")
-				</div>
-			}
-			else
-			{
-				<div class="mid_title">
-					-
-				</div>
-			}
+			<div class="mid_title ">
+				@Model.LastGrade?.Period
+			</div>
 		</div>
-
 	</div>
 </div>
-
-
 <div class="results_container margin_container_bottom">
 
 	@if (Model.LastGrade == null)
@@ -116,7 +93,6 @@
 				Результаты
 			</div>
 		</div>
-
 		<div class="result_user_list ">
 			@if (User.IsInRole("Urp") || User.IsInRole("Curator") || User.IsInRole("Supervisor") || User.IsInRole("Uop"))
 			{
@@ -324,14 +300,13 @@
 			}
 		</div>
 	}
-
 </div>
 
-@if (Model.LastGrade?.GradeStatus == GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL && Model.AccessForSupervisorApproval)
+@if (Model.LastGrade?.GradeStatus == GradeStatuses.READY_FOR_SUPERVISOR_APPROVAL && ViewBag.AccessForSupervisorApproval)
 {
 	<div class="actions_container">
 		<div class="action_buttons_wrapper">
-			<div onclick="approveEmployeeGrade(@Model.LastGrade.Id, @Model.Id)" class="action_btn green_btn full_width">
+			<div onclick="approveEmployeeGrade(@Model.LastGrade?.Id, @Model.Id)" class="action_btn green_btn full_width">
 				Ознакомиться
 			</div>
 		</div>

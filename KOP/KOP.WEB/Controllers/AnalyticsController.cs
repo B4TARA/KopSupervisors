@@ -1,7 +1,6 @@
 ﻿using KOP.BLL.Interfaces;
 using KOP.Common.Dtos.AnalyticsDtos;
 using KOP.DAL.Interfaces;
-using KOP.WEB.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -161,7 +161,29 @@ async function approveEmployeeGrade(gradeId, employeeId) {
             popupAlert('Оценка успешно завершена', false);
             getEmployeeGradeLayout(employeeId);
         } else {
-            console.error("Ошибка при создании Word документа:", response.statusText);
+            console.error("Ошибка:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Ошибка:", error);
+    }
+}
+
+async function suspendUser(userId) {
+    try {
+        let response = await fetch('/supervisors/Supervisor/SuspendUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: userId
+        });
+
+        if (response.ok) {
+            const message = await response.text();
+            popupAlert(message, false);
+            getEmployeeGradeLayout(userId);
+        } else {
+            console.error("Ошибка:", response.statusText);
         }
     } catch (error) {
         console.error("Ошибка:", error);

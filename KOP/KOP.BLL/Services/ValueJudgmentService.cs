@@ -7,56 +7,49 @@ namespace KOP.BLL.Services
 {
     public class ValueJudgmentService : IValueJudgmentService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
 
-        public ValueJudgmentService(ApplicationDbContext dbContext)
+        public ValueJudgmentService(ApplicationDbContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public async Task<ValueJudgmentDto> GetValueJudgmentByGradeId(int gradeId)
+        public async Task<ValueJudgmentDto> GetValueJudgmentForGrade(int gradeId)
         {
-            if (gradeId == 0)
-                throw new ArgumentException("Grade ID cannot be 0", nameof(gradeId));
-
-            var valueJudgmentDto = await _dbContext.ValueJudgments
+            var valueJudgment = await _context.ValueJudgments
                 .AsNoTracking()
-                .Select(x => new ValueJudgmentDto
+                .Select(vj => new ValueJudgmentDto
                 {
-                    Id = x.Id,
-                    GradeId = x.GradeId,
-                    Strengths = x.Strengths,
-                    BehaviorToCorrect = x.BehaviorToCorrect,
-                    RecommendationsForDevelopment = x.RecommendationsForDevelopment,
-                    IsFinalized = x.IsFinalized,
+                    Id = vj.Id,
+                    GradeId = vj.GradeId,
+                    Strengths = vj.Strengths,
+                    BehaviorToCorrect = vj.BehaviorToCorrect,
+                    RecommendationsForDevelopment = vj.RecommendationsForDevelopment,
+                    IsFinalized = vj.Grade.IsValueJudgmentFinalized,
                 })
-                .SingleOrDefaultAsync(x => x.GradeId == gradeId);
+                .FirstOrDefaultAsync(vj => vj.GradeId == gradeId);
 
-            if (valueJudgmentDto == null)
+            if (valueJudgment == null)
                 throw new KeyNotFoundException($"ValueJudgment with Grade ID {gradeId} not found.");
 
-            return valueJudgmentDto;
+            return valueJudgment;
         }
 
         public async Task EditValueJudgment(ValueJudgmentDto valueJudgmentDto)
         {
-            if (valueJudgmentDto == null)
-                throw new ArgumentNullException(nameof(valueJudgmentDto), "ValueJudgment cannot be null.");
-            else if (valueJudgmentDto.Id == 0)
-                throw new ArgumentException("ValueJudgment ID cannot be 0", nameof(valueJudgmentDto));
-
-            var valueJudgment = await _dbContext.ValueJudgments
-                .SingleOrDefaultAsync(x => x.Id == valueJudgmentDto.Id);
+            var valueJudgment = await _context.ValueJudgments
+                .Include(vj => vj.Grade)
+                .FirstOrDefaultAsync(vj => vj.Id == valueJudgmentDto.Id);
 
             if (valueJudgment == null)
                 throw new KeyNotFoundException($"ValueJudgment with ID {valueJudgmentDto.Id} not found.");
 
-            valueJudgment.Strengths = valueJudgmentDto.Strengths;
-            valueJudgment.BehaviorToCorrect = valueJudgmentDto.BehaviorToCorrect;
-            valueJudgment.RecommendationsForDevelopment = valueJudgmentDto.RecommendationsForDevelopment;
-            valueJudgment.IsFinalized = valueJudgmentDto.IsFinalized;
+            valueJudgment.Strengths = valueJudgmentDto.Strengths ?? string.Empty;
+            valueJudgment.BehaviorToCorrect = valueJudgmentDto.BehaviorToCorrect ?? string.Empty;
+            valueJudgment.RecommendationsForDevelopment = valueJudgmentDto.RecommendationsForDevelopment ?? string.Empty;
+            valueJudgment.Grade.IsValueJudgmentFinalized = valueJudgmentDto.IsFinalized;
 
-            await _dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

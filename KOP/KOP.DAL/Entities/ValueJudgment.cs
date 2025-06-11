@@ -6,7 +6,6 @@
         public string Strengths { get; set; }
         public string BehaviorToCorrect { get; set; }
         public string RecommendationsForDevelopment { get; set; }
-        public bool IsFinalized { get; set; }
 
         public Grade Grade { get; set; }
         public int GradeId { get; set; }

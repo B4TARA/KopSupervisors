@@ -58,7 +58,11 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Отчетность</a></li>
-                    <li><a asp-controller="Supervisor" asp-action="GetReportLayout">Сотрудники и оценки</a></li>
+                    <li><a asp-controller="Supervisor" asp-action="GetGradesReportLayout">Сотрудники и оценки</a></li>
+                </ul>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Отчетность</a></li>
+                    <li><a asp-controller="Supervisor" asp-action="GetUpcomingGradesReport">Предстоящие оценки</a></li>
                 </ul>
             </li>
         }

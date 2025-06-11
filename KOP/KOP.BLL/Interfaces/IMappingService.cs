@@ -1,23 +1,17 @@
 ﻿using KOP.Common.Dtos.AssessmentDtos;
 using KOP.Common.Dtos.AssessmentResultDtos;
 using KOP.Common.Dtos.GradeDtos;
-using KOP.Common.Dtos.UserDtos;
 using KOP.DAL.Entities;
 
 namespace KOP.BLL.Interfaces
 {
     public interface IMappingService
     {
-        UserExtendedDto CreateUserDto(User user);
         GradeExtendedDto CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes);
-        QualificationDto CreateQualificationDto(Qualification qualification);
         MarkDto CreateMarkDto(Mark mark);
         KpiDto CreateKpiDto(Kpi kpi);
         ProjectDto CreateProjectDto(Project project);
         StrategicTaskDto CreateStrategicTaskDto(StrategicTask strategicTask);
-        ValueJudgmentDto CreateValueJudgmentDto(ValueJudgment valueJudgment);
-        PreviousJobDto CreatePreviousJobDto(PreviousJob previousJob);
-        HigherEducationDto CreateHigherEducationDto(HigherEducation higherEducation);
         TrainingEventDto CreateTrainingEventDto(TrainingEvent trainingEvent);
         AssessmentDto CreateAssessmentDto(Assessment assessment);
         AssessmentResultDto CreateAssessmentResultDto(AssessmentResult result, AssessmentType type);

@@ -1,5 +1,6 @@
 ﻿using KOP.Common.Dtos.GradeDtos;
 using KOP.Common.Enums;
+using KOP.DAL.Entities;
 
 namespace KOP.BLL.Interfaces
 {
@@ -11,9 +12,7 @@ namespace KOP.BLL.Interfaces
         Task DeleteProject(int id);
         Task DeleteKpi(int id);
         Task DeleteMark(int id);
-        Task DeletePreviousJob(int id);
-        Task DeleteHigherEducation(int id);
-
-        Task<GradeReducedDto?> GetLatestGradeForUser(int userId);
+        Task<GradeDto?> GetLatestGradeForUser(int userId);
+        int CalculateCompletedCriteriaCount(Grade grade);
     }
 }

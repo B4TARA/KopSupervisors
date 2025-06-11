@@ -1,4 +1,4 @@
-﻿@model KOP.WEB.Models.ViewModels.Employee.EmployeeGradesViewModel
+﻿@model List<KOP.Common.Dtos.GradeDtos.GradeDto>
 
 <div class="home-content">
     <div class="home_content_info">
@@ -27,15 +27,15 @@
                 }
 
                 <div class="d-tbody">
-                    @foreach (var grade in Model.GradeReducedDtoList)
+                    @foreach (var grade in Model)
                     {
                         <div class="d-tr download-tr">
                             <div class="d-td number">@(count++)</div>
                             <div class="d-td fullname">@grade.Number</div>
-                            <div class="d-td">@grade.StartDate - @grade.EndDate</div>
+                            <div class="d-td">@grade.Period</div>
                             <div class="d-td">@grade.DateOfCreation</div>
                             <div class="d-td">
-                                <button id="downloadButton" onclick="downloadGradeWordDocument(@grade.Id, '@Model.EmployeeName')" class="action_btn primary_btn" style="display: flex; align-items: center; gap: 10px;">
+                                <button id="downloadButton" onclick="downloadGradesReport(@grade.Id, '@grade.UserFullName')" class="action_btn primary_btn" style="display: flex; align-items: center; gap: 10px;">
                                     <span id="downloadText">Скачать</span>
                                     <span style="display:none" id="loader" class="loader"></span>
                                 </button>                                

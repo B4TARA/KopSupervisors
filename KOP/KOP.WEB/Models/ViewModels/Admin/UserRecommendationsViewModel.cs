@@ -9,7 +9,7 @@ namespace KOP.WEB.Models.ViewModels.Admin
         public int GradeId { get; set; }
         public int SelfAssessmentSum { get; set; }
         public int SupervisorAssessmentSum { get; set; }
-        public AssessmentInterpretationDto AssessmentInterpretation { get; set; }
+        public AssessmentInterpretationDto? AssessmentInterpretation { get; set; }
         public List<RecommendationDto> CompetenceRecommendations { get; set; }
         public List<RecommendationDto> LiteratureRecommendations { get; set; }
         public List<RecommendationDto> CourseRecommendations { get; set; }

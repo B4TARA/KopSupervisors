@@ -2,6 +2,7 @@
 {
     public interface IReportService
     {
-        Task<byte[]> GenerateGradeWordDocument(int gradeId);
+        Task<byte[]> GenerateGradesReport(int gradeId);
+        Task<byte[]> GenerateUpcomingGradesReport(int supervisorId);
     }
 }

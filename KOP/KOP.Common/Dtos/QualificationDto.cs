@@ -2,18 +2,22 @@
 {
     public class QualificationDto
     {
-        public int? Id { get; set; }
-        public DateTime CurrentStatusDateTime { get; set; } = DateTime.Today;
-        public DateOnly CurrentStatusDate => DateOnly.FromDateTime(CurrentStatusDateTime);
+        public int Id { get; set; }
+        public int GradeId { get; set; }
+        public bool IsFinalized { get; set; }
+        public string? Conclusion { get; set; }
+
+        public DateOnly CurrentJobStartDate { get; set; }
+        public DateOnly CurrentStatusDate { get; set; }
+
         public int CurrentExperienceYears { get; set; }
         public int CurrentExperienceMonths { get; set; }
-        public DateTime CurrentJobStartDateTime { get; set; } = DateTime.Today;
-        public DateOnly CurrentJobStartDate => DateOnly.FromDateTime(CurrentJobStartDateTime);
+
         public string CurrentJobPositionName { get; set; }
         public string EmploymentContarctTerminations { get; set; }
         public string QualificationResult { get; set; }
 
-        public List<PreviousJobDto> PreviousJobs { get; set; } = new();
-        public List<HigherEducationDto> HigherEducations { get; set; } = new();
+        public List<PreviousJobDto> PreviousJobs { get; set; }
+        public List<HigherEducationDto> HigherEducations { get; set; }
     }
 }

@@ -265,13 +265,13 @@ function addRow(elem, type, id) {
         row.innerHTML = `
            <div>
                     c
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].StartDateTime" required min="1970-01-01"/>
+                    <input type="date" name="PreviousJobs[${newIndex}].StartDateTime" required min="1970-01-01"/>
                     по
-                    <input type="date" name="Qualification.PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
+                    <input type="date" name="PreviousJobs[${newIndex}].EndDateTime" required min="1970-01-01"/>
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].OrganizationName" required placeholder="Организация" />
+                    <input type="text" name="PreviousJobs[${newIndex}].OrganizationName" required placeholder="Организация" />
                     -
-                    <input type="text" name="Qualification.PreviousJobs[${newIndex}].PositionName" required placeholder="Должность"/>
+                    <input type="text" name="PreviousJobs[${newIndex}].PositionName" required placeholder="Должность"/>
                     ;
                        
                 </div>
@@ -302,15 +302,15 @@ function addRow(elem, type, id) {
         row.classList.add('experience_item')
         row.innerHTML = `
            <div>
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Education" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].Education" required />
                     , специальность
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].Speciality" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].Speciality" required />
                     , квалификация
-                    <input type="text" name="Qualification.HigherEducations[${newIndexEducation}].QualificationName" required />
+                    <input type="text" name="HigherEducations[${newIndexEducation}].QualificationName" required />
                     , период обучения c
-                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].StartDateTime" required min="1970-01-01"/>
+                    <input type="date" name="HigherEducations[${newIndexEducation}].StartDateTime" required min="1970-01-01"/>
                     по
-                    <input type="date" name="Qualification.HigherEducations[${newIndexEducation}].EndDateTime" required min="1970-01-01"/>
+                    <input type="date" name="HigherEducations[${newIndexEducation}].EndDateTime" required min="1970-01-01"/>
                     ;
                        
                 </div>

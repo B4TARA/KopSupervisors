@@ -10,43 +10,6 @@ namespace KOP.BLL.Services
 {
     public class MappingService : IMappingService
     {
-        public UserExtendedDto CreateUserDto(User user)
-        {
-            var dto = new UserExtendedDto
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Position = user.Position,
-                SubdivisionFromFile = user.SubdivisionFromFile,
-                GradeGroup = user.GradeGroup,
-                WorkPeriod = user.GetWorkPeriod,
-                NextGradeStartDate = user.GetNextGradeStartDate,
-                ContractEndDate = user.ContractEndDate,
-                ImagePath = user.ImagePath,
-                SystemRoles = user.SystemRoles,
-            };
-
-            var lastGrade = user.Grades.OrderByDescending(x => x.Number).FirstOrDefault();
-            if (lastGrade == null)
-            {
-                dto.PendingGradeStatus = false;
-                dto.LastGrade = null;
-
-                return dto;
-            }
-
-            var gradeDto = CreateGradeDto(lastGrade, new List<MarkType>());
-
-            dto.LastGrade = gradeDto;
-
-            if (gradeDto.SystemStatus == SystemStatuses.PENDING)
-            {
-                dto.PendingGradeStatus = true;
-            }
-
-            return dto;
-        }
-
         public GradeExtendedDto CreateGradeDto(Grade grade, IEnumerable<MarkType> allMarkTypes)
         {
             var dto = new GradeExtendedDto()
@@ -73,20 +36,6 @@ namespace KOP.BLL.Services
                 Qn2 = grade.Qn2,
                 UserId = grade.UserId,
             };
-
-            if (grade.Qualification != null)
-            {
-                var qualificationDto = CreateQualificationDto(grade.Qualification);
-
-                dto.QualificationDto = qualificationDto;
-            }
-
-            if (grade.ValueJudgment != null)
-            {
-                var valueJudgmentDto = CreateValueJudgmentDto(grade.ValueJudgment);
-
-                dto.ValueJudgmentDto = valueJudgmentDto;
-            }
 
             foreach (var markType in allMarkTypes)
             {
@@ -141,33 +90,6 @@ namespace KOP.BLL.Services
 
                 dto.AssessmentDtoList.Add(assessmentDto);
             }
-
-            return dto;
-        }
-
-        public QualificationDto CreateQualificationDto(Qualification qualification)
-        {
-            var dto = new QualificationDto()
-            {
-                Id = qualification.Id,
-                CurrentStatusDateTime = qualification.CurrentStatusDate.ToDateTime(TimeOnly.MinValue),
-                CurrentExperienceYears = qualification.CurrentExperienceYears,
-                CurrentExperienceMonths = qualification.CurrentExperienceMonths,
-                CurrentJobStartDateTime = qualification.CurrentJobStartDate.ToDateTime(TimeOnly.MinValue),
-                CurrentJobPositionName = qualification.CurrentJobPositionName,
-                EmploymentContarctTerminations = qualification.EmploymentContarctTerminations,
-                QualificationResult = qualification.QualificationResult,
-            };
-
-            dto.PreviousJobs = qualification.PreviousJobs
-                .Select(CreatePreviousJobDto)
-                .OrderBy(x => x.StartDateTime)
-                .ToList();
-
-            dto.HigherEducations = qualification.HigherEducations
-                .Select(CreateHigherEducationDto)
-                .OrderBy(x => x.StartDateTime)
-                .ToList();
 
             return dto;
         }
@@ -234,49 +156,6 @@ namespace KOP.BLL.Services
             return dto;
         }
 
-        public ValueJudgmentDto CreateValueJudgmentDto(ValueJudgment valueJudgment)
-        {
-
-            var dto = new ValueJudgmentDto()
-            {
-                Id = valueJudgment.Id,
-                Strengths = valueJudgment.Strengths,
-                BehaviorToCorrect = valueJudgment.BehaviorToCorrect,
-                RecommendationsForDevelopment = valueJudgment.RecommendationsForDevelopment,
-            };
-
-            return dto;
-        }
-
-        public PreviousJobDto CreatePreviousJobDto(PreviousJob previousJob)
-        {
-            var dto = new PreviousJobDto()
-            {
-                Id = previousJob.Id,
-                StartDateTime = previousJob.StartDate.ToDateTime(TimeOnly.MinValue),
-                EndDateTime = previousJob.EndDate.ToDateTime(TimeOnly.MinValue),
-                OrganizationName = previousJob.OrganizationName,
-                PositionName = previousJob.PositionName
-            };
-
-            return dto;
-        }
-
-        public HigherEducationDto CreateHigherEducationDto(HigherEducation higherEducation)
-        {
-            var dto = new HigherEducationDto()
-            {
-                Id = higherEducation.Id,
-                Education = higherEducation.Education,
-                QualificationName = higherEducation.QualificationName,
-                Speciality = higherEducation.Speciality,
-                StartDateTime = higherEducation.StartDate.ToDateTime(TimeOnly.MinValue),
-                EndDateTime = higherEducation.EndDate.ToDateTime(TimeOnly.MinValue),
-            };
-
-            return dto;
-        }
-
         public TrainingEventDto CreateTrainingEventDto(TrainingEvent trainingEvent)
         {
             var dto = new TrainingEventDto()
@@ -298,7 +177,6 @@ namespace KOP.BLL.Services
             var dto = new AssessmentDto()
             {
                 Id = assessment.Id,
-                Number = assessment.Number,
                 UserId = assessment.UserId,
                 SystemStatus = assessment.SystemStatus,
                 SystemAssessmentType = assessment.AssessmentType.SystemAssessmentType,
