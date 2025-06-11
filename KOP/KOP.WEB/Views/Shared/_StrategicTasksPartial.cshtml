@@ -45,7 +45,7 @@ else
                             <div class="mid_title">Название проекта / стратегической задачи</div>
                             @if (Model.EditAccess)
                             {
-                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Name">@strategicTask.Name</textarea>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Name" class="auto-resize">@strategicTask.Name</textarea>
                             }
                             else
                             {
@@ -56,7 +56,7 @@ else
                             <div class="mid_title">Цель проекта / стратегической задачи</div>
                             @if (Model.EditAccess)
                             {
-                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Purpose">@strategicTask.Purpose</textarea>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Purpose" class="auto-resize">@strategicTask.Purpose</textarea>
                             }
                             else
                             {
@@ -89,7 +89,7 @@ else
                             <div class="mid_title">План</div>
                             @if (Model.EditAccess)
                             {
-                                <textarea type="text" asp-for="StrategicTaskDtoList[i].PlanResult" required>@strategicTask.PlanResult</textarea>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].PlanResult" required class="auto-resize">@strategicTask.PlanResult</textarea>
                             }
                             else
                             {
@@ -100,7 +100,7 @@ else
                             <div class="mid_title">Факт</div>
                             @if (Model.EditAccess)
                             {
-                                <textarea type="text" asp-for="StrategicTaskDtoList[i].FactResult" required>@strategicTask.FactResult</textarea>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].FactResult" required class="auto-resize">@strategicTask.FactResult</textarea>
                             }
                             else
                             {
@@ -111,7 +111,7 @@ else
                             <div class="mid_title">Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</div>
                             @if (Model.EditAccess)
                             {
-                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Remark">@strategicTask.Remark</textarea>
+                                <textarea type="text" asp-for="StrategicTaskDtoList[i].Remark" class="auto-resize" required>@strategicTask.Remark</textarea>
                             }
                             else
                             {

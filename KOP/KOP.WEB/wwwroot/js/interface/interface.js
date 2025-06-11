@@ -196,11 +196,11 @@ function addRow(elem, type, id) {
                 <div class="startegic_items_list">
                         <div class="startegic_item">
                             <div class="mid_title">Название проекта / стратегической задачи</div>
-                           <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Name" placeholder="Название"></textarea>
+                           <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Name" placeholder="Название" class="auto-resize"></textarea>
                         </div>
                         <div class="startegic_item">
                             <div class="mid_title">Цель проекта / стратегической задачи</div>
-                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Purpose" placeholder="Цель"></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Purpose" placeholder="Цель" class="auto-resize"></textarea>
                         </div>
                         <div class="startegic_item">
                             <div class="mid_title">План (дата)</div>
@@ -212,15 +212,15 @@ function addRow(elem, type, id) {
                         </div>
                         <div class="startegic_item">
                             <div class="mid_title">План</div>
-                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].PlanResult" placeholder="План" required></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].PlanResult" placeholder="План" required class="auto-resize"></textarea>
                         </div>
                         <div class="startegic_item">
                             <div class="mid_title">Факт</div>
-                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].FactResult" placeholder="Факт" required></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].FactResult" placeholder="Факт" required class="auto-resize"></textarea>
                         </div>
                         <div class="startegic_item">
                             <div class="mid_title">Примечание (в случае несоответствия планового и фактического срока реализации / без результата)</div>
-                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Remark" placeholder="Примечание"></textarea>
+                            <textarea type="text" name="StrategicTaskDtoList[${newIndex}].Remark" placeholder="Примечание" class="auto-resize"></textarea>
                         </div>
                         <div class="add_row_btn red add_project" onclick="deleteRow(this,'${type}')" ><i class="fa-solid fa-trash" style="color: #db1a1a;"></i> Удалить</div>
                     </div>
@@ -331,6 +331,7 @@ function addRow(elem, type, id) {
 
         rowContainerEducation.appendChild(row)
     }
+    initializeAutoResize()
 }
 
 function deleteRow(elem, type) {
@@ -508,6 +509,8 @@ function updateIndices(type) {
         });
     }
 
+    initializeAutoResize()
+
 }
 
 // StrategicTasks
@@ -517,6 +520,7 @@ async function getStrategicTasksPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -636,6 +640,7 @@ async function getProjectsPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
     } catch (error) {
         console.error('Произошла ошибка:', error);
     }
@@ -753,6 +758,7 @@ async function getKpisPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -873,6 +879,7 @@ async function getMarksPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -993,6 +1000,7 @@ async function getQualificationPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -1168,6 +1176,7 @@ async function getValueJudgmentPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -1269,6 +1278,7 @@ async function getManagmentCompetenciesPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -1283,6 +1293,7 @@ async function getCorporateCompetenciesPopup(gradeId) {
         let htmlContent = await response.text();
 
         popupResult(htmlContent, false)
+        initializeAutoResize()
 
     } catch (error) {
         console.error('Произошла ошибка:', error);
@@ -1389,4 +1400,23 @@ function popupConfirmation(text, isReload) {
         </div>
         `;
     homeSection.appendChild(alertSection)
+}
+
+
+function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto'; // Сброс высоты, чтобы покрасить под реальную высоту
+    textarea.style.height = textarea.scrollHeight + 'px'; // Установка высоты согласно содержимому
+}
+// Инициализация для всех textarea с классом "auto-resize"
+function initializeAutoResize() {
+    const textareas = document.querySelectorAll('textarea.auto-resize');
+    if (textareas) {
+        textareas.forEach(textarea => {
+            // Инициализация высоты при загрузке страницы
+            autoResizeTextarea(textarea);
+            // Подстраиваем высоту по мере ввода
+            textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+        });
+    }
+    
 }

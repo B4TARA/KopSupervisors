@@ -284,11 +284,19 @@
     gap: 20px;
 }
 
-.dashboard-competence-item {
-    width: 48%;
-    display: flex;
-    flex-direction: column;
+.dashboard-competences-list.recommendations{
+    flex-direction:column;
 }
+
+    .dashboard-competences-list.recommendations .dashboard-competence-item{
+        width:100%;
+    }
+
+    .dashboard-competence-item {
+        width: 48%;
+        display: flex;
+        flex-direction: column;
+    }
 
 .dashboard-competences-group {
     display: flex;
