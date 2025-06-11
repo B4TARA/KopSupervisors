@@ -256,7 +256,8 @@ function getChartOptions() {
             r: { // Настройки радиальной оси
                 min: 0, // Устанавливаем минимальное значение на 0
                 ticks: {
-                    beginAtZero: true // Убедитесь, что метки начинаются с нуля
+                    beginAtZero: true, // Убедитесь, что метки начинаются с нуля
+                    stepSize: 1,
                 }
             }
         },
@@ -385,7 +386,9 @@ async function loadCompetenciesAnalytics(userId) {
             newTopCompetenceDiv.innerHTML = ` 
             <div class="dashboard-competences-group-item-text">${item.name}</div>
 							<div class="dashboard-competences-group-item-scale-wrapper">
-								<div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
+                                <div class="dashboard-competences-group-item-progressbar-wrapper">
+                                    <div class="dashboard-competences-group-item-scale" style="width:${itemPercentage}%;"></div>
+                                </div>
 								<div class="description">${item.avgValue}</div>
 							</div>
             `;
@@ -400,7 +403,9 @@ async function loadCompetenciesAnalytics(userId) {
             newAntiTopCompetenceDiv.innerHTML = ` 
             <div class="dashboard-competences-group-item-text">${item.name}</div>
 							<div class="dashboard-competences-group-item-scale-wrapper">
-								<div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
+                                <div class="dashboard-competences-group-item-progressbar-wrapper">
+                                    <div class="dashboard-competences-group-item-scale red" style="width:${itemPercentage}%;"></div>
+                                </div>
 								<div class="description">${item.avgValue}</div>
 							</div>
             `;
