@@ -312,7 +312,7 @@
 
 .dashboard-competences-group-item-scale {
     background-color: #1b74fd;
-    height: 25px;
+    height: 20px;
     border-radius: 8px;
 }
 
@@ -420,3 +420,10 @@
 #chartJSContainer{
     z-index:2;
 }
+
+.dashboard-competences-group-item-progressbar-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100px;
+}
+

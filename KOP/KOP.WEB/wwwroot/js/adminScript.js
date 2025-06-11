@@ -231,7 +231,7 @@ function addNewField(containerId, gradeId) {
         <input type="hidden" class="item-id" value="0" />
         <input type="hidden" class="grade-id" value="${gradeId}" />
         <input type="hidden" class="delete-flag" name="isDeleted" value="false" />
-        <button type="button" class="remove-btn" onclick="removeField(this)">×</button>
+        <button type="button" class="remove-btn" onclick="removeField(this)"><i class="fa-solid fa-circle-xmark" style="color: #f92424;"></i></button>
     `;
     container.appendChild(div);
 }

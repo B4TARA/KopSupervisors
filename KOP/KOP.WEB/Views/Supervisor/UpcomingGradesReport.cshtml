@@ -39,17 +39,19 @@
                     int count = 1;
                 }
 
-                @foreach (var user in Model)
-                {
-                    <div class="d-tbody">
-                        <div class="d-td number">@(count++)</div>
-                        <div class="d-td fullname">@user.FullName</div>
-                        <div class="d-td">@user.SubdivisionFromFile</div>
-                        <div class="d-td">@user.Position</div>
-                        <div class="d-td">@user.ContractEndDate</div>
-                        <div class="d-td">@user.NextGradeStartDate</div>
-                    </div>
-                }
+                <div class="d-tbody">
+                    @foreach (var user in Model)
+                    {
+                        <div class="d-tr">
+                            <div class="d-td number">@(count++)</div>
+                            <div class="d-td fullname">@user.FullName</div>
+                            <div class="d-td">@user.SubdivisionFromFile</div>
+                            <div class="d-td">@user.Position</div>
+                            <div class="d-td">@user.ContractEndDate</div>
+                            <div class="d-td">@user.NextGradeStartDate</div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </section>
